@@ -21,5 +21,6 @@ crate-type = ["cdylib"]
 [dependencies]
 datafusion = { workspace = true }
 datafusion-ffi = { workspace = true }
+geoarrow-schema = { workspace = true }
 geodatafusion = { workspace = true }
 pyo3 = { workspace = true }

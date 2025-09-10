@@ -1,6 +1,5 @@
 use geoarrow_schema::CoordType;
 use pyo3::exceptions::PyValueError;
-use pyo3::intern;
 use pyo3::prelude::*;
 
 #[derive(Debug, Default, Clone, Copy)]
@@ -76,7 +75,7 @@ macro_rules! impl_udf_coord_type_arg {
         impl $py_name {
             #[new]
             #[pyo3(signature = (*, coord_type=None))]
-            fn new(coord_type: Option<crate::utils::PyCoordType>) -> Self {
+            fn new(coord_type: Option<$crate::utils::PyCoordType>) -> Self {
                 let coord_type = coord_type.map(|c| c.into()).unwrap_or_default();
                 $py_name(::std::sync::Arc::new($base::new(coord_type)))
             }
