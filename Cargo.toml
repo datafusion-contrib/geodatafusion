@@ -5,15 +5,14 @@ members = [
     "rust/geodatafusion-geoparquet",
     "rust/geodatafusion",
 ]
-exclude = ["js"]
 resolver = "2"
 
 [workspace.package]
-version = "0.5.0"
+version = "0.1.0"
 authors = ["Kyle Barron <kylebarron2@gmail.com>"]
 edition = "2024"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/geoarrow/geoarrow-rs"
+repository = "https://github.com/datafusion-contrib/datafusion-geo"
 rust-version = "1.85"
 categories = ["science::geo"]
 
@@ -21,18 +20,8 @@ categories = ["science::geo"]
 approx = "0.5.1"
 arrow-arith = "56"
 arrow-array = "56"
-arrow-buffer = "56"
-arrow-cast = "56"
-arrow-csv = "56"
-arrow-data = "56"
-arrow-ipc = "56"
-arrow-json = "56"
-arrow-ord = "56"
 arrow-schema = "56"
-async-stream = "0.3"
 async-trait = "0.1"
-bytes = "1.10.0"
-chrono = { version = "0.4.41", default-features = false }
 # Arrow 56
 datafusion = { git = "https://github.com/apache/datafusion", rev = "fa1f8c192dd531d3f2fca61885eafa3e9002f0dd" }
 datafusion-datasource = { git = "https://github.com/apache/datafusion", rev = "fa1f8c192dd531d3f2fca61885eafa3e9002f0dd" }
@@ -41,37 +30,21 @@ flatgeobuf = { version = "5.0", default-features = false }
 futures = "0.3"
 geo = "0.31.0"
 geo-traits = "0.3.0"
-geo-types = "0.7.16"
 geoarrow-array = "0.5"
-# geoarrow-cast = { path = "rust/geoarrow-cast", version = "0.5" }
 geoarrow-flatgeobuf = "0.5"
 geoarrow-geo = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "61a535b072766003ad06a4d7a25dcc15f010e68f", version = "0.5" }
 geoarrow-geojson = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "61a535b072766003ad06a4d7a25dcc15f010e68f" }
 geoarrow-schema = "0.5"
-# geoarrow-test = { path = "rust/geoarrow-test", version = "0.5" }
 geodatafusion = { path = "rust/geodatafusion" }
 geohash = "0.13.1"
 geojson = "0.24"
 geoparquet = "0.5"
-geos = { version = "10", features = ["v3_10_0"] }
-geozero = "0.14"
 http-range-client = { version = "0.9", default-features = false }
-indexmap = "2.5.0"
-num-traits = "0.2.19"
-numpy = "0.25"
 object_store = "0.12"
-parquet = { version = "56", default-features = false }
-pyo3 = "0.25"
-# https://github.com/kylebarron/arro3/pull/354
-pyo3-arrow = { git = "https://github.com/kylebarron/arro3", rev = "fda03cebe9cfbf8ad292f8070ea21c22b32af1a3" }
-rstar = "0.12.2"
-serde = "1"
 serde_json = "1"
-serde_with = "3"
 tempfile = "3"
 thiserror = "1"
 tokio = { version = "1.9", default-features = false }
-url = "2.5"
 wkb = "0.9"
 wkt = "0.14"
 
