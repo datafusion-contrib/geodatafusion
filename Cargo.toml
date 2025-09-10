@@ -74,3 +74,9 @@ tokio = { version = "1.9", default-features = false }
 url = "2.5"
 wkb = "0.9"
 wkt = "0.14"
+
+[patch.crates-io]
+geoarrow-array = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "61a535b072766003ad06a4d7a25dcc15f010e68f" }
+geoarrow-schema = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "61a535b072766003ad06a4d7a25dcc15f010e68f" }
+geoarrow-flatgeobuf = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "61a535b072766003ad06a4d7a25dcc15f010e68f" }
+geoparquet = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "61a535b072766003ad06a4d7a25dcc15f010e68f" }

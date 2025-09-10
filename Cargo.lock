@@ -1664,8 +1664,7 @@ dependencies = [
 [[package]]
 name = "geoarrow-array"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73241361a33c1339883aa98d0655bd0dad53f760b9fe92ffbd1d5bbd87dc07bc"
+source = "git+https://github.com/geoarrow/geoarrow-rs?rev=61a535b072766003ad06a4d7a25dcc15f010e68f#61a535b072766003ad06a4d7a25dcc15f010e68f"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -1673,7 +1672,7 @@ dependencies = [
  "arrow-schema",
  "geo-traits",
  "geo-types",
- "geoarrow-schema 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "geoarrow-schema",
  "geoarrow-test",
  "geozero",
  "num-traits",
@@ -1682,25 +1681,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "geoarrow-array"
-version = "0.5.0"
-source = "git+https://github.com/geoarrow/geoarrow-rs?rev=61a535b072766003ad06a4d7a25dcc15f010e68f#61a535b072766003ad06a4d7a25dcc15f010e68f"
-dependencies = [
- "arrow-array",
- "arrow-buffer",
- "arrow-schema",
- "geo-traits",
- "geoarrow-schema 0.5.0 (git+https://github.com/geoarrow/geoarrow-rs?rev=61a535b072766003ad06a4d7a25dcc15f010e68f)",
- "num-traits",
- "wkb",
- "wkt 0.14.0",
-]
-
-[[package]]
 name = "geoarrow-flatgeobuf"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "685ea39cf588fd99a10a46f1001538796f4c8447eeaaa3b17713e7cd70df6d50"
+source = "git+https://github.com/geoarrow/geoarrow-rs?rev=61a535b072766003ad06a4d7a25dcc15f010e68f#61a535b072766003ad06a4d7a25dcc15f010e68f"
 dependencies = [
  "arrow-array",
  "arrow-cast",
@@ -1712,8 +1695,8 @@ dependencies = [
  "flatgeobuf",
  "futures",
  "geo-traits",
- "geoarrow-array 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "geoarrow-schema 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "geoarrow-array",
+ "geoarrow-schema",
  "geozero",
  "http-range-client",
  "indexmap 2.11.0",
@@ -1729,8 +1712,8 @@ dependencies = [
  "arrow-buffer",
  "geo",
  "geo-traits",
- "geoarrow-array 0.5.0 (git+https://github.com/geoarrow/geoarrow-rs?rev=61a535b072766003ad06a4d7a25dcc15f010e68f)",
- "geoarrow-schema 0.5.0 (git+https://github.com/geoarrow/geoarrow-rs?rev=61a535b072766003ad06a4d7a25dcc15f010e68f)",
+ "geoarrow-array",
+ "geoarrow-schema",
 ]
 
 [[package]]
@@ -1742,21 +1725,8 @@ dependencies = [
  "arrow-json",
  "arrow-schema",
  "geo-traits",
- "geoarrow-array 0.5.0 (git+https://github.com/geoarrow/geoarrow-rs?rev=61a535b072766003ad06a4d7a25dcc15f010e68f)",
- "geoarrow-schema 0.5.0 (git+https://github.com/geoarrow/geoarrow-rs?rev=61a535b072766003ad06a4d7a25dcc15f010e68f)",
-]
-
-[[package]]
-name = "geoarrow-schema"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f5ebd2cbf841a1062d3521c2b2de7e819bb201b30f23381f872e62b9430b82af"
-dependencies = [
- "arrow-schema",
- "geo-traits",
- "serde",
- "serde_json",
- "thiserror 1.0.69",
+ "geoarrow-array",
+ "geoarrow-schema",
 ]
 
 [[package]]
@@ -1774,8 +1744,7 @@ dependencies = [
 [[package]]
 name = "geoarrow-test"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4b3ce26384968671fbb3c03e07f11d43dbaecc12d45bae1b51ecde65424c0ff"
+source = "git+https://github.com/geoarrow/geoarrow-rs?rev=61a535b072766003ad06a4d7a25dcc15f010e68f#61a535b072766003ad06a4d7a25dcc15f010e68f"
 dependencies = [
  "wkt 0.14.0",
 ]
@@ -1791,9 +1760,9 @@ dependencies = [
  "datafusion",
  "geo",
  "geo-traits",
- "geoarrow-array 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "geoarrow-array",
  "geoarrow-geo",
- "geoarrow-schema 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "geoarrow-schema",
  "geohash",
  "object_store",
  "thiserror 1.0.69",
@@ -1814,9 +1783,9 @@ dependencies = [
  "flatgeobuf",
  "futures",
  "geo-traits",
- "geoarrow-array 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "geoarrow-array",
  "geoarrow-flatgeobuf",
- "geoarrow-schema 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "geoarrow-schema",
  "geodatafusion",
  "http-range-client",
  "object_store",
@@ -1835,9 +1804,9 @@ dependencies = [
  "datafusion",
  "datafusion-datasource",
  "geo-traits",
- "geoarrow-array 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "geoarrow-array",
  "geoarrow-geojson",
- "geoarrow-schema 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "geoarrow-schema",
  "geodatafusion",
  "geojson",
  "object_store",
@@ -1858,8 +1827,8 @@ dependencies = [
  "datafusion-datasource",
  "datafusion-datasource-parquet",
  "geo-traits",
- "geoarrow-array 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "geoarrow-schema 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "geoarrow-array",
+ "geoarrow-schema",
  "geodatafusion",
  "geoparquet",
  "object_store",
@@ -1902,8 +1871,7 @@ dependencies = [
 [[package]]
 name = "geoparquet"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c7961c07ee7df26f00eea1762531331f045ff95d59350a0a07171fdabed8fe5"
+source = "git+https://github.com/geoarrow/geoarrow-rs?rev=61a535b072766003ad06a4d7a25dcc15f010e68f#61a535b072766003ad06a4d7a25dcc15f010e68f"
 dependencies = [
  "arrow-arith",
  "arrow-array",
@@ -1912,8 +1880,8 @@ dependencies = [
  "arrow-schema",
  "geo-traits",
  "geo-types",
- "geoarrow-array 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "geoarrow-schema 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "geoarrow-array",
+ "geoarrow-schema",
  "indexmap 2.11.0",
  "parquet",
  "serde",
