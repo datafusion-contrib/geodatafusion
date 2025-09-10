@@ -1,3 +1,35 @@
+use geoarrow_schema::CoordType;
+use pyo3::exceptions::PyValueError;
+use pyo3::intern;
+use pyo3::prelude::*;
+
+#[derive(Debug, Default, Clone, Copy)]
+pub(crate) enum PyCoordType {
+    Interleaved,
+    #[default]
+    Separated,
+}
+
+impl<'a> FromPyObject<'a> for PyCoordType {
+    fn extract_bound(ob: &Bound<'a, PyAny>) -> PyResult<Self> {
+        let s: String = ob.extract()?;
+        match s.to_lowercase().as_str() {
+            "interleaved" => Ok(Self::Interleaved),
+            "separated" => Ok(Self::Separated),
+            _ => Err(PyValueError::new_err("Unexpected coord type")),
+        }
+    }
+}
+
+impl From<PyCoordType> for CoordType {
+    fn from(value: PyCoordType) -> Self {
+        match value {
+            PyCoordType::Interleaved => Self::Interleaved,
+            PyCoordType::Separated => Self::Separated,
+        }
+    }
+}
+
 /// Simple macro to generate Python wrappers for geodatafusion UDF structs
 /// Usage: impl_udf!(RustStructName, PyWrapperName, "python_name")
 #[macro_export]
@@ -44,7 +76,7 @@ macro_rules! impl_udf_coord_type_arg {
         impl $py_name {
             #[new]
             #[pyo3(signature = (*, coord_type=None))]
-            fn new(coord_type: Option<pyo3_geoarrow::PyCoordType>) -> Self {
+            fn new(coord_type: Option<crate::utils::PyCoordType>) -> Self {
                 let coord_type = coord_type.map(|c| c.into()).unwrap_or_default();
                 $py_name(::std::sync::Arc::new($base::new(coord_type)))
             }
