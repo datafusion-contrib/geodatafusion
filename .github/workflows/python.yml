@@ -42,58 +42,6 @@ jobs:
       - name: Test
         run: cargo test
 
-  emscripten:
-    name: Build pyodide wheel
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: pip install pyodide-build
-      - name: Get Emscripten and Python version info
-        shell: bash
-        run: |
-          echo EMSCRIPTEN_VERSION=$(pyodide config get emscripten_version) >> $GITHUB_ENV
-          echo PYTHON_VERSION=$(pyodide config get python_version | cut -d '.' -f 1-2) >> $GITHUB_ENV
-          pip uninstall -y pyodide-build
-      - uses: mymindstorm/setup-emsdk@v14
-        with:
-          version: ${{ env.EMSCRIPTEN_VERSION }}
-          actions-cache-folder: emsdk-cache
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install pyodide-build
-
-      - name: Build wheels (core)
-        uses: PyO3/maturin-action@v1
-        with:
-          target: wasm32-unknown-emscripten
-          args: --no-default-features -m python/geoarrow-core/Cargo.toml -i python${{ env.PYTHON_VERSION }}
-          rust-toolchain: nightly
-
-      # This started to fail as of https://github.com/geoarrow/geoarrow-rs/pull/1170
-      # - name: Build wheels (io)
-      #   uses: PyO3/maturin-action@v1
-      #   with:
-      #     target: wasm32-unknown-emscripten
-      #     args: --no-default-features -m python/geoarrow-io/Cargo.toml -i python${{ env.PYTHON_VERSION }}
-      #     rust-toolchain: nightly
-
-  # lint-python:
-  #   name: Lint Python code
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-
-  #     - name: Set up Python 3.8
-  #       uses: actions/setup-python@v2
-  #       with:
-  #         python-version: "3.8"
-
-  #     - name: run pre-commit
-  #       run: |
-  #         python -m pip install pre-commit
-  #         pre-commit run --all-files
-
   test-python:
     name: Build and test Python
     runs-on: ubuntu-latest
@@ -128,17 +76,8 @@ jobs:
 
       - name: Build rust submodules
         run: |
-          # Note: core module should be first, because it could be depended on
-          # by others in the future
-          uv run maturin develop -m geoarrow-core/Cargo.toml
-          uv run maturin develop -m geoarrow-compute/Cargo.toml
-          uv run maturin develop -m geoarrow-io/Cargo.toml
+          uv run maturin develop -m geodatafusion/Cargo.toml
 
-      # Ensure docs build without warnings
-      - name: Check docs
-        if: "${{ matrix.python-version == 3.12 }}"
-        run: uv run mkdocs build --strict
-
-      # - name: Run python tests
-      #   run: |
-      #     uv run pytest tests
+      - name: Run python tests
+        run: |
+          uv run pytest tests
