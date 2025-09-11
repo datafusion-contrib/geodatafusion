@@ -76,7 +76,7 @@ jobs:
 
       - name: Build rust submodules
         run: |
-          uv sync --no-install-package geodatafusion-python
+          uv sync --no-install-package geodatafusion
           uv run --no-project maturin develop
 
       - name: Run python tests
