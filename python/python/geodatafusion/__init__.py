@@ -79,6 +79,7 @@ def register_all_native(ctx: SessionContext):
     ctx.register_udf(udf(native.ZMax()))
     ctx.register_udf(udf(native.MakeBox2D()))
     ctx.register_udf(udf(native.MakeBox3D()))
+    ctx.register_udf(udf(native.Extent()))
 
     # constructors
     ctx.register_udf(udf(native.Point()))
