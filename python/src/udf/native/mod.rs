@@ -9,11 +9,13 @@ use pyo3::prelude::*;
 pub(crate) fn native(m: &Bound<PyModule>) -> PyResult<()> {
     // accessors
     m.add_class::<accessors::PyCoordDim>()?;
+    m.add_class::<accessors::PyEndPoint>()?;
+    m.add_class::<accessors::PyM>()?;
     m.add_class::<accessors::PyNDims>()?;
+    m.add_class::<accessors::PyStartPoint>()?;
     m.add_class::<accessors::PyX>()?;
     m.add_class::<accessors::PyY>()?;
     m.add_class::<accessors::PyZ>()?;
-    m.add_class::<accessors::PyM>()?;
 
     // bounding_box
     m.add_class::<bounding_box::PyBox2D>()?;

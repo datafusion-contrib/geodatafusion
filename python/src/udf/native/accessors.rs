@@ -8,5 +8,5 @@ impl_udf!(X, PyX, "X");
 impl_udf!(Y, PyY, "Y");
 impl_udf!(Z, PyZ, "Z");
 impl_udf!(M, PyM, "M");
-impl_udf_coord_type_arg!(StartPoint, PyStartPoint, "StartPoint");
 impl_udf_coord_type_arg!(EndPoint, PyEndPoint, "EndPoint");
+impl_udf_coord_type_arg!(StartPoint, PyStartPoint, "StartPoint");

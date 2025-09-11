@@ -60,7 +60,9 @@ def register_all_native(ctx: SessionContext):
 
     # accessors
     ctx.register_udf(udf(native.CoordDim()))
+    ctx.register_udf(udf(native.EndPoint()))
     ctx.register_udf(udf(native.NDims()))
+    ctx.register_udf(udf(native.StartPoint()))
     ctx.register_udf(udf(native.X()))
     ctx.register_udf(udf(native.Y()))
     ctx.register_udf(udf(native.Z()))
