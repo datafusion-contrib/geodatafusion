@@ -45,7 +45,6 @@ Spatial extensions for [Apache DataFusion](https://datafusion.apache.org/), an e
 | ST_ExteriorRing     |             | Returns a LineString representing the exterior ring of a Polygon.                                                         |
 | ST_GeometryN        |             | Return an element of a geometry collection.                                                                               |
 | ST_GeometryType     |             | Returns the SQL-MM type of a geometry as text.                                                                            |
-| ST_HasArc           |             | Tests if a geometry contains a circular arc                                                                               |
 | ST_InteriorRingN    |             | Returns the Nth interior ring (hole) of a Polygon.                                                                        |
 | ST_IsClosed         |             | Tests if a LineStrings's start and end points are coincident. For a PolyhedralSurface tests if it is closed (volumetric). |
 | ST_IsCollection     |             | Tests if a geometry is a geometry collection type.                                                                        |
@@ -57,7 +56,7 @@ Spatial extensions for [Apache DataFusion](https://datafusion.apache.org/), an e
 | ST_M                | ✅          | Returns the M coordinate of a Point.                                                                                      |
 | ST_MemSize          |             | Returns the amount of memory space a geometry takes.                                                                      |
 | ST_NDims            | ✅          | Returns the coordinate dimension of a geometry.                                                                           |
-| ST_NPoints          |             | Returns the number of points (vertices) in a geometry.                                                                    |
+| ST_NPoints          | ✅          | Returns the number of points (vertices) in a geometry.                                                                    |
 | ST_NRings           |             | Returns the number of rings in a polygonal geometry.                                                                      |
 | ST_NumGeometries    |             | Returns the number of elements in a geometry collection.                                                                  |
 | ST_NumInteriorRings |             | Returns the number of interior rings (holes) of a Polygon.                                                                |
