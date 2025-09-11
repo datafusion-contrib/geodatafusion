@@ -9,23 +9,26 @@ use pyo3::prelude::*;
 pub(crate) fn native(m: &Bound<PyModule>) -> PyResult<()> {
     // accessors
     m.add_class::<accessors::PyCoordDim>()?;
+    m.add_class::<accessors::PyEndPoint>()?;
+    m.add_class::<accessors::PyM>()?;
     m.add_class::<accessors::PyNDims>()?;
+    m.add_class::<accessors::PyStartPoint>()?;
     m.add_class::<accessors::PyX>()?;
     m.add_class::<accessors::PyY>()?;
     m.add_class::<accessors::PyZ>()?;
-    m.add_class::<accessors::PyM>()?;
 
     // bounding_box
     m.add_class::<bounding_box::PyBox2D>()?;
     m.add_class::<bounding_box::PyBox3D>()?;
-    m.add_class::<bounding_box::PyXMin>()?;
-    m.add_class::<bounding_box::PyXMax>()?;
-    m.add_class::<bounding_box::PyYMin>()?;
-    m.add_class::<bounding_box::PyYMax>()?;
-    m.add_class::<bounding_box::PyZMin>()?;
-    m.add_class::<bounding_box::PyZMax>()?;
+    m.add_class::<bounding_box::PyExtent>()?;
     m.add_class::<bounding_box::PyMakeBox2D>()?;
     m.add_class::<bounding_box::PyMakeBox3D>()?;
+    m.add_class::<bounding_box::PyXMax>()?;
+    m.add_class::<bounding_box::PyXMin>()?;
+    m.add_class::<bounding_box::PyYMax>()?;
+    m.add_class::<bounding_box::PyYMin>()?;
+    m.add_class::<bounding_box::PyZMax>()?;
+    m.add_class::<bounding_box::PyZMin>()?;
 
     // constructors
     m.add_class::<constructors::PyPoint>()?;

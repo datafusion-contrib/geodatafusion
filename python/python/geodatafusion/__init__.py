@@ -34,10 +34,13 @@ def register_all_geo(ctx: SessionContext):
     ctx.register_udf(udf(geo.Contains()))
     ctx.register_udf(udf(geo.CoveredBy()))
     ctx.register_udf(udf(geo.Covers()))
+    ctx.register_udf(udf(geo.Crosses()))
     ctx.register_udf(udf(geo.Disjoint()))
+    ctx.register_udf(udf(geo.Equals()))
     ctx.register_udf(udf(geo.Intersects()))
     ctx.register_udf(udf(geo.Overlaps()))
     ctx.register_udf(udf(geo.Touches()))
+    ctx.register_udf(udf(geo.Within()))
 
     # validation
     ctx.register_udf(udf(geo.IsValid()))
@@ -57,7 +60,9 @@ def register_all_native(ctx: SessionContext):
 
     # accessors
     ctx.register_udf(udf(native.CoordDim()))
+    ctx.register_udf(udf(native.EndPoint()))
     ctx.register_udf(udf(native.NDims()))
+    ctx.register_udf(udf(native.StartPoint()))
     ctx.register_udf(udf(native.X()))
     ctx.register_udf(udf(native.Y()))
     ctx.register_udf(udf(native.Z()))
@@ -74,6 +79,7 @@ def register_all_native(ctx: SessionContext):
     ctx.register_udf(udf(native.ZMax()))
     ctx.register_udf(udf(native.MakeBox2D()))
     ctx.register_udf(udf(native.MakeBox3D()))
+    ctx.register_udf(udf(native.Extent()))
 
     # constructors
     ctx.register_udf(udf(native.Point()))

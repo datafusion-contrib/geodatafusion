@@ -55,7 +55,7 @@ macro_rules! impl_udf {
                 ::pyo3::types::PyCapsule::new(
                     py,
                     ::datafusion_ffi::udf::FFI_ScalarUDF::from(udf),
-                    Some($crate::constants::DATAFUSION_CAPSULE_NAME.into()),
+                    Some($crate::constants::SCALAR_UDF_CAPSULE_NAME.into()),
                 )
             }
         }
@@ -90,7 +90,7 @@ macro_rules! impl_udf_coord_type_arg {
                 ::pyo3::types::PyCapsule::new(
                     py,
                     ::datafusion_ffi::udf::FFI_ScalarUDF::from(udf),
-                    Some($crate::constants::DATAFUSION_CAPSULE_NAME.into()),
+                    Some($crate::constants::SCALAR_UDF_CAPSULE_NAME.into()),
                 )
             }
         }

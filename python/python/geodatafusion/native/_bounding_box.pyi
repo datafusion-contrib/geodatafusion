@@ -9,6 +9,7 @@ __all__ = [
     "ZMax",
     "MakeBox2D",
     "MakeBox3D",
+    "Extent",
 ]
 
 class Box2D:
@@ -48,5 +49,9 @@ class MakeBox2D:
     def __datafusion_scalar_udf__(self) -> object: ...
 
 class MakeBox3D:
+    def __init__(self) -> None: ...
+    def __datafusion_scalar_udf__(self) -> object: ...
+
+class Extent:
     def __init__(self) -> None: ...
     def __datafusion_scalar_udf__(self) -> object: ...

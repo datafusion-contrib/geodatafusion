@@ -40,7 +40,7 @@ Spatial extensions for [Apache DataFusion](https://datafusion.apache.org/), an e
 | ST_DumpPoints       |             | Returns a set of geometry_dump rows for the coordinates in a geometry.                                                    |
 | ST_DumpSegments     |             | Returns a set of geometry_dump rows for the segments in a geometry.                                                       |
 | ST_DumpRings        |             | Returns a set of geometry_dump rows for the exterior and interior rings of a Polygon.                                     |
-| ST_EndPoint         |             | Returns the last point of a LineString or CircularLineString.                                                             |
+| ST_EndPoint         | ✅          | Returns the last point of a LineString or CircularLineString.                                                             |
 | ST_Envelope         | ✅          | Returns a geometry representing the bounding box of a geometry.                                                           |
 | ST_ExteriorRing     |             | Returns a LineString representing the exterior ring of a Polygon.                                                         |
 | ST_GeometryN        |             | Return an element of a geometry collection.                                                                               |

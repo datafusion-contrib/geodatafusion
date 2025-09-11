@@ -1,3 +1,5 @@
 mod relate;
 
-pub use relate::{Contains, CoveredBy, Covers, Disjoint, Intersects, Overlaps, Touches};
+pub use relate::{
+    Contains, CoveredBy, Covers, Crosses, Disjoint, Equals, Intersects, Overlaps, Touches, Within,
+};
