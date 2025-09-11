@@ -12,6 +12,7 @@ pub(crate) fn native(m: &Bound<PyModule>) -> PyResult<()> {
     m.add_class::<accessors::PyEndPoint>()?;
     m.add_class::<accessors::PyM>()?;
     m.add_class::<accessors::PyNDims>()?;
+    m.add_class::<accessors::PyNPoints>()?;
     m.add_class::<accessors::PyStartPoint>()?;
     m.add_class::<accessors::PyX>()?;
     m.add_class::<accessors::PyY>()?;

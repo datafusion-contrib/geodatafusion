@@ -161,3 +161,32 @@ fn num_coords_geometry_collection(geom: &impl GeometryCollectionTrait) -> u32 {
     geom.geometries()
         .fold(0, |acc, g| acc + num_coords_geometry(&g))
 }
+
+#[cfg(test)]
+mod test {
+    use arrow_array::cast::AsArray;
+    use arrow_array::types::UInt32Type;
+    use datafusion::prelude::SessionContext;
+
+    use super::*;
+    use crate::udf::native::io::GeomFromText;
+
+    #[tokio::test]
+    async fn test() {
+        let ctx = SessionContext::new();
+
+        ctx.register_udf(NPoints::new().into());
+        ctx.register_udf(GeomFromText::new(Default::default()).into());
+
+        let df = ctx
+            .sql(
+                "select ST_NPoints(ST_GeomFromText('LINESTRING(77.29 29.07,77.42 29.26,77.27 29.31,77.29 29.07)'));",
+            )
+            .await
+            .unwrap();
+        let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+        let col = batch.column(0);
+        let val = col.as_primitive::<UInt32Type>().value(0);
+        assert_eq!(val, 4);
+    }
+}
