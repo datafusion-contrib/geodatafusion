@@ -22,7 +22,12 @@ datafusion = { git = "https://github.com/apache/datafusion", rev = "fa1f8c192dd5
 datafusion-ffi = { git = "https://github.com/apache/datafusion", rev = "fa1f8c192dd531d3f2fca61885eafa3e9002f0dd" }
 geoarrow-schema = "0.5"
 geodatafusion = { path = "../rust/geodatafusion" }
-pyo3 = { version = "0.25", features = ["hashbrown", "serde", "anyhow"] }
+pyo3 = { version = "0.25", features = [
+    "hashbrown",
+    "serde",
+    "anyhow",
+    "abi3-py39",
+] }
 
 [patch.crates-io]
 geoarrow-array = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "61a535b072766003ad06a4d7a25dcc15f010e68f" }
