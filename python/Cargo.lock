@@ -1734,17 +1734,6 @@ dependencies = [
 
 [[package]]
 name = "geodatafusion"
-version = "0.1.0-beta.1"
-dependencies = [
- "datafusion",
- "datafusion-ffi",
- "geoarrow-schema",
- "geodatafusion 0.1.0-dev",
- "pyo3",
-]
-
-[[package]]
-name = "geodatafusion"
 version = "0.1.0-dev"
 dependencies = [
  "arrow-arith",
@@ -1759,6 +1748,17 @@ dependencies = [
  "geohash",
  "thiserror 1.0.69",
  "wkt",
+]
+
+[[package]]
+name = "geodatafusion-python"
+version = "0.1.0-beta.1"
+dependencies = [
+ "datafusion",
+ "datafusion-ffi",
+ "geoarrow-schema",
+ "geodatafusion",
+ "pyo3",
 ]
 
 [[package]]
