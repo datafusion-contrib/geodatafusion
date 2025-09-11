@@ -6,5 +6,6 @@ mod make_box;
 pub mod util;
 
 pub use r#box::{Box2D, Box3D};
+pub use extent::Extent;
 pub use extrema::{XMax, XMin, YMax, YMin, ZMax, ZMin};
 pub use make_box::{MakeBox2D, MakeBox3D};
