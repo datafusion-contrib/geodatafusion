@@ -1,4 +1,4 @@
-name: Python Wheels (IO)
+name: Python Wheels
 
 on:
   push:
@@ -31,8 +31,6 @@ jobs:
           - runner: ubuntu-latest
             target: ppc64le
             manylinux: auto
-        module:
-          - geoarrow-io
     steps:
       - uses: actions/checkout@v4
 
@@ -51,14 +49,14 @@ jobs:
           target: ${{ matrix.platform.target }}
           # As of Nov 2024, it was necessary to manually specify -i 3.13 to get
           # maturin to find the executable. --find-interpreter did not find it.
-          args: --release --out dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13 -i pypy3.10 --manifest-path python/${{ matrix.module }}/Cargo.toml
+          args: --release --out dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13 -i pypy3.10 --manifest-path python/Cargo.toml
           sccache: "true"
           manylinux: ${{ matrix.platform.manylinux }}
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-linux-${{ matrix.platform.target }}-${{ matrix.module }}
+          name: wheels-linux-${{ matrix.platform.target }}
           path: dist
 
   macos:
@@ -84,13 +82,13 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13 -m python/geoarrow-io/Cargo.toml
+          args: --release --out dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13 -m python/Cargo.toml
           sccache: "true"
 
       - name: Install built wheel - ${{ matrix.platform.target }}
         run: |
-          pip install geoarrow-rust-io --find-links dist --force-reinstall
-          python -c "import geoarrow.rust.io"
+          pip install geodatafusion --find-links dist --force-reinstall
+          python -c "import geodatafusion"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -117,12 +115,12 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-          args: --release --out dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13 -m python/geoarrow-io/Cargo.toml
+          args: --release --out dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13 -m python/Cargo.toml
 
       - name: Install built wheel
         run: |
-          pip install geoarrow-rust-io --find-links dist --force-reinstall
-          python -c "import geoarrow.rust.io"
+          pip install geodatafusion --find-links dist --force-reinstall
+          python -c "import geodatafusion"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -152,7 +150,7 @@ jobs:
   #       with:
   #         target: ${{ matrix.target }}
   #         manylinux: musllinux_1_2
-  #         args: --release --out dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13 -m python/geoarrow-io/Cargo.toml
+  #         args: --release --out dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13 -m python/Cargo.toml
 
   #     - name: Install built wheel
   #       if: matrix.target == 'x86_64-unknown-linux-musl'
@@ -163,8 +161,8 @@ jobs:
   #         run: |
   #           apk add py3-pip
   #           pip3 install -U pip
-  #           pip3 install geoarrow-rust-io --find-links /io/dist/ --force-reinstall
-  #           python3 -c "import geoarrow.rust.io"
+  #           pip3 install geodatafusion --find-links /io/dist/ --force-reinstall
+  #           python3 -c "import geodatafusion"
 
   #     - name: Upload wheels
   #       uses: actions/upload-artifact@v3
