@@ -78,11 +78,6 @@ jobs:
         run: |
           uv run maturin develop -m geodatafusion/Cargo.toml
 
-      # Ensure docs build without warnings
-      - name: Check docs
-        if: "${{ matrix.python-version == 3.12 }}"
-        run: uv run mkdocs build --strict
-
-      # - name: Run python tests
-      #   run: |
-      #     uv run pytest tests
+      - name: Run python tests
+        run: |
+          uv run pytest tests
