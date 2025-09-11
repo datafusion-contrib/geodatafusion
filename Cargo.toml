@@ -5,6 +5,7 @@ members = [
     "rust/geodatafusion-geoparquet",
     "rust/geodatafusion",
 ]
+exclude = ["python"]
 resolver = "2"
 
 [workspace.package]

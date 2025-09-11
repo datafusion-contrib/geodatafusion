@@ -76,8 +76,9 @@ jobs:
 
       - name: Build rust submodules
         run: |
-          uv run maturin develop -m geodatafusion/Cargo.toml
+          uv sync --no-install-package geodatafusion-python
+          uv run --no-project maturin develop
 
       - name: Run python tests
         run: |
-          uv run pytest tests
+          uv run --no-project pytest tests
