@@ -31,7 +31,7 @@ Spatial extensions for [Apache DataFusion](https://datafusion.apache.org/), an e
 
 | Name                | Implemented | Description                                                                                             |
 | ------------------- | ----------- | ------------------------------------------------------------------------------------------------------- |
-| GeometryType        |             | Returns the type of a geometry as text.                                                                 |
+| GeometryType        | ✅          | Returns the type of a geometry as text.                                                                 |
 | ST_Boundary         |             | Returns the boundary of a geometry.                                                                     |
 | ST_BoundingDiagonal |             | Returns the diagonal of a geometry's bounding box.                                                      |
 | ST_CoordDim         | ✅          | Return the coordinate dimension of a geometry.                                                          |
@@ -44,7 +44,7 @@ Spatial extensions for [Apache DataFusion](https://datafusion.apache.org/), an e
 | ST_Envelope         | ✅          | Returns a geometry representing the bounding box of a geometry.                                         |
 | ST_ExteriorRing     |             | Returns a LineString representing the exterior ring of a Polygon.                                       |
 | ST_GeometryN        |             | Return an element of a geometry collection.                                                             |
-| ST_GeometryType     |             | Returns the SQL-MM type of a geometry as text.                                                          |
+| ST_GeometryType     | ✅          | Returns the SQL-MM type of a geometry as text.                                                          |
 | ST_InteriorRingN    |             | Returns the Nth interior ring (hole) of a Polygon.                                                      |
 | ST_IsClosed         |             | Tests if a LineStrings's start and end points are coincident.                                           |
 | ST_IsCollection     |             | Tests if a geometry is a geometry collection type.                                                      |
