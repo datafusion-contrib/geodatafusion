@@ -62,7 +62,7 @@ Spatial extensions for [Apache DataFusion](https://datafusion.apache.org/), an e
 | ST_NumInteriorRings |             | Returns the number of interior rings (holes) of a Polygon.                                                                |
 | ST_NumInteriorRing  |             | Returns the number of interior rings (holes) of a Polygon. Aias for ST_NumInteriorRings                                   |
 | ST_NumPatches       |             | Return the number of faces on a Polyhedral Surface. Will return null for non-polyhedral geometries.                       |
-| ST_NumPoints        |             | Returns the number of points in a LineString or CircularString.                                                           |
+| ST_NumPoints        | ✅          | Returns the number of points in a LineString or CircularString.                                                           |
 | ST_PatchN           |             | Returns the Nth geometry (face) of a PolyhedralSurface.                                                                   |
 | ST_PointN           |             | Returns the Nth point in the first LineString or circular LineString in a geometry.                                       |
 | ST_Points           |             | Returns a MultiPoint containing the coordinates of a geometry.                                                            |
