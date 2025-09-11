@@ -22,7 +22,7 @@ datafusion = { git = "https://github.com/apache/datafusion", rev = "fa1f8c192dd5
 datafusion-ffi = { git = "https://github.com/apache/datafusion", rev = "fa1f8c192dd531d3f2fca61885eafa3e9002f0dd" }
 geoarrow-schema = "0.5"
 geodatafusion = { path = "../rust/geodatafusion" }
-pyo3 = { version = "0.25", features = [
+pyo3 = { version = "0.26", features = [
     "hashbrown",
     "serde",
     "anyhow",
