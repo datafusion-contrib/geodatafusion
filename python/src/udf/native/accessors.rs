@@ -1,4 +1,6 @@
-use geodatafusion::udf::native::accessors::{CoordDim, EndPoint, M, NDims, StartPoint, X, Y, Z};
+use geodatafusion::udf::native::accessors::{
+    CoordDim, EndPoint, M, NDims, NPoints, StartPoint, X, Y, Z,
+};
 
 use crate::{impl_udf, impl_udf_coord_type_arg};
 
@@ -10,3 +12,4 @@ impl_udf!(Z, PyZ, "Z");
 impl_udf!(M, PyM, "M");
 impl_udf_coord_type_arg!(EndPoint, PyEndPoint, "EndPoint");
 impl_udf_coord_type_arg!(StartPoint, PyStartPoint, "StartPoint");
+impl_udf!(NPoints, PyNPoints, "NPoints");
