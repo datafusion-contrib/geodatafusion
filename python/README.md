@@ -1,11 +1,17 @@
 # `geodatafusion`
 
-Python bindings for `geodatafusion`, providing geospatial UDFs for the
-`datafusion` Python package.
+Python bindings for `geodatafusion`, providing geospatial extension for the
+`datafusion` SQL [query engine](https://github.com/apache/datafusion) and [Python package](https://datafusion.apache.org/python/).
 
-### Usage
+## Install
 
-To use, register the User-Defined Functions (UDFs) provided by `geodatafusion` on your `SessionContext`. The easiest way to do this is via `geodatafusion.register_all`.
+```
+pip install geodatafusion
+```
+
+## Usage
+
+To use, register the User-Defined Functions (UDFs) provided by `geodatafusion` on your `SessionContext`. The easiest way to do this is via `geodatafusion.register_all`. The [top-level Rust README](https://github.com/datafusion-contrib/datafusion-geo) contains a tracker of the UDFs currently implemented.
 
 ```py
 from datafusion import SessionContext
@@ -24,6 +30,7 @@ df.show()
 ```
 
 prints:
+
 ```
 +-------------------------------------------+
 | st_x(st_geomfromtext(Utf8("POINT(1 2)"))) |

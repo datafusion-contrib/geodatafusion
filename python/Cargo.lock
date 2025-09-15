@@ -1752,7 +1752,7 @@ dependencies = [
 
 [[package]]
 name = "geodatafusion-python"
-version = "0.1.0-beta.1"
+version = "0.1.0"
 dependencies = [
  "datafusion",
  "datafusion-ffi",
