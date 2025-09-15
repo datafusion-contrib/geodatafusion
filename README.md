@@ -2,6 +2,19 @@
 
 Spatial extensions for [Apache DataFusion](https://datafusion.apache.org/), an extensible query engine written in Rust that uses Apache Arrow as its in-memory format.
 
+## Install
+
+Add to your `Cargo.toml`:
+
+```toml
+[dependencies]
+datafusion = "50.0"
+geodatafusion = "0.1"
+```
+
+> `geodatafusion` 0.1 will be published whenever [`datafusion` 50.0 is released](https://github.com/apache/datafusion/issues/16799), which should be by September 17.
+
+
 ## Functions supported
 
 ### Geometry Constructors
