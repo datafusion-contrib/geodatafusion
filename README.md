@@ -17,6 +17,8 @@ geodatafusion = "0.1"
 
 ## Functions supported
 
+Functions are explicitly modeled after the [PostGIS API](https://postgis.net/docs/reference.html). We strive to match the PostGIS API as much as possible.
+
 ### Geometry Constructors
 
 | Name                  | Implemented | Description                                                                                                                |
