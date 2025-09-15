@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from datafusion import udf
+from datafusion import udaf, udf
 
 from ._rust import *
 from ._rust import ___version
@@ -83,7 +83,8 @@ def register_all_native(ctx: SessionContext):
     ctx.register_udf(udf(native.ZMax()))
     ctx.register_udf(udf(native.MakeBox2D()))
     ctx.register_udf(udf(native.MakeBox3D()))
-    ctx.register_udf(udf(native.Extent()))
+    # https://github.com/apache/datafusion-python/issues/1237
+    ctx.register_udaf(udaf(native.Extent()))  # type: ignore
 
     # constructors
     ctx.register_udf(udf(native.Point()))
