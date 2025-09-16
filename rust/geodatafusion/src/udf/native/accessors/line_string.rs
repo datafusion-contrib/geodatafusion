@@ -19,7 +19,7 @@ use geoarrow_schema::{CoordType, GeoArrowType, GeometryType, PointType};
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub struct StartPoint {
     signature: Signature,
     coord_type: CoordType,
@@ -76,7 +76,7 @@ impl ScalarUDFImpl for StartPoint {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub struct EndPoint {
     signature: Signature,
     coord_type: CoordType,
@@ -134,7 +134,7 @@ impl ScalarUDFImpl for EndPoint {
 }
 
 // Not yet exported because we don't handle the nth point second argument yet
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 #[allow(dead_code)]
 struct PointN {
     signature: Signature,

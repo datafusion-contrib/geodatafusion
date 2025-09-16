@@ -16,7 +16,7 @@ use geoarrow_schema::error::GeoArrowResult;
 
 use crate::error::GeoDataFusionResult;
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Intersects {
     signature: Signature,
 }

@@ -17,7 +17,7 @@ use geoarrow_schema::error::GeoArrowResult;
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub struct GeometryType {
     signature: Signature,
 }
@@ -72,7 +72,7 @@ impl ScalarUDFImpl for GeometryType {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 #[allow(non_camel_case_types)]
 pub struct ST_GeometryType {
     signature: Signature,
