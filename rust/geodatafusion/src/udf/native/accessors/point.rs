@@ -3,11 +3,11 @@ use std::sync::{Arc, OnceLock};
 
 use arrow_array::Float64Array;
 use arrow_array::builder::Float64Builder;
-use arrow_schema::DataType;
-use datafusion::error::Result;
+use arrow_schema::{DataType, Field};
+use datafusion::error::{DataFusionError, Result};
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
-    ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature,
+    ColumnarValue, Documentation, ReturnFieldArgs, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
 use geo_traits::{CoordTrait, GeometryTrait, PointTrait};
 use geoarrow_array::array::from_arrow_array;
@@ -51,7 +51,11 @@ impl ScalarUDFImpl for X {
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
-        Ok(DataType::Float64)
+        Err(DataFusionError::Internal("return_type".to_string()))
+    }
+
+    fn return_field_from_args(&self, _args: ReturnFieldArgs) -> Result<arrow_schema::FieldRef> {
+        Ok(Arc::new(Field::new("", DataType::Float64, false)))
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
@@ -106,7 +110,11 @@ impl ScalarUDFImpl for Y {
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
-        Ok(DataType::Float64)
+        Err(DataFusionError::Internal("return_type".to_string()))
+    }
+
+    fn return_field_from_args(&self, _args: ReturnFieldArgs) -> Result<arrow_schema::FieldRef> {
+        Ok(Arc::new(Field::new("", DataType::Float64, false)))
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
@@ -194,7 +202,11 @@ impl ScalarUDFImpl for Z {
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
-        Ok(DataType::Float64)
+        Err(DataFusionError::Internal("return_type".to_string()))
+    }
+
+    fn return_field_from_args(&self, _args: ReturnFieldArgs) -> Result<arrow_schema::FieldRef> {
+        Ok(Arc::new(Field::new("", DataType::Float64, false)))
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
@@ -249,7 +261,11 @@ impl ScalarUDFImpl for M {
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
-        Ok(DataType::Float64)
+        Err(DataFusionError::Internal("return_type".to_string()))
+    }
+
+    fn return_field_from_args(&self, _args: ReturnFieldArgs) -> Result<arrow_schema::FieldRef> {
+        Ok(Arc::new(Field::new("", DataType::Float64, false)))
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
@@ -361,5 +377,46 @@ mod test {
             .unwrap();
         let batch = df.collect().await.unwrap().into_iter().next().unwrap();
         assert_eq!(batch.column(0).as_primitive::<Float64Type>().value(0), 4.0);
+    }
+
+    // Test that return schema correctly declares non-nullable
+    #[tokio::test]
+    async fn test_return_schema() {
+        let ctx = SessionContext::new();
+
+        ctx.register_udf(X::new().into());
+        ctx.register_udf(Y::new().into());
+        ctx.register_udf(Z::new().into());
+        ctx.register_udf(M::new().into());
+        ctx.register_udf(PointZ::new(Default::default()).into());
+        ctx.register_udf(PointM::new(Default::default()).into());
+        ctx.register_udf(PointZM::new(Default::default()).into());
+        ctx.register_udf(GeomFromText::new(Default::default()).into());
+
+        let df = ctx
+            .sql("SELECT ST_X(ST_GeomFromText('POINT(1 2)'));")
+            .await
+            .unwrap();
+        let df_schema = df.schema().inner().clone();
+        let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+        assert_eq!(df_schema, batch.schema());
+
+        let df = ctx
+            .sql("SELECT ST_Y(ST_GeomFromText('POINT(1 2)'));")
+            .await
+            .unwrap();
+        let df_schema = df.schema().inner().clone();
+        let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+        assert_eq!(df_schema, batch.schema());
+
+        let df = ctx.sql("SELECT ST_Z(ST_PointZ(1, 2, 3));").await.unwrap();
+        let df_schema = df.schema().inner().clone();
+        let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+        assert_eq!(df_schema, batch.schema());
+
+        let df = ctx.sql("SELECT ST_M(ST_PointM(1, 2, 3));").await.unwrap();
+        let df_schema = df.schema().inner().clone();
+        let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+        assert_eq!(df_schema, batch.schema());
     }
 }
