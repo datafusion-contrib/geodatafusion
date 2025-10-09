@@ -21,7 +21,7 @@ use datafusion_datasource::file_sink_config::{FileSink, FileSinkConfig};
 use datafusion_datasource::sink::{DataSink, DataSinkExec};
 use datafusion_datasource::write::ObjectWriterBuilder;
 use datafusion_datasource::write::demux::DemuxedStreamReceiver;
-use geoarrow_expr_geojson::writer::GeoJsonLinesWriter;
+use geoarrow_geojson::writer::GeoJsonLinesWriter;
 use object_store::{ObjectMeta, ObjectStore};
 use tempfile::NamedTempFile;
 use tokio::io::AsyncWriteExt;
