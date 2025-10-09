@@ -7,8 +7,9 @@ use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
-use geoarrow_array::array::from_arrow_array;
-use geoarrow_geo::unsigned_area;
+use geoarrow_array::WrapArray;
+use geoarrow_expr_geo::unsigned_area;
+use geoarrow_schema::GeoArrowType;
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
@@ -73,9 +74,8 @@ fn area_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
         .into_iter()
         .next()
         .unwrap();
-    let field = &args.arg_fields[0];
-    let geo_array = from_arrow_array(&array, field)?;
-    let result = unsigned_area(&geo_array)?;
+    let geo_type = GeoArrowType::from_arrow_field(&args.arg_fields[0])?;
+    let result = unsigned_area(&geo_type.wrap_array(&array)?)?;
     Ok(ColumnarValue::Array(Arc::new(result)))
 }
 

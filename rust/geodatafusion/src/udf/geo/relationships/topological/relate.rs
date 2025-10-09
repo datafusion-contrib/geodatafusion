@@ -13,7 +13,7 @@ use geo::relate::IntersectionMatrix;
 use geo::{PreparedGeometry, Relate};
 use geoarrow_array::array::from_arrow_array;
 use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
-use geoarrow_geo::util::to_geo::geometry_to_geo;
+use geoarrow_expr_geo::util::to_geo::geometry_to_geo;
 use geoarrow_schema::error::GeoArrowResult;
 
 use crate::error::GeoDataFusionResult;
@@ -182,7 +182,7 @@ fn relate_impl(
         (ColumnarValue::Array(left_arr), ColumnarValue::Array(right_arr)) => {
             let left_arr = from_arrow_array(&left_arr, left_field)?;
             let right_arr = from_arrow_array(&right_arr, right_field)?;
-            let result = geoarrow_geo::relate_boolean(&left_arr, &right_arr, relate_cb)?;
+            let result = geoarrow_expr_geo::relate_boolean(&left_arr, &right_arr, relate_cb)?;
             Ok(ColumnarValue::Array(Arc::new(result)))
         }
         (ColumnarValue::Scalar(left_scalar), ColumnarValue::Array(right_array)) => {

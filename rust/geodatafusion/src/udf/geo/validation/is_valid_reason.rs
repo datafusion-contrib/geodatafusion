@@ -70,6 +70,6 @@ impl ScalarUDFImpl for IsValidReason {
 fn is_valid_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
     let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
-    let result = geoarrow_geo::validation::is_valid_reason(&geo_array)?;
+    let result = geoarrow_expr_geo::validation::is_valid_reason(&geo_array)?;
     Ok(ColumnarValue::Array(Arc::new(result)))
 }
