@@ -1745,7 +1745,7 @@ dependencies = [
 [[package]]
 name = "geoarrow-array"
 version = "0.5.0"
-source = "git+https://github.com/geoarrow/geoarrow-rs?rev=61a535b072766003ad06a4d7a25dcc15f010e68f#61a535b072766003ad06a4d7a25dcc15f010e68f"
+source = "git+https://github.com/geoarrow/geoarrow-rs?rev=e25d0952c2c6c428f0761902e15c3ff0bf734f66#e25d0952c2c6c428f0761902e15c3ff0bf734f66"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -1760,7 +1760,7 @@ dependencies = [
 [[package]]
 name = "geoarrow-geo"
 version = "0.5.0"
-source = "git+https://github.com/geoarrow/geoarrow-rs?rev=61a535b072766003ad06a4d7a25dcc15f010e68f#61a535b072766003ad06a4d7a25dcc15f010e68f"
+source = "git+https://github.com/geoarrow/geoarrow-rs?rev=e25d0952c2c6c428f0761902e15c3ff0bf734f66#e25d0952c2c6c428f0761902e15c3ff0bf734f66"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -1773,7 +1773,7 @@ dependencies = [
 [[package]]
 name = "geoarrow-schema"
 version = "0.5.0"
-source = "git+https://github.com/geoarrow/geoarrow-rs?rev=61a535b072766003ad06a4d7a25dcc15f010e68f#61a535b072766003ad06a4d7a25dcc15f010e68f"
+source = "git+https://github.com/geoarrow/geoarrow-rs?rev=e25d0952c2c6c428f0761902e15c3ff0bf734f66#e25d0952c2c6c428f0761902e15c3ff0bf734f66"
 dependencies = [
  "arrow-schema",
  "geo-traits",
@@ -4079,9 +4079,9 @@ dependencies = [
 [[patch.unused]]
 name = "geoarrow-flatgeobuf"
 version = "0.5.0"
-source = "git+https://github.com/geoarrow/geoarrow-rs?rev=61a535b072766003ad06a4d7a25dcc15f010e68f#61a535b072766003ad06a4d7a25dcc15f010e68f"
+source = "git+https://github.com/geoarrow/geoarrow-rs?rev=e25d0952c2c6c428f0761902e15c3ff0bf734f66#e25d0952c2c6c428f0761902e15c3ff0bf734f66"
 
 [[patch.unused]]
 name = "geoparquet"
 version = "0.5.0"
-source = "git+https://github.com/geoarrow/geoarrow-rs?rev=61a535b072766003ad06a4d7a25dcc15f010e68f#61a535b072766003ad06a4d7a25dcc15f010e68f"
+source = "git+https://github.com/geoarrow/geoarrow-rs?rev=e25d0952c2c6c428f0761902e15c3ff0bf734f66#e25d0952c2c6c428f0761902e15c3ff0bf734f66"
