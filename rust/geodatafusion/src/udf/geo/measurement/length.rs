@@ -8,7 +8,7 @@ use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
 use geoarrow_array::array::from_arrow_array;
-use geoarrow_geo::euclidean_length;
+use geoarrow_expr_geo::euclidean_length;
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;

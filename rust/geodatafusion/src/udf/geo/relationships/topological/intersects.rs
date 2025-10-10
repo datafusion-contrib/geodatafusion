@@ -96,7 +96,7 @@ fn intersects_impl(
         (ColumnarValue::Array(left_arr), ColumnarValue::Array(right_arr)) => {
             let left_arr = from_arrow_array(&left_arr, left_field)?;
             let right_arr = from_arrow_array(&right_arr, right_field)?;
-            let result = geoarrow_geo::intersects(&left_arr, &right_arr)?;
+            let result = geoarrow_expr_geo::intersects(&left_arr, &right_arr)?;
             Ok(ColumnarValue::Array(Arc::new(result)))
         }
         (ColumnarValue::Scalar(left_scalar), ColumnarValue::Array(right_array)) => {

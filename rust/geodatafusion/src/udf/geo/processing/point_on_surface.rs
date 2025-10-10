@@ -90,6 +90,6 @@ fn interior_point_impl(
 ) -> GeoDataFusionResult<ColumnarValue> {
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
     let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
-    let result = geoarrow_geo::interior_point(&geo_array, coord_type)?;
+    let result = geoarrow_expr_geo::interior_point(&geo_array, coord_type)?;
     Ok(ColumnarValue::Array(result.into_array_ref()))
 }

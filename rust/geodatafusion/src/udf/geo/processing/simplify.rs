@@ -62,7 +62,7 @@ impl ScalarUDFImpl for Simplify {
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
         // TODO: pass down coord_type
-        Ok(simplify_impl(args, geoarrow_geo::simplify)?)
+        Ok(simplify_impl(args, geoarrow_expr_geo::simplify)?)
     }
 
     fn documentation(&self) -> Option<&Documentation> {
@@ -125,7 +125,7 @@ impl ScalarUDFImpl for SimplifyVW {
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
         // TODO: pass down coord_type
-        Ok(simplify_impl(args, geoarrow_geo::simplify_vw)?)
+        Ok(simplify_impl(args, geoarrow_expr_geo::simplify_vw)?)
     }
 
     fn documentation(&self) -> Option<&Documentation> {
@@ -188,7 +188,10 @@ impl ScalarUDFImpl for SimplifyPreserveTopology {
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
         // TODO: pass down coord_type
-        Ok(simplify_impl(args, geoarrow_geo::simplify_vw_preserve)?)
+        Ok(simplify_impl(
+            args,
+            geoarrow_expr_geo::simplify_vw_preserve,
+        )?)
     }
 
     fn documentation(&self) -> Option<&Documentation> {
@@ -256,7 +259,7 @@ mod test {
     use geo::line_string;
     use geoarrow_array::GeoArrowArrayAccessor;
     use geoarrow_array::array::GeometryArray;
-    use geoarrow_geo::util::to_geo::geometry_to_geo;
+    use geoarrow_expr_geo::util::to_geo::geometry_to_geo;
 
     use super::*;
     use crate::udf::native::io::{AsText, GeomFromText};

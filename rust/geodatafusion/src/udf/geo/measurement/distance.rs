@@ -67,7 +67,7 @@ fn distance_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue>
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
     let left_arr = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
     let right_arr = from_arrow_array(&arrays[1], &args.arg_fields[1])?;
-    let result = geoarrow_geo::euclidean_distance(&left_arr, &right_arr)?;
+    let result = geoarrow_expr_geo::euclidean_distance(&left_arr, &right_arr)?;
     Ok(ColumnarValue::Array(Arc::new(result)))
 }
 
