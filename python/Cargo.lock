@@ -1096,9 +1096,9 @@ dependencies = [
 
 [[package]]
 name = "datafusion-ffi"
-version = "50.1.0"
+version = "50.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cda6e7e5f98b9587f2e32db9eb550539441e18edcea90075d6504da811de5960"
+checksum = "a4bef25e2b86d9921f7a98b1a86bfb50cebe2fd97f3a9b96c85ce475e9ef78b0"
 dependencies = [
  "abi_stable",
  "arrow",
@@ -1381,9 +1381,9 @@ dependencies = [
 
 [[package]]
 name = "datafusion-proto"
-version = "50.1.0"
+version = "50.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ca714dff69fe3de2901ec64ec3dba8d0623ae583f6fae3c6fa57355d7882017"
+checksum = "87c686bfd29ec5362fe229247ef03a0beb063b50e307bf72d0f1a80b9d90f8b8"
 dependencies = [
  "arrow",
  "chrono",
@@ -1397,9 +1397,9 @@ dependencies = [
 
 [[package]]
 name = "datafusion-proto-common"
-version = "50.1.0"
+version = "50.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b7b628ba0f7bd1fa9565f80b19a162bcb3cbc082bbc42b29c4619760621f4e32"
+checksum = "1972d37680d48d4f6167b535e0a23ea9f814a21e1359d0bd5c30d1345b95aef9"
 dependencies = [
  "arrow",
  "datafusion-common",
@@ -1743,7 +1743,7 @@ dependencies = [
  "arrow-buffer",
  "arrow-schema",
  "geo-traits",
- "geoarrow-schema 0.6.0-beta.1",
+ "geoarrow-schema",
  "num-traits",
  "wkb",
  "wkt",
@@ -1760,19 +1760,7 @@ dependencies = [
  "geo",
  "geo-traits",
  "geoarrow-array",
- "geoarrow-schema 0.6.0-beta.1",
-]
-
-[[package]]
-name = "geoarrow-schema"
-version = "0.5.0"
-source = "git+https://github.com/geoarrow/geoarrow-rs?rev=aaa7c357bfb85dcacc295067661988e300b798b5#aaa7c357bfb85dcacc295067661988e300b798b5"
-dependencies = [
- "arrow-schema",
- "geo-traits",
- "serde",
- "serde_json",
- "thiserror 1.0.69",
+ "geoarrow-schema",
 ]
 
 [[package]]
@@ -1800,7 +1788,7 @@ dependencies = [
  "geo-traits",
  "geoarrow-array",
  "geoarrow-expr-geo",
- "geoarrow-schema 0.6.0-beta.1",
+ "geoarrow-schema",
  "geohash",
  "thiserror 1.0.69",
  "wkt",
@@ -1812,7 +1800,7 @@ version = "0.1.1"
 dependencies = [
  "datafusion",
  "datafusion-ffi",
- "geoarrow-schema 0.5.0",
+ "geoarrow-schema",
  "geodatafusion",
  "pyo3",
 ]
@@ -4023,18 +4011,3 @@ dependencies = [
  "cc",
  "pkg-config",
 ]
-
-[[patch.unused]]
-name = "geoarrow-array"
-version = "0.5.0"
-source = "git+https://github.com/geoarrow/geoarrow-rs?rev=aaa7c357bfb85dcacc295067661988e300b798b5#aaa7c357bfb85dcacc295067661988e300b798b5"
-
-[[patch.unused]]
-name = "geoarrow-flatgeobuf"
-version = "0.5.0"
-source = "git+https://github.com/geoarrow/geoarrow-rs?rev=aaa7c357bfb85dcacc295067661988e300b798b5#aaa7c357bfb85dcacc295067661988e300b798b5"
-
-[[patch.unused]]
-name = "geoparquet"
-version = "0.5.0"
-source = "git+https://github.com/geoarrow/geoarrow-rs?rev=aaa7c357bfb85dcacc295067661988e300b798b5#aaa7c357bfb85dcacc295067661988e300b798b5"
