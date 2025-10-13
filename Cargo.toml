@@ -35,7 +35,7 @@ geoarrow-flatgeobuf = "0.6.0-beta.2"
 geoarrow-expr-geo = "0.6.0-beta.2"
 geoarrow-geojson = "0.6.0-beta.2"
 geoarrow-schema = "0.6.0-beta.2"
-geodatafusion = { path = "rust/geodatafusion", version = "0.1.0-beta.1" }
+geodatafusion = { path = "rust/geodatafusion", version = "0.1.0-beta.2" }
 geohash = "0.13.1"
 geojson = "0.24"
 geoparquet = "0.6.0-beta.2"
