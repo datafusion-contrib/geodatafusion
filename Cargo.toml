@@ -23,22 +23,22 @@ arrow-arith = "56.2"
 arrow-array = "56.2"
 arrow-schema = "56.2"
 async-trait = "0.1"
-datafusion = "50.1"
-datafusion-datasource = "50.1"
-datafusion-datasource-parquet = "50.1"
+datafusion = "50.2"
+datafusion-datasource = "50.2"
+datafusion-datasource-parquet = "50.2"
 flatgeobuf = { version = "5.0", default-features = false }
 futures = "0.3"
 geo = "0.31.0"
 geo-traits = "0.3.0"
-geoarrow-array = "0.5"
-geoarrow-flatgeobuf = "0.5"
-geoarrow-expr-geo = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "aaa7c357bfb85dcacc295067661988e300b798b5", version = "0.5" }
-geoarrow-geojson = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "aaa7c357bfb85dcacc295067661988e300b798b5" }
-geoarrow-schema = "0.5"
+geoarrow-array = "0.6.0-beta.1"
+geoarrow-flatgeobuf = "0.6.0-beta.1"
+geoarrow-expr-geo = "0.6.0-beta.1"
+geoarrow-geojson = "0.6.0-beta.1"
+geoarrow-schema = "0.6.0-beta.1"
 geodatafusion = { path = "rust/geodatafusion" }
 geohash = "0.13.1"
 geojson = "0.24"
-geoparquet = "0.5"
+geoparquet = "0.6.0-beta.1"
 http-range-client = { version = "0.9", default-features = false }
 object_store = "0.12.4"
 serde_json = "1"
@@ -47,9 +47,3 @@ thiserror = "1"
 tokio = { version = "1.9", default-features = false }
 wkb = "0.9"
 wkt = "0.14"
-
-[patch.crates-io]
-geoarrow-array = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "aaa7c357bfb85dcacc295067661988e300b798b5" }
-geoarrow-schema = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "aaa7c357bfb85dcacc295067661988e300b798b5" }
-geoarrow-flatgeobuf = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "aaa7c357bfb85dcacc295067661988e300b798b5" }
-geoparquet = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "aaa7c357bfb85dcacc295067661988e300b798b5" }
