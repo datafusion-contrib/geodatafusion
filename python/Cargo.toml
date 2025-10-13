@@ -18,9 +18,9 @@ crate-type = ["cdylib"]
 [features]
 
 [dependencies]
-datafusion = "50.1"
-datafusion-ffi = "50.1"
-geoarrow-schema = "0.5"
+datafusion = "50.2"
+datafusion-ffi = "50.2"
+geoarrow-schema = "0.6.0-beta.1"
 geodatafusion = { path = "../rust/geodatafusion" }
 pyo3 = { version = "0.26", features = [
     "hashbrown",
@@ -28,9 +28,3 @@ pyo3 = { version = "0.26", features = [
     "anyhow",
     "abi3-py39",
 ] }
-
-[patch.crates-io]
-geoarrow-array = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "aaa7c357bfb85dcacc295067661988e300b798b5" }
-geoarrow-schema = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "aaa7c357bfb85dcacc295067661988e300b798b5" }
-geoarrow-flatgeobuf = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "aaa7c357bfb85dcacc295067661988e300b798b5" }
-geoparquet = { git = "https://github.com/geoarrow/geoarrow-rs", rev = "aaa7c357bfb85dcacc295067661988e300b798b5" }
