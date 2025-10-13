@@ -1,6 +1,7 @@
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
 pub(crate) mod constants;
+mod table_provider;
 mod udf;
 mod utils;
 
