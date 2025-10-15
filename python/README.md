@@ -11,7 +11,7 @@ pip install geodatafusion
 
 ## Usage
 
-To use, register the User-Defined Functions (UDFs) provided by `geodatafusion` on your `SessionContext`. The easiest way to do this is via `geodatafusion.register_all`. The [top-level Rust README](https://github.com/datafusion-contrib/datafusion-geo) contains a tracker of the UDFs currently implemented.
+To use, register the User-Defined Functions (UDFs) provided by `geodatafusion` on your `SessionContext`. The easiest way to do this is via `geodatafusion.register_all`. The [top-level Rust README](https://github.com/datafusion-contrib/geodatafusion) contains a tracker of the UDFs currently implemented.
 
 ```py
 from datafusion import SessionContext
