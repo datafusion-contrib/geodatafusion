@@ -748,7 +748,7 @@ wheels = [
 ]
 
 [[package]]
-name = "geodatafusion-python"
+name = "geodatafusion"
 source = { editable = "." }
 dependencies = [
     { name = "datafusion" },
