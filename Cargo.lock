@@ -1704,9 +1704,9 @@ dependencies = [
 
 [[package]]
 name = "geoarrow-array"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec69a25ef5f8487191a0432cbb69db54b4c0fb3ae49c0129588eb8320155a03b"
+checksum = "36490f9fbab061752290ac5ebce2bc9bab82ea6fdfcfc9ac3d030d44a98a1a7d"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -1724,9 +1724,9 @@ dependencies = [
 
 [[package]]
 name = "geoarrow-expr-geo"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f7bc900d367a120ecee6a290e24d3dd5c01a7b067fc994f8fab08ad133a59b2"
+checksum = "d7ff2a3bc9d4990f16d84c2ae62b3a6b1a61ff166d1d38461ca2a23f94162c4e"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -1738,9 +1738,9 @@ dependencies = [
 
 [[package]]
 name = "geoarrow-flatgeobuf"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2cb2ee3d4b3bd49f9de02247691ca523d3220606f06f97bc37d3b21e53843ccd"
+checksum = "bee99ef850359226927b36f75a5e5da37bf8c513310378aa998b3d94bde7baf4"
 dependencies = [
  "arrow-array",
  "arrow-cast",
@@ -1762,9 +1762,9 @@ dependencies = [
 
 [[package]]
 name = "geoarrow-geojson"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3bee5aed2f60f57e9851a51f1f8343cd28d6d43307cb32814b765f710423ca4b"
+checksum = "72c7b48093bffe588a65d65ebec5295d9ab0e34dbe04ee0bece5ab1e22825782"
 dependencies = [
  "arrow-array",
  "arrow-json",
@@ -1776,9 +1776,9 @@ dependencies = [
 
 [[package]]
 name = "geoarrow-schema"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b66df74d28e24813395c070f86ecd684b57fa9a8a07e2b9472c0bddf5feb038a"
+checksum = "278e963401cfb23b4f81b212605b33b342ab73741d39b80de51cc7028d6d3af4"
 dependencies = [
  "arrow-schema",
  "geo-traits",
@@ -1798,7 +1798,7 @@ dependencies = [
 
 [[package]]
 name = "geodatafusion"
-version = "0.1.0-beta.2"
+version = "0.1.0"
 dependencies = [
  "approx",
  "arrow-arith",
@@ -1819,7 +1819,7 @@ dependencies = [
 
 [[package]]
 name = "geodatafusion-flatgeobuf"
-version = "0.1.0-beta.2"
+version = "0.1.0"
 dependencies = [
  "approx",
  "arrow-array",
@@ -1843,7 +1843,7 @@ dependencies = [
 
 [[package]]
 name = "geodatafusion-geojson"
-version = "0.1.0-beta.2"
+version = "0.1.0"
 dependencies = [
  "arrow-array",
  "arrow-schema",
@@ -1865,7 +1865,7 @@ dependencies = [
 
 [[package]]
 name = "geodatafusion-geoparquet"
-version = "0.1.0-beta.2"
+version = "0.1.0"
 dependencies = [
  "approx",
  "arrow-schema",
@@ -1917,9 +1917,9 @@ dependencies = [
 
 [[package]]
 name = "geoparquet"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e7a0bc267818267d6cfd1419cf4ac1727137576eb954dce38627f1c12175395"
+checksum = "180ca505a7be5de3f0e6a4004d260f1964159d7d9a8a5dda8bbd85a00e531947"
 dependencies = [
  "arrow-arith",
  "arrow-array",
