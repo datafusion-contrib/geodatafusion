@@ -208,7 +208,7 @@ mod test {
     async fn test_as_text() {
         let ctx = SessionContext::new();
 
-        let crs = Crs::from_srid("4326".to_string());
+        let crs = Crs::from_authority_code("EPSG:4326".to_string());
         let metadata = Arc::new(Metadata::new(crs.clone(), Default::default()));
 
         let geo_arr = point::array(CoordType::Separated, Dimension::XY).with_metadata(metadata);
