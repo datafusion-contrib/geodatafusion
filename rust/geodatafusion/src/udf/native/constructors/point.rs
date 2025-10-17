@@ -77,7 +77,7 @@ impl ScalarUDFImpl for Point {
 
         if let Some(srid) = args.scalar_arguments.get(2) {
             if let Some(ScalarValue::Int64(srid_val)) = srid {
-                let crs = Crs::from_srid(srid_val.unwrap().to_string());
+                let crs = Crs::from_authority_code(format!("EPSG:{}", srid_val.unwrap()));
                 typ = typ.with_metadata(Arc::new(Metadata::new(crs, None)));
             } else {
                 return Err(DataFusionError::Internal(
@@ -173,7 +173,7 @@ impl ScalarUDFImpl for PointZ {
 
         if let Some(srid) = args.scalar_arguments.get(3) {
             if let Some(ScalarValue::Int64(srid_val)) = srid {
-                let crs = Crs::from_srid(srid_val.unwrap().to_string());
+                let crs = Crs::from_authority_code(format!("EPSG:{}", srid_val.unwrap()));
                 typ = typ.with_metadata(Arc::new(Metadata::new(crs, None)));
             } else {
                 return Err(DataFusionError::Internal(
@@ -270,7 +270,7 @@ impl ScalarUDFImpl for PointM {
 
         if let Some(srid) = args.scalar_arguments.get(3) {
             if let Some(ScalarValue::Int64(srid_val)) = srid {
-                let crs = Crs::from_srid(srid_val.unwrap().to_string());
+                let crs = Crs::from_authority_code(format!("EPSG:{}", srid_val.unwrap()));
                 typ = typ.with_metadata(Arc::new(Metadata::new(crs, None)));
             } else {
                 return Err(DataFusionError::Internal(
@@ -369,7 +369,7 @@ impl ScalarUDFImpl for PointZM {
 
         if let Some(srid) = args.scalar_arguments.get(4) {
             if let Some(ScalarValue::Int64(srid_val)) = srid {
-                let crs = Crs::from_srid(srid_val.unwrap().to_string());
+                let crs = Crs::from_authority_code(format!("EPSG:{}", srid_val.unwrap()));
                 typ = typ.with_metadata(Arc::new(Metadata::new(crs, None)));
             } else {
                 return Err(DataFusionError::Internal(
@@ -776,7 +776,7 @@ mod test {
         let point_type = output_field.extension_type::<PointType>();
         assert_eq!(
             point_type.metadata().crs(),
-            &Crs::from_srid("4326".to_string())
+            &Crs::from_authority_code("EPSG:4326".to_string())
         );
     }
 }
