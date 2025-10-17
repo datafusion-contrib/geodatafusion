@@ -13,6 +13,6 @@ def test_st_point_crs_geoarrow():
     df = ctx.sql(sql)
     schema = Table(df).schema
     assert schema.field("geom").metadata_str == {
-        "ARROW:extension:metadata": '{"crs":"4326","crs_type":"srid"}',
+        "ARROW:extension:metadata": '{"crs":"EPSG:4326","crs_type":"authority_code"}',
         "ARROW:extension:name": "geoarrow.point",
     }
