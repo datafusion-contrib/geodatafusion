@@ -135,7 +135,7 @@ impl_relate_udf!(
     COVERS_DOC,
     |matrix| matrix.is_covers(),
     "Returns true if every point in Geometry/Geography B lies inside (i.e. intersects the interior or boundary of) Geometry/Geography A. Equivalently, tests that no point of B lies outside (in the exterior of) A.",
-    "ST_CoveredBy(geomA, geomB)"
+    "ST_Covers(geomA, geomB)"
 );
 impl_relate_udf!(
     Touches,
