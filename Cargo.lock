@@ -1798,7 +1798,7 @@ dependencies = [
 
 [[package]]
 name = "geodatafusion"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "approx",
  "arrow-arith",
@@ -1819,7 +1819,7 @@ dependencies = [
 
 [[package]]
 name = "geodatafusion-flatgeobuf"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "approx",
  "arrow-array",
@@ -1843,7 +1843,7 @@ dependencies = [
 
 [[package]]
 name = "geodatafusion-geojson"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "arrow-array",
  "arrow-schema",
@@ -1865,7 +1865,7 @@ dependencies = [
 
 [[package]]
 name = "geodatafusion-geoparquet"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "approx",
  "arrow-schema",
