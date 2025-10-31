@@ -12,9 +12,6 @@ datafusion = "50.0"
 geodatafusion = "0.1"
 ```
 
-> `geodatafusion` 0.1 will be published whenever [`datafusion` 50.0 is released](https://github.com/apache/datafusion/issues/16799), which should be by September 17.
-
-
 ## Functions supported
 
 Functions are explicitly modeled after the [PostGIS API](https://postgis.net/docs/reference.html). We strive to match the PostGIS API as much as possible.
