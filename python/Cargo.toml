@@ -18,7 +18,7 @@ crate-type = ["cdylib"]
 [features]
 
 [dependencies]
-datafusion = "50.2"
+datafusion = { version = "50.2", default-features = false }
 datafusion-ffi = "50.2"
 geoarrow-schema = "0.6.1"
 geodatafusion = { path = "../rust/geodatafusion" }
