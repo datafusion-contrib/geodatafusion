@@ -19,13 +19,13 @@ categories = ["science::geo"]
 
 [workspace.dependencies]
 approx = "0.5.1"
-arrow-arith = "56.2"
-arrow-array = "56.2"
-arrow-schema = "56.2"
+arrow-arith = "57.1"
+arrow-array = "57.1"
+arrow-schema = "57.1"
 async-trait = "0.1"
-datafusion = { version = "50.2", default-features = false }
-datafusion-datasource = { version = "50.2", default-features = false }
-datafusion-datasource-parquet = "50.2"
+datafusion = { version = "51", default-features = false }
+datafusion-datasource = { version = "51", default-features = false }
+datafusion-datasource-parquet = "51"
 flatgeobuf = { version = "5.0", default-features = false }
 futures = "0.3"
 geo = "0.31.0"
@@ -47,3 +47,11 @@ thiserror = "1"
 tokio = { version = "1.9", default-features = false }
 wkb = "0.9"
 wkt = "0.14"
+
+[patch.crates-io]
+geoarrow-array = { git = "https://github.com/geoarrow/geoarrow-rs.git" }
+geoarrow-flatgeobuf = { git = "https://github.com/geoarrow/geoarrow-rs.git" }
+geoarrow-expr-geo = { git = "https://github.com/geoarrow/geoarrow-rs.git" }
+geoarrow-geojson = { git = "https://github.com/geoarrow/geoarrow-rs.git" }
+geoarrow-schema = { git = "https://github.com/geoarrow/geoarrow-rs.git" }
+geoparquet = { git = "https://github.com/geoarrow/geoarrow-rs.git" }

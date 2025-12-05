@@ -2,7 +2,6 @@ use std::any::Any;
 use std::fmt::Formatter;
 use std::sync::Arc;
 
-use arrow_schema::SchemaRef;
 use datafusion::common::Statistics;
 use datafusion::config::ConfigOptions;
 use datafusion::datasource::physical_plan::{FileScanConfig, FileSource};
@@ -11,6 +10,7 @@ use datafusion::error::Result;
 use datafusion::physical_plan::filter_pushdown::FilterPushdownPropagation;
 use datafusion::physical_plan::metrics::ExecutionPlanMetricsSet;
 use datafusion::physical_plan::{DisplayFormatType, PhysicalExpr};
+use datafusion_datasource::TableSchema;
 use datafusion_datasource_parquet::source::ParquetSource;
 
 #[derive(Clone, Default, Debug)]
@@ -44,7 +44,7 @@ impl FileSource for GeoParquetSource {
         self.inner.with_batch_size(batch_size)
     }
 
-    fn with_schema(&self, schema: SchemaRef) -> Arc<dyn FileSource> {
+    fn with_schema(&self, schema: TableSchema) -> Arc<dyn FileSource> {
         self.inner.with_schema(schema)
     }
 
