@@ -14,7 +14,7 @@ authors = ["Kyle Barron <kylebarron2@gmail.com>"]
 edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/datafusion-contrib/geodatafusion"
-rust-version = "1.85"
+rust-version = "1.88"
 categories = ["science::geo"]
 
 [workspace.dependencies]
@@ -30,15 +30,15 @@ flatgeobuf = { version = "5.0", default-features = false }
 futures = "0.3"
 geo = "0.31.0"
 geo-traits = "0.3.0"
-geoarrow-array = "0.6.1"
-geoarrow-flatgeobuf = "0.6.1"
-geoarrow-expr-geo = "0.6.1"
-geoarrow-geojson = "0.6.1"
-geoarrow-schema = "0.6.1"
+geoarrow-array = "0.6.2"
+geoarrow-flatgeobuf = "0.6.2"
+geoarrow-expr-geo = "0.6.2"
+geoarrow-geojson = "0.6.2"
+geoarrow-schema = "0.6.2"
 geodatafusion = { path = "rust/geodatafusion", version = "0.1.1" }
 geohash = "0.13.1"
 geojson = "0.24"
-geoparquet = "0.6.1"
+geoparquet = "0.6.2"
 http-range-client = { version = "0.9", default-features = false }
 object_store = "0.12.4"
 serde_json = "1"
