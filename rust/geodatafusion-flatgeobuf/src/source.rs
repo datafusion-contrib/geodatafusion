@@ -122,13 +122,12 @@ impl FileSource for FlatGeobufSource {
         let mut pushdown_flags = vec![];
         let mut bbox = self.bbox;
         for filter in filters.iter() {
-            if bbox.is_none() {
-                if let Some(extracted) = extract_bbox(filter)? {
+            if bbox.is_none()
+                && let Some(extracted) = extract_bbox(filter)? {
                     bbox = Some(extracted);
                     pushdown_flags.push(PushedDown::Yes);
                     continue;
                 }
-            }
             pushdown_flags.push(PushedDown::No);
         }
 
@@ -215,14 +214,13 @@ fn columnar_value_to_bbox(value: ColumnarValue, field: &Field) -> Result<Option<
 }
 
 fn extract_bbox(expr: &Arc<dyn PhysicalExpr>) -> Result<Option<[f64; 4]>> {
-    if let Some(func) = expr.as_any().downcast_ref::<ScalarFunctionExpr>() {
-        if func.fun().name().eq_ignore_ascii_case("st_intersects") && func.args().len() == 2 {
+    if let Some(func) = expr.as_any().downcast_ref::<ScalarFunctionExpr>()
+        && func.fun().name().eq_ignore_ascii_case("st_intersects") && func.args().len() == 2 {
             let bbox_expr = func.args()[1].clone();
             let empty = RecordBatch::new_empty(Arc::new(Schema::empty()));
             let value = bbox_expr.evaluate(&empty)?;
             let return_field = bbox_expr.return_field(empty.schema_ref())?;
             return columnar_value_to_bbox(value, &return_field);
         }
-    }
     Ok(None)
 }

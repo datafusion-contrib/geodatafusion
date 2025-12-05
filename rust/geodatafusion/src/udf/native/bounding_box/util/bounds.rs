@@ -92,11 +92,10 @@ impl BoundingRect {
         if y < self.miny {
             self.miny = y;
         }
-        if let Some(z) = z {
-            if z < self.minz {
+        if let Some(z) = z
+            && z < self.minz {
                 self.minz = z;
             }
-        }
 
         if x > self.maxx {
             self.maxx = x;
@@ -104,11 +103,10 @@ impl BoundingRect {
         if y > self.maxy {
             self.maxy = y;
         }
-        if let Some(z) = z {
-            if z > self.maxz {
+        if let Some(z) = z
+            && z > self.maxz {
                 self.maxz = z;
             }
-        }
     }
 
     fn add_point(&mut self, point: &impl PointTrait<T = f64>) {
