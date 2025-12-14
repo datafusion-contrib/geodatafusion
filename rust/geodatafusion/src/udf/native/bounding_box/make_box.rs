@@ -31,7 +31,7 @@ impl Default for MakeBox2D {
 }
 
 static SIGNATURE_2D: LazyLock<Signature> = LazyLock::new(|| {
-    let capacity = 4;
+    let capacity = 2;
     let mut valid_types = Vec::with_capacity(capacity);
     for coord_type in [CoordType::Separated, CoordType::Interleaved] {
         valid_types.push(
@@ -101,7 +101,7 @@ impl Default for MakeBox3D {
 }
 
 static SIGNATURE_3D: LazyLock<Signature> = LazyLock::new(|| {
-    let capacity = 4;
+    let capacity = 2;
     let mut valid_types = Vec::with_capacity(capacity);
     for coord_type in [CoordType::Separated, CoordType::Interleaved] {
         valid_types.push(

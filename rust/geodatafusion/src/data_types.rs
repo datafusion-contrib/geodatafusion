@@ -96,7 +96,7 @@ pub(crate) fn any_single_geometry_type_input() -> &'static Signature {
 }
 
 static ANY_POINT_TYPE: LazyLock<Vec<DataType>> = LazyLock::new(|| {
-    let expected_capacity = 2 * 4;
+    let expected_capacity = 2 * 5;
     let mut valid_types = Vec::with_capacity(expected_capacity);
 
     for coord_type in [CoordType::Separated, CoordType::Interleaved] {
