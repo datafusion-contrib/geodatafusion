@@ -18,15 +18,11 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct CoordDim {
-    signature: Signature,
-}
+pub struct CoordDim;
 
 impl CoordDim {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 }
 
@@ -48,7 +44,7 @@ impl ScalarUDFImpl for CoordDim {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -135,15 +131,11 @@ fn coord_dim_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct NDims {
-    signature: Signature,
-}
+pub struct NDims;
 
 impl NDims {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 }
 
@@ -165,7 +157,7 @@ impl ScalarUDFImpl for NDims {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {

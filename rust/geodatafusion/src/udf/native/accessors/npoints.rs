@@ -19,14 +19,12 @@ use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct NPoints {
-    signature: Signature,
     aliases: Vec<String>,
 }
 
 impl NPoints {
     pub fn new() -> Self {
         Self {
-            signature: any_single_geometry_type_input(),
             aliases: vec!["st_numpoints".to_string()],
         }
     }
@@ -50,7 +48,7 @@ impl ScalarUDFImpl for NPoints {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn aliases(&self) -> &[String] {

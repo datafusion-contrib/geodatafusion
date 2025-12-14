@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_schema::{DataType, FieldRef};
 use datafusion::arrow::buffer::NullBuffer;
@@ -16,25 +16,11 @@ use geoarrow_schema::{BoxType, CoordType, Dimension, Metadata, PointType};
 use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct MakeBox2D {
-    signature: Signature,
-}
+pub struct MakeBox2D;
 
 impl MakeBox2D {
     pub fn new() -> Self {
-        let mut valid_types = vec![];
-
-        for coord_type in [CoordType::Separated, CoordType::Interleaved] {
-            valid_types.push(
-                PointType::new(Dimension::XY, Default::default())
-                    .with_coord_type(coord_type)
-                    .data_type(),
-            );
-        }
-
-        Self {
-            signature: Signature::uniform(2, valid_types, Volatility::Immutable),
-        }
+        Self {}
     }
 }
 
@@ -44,6 +30,19 @@ impl Default for MakeBox2D {
     }
 }
 
+static SIGNATURE_2D: LazyLock<Signature> = LazyLock::new(|| {
+    let capacity = 4;
+    let mut valid_types = Vec::with_capacity(capacity);
+    for coord_type in [CoordType::Separated, CoordType::Interleaved] {
+        valid_types.push(
+            PointType::new(Dimension::XY, Default::default())
+                .with_coord_type(coord_type)
+                .data_type(),
+        );
+    }
+    debug_assert_eq!(valid_types.len(), capacity);
+    Signature::uniform(2, valid_types, Volatility::Immutable)
+});
 static DOC_2D: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for MakeBox2D {
@@ -56,7 +55,7 @@ impl ScalarUDFImpl for MakeBox2D {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        &SIGNATURE_2D
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -87,25 +86,11 @@ impl ScalarUDFImpl for MakeBox2D {
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct MakeBox3D {
-    signature: Signature,
-}
+pub struct MakeBox3D;
 
 impl MakeBox3D {
     pub fn new() -> Self {
-        let mut valid_types = vec![];
-
-        for coord_type in [CoordType::Separated, CoordType::Interleaved] {
-            valid_types.push(
-                PointType::new(Dimension::XYZ, Default::default())
-                    .with_coord_type(coord_type)
-                    .data_type(),
-            );
-        }
-
-        Self {
-            signature: Signature::uniform(2, valid_types, Volatility::Immutable),
-        }
+        Self {}
     }
 }
 
@@ -115,6 +100,19 @@ impl Default for MakeBox3D {
     }
 }
 
+static SIGNATURE_3D: LazyLock<Signature> = LazyLock::new(|| {
+    let capacity = 4;
+    let mut valid_types = Vec::with_capacity(capacity);
+    for coord_type in [CoordType::Separated, CoordType::Interleaved] {
+        valid_types.push(
+            PointType::new(Dimension::XYZ, Default::default())
+                .with_coord_type(coord_type)
+                .data_type(),
+        );
+    }
+    debug_assert_eq!(valid_types.len(), capacity);
+    Signature::uniform(2, valid_types, Volatility::Immutable)
+});
 static DOC_3D: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for MakeBox3D {
@@ -127,7 +125,7 @@ impl ScalarUDFImpl for MakeBox3D {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        &SIGNATURE_3D
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {

@@ -17,15 +17,11 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct AsText {
-    signature: Signature,
-}
+pub struct AsText;
 
 impl AsText {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
@@ -55,7 +51,7 @@ impl ScalarUDFImpl for AsText {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> datafusion::error::Result<DataType> {

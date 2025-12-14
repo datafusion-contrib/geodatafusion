@@ -16,16 +16,12 @@ use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct OrientedEnvelope {
-    signature: Signature,
     coord_type: CoordType,
 }
 
 impl OrientedEnvelope {
     pub fn new(coord_type: CoordType) -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-            coord_type,
-        }
+        Self { coord_type }
     }
 }
 
@@ -47,7 +43,7 @@ impl ScalarUDFImpl for OrientedEnvelope {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {

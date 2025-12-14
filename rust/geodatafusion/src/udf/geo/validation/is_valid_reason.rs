@@ -13,15 +13,11 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct IsValidReason {
-    signature: Signature,
-}
+pub struct IsValidReason;
 
 impl IsValidReason {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 }
 
@@ -43,7 +39,7 @@ impl ScalarUDFImpl for IsValidReason {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {

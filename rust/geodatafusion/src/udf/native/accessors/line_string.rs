@@ -21,16 +21,12 @@ use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct StartPoint {
-    signature: Signature,
     coord_type: CoordType,
 }
 
 impl StartPoint {
     pub fn new(coord_type: CoordType) -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-            coord_type,
-        }
+        Self { coord_type }
     }
 }
 
@@ -52,7 +48,7 @@ impl ScalarUDFImpl for StartPoint {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -78,16 +74,12 @@ impl ScalarUDFImpl for StartPoint {
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct EndPoint {
-    signature: Signature,
     coord_type: CoordType,
 }
 
 impl EndPoint {
     pub fn new(coord_type: CoordType) -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-            coord_type,
-        }
+        Self { coord_type }
     }
 }
 
@@ -109,7 +101,7 @@ impl ScalarUDFImpl for EndPoint {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -137,16 +129,12 @@ impl ScalarUDFImpl for EndPoint {
 #[derive(Debug, Eq, PartialEq, Hash)]
 #[allow(dead_code)]
 struct PointN {
-    signature: Signature,
     coord_type: CoordType,
 }
 
 impl PointN {
     pub fn new(coord_type: CoordType) -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-            coord_type,
-        }
+        Self { coord_type }
     }
 }
 
@@ -168,7 +156,7 @@ impl ScalarUDFImpl for PointN {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {

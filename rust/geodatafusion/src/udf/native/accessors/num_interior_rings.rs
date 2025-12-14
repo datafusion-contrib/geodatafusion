@@ -21,14 +21,12 @@ use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct NumInteriorRings {
-    signature: Signature,
     aliases: Vec<String>,
 }
 
 impl NumInteriorRings {
     pub fn new() -> Self {
         Self {
-            signature: any_single_geometry_type_input(),
             aliases: vec!["st_numinteriorring".to_string()],
         }
     }
@@ -52,7 +50,7 @@ impl ScalarUDFImpl for NumInteriorRings {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn aliases(&self) -> &[String] {
