@@ -16,15 +16,11 @@ use crate::error::GeoDataFusionResult;
 use crate::udf::native::bounding_box::util::bounds::bounding_rect;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct Box2D {
-    signature: Signature,
-}
+pub struct Box2D;
 
 impl Box2D {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 }
 
@@ -46,7 +42,7 @@ impl ScalarUDFImpl for Box2D {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -75,15 +71,11 @@ impl ScalarUDFImpl for Box2D {
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct Box3D {
-    signature: Signature,
-}
+pub struct Box3D;
 
 impl Box3D {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 }
 
@@ -105,7 +97,7 @@ impl ScalarUDFImpl for Box3D {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {

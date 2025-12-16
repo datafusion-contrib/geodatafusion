@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_schema::DataType;
 use datafusion::error::Result;
@@ -12,15 +12,11 @@ use geoarrow_array::array::from_arrow_array;
 use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct Distance {
-    signature: Signature,
-}
+pub struct Distance;
 
 impl Distance {
     pub fn new() -> Self {
-        Self {
-            signature: Signature::any(2, Volatility::Immutable),
-        }
+        Self {}
     }
 }
 
@@ -30,6 +26,7 @@ impl Default for Distance {
     }
 }
 
+static SIGNATURE: LazyLock<Signature> = LazyLock::new(|| Signature::any(2, Volatility::Immutable));
 static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for Distance {
@@ -42,7 +39,7 @@ impl ScalarUDFImpl for Distance {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        &SIGNATURE
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {

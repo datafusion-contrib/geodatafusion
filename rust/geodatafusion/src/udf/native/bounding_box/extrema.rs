@@ -16,15 +16,11 @@ use crate::error::GeoDataFusionResult;
 use crate::udf::native::bounding_box::util::bounds::impl_extrema;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct XMin {
-    signature: Signature,
-}
+pub struct XMin;
 
 impl XMin {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 }
 
@@ -46,7 +42,7 @@ impl ScalarUDFImpl for XMin {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -77,15 +73,11 @@ impl ScalarUDFImpl for XMin {
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct YMin {
-    signature: Signature,
-}
+pub struct YMin;
 
 impl YMin {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 }
 
@@ -107,7 +99,7 @@ impl ScalarUDFImpl for YMin {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -138,15 +130,11 @@ impl ScalarUDFImpl for YMin {
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct ZMin {
-    signature: Signature,
-}
+pub struct ZMin;
 
 impl ZMin {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 }
 
@@ -168,7 +156,7 @@ impl ScalarUDFImpl for ZMin {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -201,15 +189,11 @@ impl ScalarUDFImpl for ZMin {
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct XMax {
-    signature: Signature,
-}
+pub struct XMax;
 
 impl XMax {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 }
 
@@ -231,7 +215,7 @@ impl ScalarUDFImpl for XMax {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -262,15 +246,11 @@ impl ScalarUDFImpl for XMax {
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct YMax {
-    signature: Signature,
-}
+pub struct YMax;
 
 impl YMax {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 }
 
@@ -292,7 +272,7 @@ impl ScalarUDFImpl for YMax {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -323,15 +303,11 @@ impl ScalarUDFImpl for YMax {
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct ZMax {
-    signature: Signature,
-}
+pub struct ZMax;
 
 impl ZMax {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 }
 
@@ -353,7 +329,7 @@ impl ScalarUDFImpl for ZMax {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {

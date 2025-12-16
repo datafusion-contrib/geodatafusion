@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_array::builder::StringViewBuilder;
 use arrow_schema::DataType;
@@ -17,23 +17,11 @@ use geoarrow_schema::{CoordType, Dimension, PointType};
 use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct GeoHash {
-    signature: Signature,
-}
+pub struct GeoHash;
 
 impl GeoHash {
     pub fn new() -> Self {
-        let valid_types = vec![
-            PointType::new(Dimension::XY, Default::default())
-                .with_coord_type(CoordType::Separated)
-                .data_type(),
-            PointType::new(Dimension::XY, Default::default())
-                .with_coord_type(CoordType::Interleaved)
-                .data_type(),
-        ];
-        Self {
-            signature: Signature::uniform(1, valid_types, Volatility::Immutable),
-        }
+        Self {}
     }
 }
 
@@ -44,6 +32,17 @@ impl Default for GeoHash {
 }
 
 static GEOHASH_DOC: OnceLock<Documentation> = OnceLock::new();
+static GEOHASH_SIGNATURE: LazyLock<Signature> = LazyLock::new(|| {
+    let valid_types = vec![
+        PointType::new(Dimension::XY, Default::default())
+            .with_coord_type(CoordType::Separated)
+            .data_type(),
+        PointType::new(Dimension::XY, Default::default())
+            .with_coord_type(CoordType::Interleaved)
+            .data_type(),
+    ];
+    Signature::uniform(1, valid_types, Volatility::Immutable)
+});
 
 impl ScalarUDFImpl for GeoHash {
     fn as_any(&self) -> &dyn Any {
@@ -55,7 +54,7 @@ impl ScalarUDFImpl for GeoHash {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        &GEOHASH_SIGNATURE
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> datafusion::error::Result<DataType> {
@@ -114,7 +113,7 @@ mod test {
     #[tokio::test]
     async fn test_geohash() {
         let ctx = SessionContext::new();
-        ctx.register_udf(GeoHash::default().into());
+        ctx.register_udf(GeoHash.into());
         ctx.register_udf(Point::default().into());
 
         let df = ctx

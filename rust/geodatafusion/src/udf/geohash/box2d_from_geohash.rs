@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_array::StringArrayType;
 use arrow_array::cast::AsArray;
@@ -18,19 +18,11 @@ use geoarrow_schema::{BoxType, Dimension, Metadata};
 use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct Box2DFromGeoHash {
-    signature: Signature,
-}
+pub struct Box2DFromGeoHash;
 
 impl Box2DFromGeoHash {
     pub fn new() -> Self {
-        Self {
-            signature: Signature::uniform(
-                1,
-                vec![DataType::Utf8, DataType::LargeUtf8, DataType::Utf8View],
-                Volatility::Immutable,
-            ),
-        }
+        Self {}
     }
 }
 
@@ -41,6 +33,13 @@ impl Default for Box2DFromGeoHash {
 }
 
 static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
+static SIGNATURE: LazyLock<Signature> = LazyLock::new(|| {
+    Signature::uniform(
+        1,
+        vec![DataType::Utf8, DataType::LargeUtf8, DataType::Utf8View],
+        Volatility::Immutable,
+    )
+});
 
 impl ScalarUDFImpl for Box2DFromGeoHash {
     fn as_any(&self) -> &dyn Any {
@@ -52,7 +51,7 @@ impl ScalarUDFImpl for Box2DFromGeoHash {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        &SIGNATURE
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -127,7 +126,7 @@ mod tests {
     #[tokio::test]
     async fn test_box2d_from_geohash() {
         let ctx = SessionContext::new();
-        ctx.register_udf(Box2DFromGeoHash::default().into());
+        ctx.register_udf(Box2DFromGeoHash.into());
 
         let df = ctx
             .sql("SELECT ST_Box2dFromGeoHash('ww8p1r4t8');")

@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_schema::DataType;
 use datafusion::error::Result;
@@ -14,17 +14,11 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct Length {
-    signature: Signature,
-    aliases: Vec<String>,
-}
+pub struct Length;
 
 impl Length {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-            aliases: vec!["st_length2d".to_string()],
-        }
+        Self {}
     }
 }
 
@@ -34,6 +28,7 @@ impl Default for Length {
     }
 }
 
+static ALIASES: LazyLock<Vec<String>> = LazyLock::new(|| vec!["st_length2d".to_string()]);
 static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for Length {
@@ -46,11 +41,11 @@ impl ScalarUDFImpl for Length {
     }
 
     fn aliases(&self) -> &[String] {
-        &self.aliases
+        ALIASES.as_slice()
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
