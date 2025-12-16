@@ -19,8 +19,8 @@ pub fn register(session_context: &datafusion::prelude::SessionContext) {
     session_context.register_udf(ST_GeometryType.into());
     session_context.register_udf(EndPoint::default().into());
     session_context.register_udf(StartPoint::default().into());
-    session_context.register_udf(NPoints::default().into());
-    session_context.register_udf(NumInteriorRings::default().into());
+    session_context.register_udf(NPoints.into());
+    session_context.register_udf(NumInteriorRings.into());
     session_context.register_udf(M::default().into());
     session_context.register_udf(X::default().into());
     session_context.register_udf(Y::default().into());

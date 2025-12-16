@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_array::builder::UInt32Builder;
 use arrow_array::{ArrayRef, UInt32Array};
@@ -20,15 +20,11 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct NumInteriorRings {
-    aliases: Vec<String>,
-}
+pub struct NumInteriorRings;
 
 impl NumInteriorRings {
     pub fn new() -> Self {
-        Self {
-            aliases: vec!["st_numinteriorring".to_string()],
-        }
+        Self {}
     }
 }
 
@@ -39,6 +35,7 @@ impl Default for NumInteriorRings {
 }
 
 static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
+static ALIASES: LazyLock<Vec<String>> = LazyLock::new(|| vec!["st_numinteriorring".to_string()]);
 
 impl ScalarUDFImpl for NumInteriorRings {
     fn as_any(&self) -> &dyn Any {
@@ -54,7 +51,7 @@ impl ScalarUDFImpl for NumInteriorRings {
     }
 
     fn aliases(&self) -> &[String] {
-        &self.aliases
+        &ALIASES
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
