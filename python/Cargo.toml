@@ -9,7 +9,7 @@ repository = "https://github.com/datafusion-contrib/geodatafusion"
 license = "MIT OR Apache-2.0"
 keywords = ["python", "arrow", "geospatial"]
 categories = ["wasm", "science::geo"]
-rust-version = "1.85"
+rust-version = "1.88"
 
 [lib]
 name = "_rust"
@@ -18,9 +18,9 @@ crate-type = ["cdylib"]
 [features]
 
 [dependencies]
-datafusion = { version = "50.2", default-features = false }
-datafusion-ffi = "50.2"
-geoarrow-schema = "0.6.1"
+datafusion = { version = "51", default-features = false }
+datafusion-ffi = "51"
+geoarrow-schema = "0.6.2"
 geodatafusion = { path = "../rust/geodatafusion" }
 pyo3 = { version = "0.26", features = [
     "hashbrown",
@@ -28,3 +28,8 @@ pyo3 = { version = "0.26", features = [
     "anyhow",
     "abi3-py39",
 ] }
+
+[patch.crates-io]
+geoarrow-array = { git = "https://github.com/geoarrow/geoarrow-rs.git" }
+geoarrow-expr-geo = { git = "https://github.com/geoarrow/geoarrow-rs.git" }
+geoarrow-schema = { git = "https://github.com/geoarrow/geoarrow-rs.git" }

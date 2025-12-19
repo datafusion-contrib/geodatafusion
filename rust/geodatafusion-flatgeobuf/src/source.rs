@@ -8,13 +8,15 @@ use arrow_schema::{Field, Schema, SchemaRef};
 use datafusion::common::Statistics;
 use datafusion::datasource::listing::PartitionedFile;
 use datafusion::datasource::physical_plan::{
-    FileMeta, FileOpenFuture, FileOpener, FileScanConfig, FileSource,
+    FileOpenFuture, FileOpener, FileScanConfig, FileSource,
 };
 use datafusion::error::{DataFusionError, Result};
+use datafusion::physical_expr::projection::ProjectionExprs;
 use datafusion::physical_expr::{PhysicalExpr, ScalarFunctionExpr};
 use datafusion::physical_plan::ColumnarValue;
 use datafusion::physical_plan::filter_pushdown::{FilterPushdownPropagation, PushedDown};
 use datafusion::physical_plan::metrics::ExecutionPlanMetricsSet;
+use datafusion_datasource::TableSchema;
 use futures::{StreamExt, TryStreamExt};
 use geoarrow_array::array::from_arrow_array;
 use geoarrow_flatgeobuf::reader::{FlatGeobufReaderOptions, FlatGeobufRecordBatchStream};
@@ -27,7 +29,7 @@ use crate::utils::open_flatgeobuf_reader;
 pub struct FlatGeobufSource {
     batch_size: Option<usize>,
     file_schema: Option<SchemaRef>,
-    projection: Option<Vec<usize>>,
+    projection: Option<ProjectionExprs>,
     metrics: ExecutionPlanMetricsSet,
     projected_statistics: Option<Statistics>,
     bbox: Option<[f64; 4]>,
@@ -79,9 +81,9 @@ impl FileSource for FlatGeobufSource {
         Arc::new(conf)
     }
 
-    fn with_schema(&self, schema: SchemaRef) -> Arc<dyn FileSource> {
+    fn with_schema(&self, schema: TableSchema) -> Arc<dyn FileSource> {
         let mut conf = self.clone();
-        conf.file_schema = Some(schema);
+        conf.file_schema = Some(schema.table_schema().clone());
         Arc::new(conf)
     }
 
@@ -93,7 +95,7 @@ impl FileSource for FlatGeobufSource {
 
     fn with_projection(&self, config: &FileScanConfig) -> Arc<dyn FileSource> {
         let mut conf = self.clone();
-        conf.projection = config.projection.clone();
+        conf.projection = config.projection_exprs.clone();
         Arc::new(conf)
     }
 
@@ -120,12 +122,12 @@ impl FileSource for FlatGeobufSource {
         let mut pushdown_flags = vec![];
         let mut bbox = self.bbox;
         for filter in filters.iter() {
-            if bbox.is_none() {
-                if let Some(extracted) = extract_bbox(filter)? {
-                    bbox = Some(extracted);
-                    pushdown_flags.push(PushedDown::Yes);
-                    continue;
-                }
+            if bbox.is_none()
+                && let Some(extracted) = extract_bbox(filter)?
+            {
+                bbox = Some(extracted);
+                pushdown_flags.push(PushedDown::Yes);
+                continue;
             }
             pushdown_flags.push(PushedDown::No);
         }
@@ -158,7 +160,7 @@ impl FlatGeobufOpener {
 }
 
 impl FileOpener for FlatGeobufOpener {
-    fn open(&self, file_meta: FileMeta, _file: PartitionedFile) -> Result<FileOpenFuture> {
+    fn open(&self, file: PartitionedFile) -> Result<FileOpenFuture> {
         let store = Arc::clone(&self.object_store);
         let config = self.config.clone();
 
@@ -168,14 +170,15 @@ impl FileOpener for FlatGeobufOpener {
                 .clone()
                 .expect("Expected file schema to be set");
             if let Some(projection) = config.projection.clone() {
-                file_schema = Arc::new(file_schema.project(&projection)?);
+                file_schema = Arc::new(projection.project_schema(file_schema.as_ref())?);
             }
 
             let options = FlatGeobufReaderOptions::from_combined_schema(file_schema)
                 .map_err(|err| DataFusionError::External(Box::new(err)))?
                 .with_batch_size(config.batch_size.unwrap_or(1024));
 
-            let fgb_reader = open_flatgeobuf_reader(store, file_meta.location().clone()).await?;
+            let fgb_reader =
+                open_flatgeobuf_reader(store, file.object_meta.location.clone()).await?;
             let selection = if let Some([minx, miny, maxx, maxy]) = config.bbox {
                 fgb_reader
                     .select_bbox(minx, miny, maxx, maxy)
@@ -212,14 +215,15 @@ fn columnar_value_to_bbox(value: ColumnarValue, field: &Field) -> Result<Option<
 }
 
 fn extract_bbox(expr: &Arc<dyn PhysicalExpr>) -> Result<Option<[f64; 4]>> {
-    if let Some(func) = expr.as_any().downcast_ref::<ScalarFunctionExpr>() {
-        if func.fun().name().eq_ignore_ascii_case("st_intersects") && func.args().len() == 2 {
-            let bbox_expr = func.args()[1].clone();
-            let empty = RecordBatch::new_empty(Arc::new(Schema::empty()));
-            let value = bbox_expr.evaluate(&empty)?;
-            let return_field = bbox_expr.return_field(empty.schema_ref())?;
-            return columnar_value_to_bbox(value, &return_field);
-        }
+    if let Some(func) = expr.as_any().downcast_ref::<ScalarFunctionExpr>()
+        && func.fun().name().eq_ignore_ascii_case("st_intersects")
+        && func.args().len() == 2
+    {
+        let bbox_expr = func.args()[1].clone();
+        let empty = RecordBatch::new_empty(Arc::new(Schema::empty()));
+        let value = bbox_expr.evaluate(&empty)?;
+        let return_field = bbox_expr.return_field(empty.schema_ref())?;
+        return columnar_value_to_bbox(value, &return_field);
     }
     Ok(None)
 }
