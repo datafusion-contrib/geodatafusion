@@ -30,15 +30,15 @@ flatgeobuf = { version = "5.0", default-features = false }
 futures = "0.3"
 geo = "0.31.0"
 geo-traits = "0.3.0"
-geoarrow-array = "0.6.2"
-geoarrow-flatgeobuf = "0.6.2"
-geoarrow-expr-geo = "0.6.2"
-geoarrow-geojson = "0.6.2"
-geoarrow-schema = "0.6.2"
+geoarrow-array = "0.7.0"
+geoarrow-flatgeobuf = "0.7.0"
+geoarrow-expr-geo = "0.7.0"
+geoarrow-geojson = "0.7.0"
+geoarrow-schema = "0.7.0"
 geodatafusion = { path = "rust/geodatafusion", version = "0.1.1" }
 geohash = "0.13.1"
 geojson = "0.24"
-geoparquet = "0.6.2"
+geoparquet = "0.7.0"
 http-range-client = { version = "0.9", default-features = false }
 object_store = "0.12.4"
 serde_json = "1"
@@ -47,11 +47,3 @@ thiserror = "1"
 tokio = { version = "1.9", default-features = false }
 wkb = "0.9"
 wkt = "0.14"
-
-[patch.crates-io]
-geoarrow-array = { git = "https://github.com/geoarrow/geoarrow-rs.git" }
-geoarrow-flatgeobuf = { git = "https://github.com/geoarrow/geoarrow-rs.git" }
-geoarrow-expr-geo = { git = "https://github.com/geoarrow/geoarrow-rs.git" }
-geoarrow-geojson = { git = "https://github.com/geoarrow/geoarrow-rs.git" }
-geoarrow-schema = { git = "https://github.com/geoarrow/geoarrow-rs.git" }
-geoparquet = { git = "https://github.com/geoarrow/geoarrow-rs.git" }
