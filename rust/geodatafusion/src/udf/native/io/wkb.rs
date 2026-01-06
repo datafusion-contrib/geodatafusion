@@ -17,15 +17,11 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::{GeoDataFusionError, GeoDataFusionResult};
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct AsBinary {
-    signature: Signature,
-}
+pub struct AsBinary;
 
 impl AsBinary {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 }
 
@@ -47,7 +43,7 @@ impl ScalarUDFImpl for AsBinary {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {

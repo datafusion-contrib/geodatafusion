@@ -18,15 +18,11 @@ use crate::error::GeoDataFusionResult;
 use crate::udf::native::bounding_box::util::bounds::{BoundingRect, total_bounds};
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct Extent {
-    signature: Signature,
-}
+pub struct Extent;
 
 impl Extent {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 }
 
@@ -46,7 +42,7 @@ impl AggregateUDFImpl for Extent {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {

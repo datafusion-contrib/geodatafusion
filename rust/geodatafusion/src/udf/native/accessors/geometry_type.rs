@@ -18,15 +18,11 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
-pub struct GeometryType {
-    signature: Signature,
-}
+pub struct GeometryType;
 
 impl GeometryType {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 }
 
@@ -48,7 +44,7 @@ impl ScalarUDFImpl for GeometryType {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -74,15 +70,11 @@ impl ScalarUDFImpl for GeometryType {
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 #[allow(non_camel_case_types)]
-pub struct ST_GeometryType {
-    signature: Signature,
-}
+pub struct ST_GeometryType;
 
 impl ST_GeometryType {
     pub fn new() -> Self {
-        Self {
-            signature: any_single_geometry_type_input(),
-        }
+        Self {}
     }
 }
 
@@ -104,7 +96,7 @@ impl ScalarUDFImpl for ST_GeometryType {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {

@@ -11,15 +11,15 @@ pub use extrema::{XMax, XMin, YMax, YMin, ZMax, ZMin};
 pub use make_box::{MakeBox2D, MakeBox3D};
 
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
-    session_context.register_udf(Box2D::default().into());
-    session_context.register_udf(Box3D::default().into());
-    session_context.register_udaf(Extent::default().into());
-    session_context.register_udf(XMax::default().into());
-    session_context.register_udf(XMin::default().into());
-    session_context.register_udf(YMax::default().into());
-    session_context.register_udf(YMin::default().into());
-    session_context.register_udf(ZMax::default().into());
-    session_context.register_udf(ZMin::default().into());
-    session_context.register_udf(MakeBox2D::default().into());
-    session_context.register_udf(MakeBox3D::default().into());
+    session_context.register_udf(Box2D.into());
+    session_context.register_udf(Box3D.into());
+    session_context.register_udaf(Extent.into());
+    session_context.register_udf(XMax.into());
+    session_context.register_udf(XMin.into());
+    session_context.register_udf(YMax.into());
+    session_context.register_udf(YMin.into());
+    session_context.register_udf(ZMax.into());
+    session_context.register_udf(ZMin.into());
+    session_context.register_udf(MakeBox2D.into());
+    session_context.register_udf(MakeBox3D.into());
 }
