@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.0] - 2026-01-07
+
+### What's Changed
+
+* feat: disable datafusion's default features by @valkum in https://github.com/datafusion-contrib/geodatafusion/pull/49
+* perf: reduce signature initialization work by @wjones127 in https://github.com/datafusion-contrib/geodatafusion/pull/52
+* chore: bump datafusion to 51, arrow to 57 by @timsaucer in https://github.com/datafusion-contrib/geodatafusion/pull/50
+
+### New Contributors
+
+* @valkum made their first contribution in https://github.com/datafusion-contrib/geodatafusion/pull/49
+* @wjones127 made their first contribution in https://github.com/datafusion-contrib/geodatafusion/pull/52
+* @timsaucer made their first contribution in https://github.com/datafusion-contrib/geodatafusion/pull/50
+
+**Full Changelog**: https://github.com/datafusion-contrib/geodatafusion/compare/v0.1.1...v0.2.0
+
 ## [0.1.1] - 2025-10-31
 
 - ci: Set up crates.io trusted publishing #46
