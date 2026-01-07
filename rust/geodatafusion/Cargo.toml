@@ -26,6 +26,7 @@ wkt = { workspace = true }
 
 [dev-dependencies]
 approx = { workspace = true }
+datafusion = { workspace = true, features = ["sql"] }
 geo-traits = { workspace = true }
 geoarrow-array = { workspace = true, features = ["test-data"] }
 object_store = { workspace = true, features = ["http"] }

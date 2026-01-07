@@ -23,7 +23,7 @@ mod tests {
     use datafusion::arrow::array::AsArray;
     use datafusion::catalog::MemTable;
     use datafusion::datasource::listing::{
-        ListingOptions, ListingTable, ListingTableConfig, ListingTableUrl,
+        ListingOptions, ListingTable, ListingTableConfig, ListingTableConfigExt, ListingTableUrl,
     };
     use datafusion::execution::SessionStateBuilder;
     use datafusion::execution::object_store::ObjectStoreUrl;

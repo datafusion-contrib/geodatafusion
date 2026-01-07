@@ -29,6 +29,7 @@ tokio = { workspace = true, features = ["io-util"] }
 [dev-dependencies]
 approx = { workspace = true }
 arrow-array = { workspace = true }
+datafusion = { workspace = true, features = ["sql"]}
 geo-traits = { workspace = true }
 geoarrow-array = { workspace = true, features = ["test-data"] }
 geodatafusion = { workspace = true }
