@@ -9,7 +9,7 @@ exclude = ["python"]
 resolver = "2"
 
 [workspace.package]
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Kyle Barron <kylebarron2@gmail.com>"]
 edition = "2024"
 license = "MIT OR Apache-2.0"
@@ -35,7 +35,7 @@ geoarrow-flatgeobuf = "0.7.0"
 geoarrow-expr-geo = "0.7.0"
 geoarrow-geojson = "0.7.0"
 geoarrow-schema = "0.7.0"
-geodatafusion = { path = "rust/geodatafusion", version = "0.1.1" }
+geodatafusion = { path = "rust/geodatafusion", version = "0.2.0" }
 geohash = "0.13.1"
 geojson = "0.24"
 geoparquet = "0.7.0"
