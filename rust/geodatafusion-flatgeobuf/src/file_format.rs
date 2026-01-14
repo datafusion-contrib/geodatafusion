@@ -14,11 +14,12 @@ use datafusion::common::stats::Precision;
 use datafusion::common::{GetExt, Statistics};
 use datafusion::datasource::file_format::file_compression_type::FileCompressionType;
 use datafusion::datasource::file_format::{FileFormat, FileFormatFactory};
-use datafusion::datasource::physical_plan::{FileScanConfig, FileScanConfigBuilder, FileSource};
+use datafusion::datasource::physical_plan::{FileScanConfig, FileSource};
 use datafusion::error::{DataFusionError, Result};
 use datafusion::execution::{SendableRecordBatchStream, TaskContext};
 use datafusion::physical_expr::LexRequirement;
 use datafusion::physical_plan::{DisplayAs, DisplayFormatType, ExecutionPlan};
+use datafusion_datasource::TableSchema;
 use datafusion_datasource::display::FileGroupDisplay;
 use datafusion_datasource::file_sink_config::{FileSink, FileSinkConfig};
 use datafusion_datasource::sink::{DataSink, DataSinkExec};
@@ -106,7 +107,6 @@ pub struct FlatGeobufFormat {
 
 impl Default for FlatGeobufFormat {
     fn default() -> Self {
-        dbg!("default impl on FlatGeobufFormat");
         Self {
             coord_type: CoordType::default(),
             use_view_types: true,
@@ -215,10 +215,7 @@ impl FileFormat for FlatGeobufFormat {
         _state: &dyn Session,
         conf: FileScanConfig,
     ) -> Result<Arc<dyn ExecutionPlan>> {
-        let conf_builder = FileScanConfigBuilder::from(conf);
-        let source = Arc::new(FlatGeobufSource::new());
-        let config = conf_builder.with_source(source).build();
-        Ok(DataSourceExec::from_data_source(config))
+        Ok(DataSourceExec::from_data_source(conf))
     }
 
     async fn create_writer_physical_plan(
@@ -232,8 +229,8 @@ impl FileFormat for FlatGeobufFormat {
         Ok(Arc::new(DataSinkExec::new(input, sink, order_requirements)))
     }
 
-    fn file_source(&self) -> Arc<dyn FileSource> {
-        Arc::new(FlatGeobufSource::default())
+    fn file_source(&self, table_schema: TableSchema) -> Arc<dyn FileSource> {
+        Arc::new(FlatGeobufSource::new(table_schema))
     }
 
     /// Returns whether this instance uses compression if applicable

@@ -16,6 +16,7 @@ use datafusion::error::{DataFusionError, Result};
 use datafusion::execution::TaskContext;
 use datafusion::physical_expr::LexRequirement;
 use datafusion::physical_plan::{DisplayAs, DisplayFormatType, ExecutionPlan};
+use datafusion_datasource::TableSchema;
 use datafusion_datasource::display::FileGroupDisplay;
 use datafusion_datasource::file_sink_config::{FileSink, FileSinkConfig};
 use datafusion_datasource::sink::{DataSink, DataSinkExec};
@@ -132,7 +133,7 @@ impl FileFormat for GeoJsonFormat {
         Ok(Arc::new(DataSinkExec::new(input, sink, order_requirements)))
     }
 
-    fn file_source(&self) -> Arc<dyn FileSource> {
+    fn file_source(&self, _table_schema: TableSchema) -> Arc<dyn FileSource> {
         // Not implemented for reading
         unimplemented!("GeoJSON format only supports writing")
     }
