@@ -137,7 +137,7 @@ mod tests {
         let batches = df.collect().await.unwrap();
         let column = batches[0].column(0);
 
-        let rect_array = RectArray::try_from((column.as_ref(), schema.field(0))).unwrap();
+        let rect_array = RectArray::try_from((column.as_ref(), schema.field(0).as_ref())).unwrap();
         let rect = rect_array.value(0).unwrap();
 
         assert!(relative_eq!(rect.min().x(), 112.55836486816406));

@@ -4,8 +4,7 @@ use std::any::Any;
 use std::sync::Arc;
 
 use arrow_array::RecordBatch;
-use arrow_schema::{Field, Schema, SchemaRef};
-use datafusion::common::Statistics;
+use arrow_schema::{Field, Schema};
 use datafusion::datasource::listing::PartitionedFile;
 use datafusion::datasource::physical_plan::{
     FileOpenFuture, FileOpener, FileScanConfig, FileSource,
@@ -25,24 +24,28 @@ use object_store::ObjectStore;
 
 use crate::utils::open_flatgeobuf_reader;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct FlatGeobufSource {
     batch_size: Option<usize>,
-    file_schema: Option<SchemaRef>,
-    projection: Option<ProjectionExprs>,
+    table_schema: TableSchema,
+    projection: ProjectionExprs,
     metrics: ExecutionPlanMetricsSet,
-    projected_statistics: Option<Statistics>,
     bbox: Option<[f64; 4]>,
 }
 
 impl FlatGeobufSource {
-    pub fn new() -> Self {
+    pub fn new(table_schema: TableSchema) -> Self {
+        let table_schema_ref = table_schema.table_schema();
+        let projection = ProjectionExprs::from_indices(
+            &(0..table_schema_ref.fields().len()).collect::<Vec<_>>(),
+            table_schema_ref,
+        );
+
         Self {
             batch_size: None,
-            file_schema: None,
-            projection: None,
+            table_schema,
+            projection,
             metrics: ExecutionPlanMetricsSet::new(),
-            projected_statistics: None,
             bbox: None,
         }
     }
@@ -71,8 +74,11 @@ impl FileSource for FlatGeobufSource {
         object_store: Arc<dyn ObjectStore>,
         _base_config: &FileScanConfig,
         _partition: usize,
-    ) -> Arc<dyn FileOpener> {
-        Arc::new(FlatGeobufOpener::new(Arc::new(self.clone()), object_store))
+    ) -> Result<Arc<dyn FileOpener>> {
+        Ok(Arc::new(FlatGeobufOpener::new(
+            Arc::new(self.clone()),
+            object_store,
+        )))
     }
 
     fn with_batch_size(&self, batch_size: usize) -> Arc<dyn FileSource> {
@@ -81,37 +87,16 @@ impl FileSource for FlatGeobufSource {
         Arc::new(conf)
     }
 
-    fn with_schema(&self, schema: TableSchema) -> Arc<dyn FileSource> {
-        let mut conf = self.clone();
-        conf.file_schema = Some(schema.table_schema().clone());
-        Arc::new(conf)
-    }
-
-    fn with_statistics(&self, statistics: Statistics) -> Arc<dyn FileSource> {
-        let mut conf = self.clone();
-        conf.projected_statistics = Some(statistics);
-        Arc::new(conf)
-    }
-
-    fn with_projection(&self, config: &FileScanConfig) -> Arc<dyn FileSource> {
-        let mut conf = self.clone();
-        conf.projection = config.projection_exprs.clone();
-        Arc::new(conf)
-    }
-
     fn metrics(&self) -> &ExecutionPlanMetricsSet {
         &self.metrics
     }
 
-    fn statistics(&self) -> Result<Statistics> {
-        let statistics = &self.projected_statistics;
-        Ok(statistics
-            .clone()
-            .expect("projected_statistics must be set"))
-    }
-
     fn file_type(&self) -> &str {
         "flatgeobuf"
+    }
+
+    fn table_schema(&self) -> &TableSchema {
+        &self.table_schema
     }
 
     fn try_pushdown_filters(
@@ -143,6 +128,19 @@ impl FileSource for FlatGeobufSource {
             ))
         }
     }
+
+    fn try_pushdown_projection(
+        &self,
+        projection: &ProjectionExprs,
+    ) -> Result<Option<Arc<dyn FileSource>>> {
+        let mut source = self.clone();
+        source.projection = self.projection.try_merge(projection)?;
+        Ok(Some(Arc::new(source)))
+    }
+
+    fn projection(&self) -> Option<&ProjectionExprs> {
+        Some(&self.projection)
+    }
 }
 
 pub struct FlatGeobufOpener {
@@ -165,13 +163,8 @@ impl FileOpener for FlatGeobufOpener {
         let config = self.config.clone();
 
         Ok(Box::pin(async move {
-            let mut file_schema = config
-                .file_schema
-                .clone()
-                .expect("Expected file schema to be set");
-            if let Some(projection) = config.projection.clone() {
-                file_schema = Arc::new(projection.project_schema(file_schema.as_ref())?);
-            }
+            let mut file_schema = config.table_schema.file_schema().clone();
+            file_schema = Arc::new(config.projection.project_schema(file_schema.as_ref())?);
 
             let options = FlatGeobufReaderOptions::from_combined_schema(file_schema)
                 .map_err(|err| DataFusionError::External(Box::new(err)))?

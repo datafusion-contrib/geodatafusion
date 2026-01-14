@@ -13,8 +13,11 @@ use datafusion::datasource::physical_plan::{FileScanConfig, FileSinkConfig, File
 use datafusion::error::Result;
 use datafusion::physical_expr::LexRequirement;
 use datafusion::physical_plan::ExecutionPlan;
+use datafusion_datasource::TableSchema;
 use datafusion_datasource::file_format::FileFormatFactory;
+use datafusion_datasource::file_scan_config::FileScanConfigBuilder;
 use datafusion_datasource_parquet::ParquetFormat;
+use datafusion_datasource_parquet::source::ParquetSource;
 use geoarrow_schema::CoordType;
 use geoparquet::metadata::GeoParquetMetadata;
 use geoparquet::reader::infer_geoarrow_schema;
@@ -159,7 +162,15 @@ impl FileFormat for GeoParquetFormat {
         _state: &dyn Session,
         conf: FileScanConfig,
     ) -> Result<Arc<dyn ExecutionPlan>> {
-        self.inner.create_physical_plan(_state, conf).await
+        let source = conf.file_source().clone();
+        let geoparquet_source = source.as_any().downcast_ref::<GeoParquetSource>().unwrap();
+        let parquet_source = &geoparquet_source.inner;
+
+        let file_scan_config_builder =
+            FileScanConfigBuilder::from(conf).with_source(Arc::new(parquet_source.clone()));
+        let new_conf = file_scan_config_builder.build();
+
+        self.inner.create_physical_plan(_state, new_conf).await
     }
 
     async fn create_writer_physical_plan(
@@ -172,7 +183,15 @@ impl FileFormat for GeoParquetFormat {
         todo!("writing not implemented for GeoParquet yet")
     }
 
-    fn file_source(&self) -> Arc<dyn FileSource> {
-        Arc::new(GeoParquetSource::default())
+    fn file_source(&self, table_schema: TableSchema) -> Arc<dyn FileSource> {
+        let parquet_source = self.inner.file_source(table_schema);
+        // safe to do unwrap here because the inner type is ParquetSource for sure
+        let inner = parquet_source
+            .as_any()
+            .downcast_ref::<ParquetSource>()
+            .unwrap();
+        Arc::new(GeoParquetSource {
+            inner: inner.clone(),
+        })
     }
 }

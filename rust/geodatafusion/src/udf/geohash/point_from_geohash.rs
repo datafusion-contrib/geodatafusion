@@ -148,7 +148,8 @@ mod tests {
         let batches = df.collect().await.unwrap();
         let column = batches[0].column(0);
 
-        let point_array = PointArray::try_from((column.as_ref(), schema.field(0))).unwrap();
+        let point_array =
+            PointArray::try_from((column.as_ref(), schema.field(0).as_ref())).unwrap();
         let point = point_array.value(0).unwrap();
 
         assert!(relative_eq!(point.coord().unwrap().x(), -115.13671875));

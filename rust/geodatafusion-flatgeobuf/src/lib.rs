@@ -28,7 +28,7 @@ mod tests {
     use datafusion::execution::SessionStateBuilder;
     use datafusion::execution::object_store::ObjectStoreUrl;
     use datafusion::prelude::SessionContext;
-    use geoarrow_array::array::MultiPolygonArray;
+    use geoarrow_array::array::{MultiPolygonArray, from_arrow_array};
     use geoarrow_array::builder::PointBuilder;
     use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor};
     use geoarrow_schema::{CoordType, Dimension, PointType};
@@ -131,9 +131,12 @@ mod tests {
 
         let geometry_field = schema.field_with_unqualified_name("geometry").unwrap();
         let geometry_column = batch.column_by_name("geometry").unwrap();
-        let geometry_array =
-            MultiPolygonArray::try_from((geometry_column.as_ref(), geometry_field)).unwrap();
-        let _polygon = geometry_array.value(0).unwrap();
+        let geometry_array = from_arrow_array(geometry_column.as_ref(), geometry_field).unwrap();
+        let multi_polygon = geometry_array
+            .as_any()
+            .downcast_ref::<MultiPolygonArray>()
+            .unwrap();
+        let _polygon = multi_polygon.value(0).unwrap();
     }
 
     #[tokio::test]
