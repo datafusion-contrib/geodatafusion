@@ -15,6 +15,7 @@ use datafusion::physical_expr::LexRequirement;
 use datafusion::physical_plan::ExecutionPlan;
 use datafusion_datasource::TableSchema;
 use datafusion_datasource::file_format::FileFormatFactory;
+use datafusion_datasource::file_scan_config::FileScanConfigBuilder;
 use datafusion_datasource_parquet::ParquetFormat;
 use datafusion_datasource_parquet::source::ParquetSource;
 use geoarrow_schema::CoordType;
@@ -161,7 +162,15 @@ impl FileFormat for GeoParquetFormat {
         _state: &dyn Session,
         conf: FileScanConfig,
     ) -> Result<Arc<dyn ExecutionPlan>> {
-        self.inner.create_physical_plan(_state, conf).await
+        let source = conf.file_source().clone();
+        let geoparquet_source = source.as_any().downcast_ref::<GeoParquetSource>().unwrap();
+        let parquet_source = &geoparquet_source.inner;
+
+        let file_scan_config_builder =
+            FileScanConfigBuilder::from(conf).with_source(Arc::new(parquet_source.clone()));
+        let new_conf = file_scan_config_builder.build();
+
+        self.inner.create_physical_plan(_state, new_conf).await
     }
 
     async fn create_writer_physical_plan(

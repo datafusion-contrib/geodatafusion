@@ -30,7 +30,7 @@ mod tests {
     use datafusion::prelude::SessionContext;
     use geoarrow_array::array::{MultiPolygonArray, from_arrow_array};
     use geoarrow_array::builder::PointBuilder;
-    use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
+    use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor};
     use geoarrow_schema::{CoordType, Dimension, PointType};
     use geodatafusion::udf::geo::processing::Centroid;
     use geodatafusion::udf::geo::relationships::Intersects;
