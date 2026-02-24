@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.0] - 2026-02-24
+
+* feat: update to datafusion 52 by @sunng87 in https://github.com/datafusion-contrib/geodatafusion/pull/54
+
+**Full Changelog**: https://github.com/datafusion-contrib/geodatafusion/compare/v0.2.0...v0.3.0
+
 ## [0.2.0] - 2026-01-07
 
 ### What's Changed
