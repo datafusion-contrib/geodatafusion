@@ -1,3 +1,4 @@
+pub mod aggregate;
 pub mod measurement;
 pub mod processing;
 pub mod relationships;
