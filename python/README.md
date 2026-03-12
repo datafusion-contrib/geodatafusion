@@ -38,3 +38,11 @@ prints:
 | 1.0                                       |
 +-------------------------------------------+
 ```
+
+## Wheel / DataFusion compatibility
+
+| Python Release | DataFusion Version | Release Date    |
+|----------------|-------------------|-----------------|
+| py-v0.1.2      | 50.2              | Oct 17, 2025    |
+| py-v0.1.1      | 49.0.0            | Sep 15, 2025    |
+| py-v0.1.0      | 49.0.0            | Sep 15, 2025    |
