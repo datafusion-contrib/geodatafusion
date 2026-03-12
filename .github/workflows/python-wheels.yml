@@ -38,17 +38,17 @@ jobs:
         uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
-          version: "0.8.x"
+          version: "0.10.x"
 
       - name: Install Python versions
         # The minimum abi3 version + pypy
-        run: uv python install 3.9 pypy3.10
+        run: uv python install 3.10 pypy3.11
 
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist -i 3.9 -i pypy3.10 --manifest-path python/Cargo.toml
+          args: --release --out dist -i 3.10 -i pypy3.11 --manifest-path python/Cargo.toml
           sccache: "true"
           manylinux: ${{ matrix.platform.manylinux }}
 
@@ -65,9 +65,9 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - runner: macos-13
+          - runner: macos-15-intel
             target: x86_64
-          - runner: macos-14
+          - runner: macos-15
             target: aarch64
     steps:
       - uses: actions/checkout@v4
@@ -81,7 +81,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist -i 3.9 -m python/Cargo.toml
+          args: --release --out dist -i 3.10 -m python/Cargo.toml
           sccache: "true"
 
       - name: Install built wheel - ${{ matrix.platform.target }}
@@ -105,7 +105,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: 3.10
           architecture: ${{ matrix.target }}
 
       - uses: dtolnay/rust-toolchain@stable
@@ -114,7 +114,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-          args: --release --out dist -i 3.9 -m python/Cargo.toml
+          args: --release --out dist -i 3.10 -m python/Cargo.toml
 
       - name: Install built wheel
         run: |
