@@ -41,8 +41,9 @@ prints:
 
 ## Wheel / DataFusion compatibility
 
-| Python Release | DataFusion Version | Release Date    |
-|----------------|-------------------|-----------------|
-| py-v0.1.2      | 50.2              | Oct 17, 2025    |
-| py-v0.1.1      | 49.0.0            | Sep 15, 2025    |
-| py-v0.1.0      | 49.0.0            | Sep 15, 2025    |
+| Python Release | DataFusion Version |
+|----------------|-------------------|
+| v0.2.0         | 52.x              |
+| v0.1.2         | 50.x              |
+| v0.1.1         | 49.x              |
+| v0.1.0         | 49.x              |
