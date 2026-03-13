@@ -1581,7 +1581,7 @@ dependencies = [
 
 [[package]]
 name = "geodatafusion"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "arrow-arith",
  "arrow-array",
@@ -1599,7 +1599,7 @@ dependencies = [
 
 [[package]]
 name = "geodatafusion-python"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "datafusion",
  "datafusion-ffi",
