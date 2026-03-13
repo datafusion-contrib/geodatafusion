@@ -38,3 +38,12 @@ prints:
 | 1.0                                       |
 +-------------------------------------------+
 ```
+
+## Wheel / DataFusion compatibility
+
+| Python Release | DataFusion Version |
+|----------------|-------------------|
+| v0.2.0         | 52.x              |
+| v0.1.2         | 50.x              |
+| v0.1.1         | 49.x              |
+| v0.1.0         | 49.x              |
