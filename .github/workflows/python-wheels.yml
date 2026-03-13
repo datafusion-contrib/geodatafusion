@@ -86,7 +86,7 @@ jobs:
 
       - name: Install built wheel - ${{ matrix.platform.target }}
         run: |
-          pip install geodatafusion --find-links dist --no-index --force-reinstall
+          pip install dist/geodatafusion-*.whl --force-reinstall
           python -c "import geodatafusion"
 
       - name: Upload wheels
@@ -117,8 +117,9 @@ jobs:
           args: --release --out dist -i 3.10 -m python/Cargo.toml
 
       - name: Install built wheel
+        shell: bash
         run: |
-          pip install geodatafusion --find-links dist --no-index --force-reinstall
+          pip install dist/geodatafusion-*.whl --force-reinstall
           python -c "import geodatafusion"
 
       - name: Upload wheels
