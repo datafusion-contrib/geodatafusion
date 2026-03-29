@@ -19,28 +19,28 @@ categories = ["science::geo"]
 
 [workspace.dependencies]
 approx = "0.5.1"
-arrow-arith = "57.1"
-arrow-array = "57.1"
-arrow-schema = "57.1"
+arrow-arith = "58.1"
+arrow-array = "58.1"
+arrow-schema = "58.1"
 async-trait = "0.1"
-datafusion = { version = "52", default-features = false }
-datafusion-datasource = { version = "52", default-features = false }
-datafusion-datasource-parquet = "52"
+datafusion = { version = "53", default-features = false }
+datafusion-datasource = { version = "53", default-features = false }
+datafusion-datasource-parquet = "53"
 flatgeobuf = { version = "5.0", default-features = false }
 futures = "0.3"
 geo = "0.31.0"
 geo-traits = "0.3.0"
-geoarrow-array = "0.7.0"
-geoarrow-flatgeobuf = "0.7.0"
-geoarrow-expr-geo = "0.7.0"
-geoarrow-geojson = "0.7.0"
-geoarrow-schema = "0.7.0"
+geoarrow-array = "0.8.0"
+geoarrow-flatgeobuf = "0.8.0"
+geoarrow-expr-geo = "0.8.0"
+geoarrow-geojson = "0.8.0"
+geoarrow-schema = "0.8.0"
 geodatafusion = { path = "rust/geodatafusion", version = "0.3.0" }
 geohash = "0.13.1"
 geojson = "0.24"
-geoparquet = "0.7.0"
+geoparquet = "0.8.0"
 http-range-client = { version = "0.9", default-features = false }
-object_store = "0.12.4"
+object_store = "0.13.2"
 serde_json = "1"
 tempfile = "3"
 thiserror = "1"
