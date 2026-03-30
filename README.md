@@ -8,8 +8,8 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-datafusion = "52.0"
-geodatafusion = "0.3"
+datafusion = "53.0"
+geodatafusion = "0.4"
 ```
 
 ## Functions supported
