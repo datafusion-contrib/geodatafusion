@@ -43,6 +43,7 @@ def register_all_geo(ctx: SessionContext):
     ctx.register_udf(udf(geo.Within()))
 
     # validation
+    ctx.register_udf(udf(geo.IsClosed()))
     ctx.register_udf(udf(geo.IsValid()))
     ctx.register_udf(udf(geo.IsValidReason()))
 

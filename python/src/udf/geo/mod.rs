@@ -34,6 +34,7 @@ pub(crate) fn geo(m: &Bound<PyModule>) -> PyResult<()> {
     m.add_class::<relationships::PyWithin>()?;
 
     // validation
+    m.add_class::<validation::PyIsClosed>()?;
     m.add_class::<validation::PyIsValid>()?;
     m.add_class::<validation::PyIsValidReason>()?;
 
