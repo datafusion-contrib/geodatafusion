@@ -1,6 +1,6 @@
 use geodatafusion::udf::native::accessors::{
-    CoordDim, EndPoint, IsClosed, GeometryType, M, NDims, NPoints, NumInteriorRings, ST_GeometryType,
-    StartPoint, X, Y, Z,
+    CoordDim, EndPoint, GeometryType, IsClosed, M, NDims, NPoints, NumInteriorRings,
+    ST_GeometryType, StartPoint, X, Y, Z,
 };
 
 use crate::{impl_udf, impl_udf_coord_type_arg};
