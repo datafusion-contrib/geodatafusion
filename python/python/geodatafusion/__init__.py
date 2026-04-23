@@ -43,7 +43,6 @@ def register_all_geo(ctx: SessionContext):
     ctx.register_udf(udf(geo.Within()))
 
     # validation
-    ctx.register_udf(udf(geo.IsClosed()))
     ctx.register_udf(udf(geo.IsValid()))
     ctx.register_udf(udf(geo.IsValidReason()))
 
@@ -62,6 +61,7 @@ def register_all_native(ctx: SessionContext):
     # accessors
     ctx.register_udf(udf(native.CoordDim()))
     ctx.register_udf(udf(native.EndPoint()))
+    ctx.register_udf(udf(native.IsClosed()))
     ctx.register_udf(udf(native.GeometryType()))
     ctx.register_udf(udf(native.M()))
     ctx.register_udf(udf(native.NDims()))
