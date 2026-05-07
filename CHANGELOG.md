@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.0] - 2026-03-30
+
+### What's Changed
+
+* chore: Upgrade datafusion, geoarrow & other deps by @mjgarton in https://github.com/datafusion-contrib/geodatafusion/pull/67
+
+### New Contributors
+
+* @mjgarton made their first contribution in https://github.com/datafusion-contrib/geodatafusion/pull/67
+
+**Full Changelog**: https://github.com/datafusion-contrib/geodatafusion/compare/v0.3.0...v0.4.0
+
 ## [0.3.0] - 2026-02-24
 
 * feat: update to datafusion 52 by @sunng87 in https://github.com/datafusion-contrib/geodatafusion/pull/54

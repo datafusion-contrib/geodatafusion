@@ -10,6 +10,7 @@ pub(crate) fn native(m: &Bound<PyModule>) -> PyResult<()> {
     // accessors
     m.add_class::<accessors::PyCoordDim>()?;
     m.add_class::<accessors::PyEndPoint>()?;
+    m.add_class::<accessors::PyIsClosed>()?;
     m.add_class::<accessors::PyM>()?;
     m.add_class::<accessors::PyGeometryType>()?;
     m.add_class::<accessors::PyNDims>()?;

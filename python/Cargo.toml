@@ -1,6 +1,6 @@
 [package]
 name = "geodatafusion-python"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2024"
 authors = ["Kyle Barron <kylebarron2@gmail.com>"]
 description = "Python bindings for geodatafusion, a geospatial extension to DataFusion"
@@ -18,9 +18,9 @@ crate-type = ["cdylib"]
 [features]
 
 [dependencies]
-datafusion = { version = "52", default-features = false }
-datafusion-ffi = "52"
-geoarrow-schema = "0.7.0"
+datafusion = { version = "53", default-features = false }
+datafusion-ffi = "53"
+geoarrow-schema = "0.8.0"
 geodatafusion = { path = "../rust/geodatafusion" }
 pyo3 = { version = "0.26", features = [
     "hashbrown",

@@ -8,8 +8,8 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-datafusion = "52.0"
-geodatafusion = "0.3"
+datafusion = "53.0"
+geodatafusion = "0.4"
 ```
 
 ## Functions supported
@@ -58,7 +58,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_GeometryN        |             | Return an element of a geometry collection.                                                             |
 | ST_GeometryType     | ✅          | Returns the SQL-MM type of a geometry as text.                                                          |
 | ST_InteriorRingN    |             | Returns the Nth interior ring (hole) of a Polygon.                                                      |
-| ST_IsClosed         |             | Tests if a LineStrings's start and end points are coincident.                                           |
+| ST_IsClosed         | ✅          | Tests if a LineStrings's start and end points are coincident.                                           |
 | ST_IsCollection     |             | Tests if a geometry is a geometry collection type.                                                      |
 | ST_IsEmpty          |             | Tests if a geometry is empty.                                                                           |
 | ST_IsPolygonCCW     |             | Tests if Polygons have exterior rings oriented counter-clockwise and interior rings oriented clockwise. |
