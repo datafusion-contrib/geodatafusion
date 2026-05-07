@@ -214,19 +214,24 @@ jobs:
   #         path: dist
 
   release:
-    name: Release
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-    needs: [macos, windows, linux]
+    name: Release
+    environment:
+      name: pypi-release
+      url: https://pypi.org/p/geodatafusion
     permissions:
       # Used to upload release artifacts
       contents: write
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    needs: [macos, windows, linux]
     steps:
       - uses: actions/download-artifact@v4
-      - name: Publish to PyPI
-        uses: PyO3/maturin-action@v1
-        env:
-          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+
+      - uses: actions/setup-python@v6
         with:
-          command: upload
-          args: --non-interactive --skip-existing wheels-*/*
+          python-version: 3.11
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
