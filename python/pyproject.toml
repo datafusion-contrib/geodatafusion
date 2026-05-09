@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "geodatafusion"
 requires-python = ">=3.10"
-dependencies = ["datafusion>=52,<53"] # Instability of the FFI boundary requires major version matches rust dependency
+dependencies = ["datafusion>=53,<54"] # Instability of the FFI boundary requires major version matches rust dependency
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
