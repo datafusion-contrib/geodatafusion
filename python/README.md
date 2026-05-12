@@ -43,6 +43,7 @@ prints:
 
 | Python Release | DataFusion Version |
 |----------------|-------------------|
+| v0.3.1         | 53.x              | 
 | v0.3.0         | 53.x               |
 | v0.2.0         | 52.x              |
 | v0.1.2         | 50.x              |
