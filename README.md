@@ -60,7 +60,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_InteriorRingN    |             | Returns the Nth interior ring (hole) of a Polygon.                                                      |
 | ST_IsClosed         | ✅          | Tests if a LineStrings's start and end points are coincident.                                           |
 | ST_IsCollection     |             | Tests if a geometry is a geometry collection type.                                                      |
-| ST_IsEmpty          |             | Tests if a geometry is empty.                                                                           |
+| ST_IsEmpty          | ✅          | Tests if a geometry is empty.                                                                           |
 | ST_IsPolygonCCW     |             | Tests if Polygons have exterior rings oriented counter-clockwise and interior rings oriented clockwise. |
 | ST_IsPolygonCW      |             | Tests if Polygons have exterior rings oriented clockwise and interior rings oriented counter-clockwise. |
 | ST_IsRing           |             | Tests if a LineString is closed and simple.                                                             |
