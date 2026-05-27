@@ -39,6 +39,7 @@ geodatafusion = { path = "rust/geodatafusion", version = "0.4.0" }
 geohash = "0.13.1"
 geojson = "0.24"
 geoparquet = "0.8.0"
+geos = { version = "11.1", default-features = false }
 http-range-client = { version = "0.9", default-features = false }
 object_store = "0.13.2"
 serde_json = "1"

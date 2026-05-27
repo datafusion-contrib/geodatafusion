@@ -10,6 +10,7 @@ This is a Rust workspace with multiple crates:
     - Internally, each _provider_ of functions is organized in submodules:
         - `native/` - Operations that are natively implemented, without the use of other dependencies like `geo`
         - `geo/` - Operations implemented using the `geo` crate
+        - `geos/` - Operations implemented using the `geos` crate (bindings to the native GEOS library), gated behind the optional `geos` feature
         - `geohash/` - GeoHash encoding/decoding, using the `geohash` crate
 - `rust/geodatafusion-flatgeobuf` - FlatGeobuf format support
 - `rust/geodatafusion-geoparquet` - GeoParquet format support
@@ -104,7 +105,15 @@ Functions are organized by category in `rust/geodatafusion/src/udf/`:
 - `geo/processing/` - Processing functions (ST_Buffer, ST_Simplify)
 - `geo/relationships/` - Spatial relationships (ST_Intersects, etc.)
 - `geo/validation/` - Validation functions (ST_IsValid)
+- `geos/processing/` - GEOS-backed processing functions (ST_LineMerge)
 - `geohash/` - GeoHash functions
+
+### GEOS-backed functions
+
+Functions in the `geos/` provider link the [GEOS](https://libgeos.org/) library, and can be controlled via Cargo features:
+
+- `geos` - enables the GEOS-backed UDFs, linking the **system** GEOS library (requires GEOS >= 3.11).
+- `geos-static` - implies `geos` and builds a **bundled** GEOS from vendored source instead, so no system library is needed (requires a C++ compiler and CMake at build time).
 
 ### Code Style
 

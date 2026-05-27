@@ -10,6 +10,13 @@ categories = { workspace = true }
 rust-version = { workspace = true }
 
 
+[features]
+# Enable GEOS-backed UDFs (e.g. ST_LineMerge).
+# Requires GEOS >= 3.11 for directed merge (the feature flag here opts in to v3.11 features).
+geos = ["dep:geos", "geos/v3_11_0"]
+# Build a bundled GEOS from vendored source instead of linking the system library.
+geos-static = ["geos", "geos/static"]
+
 [dependencies]
 arrow-arith = { workspace = true }
 arrow-array = { workspace = true }
@@ -21,6 +28,7 @@ geoarrow-array = { workspace = true }
 geoarrow-expr-geo = { workspace = true }
 geoarrow-schema = { workspace = true }
 geohash = { workspace = true }
+geos = { workspace = true, optional = true }
 thiserror = { workspace = true }
 wkt = { workspace = true }
 

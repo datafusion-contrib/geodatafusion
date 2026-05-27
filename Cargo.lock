@@ -424,9 +424,9 @@ checksum = "b35204fbdc0b3f4446b89fc1ac2cf84a8a68971995d0bf2e925ec7cd960f9cb3"
 
 [[package]]
 name = "cc"
-version = "1.2.41"
+version = "1.2.62"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac9fe6cdbb24b6ade63616c0a0688e45bb56732262c158df3c0c4bea4ca47cb7"
+checksum = "a1dce859f0832a7d088c4f1119888ab94ef4b5d6795d1ce05afb7fe159d79f98"
 dependencies = [
  "find-msvc-tools",
  "jobserver",
@@ -477,6 +477,15 @@ checksum = "a6139a8597ed92cf816dfb33f5dd6cf0bb93a6adc938f11039f371bc5bcd26c3"
 dependencies = [
  "chrono",
  "phf",
+]
+
+[[package]]
+name = "cmake"
+version = "0.1.58"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c0f78a02292a74a88ac736019ab962ece0bc380e3f977bf72e376c5d78ff0678"
+dependencies = [
+ "cc",
 ]
 
 [[package]]
@@ -1360,9 +1369,9 @@ checksum = "37909eebbb50d72f9059c3b6d82c0463f2ff062c9e95845c43a6c9c0355411be"
 
 [[package]]
 name = "find-msvc-tools"
-version = "0.1.4"
+version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "52051878f80a721bb68ebfbc930e07b65ba72f2da88968ea5c06fd6ca3d3a127"
+checksum = "5baebc0774151f905a1a2cc41989300b1e6fbb29aff0ceffa1064fdd3088d582"
 
 [[package]]
 name = "fixedbitset"
@@ -1690,6 +1699,7 @@ dependencies = [
  "geoarrow-expr-geo",
  "geoarrow-schema",
  "geohash",
+ "geos",
  "object_store",
  "thiserror 1.0.69",
  "tokio",
@@ -1815,6 +1825,38 @@ dependencies = [
  "serde_json",
  "serde_with",
  "wkt 0.14.0",
+]
+
+[[package]]
+name = "geos"
+version = "11.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d13c464e56cc46077aa9bafef9a02e65610ddafb6347a26a306855e7a7d3133"
+dependencies = [
+ "geos-sys",
+ "libc",
+]
+
+[[package]]
+name = "geos-src"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "63ee625c548bdf7ead03c75779d156ddfe48dc57820d336eeb39407c19f9a3b5"
+dependencies = [
+ "cmake",
+]
+
+[[package]]
+name = "geos-sys"
+version = "2.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "48fc11f837935501a7beb10afd8ecec14e5180274acf87e5a36bf0f770485884"
+dependencies = [
+ "geos-src",
+ "libc",
+ "link-cplusplus",
+ "pkg-config",
+ "semver",
 ]
 
 [[package]]
@@ -2454,6 +2496,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "840db8cf39d9ec4dd794376f38acc40d0fc65eec2a8f484f7fd375b84602becd"
 dependencies = [
  "zlib-rs",
+]
+
+[[package]]
+name = "link-cplusplus"
+version = "1.0.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f78c730aaa7d0b9336a299029ea49f9ee53b0ed06e9202e8cb7db9bae7b8c82"
+dependencies = [
+ "cc",
 ]
 
 [[package]]

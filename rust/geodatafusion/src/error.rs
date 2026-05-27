@@ -19,6 +19,10 @@ pub(crate) enum GeoDataFusionError {
     #[error(transparent)]
     GeoArrow(#[from] GeoArrowError),
 
+    #[cfg(feature = "geos")]
+    #[error(transparent)]
+    Geos(#[from] geos::Error),
+
     #[error(transparent)]
     GeoHash(#[from] geohash::GeohashError),
 }
@@ -32,6 +36,8 @@ impl From<GeoDataFusionError> for DataFusionError {
             GeoDataFusionError::Arrow(err) => DataFusionError::ArrowError(Box::new(err), None),
             GeoDataFusionError::DataFusion(err) => err,
             GeoDataFusionError::GeoArrow(err) => DataFusionError::External(Box::new(err)),
+            #[cfg(feature = "geos")]
+            GeoDataFusionError::Geos(err) => DataFusionError::External(Box::new(err)),
             GeoDataFusionError::GeoHash(err) => DataFusionError::External(Box::new(err)),
         }
     }
