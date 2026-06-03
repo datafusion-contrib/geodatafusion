@@ -11,11 +11,12 @@ rust-version = { workspace = true }
 
 
 [features]
-# Enable GEOS-backed UDFs (e.g. ST_LineMerge).
-# Requires GEOS >= 3.11 for directed merge (the feature flag here opts in to v3.11 features).
-geos = ["dep:geos", "geos/v3_11_0"]
-# Build a bundled GEOS from vendored source instead of linking the system library.
-geos-static = ["geos", "geos/static"]
+# Enables GEOS-backed UDFs.
+# We only use explicitly versioned flags,
+# and the structure should be recursive
+# (with higher version targets implying lower version ones
+# in a chain.)
+geos-3_11 = ["geos/v3_11_0"]
 
 [dependencies]
 arrow-arith = { workspace = true }

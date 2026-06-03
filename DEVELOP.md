@@ -110,10 +110,25 @@ Functions are organized by category in `rust/geodatafusion/src/udf/`:
 
 ### GEOS-backed functions
 
-Functions in the `geos/` provider link the [GEOS](https://libgeos.org/) library, and can be controlled via Cargo features:
+Functions in the `geos/` provider link the [GEOS](https://libgeos.org/) library, and can be controlled via Cargo features.
 
-- `geos` - enables the GEOS-backed UDFs, linking the **system** GEOS library (requires GEOS >= 3.11).
-- `geos-static` - implies `geos` and builds a **bundled** GEOS from vendored source instead, so no system library is needed (requires a C++ compiler and CMake at build time).
+The version of GEOS required varies by UDF,
+so we expose cargo features with explicit minimum version numbers,
+like `geos-3_11` (GEOS >=3.11).
+
+#### GEOS linking
+
+This crate will try to link the system-provided GEOS library by default.
+If you want to statically link GEOS from a source build,
+add a direct dependency on the `geos` crate to your project,
+and enable the `static` feature like so:
+
+```toml
+geos = { version = "11.1.1", features = ["static"] }
+```
+
+If you're using cargo workspaces, make sure that
+the crates using geodatafusion directly reference `geos`.
 
 ### Code Style
 

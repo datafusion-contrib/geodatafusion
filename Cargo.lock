@@ -480,15 +480,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cmake"
-version = "0.1.58"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0f78a02292a74a88ac736019ab962ece0bc380e3f977bf72e376c5d78ff0678"
-dependencies = [
- "cc",
-]
-
-[[package]]
 name = "comfy-table"
 version = "7.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1838,23 +1829,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "geos-src"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "63ee625c548bdf7ead03c75779d156ddfe48dc57820d336eeb39407c19f9a3b5"
-dependencies = [
- "cmake",
-]
-
-[[package]]
 name = "geos-sys"
 version = "2.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "48fc11f837935501a7beb10afd8ecec14e5180274acf87e5a36bf0f770485884"
 dependencies = [
- "geos-src",
  "libc",
- "link-cplusplus",
  "pkg-config",
  "semver",
 ]
@@ -2496,15 +2476,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "840db8cf39d9ec4dd794376f38acc40d0fc65eec2a8f484f7fd375b84602becd"
 dependencies = [
  "zlib-rs",
-]
-
-[[package]]
-name = "link-cplusplus"
-version = "1.0.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f78c730aaa7d0b9336a299029ea49f9ee53b0ed06e9202e8cb7db9bae7b8c82"
-dependencies = [
- "cc",
 ]
 
 [[package]]

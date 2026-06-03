@@ -113,6 +113,7 @@ fn parse_directed(args: &ScalarFunctionArgs) -> GeoDataFusionResult<bool> {
 }
 
 fn line_merge_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
+    // Parse the directed argument
     let directed = parse_directed(&args)?;
 
     let arrays = ColumnarValue::values_to_arrays(&args.args[0..1])?;
