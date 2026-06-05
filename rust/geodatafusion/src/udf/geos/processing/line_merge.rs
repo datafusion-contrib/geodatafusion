@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_array::{Array, BinaryArray};
 use arrow_schema::{DataType, FieldRef};
@@ -16,25 +16,29 @@ use geoarrow_array::cast::{from_wkb, to_wkb};
 use geoarrow_schema::{CoordType, GeoArrowType, GeometryType, Metadata};
 use geos::{Geom, Geometry};
 
+use crate::data_types::any_geometry_type;
 use crate::error::GeoDataFusionResult;
+
+/// A single geometry argument, optionally followed by the `directed` boolean.
+static SIGNATURE: LazyLock<Signature> = LazyLock::new(|| {
+    let geometry_types = any_geometry_type();
+    let mut variants = Vec::with_capacity(geometry_types.len() * 2);
+    for geometry_type in geometry_types {
+        variants.push(TypeSignature::Exact(vec![geometry_type.clone()]));
+        variants.push(TypeSignature::Exact(vec![geometry_type, DataType::Boolean]));
+    }
+    Signature::one_of(variants, Volatility::Immutable)
+});
 
 /// Sews together the component lines of a (multi)linestring.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct LineMerge {
-    signature: Signature,
     coord_type: CoordType,
 }
 
 impl LineMerge {
     pub fn new(coord_type: CoordType) -> Self {
-        Self {
-            // A single geometry argument, optionally followed by the `directed` boolean.
-            signature: Signature::one_of(
-                vec![TypeSignature::Any(1), TypeSignature::Any(2)],
-                Volatility::Immutable,
-            ),
-            coord_type,
-        }
+        Self { coord_type }
     }
 }
 
@@ -56,7 +60,7 @@ impl ScalarUDFImpl for LineMerge {
     }
 
     fn signature(&self) -> &Signature {
-        &self.signature
+        &SIGNATURE
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
