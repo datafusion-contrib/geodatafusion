@@ -23,10 +23,10 @@ jobs:
         with:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
-        - name: Install dependencies
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y libgeos-dev
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgeos-dev
       - name: Clippy
         run: cargo clippy --all-features --tests -- -D warnings
       - name: Check
