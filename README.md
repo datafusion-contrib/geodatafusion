@@ -297,7 +297,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_FilterByM                |             | Removes vertices based on their M value                                                           |
 | ST_GeneratePoints           |             | Generates a multipoint of random points contained in a Polygon or MultiPolygon.                   |
 | ST_GeometricMedian          |             | Returns the geometric median of a MultiPoint.                                                     |
-| ST_LineMerge                |             | Return the lines formed by sewing together a MultiLineString.                                     |
+| ST_LineMerge                | ✅          | Return the lines formed by sewing together a MultiLineString.                                     |
 | ST_MaximumInscribedCircle   |             | Computes the largest circle contained within a geometry.                                          |
 | ST_LargestEmptyCircle       |             | Computes the largest circle not overlapping a geometry.                                           |
 | ST_MinimumBoundingCircle    |             | Returns the smallest circle polygon that contains a geometry.                                     |

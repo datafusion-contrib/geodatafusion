@@ -10,6 +10,14 @@ categories = { workspace = true }
 rust-version = { workspace = true }
 
 
+[features]
+# Enables GEOS-backed UDFs.
+# We only use explicitly versioned flags,
+# and the structure should be recursive
+# (with higher version targets implying lower version ones
+# in a chain.)
+geos-3_11 = ["geos/v3_11_0"]
+
 [dependencies]
 arrow-arith = { workspace = true }
 arrow-array = { workspace = true }
@@ -21,6 +29,7 @@ geoarrow-array = { workspace = true }
 geoarrow-expr-geo = { workspace = true }
 geoarrow-schema = { workspace = true }
 geohash = { workspace = true }
+geos = { workspace = true, optional = true }
 thiserror = { workspace = true }
 wkt = { workspace = true }
 

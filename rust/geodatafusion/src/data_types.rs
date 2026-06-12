@@ -7,7 +7,7 @@ use geoarrow_schema::{
     MultiLineStringType, MultiPointType, MultiPolygonType, PointType, PolygonType,
 };
 
-fn any_geometry_type() -> Vec<DataType> {
+pub(crate) fn any_geometry_type() -> Vec<DataType> {
     let expected_capacity = (2 * 4 * 7) + 2 + 4 + 3 + 3;
     let mut valid_types = Vec::with_capacity(expected_capacity);
 
