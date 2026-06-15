@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_array::builder::UInt32Builder;
@@ -38,10 +37,6 @@ static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 static ALIASES: LazyLock<Vec<String>> = LazyLock::new(|| vec!["st_numinteriorring".to_string()]);
 
 impl ScalarUDFImpl for NumInteriorRings {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_numinteriorrings"
     }

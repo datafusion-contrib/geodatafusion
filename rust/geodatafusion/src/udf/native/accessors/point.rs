@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, OnceLock};
 
 use arrow_array::Float64Array;
@@ -38,10 +37,6 @@ impl Default for X {
 static X_DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for X {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_x"
     }
@@ -97,10 +92,6 @@ impl Default for Y {
 static Y_DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for Y {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_y"
     }
@@ -189,10 +180,6 @@ impl Default for Z {
 static Z_DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for Z {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_z"
     }
@@ -248,10 +235,6 @@ impl Default for M {
 static M_DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for M {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_m"
     }

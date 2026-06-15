@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_array::builder::StringViewBuilder;
@@ -45,10 +44,6 @@ static GEOHASH_SIGNATURE: LazyLock<Signature> = LazyLock::new(|| {
 });
 
 impl ScalarUDFImpl for GeoHash {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_geohash"
     }

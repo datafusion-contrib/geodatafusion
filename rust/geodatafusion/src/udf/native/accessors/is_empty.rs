@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, OnceLock};
 
 use arrow_array::BooleanArray;
@@ -37,10 +36,6 @@ impl Default for IsEmpty {
 static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for IsEmpty {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_isempty"
     }

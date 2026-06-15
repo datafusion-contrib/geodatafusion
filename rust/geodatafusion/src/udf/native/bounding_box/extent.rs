@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::Arc;
 
 use arrow_array::ArrayRef;
@@ -33,10 +32,6 @@ impl Default for Extent {
 }
 
 impl AggregateUDFImpl for Extent {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_extent"
     }

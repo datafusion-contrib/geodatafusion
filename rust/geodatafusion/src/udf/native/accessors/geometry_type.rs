@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, OnceLock};
 
 use arrow_array::builder::StringViewBuilder;
@@ -35,10 +34,6 @@ impl Default for GeometryType {
 static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for GeometryType {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "geometrytype"
     }
@@ -87,10 +82,6 @@ impl Default for ST_GeometryType {
 static ST_DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for ST_GeometryType {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_geometrytype"
     }

@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::collections::HashMap;
 use std::fmt::{self, Debug, Formatter};
 use std::io::{BufWriter, Write};
@@ -52,10 +51,6 @@ impl FileFormatFactory for GeoJsonFormatFactory {
     fn default(&self) -> Arc<dyn FileFormat> {
         Arc::new(GeoJsonFormat {})
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
 }
 
 impl GetExt for GeoJsonFormatFactory {
@@ -69,10 +64,6 @@ pub struct GeoJsonFormat {}
 
 #[async_trait]
 impl FileFormat for GeoJsonFormat {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn get_ext(&self) -> String {
         "geojsonl".to_string()
     }
@@ -225,10 +216,6 @@ impl FileSink for GeoJsonSink {
 
 #[async_trait]
 impl DataSink for GeoJsonSink {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn schema(&self) -> &SchemaRef {
         self.config.output_schema()
     }
@@ -302,10 +289,6 @@ impl FileFormatFactory for GeoJsonFileFactory {
 
     fn default(&self) -> Arc<dyn FileFormat> {
         self.file_factory.default()
-    }
-
-    fn as_any(&self) -> &dyn Any {
-        self
     }
 }
 
