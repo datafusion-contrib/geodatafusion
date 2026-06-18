@@ -21,6 +21,7 @@ categories = ["science::geo"]
 approx = "0.5.1"
 arrow-arith = "58.1"
 arrow-array = "58.1"
+arrow-buffer = "58.1"
 arrow-schema = "58.1"
 async-trait = "0.1"
 datafusion = { version = "53", default-features = false }
