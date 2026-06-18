@@ -205,6 +205,27 @@ mod test {
                 false,
                 "non-empty geometry collection",
             ),
+            // Recursive emptiness (PostGIS / JTS topological semantics).
+            // A collection whose every leaf is empty is itself reported as empty,
+            // even though it has structurally non-zero children.
+            //
+            // NB: GeoArrow explicitly denies recursive collections,
+            // so we only need to test one level.
+            (
+                "GEOMETRYCOLLECTION(POINT EMPTY, POLYGON EMPTY)",
+                true,
+                "collection of all-empty atomic children is recursively empty",
+            ),
+            (
+                "GEOMETRYCOLLECTION(MULTIPOINT EMPTY, MULTIPOLYGON EMPTY)",
+                true,
+                "collection of all-empty multi-children is recursively empty",
+            ),
+            (
+                "GEOMETRYCOLLECTION(POINT(0 0), POLYGON EMPTY)",
+                false,
+                "collection with at least one non-empty child is non-empty",
+            ),
         ];
 
         for (wkt, expected, description) in cases {
