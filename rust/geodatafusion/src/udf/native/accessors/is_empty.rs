@@ -226,6 +226,19 @@ mod test {
                 false,
                 "collection with at least one non-empty child is non-empty",
             ),
+            // NB: we'd like to test MULTIPOINT(EMPTY, EMPTY) / MULTIPOINT(EMPTY, (0 0))
+            // but the `wkt` crate cannot parse EMPTY members inside a MULTIPOINT (georust/wkt#111).
+            // MULTIPOLYGON mixed geoms seems to panic.
+            (
+                "MULTILINESTRING(EMPTY, EMPTY)",
+                true,
+                "multi-geometry where every member is empty is recursively empty",
+            ),
+            (
+                "MULTILINESTRING(EMPTY, (0 0, 1 1))",
+                false,
+                "multi-geometry with at least one non-empty member is non-empty",
+            ),
         ];
 
         for (wkt, expected, description) in cases {
