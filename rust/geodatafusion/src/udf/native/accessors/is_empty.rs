@@ -152,10 +152,10 @@ mod test {
     use datafusion::prelude::SessionContext;
 
     use super::*;
-    use crate::udf::native::io::GeomFromText;
+    use crate::udf::native::io::{GeomFromText, GeomFromWKB};
 
     #[tokio::test]
-    async fn test_st_isempty() {
+    async fn test_st_isempty_wkt() {
         let ctx = SessionContext::new();
         ctx.register_udf(IsEmpty::new().into());
         ctx.register_udf(GeomFromText::new(Default::default()).into());
@@ -205,10 +205,33 @@ mod test {
                 false,
                 "non-empty geometry collection",
             ),
-            // Recursive emptiness (PostGIS / JTS topological semantics).
-            // A collection whose every leaf is empty is itself reported as empty,
-            // even though it has structurally non-zero children.
-            //
+        ];
+
+        for (wkt, expected, description) in cases {
+            let sql = format!("SELECT ST_IsEmpty(ST_GeomFromText('{}'))", wkt);
+            let df = ctx
+                .sql(&sql)
+                .await
+                .unwrap_or_else(|_| panic!("Failed to execute SQL for {}", description));
+
+            let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+            let col = batch.column(0).as_boolean();
+
+            assert_eq!(col.value(0), expected, "Failed on {}: {}", description, wkt);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_structural_emptiness() {
+        let ctx = SessionContext::new();
+        ctx.register_udf(IsEmpty::new().into());
+        ctx.register_udf(GeomFromText::new(Default::default()).into());
+        ctx.register_udf(GeomFromWKB::new(Default::default()).into());
+
+        // Recursive emptiness (PostGIS / JTS topological semantics).
+        // A collection whose every leaf is empty is itself reported as empty,
+        // even though it has structurally non-zero children.
+        let wkt_cases = vec![
             // NB: GeoArrow explicitly denies recursive collections,
             // so we only need to test one level.
             (
@@ -226,9 +249,6 @@ mod test {
                 false,
                 "collection with at least one non-empty child is non-empty",
             ),
-            // NB: we'd like to test MULTIPOINT(EMPTY, EMPTY) / MULTIPOINT(EMPTY, (0 0))
-            // but the `wkt` crate cannot parse EMPTY members inside a MULTIPOINT (georust/wkt#111).
-            // MULTIPOLYGON mixed geoms seems to panic.
             (
                 "MULTILINESTRING(EMPTY, EMPTY)",
                 true,
@@ -241,7 +261,7 @@ mod test {
             ),
         ];
 
-        for (wkt, expected, description) in cases {
+        for (wkt, expected, description) in wkt_cases {
             let sql = format!("SELECT ST_IsEmpty(ST_GeomFromText('{}'))", wkt);
             let df = ctx
                 .sql(&sql)
@@ -252,6 +272,49 @@ mod test {
             let col = batch.column(0).as_boolean();
 
             assert_eq!(col.value(0), expected, "Failed on {}: {}", description, wkt);
+        }
+
+        // The following fixtures fail to parse or crash in WKT form, so we test via WKB
+        let wkb_cases = vec![
+            (
+                // MULTIPOINT (EMPTY, EMPTY)
+                "010400000000000000",
+                true,
+                "multi-geometry where every member is empty is recursively empty",
+            ),
+            (
+                // MULTIPOLYGON (EMPTY, EMPTY)
+                "010600000000000000",
+                true,
+                "multi-geometry where every member is empty is recursively empty",
+            ),
+            (
+                // MULTIPOINT(EMPTY, (0 0))
+                "0104000000020000000101000000000000000000f87f000000000000f87f010100000000000000000000000000000000000000",
+                false,
+                "multi-geometry with at least one non-empty member is non-empty",
+            ),
+            // This crashes geoarrow-array-0.8.0/src/builder/multipolygon.rs:188:51.
+            // There's an unconditional unwrap.
+            // (
+            //     // MULTIPOLYGON(EMPTY, ((0 0, 1 0, 1 1, 0 0)))
+            //     "0106000000020000000103000000000000000103000000010000000400000000000000000000000000000000000000000000000000f03f0000000000000000000000000000f03f000000000000f03f00000000000000000000000000000000",
+            //     false,
+            //     "multi-geometry with at least one non-empty member is non-empty",
+            // ),
+        ];
+
+        for (wkb, expected, description) in wkb_cases {
+            let sql = format!("SELECT ST_IsEmpty(ST_GeomFromWKB(X'{}'))", wkb);
+            let df = ctx
+                .sql(&sql)
+                .await
+                .unwrap_or_else(|_| panic!("Failed to execute SQL for {}", description));
+
+            let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+            let col = batch.column(0).as_boolean();
+
+            assert_eq!(col.value(0), expected, "Failed on {}: {}", description, wkb);
         }
     }
 
