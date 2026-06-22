@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -74,10 +73,6 @@ impl FileFormatFactory for GeoParquetFormatFactory {
     fn default(&self) -> Arc<dyn FileFormat> {
         Arc::new(GeoParquetFormat::default())
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
 }
 
 impl GetExt for GeoParquetFormatFactory {
@@ -107,10 +102,6 @@ impl GeoParquetFormat {
 
 #[async_trait]
 impl FileFormat for GeoParquetFormat {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn get_ext(&self) -> String {
         self.inner.get_ext()
     }
@@ -163,7 +154,7 @@ impl FileFormat for GeoParquetFormat {
         conf: FileScanConfig,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let source = conf.file_source().clone();
-        let geoparquet_source = source.as_any().downcast_ref::<GeoParquetSource>().unwrap();
+        let geoparquet_source = source.downcast_ref::<GeoParquetSource>().unwrap();
         let parquet_source = &geoparquet_source.inner;
 
         let file_scan_config_builder =
@@ -186,10 +177,7 @@ impl FileFormat for GeoParquetFormat {
     fn file_source(&self, table_schema: TableSchema) -> Arc<dyn FileSource> {
         let parquet_source = self.inner.file_source(table_schema);
         // safe to do unwrap here because the inner type is ParquetSource for sure
-        let inner = parquet_source
-            .as_any()
-            .downcast_ref::<ParquetSource>()
-            .unwrap();
+        let inner = parquet_source.downcast_ref::<ParquetSource>().unwrap();
         Arc::new(GeoParquetSource {
             inner: inner.clone(),
         })

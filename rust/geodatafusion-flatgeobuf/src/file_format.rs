@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::collections::HashMap;
 use std::fmt::{self, Debug, Formatter};
 use std::fs::File;
@@ -86,10 +85,6 @@ impl FileFormatFactory for FlatGeobufFormatFactory {
             max_scan_records: self.max_scan_records,
         })
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
 }
 
 impl GetExt for FlatGeobufFormatFactory {
@@ -149,10 +144,6 @@ async fn infer_flatgeobuf_schema(
 
 #[async_trait]
 impl FileFormat for FlatGeobufFormat {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn get_ext(&self) -> String {
         FlatGeobufFormatFactory::new(Default::default(), Default::default()).get_ext()
     }
@@ -352,10 +343,6 @@ impl FileSink for FlatGeobufSink {
 
 #[async_trait]
 impl DataSink for FlatGeobufSink {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn schema(&self) -> &SchemaRef {
         self.config.output_schema()
     }
@@ -394,10 +381,6 @@ impl FileFormatFactory for FlatGeobufFileFactory {
 
     fn default(&self) -> Arc<dyn FileFormat> {
         self.file_factory.default()
-    }
-
-    fn as_any(&self) -> &dyn Any {
-        self
     }
 }
 

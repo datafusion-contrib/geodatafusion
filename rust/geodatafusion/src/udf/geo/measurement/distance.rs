@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_schema::DataType;
@@ -30,10 +29,6 @@ static SIGNATURE: LazyLock<Signature> = LazyLock::new(|| Signature::any(2, Volat
 static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for Distance {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_distance"
     }

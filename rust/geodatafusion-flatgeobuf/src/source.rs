@@ -1,6 +1,5 @@
 //! Execution plan for reading FlatGeobuf files
 
-use std::any::Any;
 use std::sync::Arc;
 
 use arrow_array::RecordBatch;
@@ -65,10 +64,6 @@ impl From<FlatGeobufSource> for Arc<dyn FileSource> {
 }
 
 impl FileSource for FlatGeobufSource {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn create_file_opener(
         &self,
         object_store: Arc<dyn ObjectStore>,
@@ -208,7 +203,7 @@ fn columnar_value_to_bbox(value: ColumnarValue, field: &Field) -> Result<Option<
 }
 
 fn extract_bbox(expr: &Arc<dyn PhysicalExpr>) -> Result<Option<[f64; 4]>> {
-    if let Some(func) = expr.as_any().downcast_ref::<ScalarFunctionExpr>()
+    if let Some(func) = expr.downcast_ref::<ScalarFunctionExpr>()
         && func.fun().name().eq_ignore_ascii_case("st_intersects")
         && func.args().len() == 2
     {

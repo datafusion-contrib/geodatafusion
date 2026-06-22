@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_schema::{DataType, FieldRef};
@@ -46,10 +45,6 @@ static SIGNATURE_2D: LazyLock<Signature> = LazyLock::new(|| {
 static DOC_2D: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for MakeBox2D {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_makebox2d"
     }
@@ -116,10 +111,6 @@ static SIGNATURE_3D: LazyLock<Signature> = LazyLock::new(|| {
 static DOC_3D: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for MakeBox3D {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_3dmakebox"
     }

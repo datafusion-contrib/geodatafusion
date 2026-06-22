@@ -23,9 +23,9 @@ arrow-arith = "58.1"
 arrow-array = "58.1"
 arrow-schema = "58.1"
 async-trait = "0.1"
-datafusion = { version = "53", default-features = false }
-datafusion-datasource = { version = "53", default-features = false }
-datafusion-datasource-parquet = "53"
+datafusion = { version = "54", default-features = false }
+datafusion-datasource = { version = "54", default-features = false }
+datafusion-datasource-parquet = "54"
 flatgeobuf = { version = "5.0", default-features = false }
 futures = "0.3"
 geo = "0.31.0"

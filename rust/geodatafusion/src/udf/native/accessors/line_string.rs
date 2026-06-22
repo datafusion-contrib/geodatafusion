@@ -1,6 +1,5 @@
 //! Accessors from LineString geometries
 
-use std::any::Any;
 use std::sync::{Arc, OnceLock};
 
 use arrow_schema::{DataType, FieldRef};
@@ -39,10 +38,6 @@ impl Default for StartPoint {
 static START_POINT_DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for StartPoint {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_startpoint"
     }
@@ -92,10 +87,6 @@ impl Default for EndPoint {
 static END_POINT_DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for EndPoint {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_endpoint"
     }
@@ -147,10 +138,6 @@ impl Default for PointN {
 static POINT_N_DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for PointN {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_pointn"
     }

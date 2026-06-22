@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_schema::DataType;
@@ -32,10 +31,6 @@ static ALIASES: LazyLock<Vec<String>> = LazyLock::new(|| vec!["st_length2d".to_s
 static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for Length {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_length"
     }
