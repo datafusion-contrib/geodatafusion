@@ -21,6 +21,7 @@ geos-3_11 = ["geos/v3_11_0"]
 [dependencies]
 arrow-arith = { workspace = true }
 arrow-array = { workspace = true }
+arrow-buffer = { workspace = true }
 arrow-schema = { workspace = true }
 datafusion = { workspace = true }
 geo = { workspace = true }

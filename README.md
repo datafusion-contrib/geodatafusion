@@ -48,7 +48,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_BoundingDiagonal |             | Returns the diagonal of a geometry's bounding box.                                                      |
 | ST_CoordDim         | ✅          | Return the coordinate dimension of a geometry.                                                          |
 | ST_Dimension        |             | Returns the topological dimension of a geometry.                                                        |
-| ST_Dump             |             | Returns a set of geometry_dump rows for the components of a geometry.                                   |
+| ST_Dump             | ✅          | Returns a set of geometry_dump rows for the components of a geometry.                                   |
 | ST_DumpPoints       |             | Returns a set of geometry_dump rows for the coordinates in a geometry.                                  |
 | ST_DumpSegments     |             | Returns a set of geometry_dump rows for the segments in a geometry.                                     |
 | ST_DumpRings        |             | Returns a set of geometry_dump rows for the exterior and interior rings of a Polygon.                   |
