@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, OnceLock};
 
 use arrow_array::BooleanArray;
@@ -42,10 +41,6 @@ macro_rules! impl_relate_udf {
         static $documentation_name: OnceLock<Documentation> = OnceLock::new();
 
         impl ScalarUDFImpl for $struct_name {
-            fn as_any(&self) -> &dyn Any {
-                self
-            }
-
             fn name(&self) -> &str {
                 $udf_name
             }

@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_array::{Array, BinaryArray};
@@ -51,10 +50,6 @@ impl Default for LineMerge {
 static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for LineMerge {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_linemerge"
     }

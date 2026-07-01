@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, OnceLock};
 
 use arrow_schema::{DataType, FieldRef};
@@ -33,10 +32,6 @@ impl Default for Box2D {
 static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for Box2D {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "box2d"
     }
@@ -88,10 +83,6 @@ impl Default for Box3D {
 static DOC_3D: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for Box3D {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "box3d"
     }

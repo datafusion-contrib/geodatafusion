@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, OnceLock};
 
 use arrow_schema::{DataType, FieldRef};
@@ -40,10 +39,6 @@ impl Default for Simplify {
 static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for Simplify {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_simplify"
     }
@@ -103,10 +98,6 @@ impl Default for SimplifyVW {
 static DOCUMENTATION_VW: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for SimplifyVW {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_simplifyvw"
     }
@@ -166,10 +157,6 @@ impl Default for SimplifyPreserveTopology {
 static DOCUMENTATION_TOPO: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for SimplifyPreserveTopology {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_simplifypreservetopology"
     }

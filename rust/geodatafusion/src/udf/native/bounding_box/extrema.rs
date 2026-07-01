@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, OnceLock};
 
 use arrow_schema::DataType;
@@ -33,10 +32,6 @@ impl Default for XMin {
 static XMIN_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for XMin {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_xmin"
     }
@@ -90,10 +85,6 @@ impl Default for YMin {
 static YMIN_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for YMin {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_ymin"
     }
@@ -147,10 +138,6 @@ impl Default for ZMin {
 static ZMIN_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for ZMin {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_zmin"
     }
@@ -206,10 +193,6 @@ impl Default for XMax {
 static XMAX_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for XMax {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_xmax"
     }
@@ -263,10 +246,6 @@ impl Default for YMax {
 static YMAX_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for YMax {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_ymax"
     }
@@ -320,10 +299,6 @@ impl Default for ZMax {
 static ZMAX_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for ZMax {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_zmax"
     }

@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_array::StringArrayType;
@@ -42,10 +41,6 @@ static SIGNATURE: LazyLock<Signature> = LazyLock::new(|| {
 });
 
 impl ScalarUDFImpl for Box2DFromGeoHash {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_box2dfromgeohash"
     }

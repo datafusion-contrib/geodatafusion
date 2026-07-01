@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, OnceLock};
 
 use arrow_schema::{DataType, Field};
@@ -34,10 +33,6 @@ impl Default for AsBinary {
 static AS_BINARY_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for AsBinary {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_asbinary"
     }
@@ -140,10 +135,6 @@ impl Default for GeomFromWKB {
 static GEOM_FROM_WKB_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for GeomFromWKB {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_geomfromwkb"
     }

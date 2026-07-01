@@ -1,6 +1,5 @@
 //! Point constructors
 
-use std::any::Any;
 use std::sync::{Arc, OnceLock};
 
 use arrow_array::cast::AsArray;
@@ -55,10 +54,6 @@ impl Default for Point {
 static POINT_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for Point {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_point"
     }
@@ -151,10 +146,6 @@ impl Default for PointZ {
 static POINT_Z_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for PointZ {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_pointz"
     }
@@ -248,10 +239,6 @@ impl Default for PointM {
 static POINT_M_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for PointM {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_pointm"
     }
@@ -347,10 +334,6 @@ impl Default for PointZM {
 static POINT_ZM_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for PointZM {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_pointzm"
     }
@@ -445,10 +428,6 @@ impl Default for MakePoint {
 static MAKE_POINT_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for MakePoint {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_makepoint"
     }
@@ -525,10 +504,6 @@ impl Default for MakePointM {
 static MAKE_POINT_M_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for MakePointM {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_makepointm"
     }

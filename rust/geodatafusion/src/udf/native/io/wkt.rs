@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, OnceLock};
 
 use arrow_schema::{DataType, Field};
@@ -42,10 +41,6 @@ impl Default for AsText {
 static AS_TEXT_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for AsText {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_astext"
     }
@@ -141,10 +136,6 @@ impl Default for GeomFromText {
 static GEOM_FROM_TEXT_DOC: OnceLock<Documentation> = OnceLock::new();
 
 impl ScalarUDFImpl for GeomFromText {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
     fn name(&self) -> &str {
         "st_geomfromtext"
     }
