@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::sync::{Arc, OnceLock};
 
 use arrow_array::builder::{ArrayBuilder, Int32Builder, ListBuilder};
