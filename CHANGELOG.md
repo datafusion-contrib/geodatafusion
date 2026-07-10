@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.5.0] - 2026-07-10
+
+### What's Changed
+
+* feat: ST_IsClosed by @oglego in https://github.com/datafusion-contrib/geodatafusion/pull/69
+* chore: Update version tag and DataFusion compatibility matrix for release. by @sharkinsspatial in https://github.com/datafusion-contrib/geodatafusion/pull/70
+* ci: Set up python trusted publishing by @kylebarron in https://github.com/datafusion-contrib/geodatafusion/pull/65
+* fix: Merge all wheel artifacts into dist for publish discovery. by @sharkinsspatial in https://github.com/datafusion-contrib/geodatafusion/pull/72
+* fix: Correct datafusion version pin range for Python. by @sharkinsspatial in https://github.com/datafusion-contrib/geodatafusion/pull/73
+* chore: Python 0.3.1 release by @sharkinsspatial in https://github.com/datafusion-contrib/geodatafusion/pull/74
+* fix: Correct version tag for Python release. by @sharkinsspatial in https://github.com/datafusion-contrib/geodatafusion/pull/75
+* feat: Add ST_IsEmpty by @ianthetechie in https://github.com/datafusion-contrib/geodatafusion/pull/76
+* feat: Add ST_LineMerge by @ianthetechie in https://github.com/datafusion-contrib/geodatafusion/pull/78
+* fix: Use topological (recursive) emptiness by @ianthetechie in https://github.com/datafusion-contrib/geodatafusion/pull/80
+* feat: Add ST_Dump by @ianthetechie in https://github.com/datafusion-contrib/geodatafusion/pull/81
+* chore: Datafusion 54 upgrade by @kylebarron in https://github.com/datafusion-contrib/geodatafusion/pull/83
+
+### New Contributors
+
+* @oglego made their first contribution in https://github.com/datafusion-contrib/geodatafusion/pull/69
+* @ianthetechie made their first contribution in https://github.com/datafusion-contrib/geodatafusion/pull/76
+
+**Full Changelog**: https://github.com/datafusion-contrib/geodatafusion/compare/v0.4.0...v0.5.0
+
 ## [0.4.0] - 2026-03-30
 
 ### What's Changed
