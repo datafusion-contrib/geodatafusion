@@ -157,7 +157,7 @@ impl DisplayAs for GeoJsonSink {
             DisplayFormatType::TreeRender => {
                 let format_name = "geojson-lines";
                 writeln!(f, "format: {}", format_name)?;
-                write!(f, "file={}", &self.config.original_url)
+                write!(f, "file={}", self.config.original_url)
             }
         }
     }
