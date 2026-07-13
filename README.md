@@ -9,7 +9,7 @@ Add to your `Cargo.toml`:
 ```toml
 [dependencies]
 datafusion = "54.0"
-geodatafusion = "0.4"
+geodatafusion = "0.5"
 ```
 
 ## Functions supported
