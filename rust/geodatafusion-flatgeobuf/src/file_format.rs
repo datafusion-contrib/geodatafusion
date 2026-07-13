@@ -251,7 +251,7 @@ impl DisplayAs for FlatGeobufSink {
             }
             DisplayFormatType::TreeRender => {
                 writeln!(f, "format: flatgeobuf")?;
-                write!(f, "file={}", &self.config.original_url)
+                write!(f, "file={}", self.config.original_url)
             }
         }
     }
