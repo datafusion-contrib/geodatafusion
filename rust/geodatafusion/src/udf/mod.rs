@@ -3,3 +3,4 @@ pub mod geohash;
 #[cfg(feature = "geos-3_11")]
 pub mod geos;
 pub mod native;
+pub(crate) mod util;
