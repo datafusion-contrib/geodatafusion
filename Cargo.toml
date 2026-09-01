@@ -19,10 +19,10 @@ categories = ["science::geo"]
 
 [workspace.dependencies]
 approx = "0.5.1"
-arrow-arith = "58.1"
-arrow-array = "58.1"
-arrow-buffer = "58.1"
-arrow-schema = "58.1"
+arrow-arith = "59.2"
+arrow-array = "59.2"
+arrow-buffer = "59.2"
+arrow-schema = "59.2"
 async-trait = "0.1"
 datafusion = { version = "54", default-features = false }
 datafusion-datasource = { version = "54", default-features = false }
