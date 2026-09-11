@@ -122,4 +122,13 @@ impl FileSource for GeoParquetSource {
     ) -> Result<datafusion::physical_plan::SortOrderPushdownResult<Arc<dyn FileSource>>> {
         Ok(datafusion::physical_plan::SortOrderPushdownResult::Unsupported)
     }
+
+    fn apply_expressions(
+        &self,
+        f: &mut dyn FnMut(
+            &Arc<dyn PhysicalExpr>,
+        ) -> Result<datafusion::common::tree_node::TreeNodeRecursion>,
+    ) -> Result<datafusion::common::tree_node::TreeNodeRecursion> {
+        self.inner.apply_expressions(f)
+    }
 }

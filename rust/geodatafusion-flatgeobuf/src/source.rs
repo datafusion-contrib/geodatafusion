@@ -136,6 +136,18 @@ impl FileSource for FlatGeobufSource {
     fn projection(&self) -> Option<&ProjectionExprs> {
         Some(&self.projection)
     }
+
+    fn apply_expressions(
+        &self,
+        f: &mut dyn FnMut(
+            &Arc<dyn PhysicalExpr>,
+        ) -> Result<datafusion::common::tree_node::TreeNodeRecursion>,
+    ) -> Result<datafusion::common::tree_node::TreeNodeRecursion> {
+        datafusion::physical_plan::apply_expression_roots(
+            self.projection.iter().map(|proj_expr| &proj_expr.expr),
+            f,
+        )
+    }
 }
 
 pub struct FlatGeobufOpener {
