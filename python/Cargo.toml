@@ -21,7 +21,7 @@ crate-type = ["cdylib"]
 datafusion = { version = "54", default-features = false }
 datafusion-ffi = "54"
 geoarrow-schema = "0.8.0"
-geodatafusion = { path = "../rust/geodatafusion" }
+geodatafusion = "0.5.0"
 pyo3 = { version = "0.26", features = [
     "hashbrown",
     "serde",

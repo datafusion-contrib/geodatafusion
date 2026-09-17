@@ -97,6 +97,17 @@ When a new UDF is added to the Rust library, you need to expose it in Python:
 
 Follow the instructions in the top-level [DEVELOP.md](../DEVELOP.md) to implement the UDF in Rust first.
 
+The Python package depends on the `geodatafusion` crate published on crates.io, not on
+`../rust/geodatafusion`, so that the Rust workspace and the Python package can move to a new
+DataFusion major independently (the Python side has to wait for a matching `datafusion` wheel on
+PyPI). To build the bindings against the local Rust sources before they are released, add a
+temporary patch to `python/Cargo.toml` and remove it before committing:
+
+```toml
+[patch.crates-io]
+geodatafusion = { path = "../rust/geodatafusion" }
+```
+
 ### 1. Update Rust Bindings
 
 The UDF modules are in `src/udf/`. Each module corresponds to a category:
