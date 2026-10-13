@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.6.0] - 2026-10-13
+
+This release updates to DataFusion 55, Arrow 59, and geoarrow 0.9.
+
+### What's Changed
+
+* ci: Set up dependabot by @kylebarron in https://github.com/datafusion-contrib/geodatafusion/pull/87
+* chore(deps): bump the github-actions group with 6 updates by @dependabot[bot] in https://github.com/datafusion-contrib/geodatafusion/pull/88
+* ci: Split out arrow/datafusion group in dependabot by @kylebarron in https://github.com/datafusion-contrib/geodatafusion/pull/91
+* chore(deps): bump actions/setup-python from 6 to 7 in the github-actions group by @dependabot[bot] in https://github.com/datafusion-contrib/geodatafusion/pull/94
+* chore(deps): Upgrade to DataFusion 55 and geoarrow 0.9 by @ianthetechie in https://github.com/datafusion-contrib/geodatafusion/pull/105
+
+**Full Changelog**: https://github.com/datafusion-contrib/geodatafusion/compare/v0.5.0...v0.6.0
+
 ## [0.5.0] - 2026-07-10
 
 ### What's Changed
