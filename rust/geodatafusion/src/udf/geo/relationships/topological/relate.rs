@@ -183,30 +183,59 @@ fn relate_impl(
         (ColumnarValue::Scalar(left_scalar), ColumnarValue::Array(right_array)) => {
             let left_scalar_array = ColumnarValue::values_to_arrays(&[left_scalar.into()])?;
             let left_geo_array = from_arrow_array(&left_scalar_array[0], left_field)?;
-            let left_geo_scalar = to_geo_scalar(left_geo_array.as_ref())?
-                .expect("Null geometries not currently supported");
+            let Some(left_geo_scalar) = to_geo_scalar(left_geo_array.as_ref())? else {
+                // Relating anything to a NULL geometry is NULL.
+                return Ok(ColumnarValue::Array(Arc::new(BooleanArray::new_null(
+                    right_array.len(),
+                ))));
+            };
 
             let left_prepared_geometry = PreparedGeometry::from(left_geo_scalar);
 
             let right_geo_array = from_arrow_array(&right_array, right_field)?;
-            let result =
-                relate_prepared_geometry(&right_geo_array, &left_prepared_geometry, relate_cb)?;
+            let result = relate_prepared_geometry(
+                &right_geo_array,
+                &left_prepared_geometry,
+                PreparedSide::Left,
+                relate_cb,
+            )?;
             Ok(ColumnarValue::Array(Arc::new(result)))
         }
         (ColumnarValue::Array(left_array), ColumnarValue::Scalar(right_scalar)) => {
             let right_scalar_array = ColumnarValue::values_to_arrays(&[right_scalar.into()])?;
             let right_geo_array = from_arrow_array(&right_scalar_array[0], right_field)?;
-            let right_geo_scalar = to_geo_scalar(right_geo_array.as_ref())?
-                .expect("Null geometries not currently supported");
+            let Some(right_geo_scalar) = to_geo_scalar(right_geo_array.as_ref())? else {
+                // Relating anything to a NULL geometry is NULL.
+                return Ok(ColumnarValue::Array(Arc::new(BooleanArray::new_null(
+                    left_array.len(),
+                ))));
+            };
 
             let right_prepared_geometry = PreparedGeometry::from(right_geo_scalar);
 
             let left_geo_array = from_arrow_array(&left_array, left_field)?;
-            let result =
-                relate_prepared_geometry(&left_geo_array, &right_prepared_geometry, relate_cb)?;
+            let result = relate_prepared_geometry(
+                &left_geo_array,
+                &right_prepared_geometry,
+                PreparedSide::Right,
+                relate_cb,
+            )?;
             Ok(ColumnarValue::Array(Arc::new(result)))
         }
     }
+}
+
+/// Which argument of the relation the prepared (scalar) geometry is.
+///
+/// The DE-9IM matrix is not symmetric: `a.relate(b)` is the transpose of
+/// `b.relate(a)`, so predicates such as `ST_Contains` and `ST_Within` give
+/// different answers depending on the order the geometries are related in.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum PreparedSide {
+    /// The prepared geometry is the first argument, `geomA`.
+    Left,
+    /// The prepared geometry is the second argument, `geomB`.
+    Right,
 }
 
 /// Convert a length-1 GeoArrowArray to a geo::Geometry scalar.
@@ -227,14 +256,22 @@ fn _to_geo_scalar_impl<'a>(
 fn relate_prepared_geometry(
     array: &dyn GeoArrowArray,
     prepared: &PreparedGeometry<geo::Geometry>,
+    prepared_side: PreparedSide,
     relate_cb: impl Fn(IntersectionMatrix) -> bool,
 ) -> GeoDataFusionResult<BooleanArray> {
-    downcast_geoarrow_array!(array, _relate_prepared_geometry_impl, prepared, relate_cb)
+    downcast_geoarrow_array!(
+        array,
+        _relate_prepared_geometry_impl,
+        prepared,
+        prepared_side,
+        relate_cb
+    )
 }
 
 fn _relate_prepared_geometry_impl<'a>(
     arr: &'a impl GeoArrowArrayAccessor<'a>,
     prepared: &PreparedGeometry<geo::Geometry>,
+    prepared_side: PreparedSide,
     relate_cb: impl Fn(IntersectionMatrix) -> bool,
 ) -> GeoDataFusionResult<BooleanArray> {
     let mut builder = BooleanBuilder::with_capacity(arr.len());
@@ -242,7 +279,11 @@ fn _relate_prepared_geometry_impl<'a>(
     for item in arr.iter() {
         if let Some(geom) = item {
             let geo_geom = geometry_to_geo(&geom?)?;
-            builder.append_value(relate_cb(geo_geom.relate(prepared)));
+            let matrix = match prepared_side {
+                PreparedSide::Left => prepared.relate(&geo_geom),
+                PreparedSide::Right => geo_geom.relate(prepared),
+            };
+            builder.append_value(relate_cb(matrix));
         } else {
             builder.append_null();
         }
@@ -323,6 +364,131 @@ mod test {
         let col = batch.column(0);
         assert!(col.as_boolean().value(0));
         assert!(!col.as_boolean().value(1));
+    }
+
+    fn register_relate_udfs(ctx: &SessionContext) {
+        ctx.register_udf(Contains::new().into());
+        ctx.register_udf(CoveredBy::new().into());
+        ctx.register_udf(Covers::new().into());
+        ctx.register_udf(Crosses::new().into());
+        ctx.register_udf(Disjoint::new().into());
+        ctx.register_udf(Equals::new().into());
+        ctx.register_udf(GeomFromText::new(Default::default()).into());
+        ctx.register_udf(Intersects::new().into());
+        ctx.register_udf(Overlaps::new().into());
+        ctx.register_udf(Touches::new().into());
+        ctx.register_udf(Within::new().into());
+    }
+
+    /// A table `t` with one point inside the square `(0 0)`-`(4 4)` and one outside it.
+    fn points_table(ctx: &SessionContext) {
+        let inside = wkt::wkt! { POINT(1.0 1.0) };
+        let outside = wkt::wkt! { POINT(5.0 5.0) };
+        let point_arr = PointBuilder::from_points(
+            [inside, outside].iter(),
+            PointType::new(Dimension::XY, Default::default()),
+        )
+        .finish();
+
+        let schema = Schema::new([Arc::new(point_arr.data_type().to_field("geometry", true))]);
+        let batch = RecordBatch::try_new(Arc::new(schema), vec![point_arr.to_array_ref()]).unwrap();
+        ctx.register_batch("t", batch).unwrap();
+    }
+
+    async fn query_booleans(ctx: &SessionContext, sql: &str) -> Vec<Option<bool>> {
+        let df = ctx.sql(sql).await.unwrap();
+        let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+        batch.column(0).as_boolean().iter().collect()
+    }
+
+    /// Each predicate must give the same answer whichever argument is the scalar, and the
+    /// same answer as with both arguments as arrays.
+    #[tokio::test]
+    async fn test_scalar_argument_order() {
+        let ctx = SessionContext::new();
+        register_relate_udfs(&ctx);
+        points_table(&ctx);
+
+        let square = "ST_GeomFromText('POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0))')";
+        // (sql, expected for the inside point, expected for the outside point)
+        let cases = [
+            (format!("ST_Contains({square}, geometry)"), true, false),
+            (format!("ST_Within(geometry, {square})"), true, false),
+            (format!("ST_Covers({square}, geometry)"), true, false),
+            (format!("ST_CoveredBy(geometry, {square})"), true, false),
+            // A point never contains, covers or lies around a polygon.
+            (format!("ST_Contains(geometry, {square})"), false, false),
+            (format!("ST_Within({square}, geometry)"), false, false),
+            (format!("ST_Covers(geometry, {square})"), false, false),
+            (format!("ST_CoveredBy({square}, geometry)"), false, false),
+            (format!("ST_Intersects({square}, geometry)"), true, false),
+            (format!("ST_Disjoint({square}, geometry)"), false, true),
+        ];
+        for (expr, inside, outside) in cases {
+            let sql = format!("SELECT {expr} FROM t");
+            assert_eq!(
+                query_booleans(&ctx, &sql).await,
+                vec![Some(inside), Some(outside)],
+                "{expr}"
+            );
+        }
+    }
+
+    /// A scalar-first relation must match the array-array evaluation of the same SQL.
+    #[tokio::test]
+    async fn test_scalar_first_matches_array_array() {
+        let ctx = SessionContext::new();
+        register_relate_udfs(&ctx);
+        points_table(&ctx);
+
+        let square = "ST_GeomFromText('POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0))')";
+        for udf in [
+            "ST_Contains",
+            "ST_Within",
+            "ST_Covers",
+            "ST_CoveredBy",
+            "ST_Intersects",
+            "ST_Disjoint",
+            "ST_Touches",
+            "ST_Crosses",
+            "ST_Overlaps",
+            "ST_Equals",
+        ] {
+            let scalar_first = format!("SELECT {udf}({square}, geometry) FROM t");
+            let array_array = format!(
+                "SELECT {udf}(s.square, t.geometry) FROM t CROSS JOIN (SELECT {square} AS square) AS s"
+            );
+            let column_first = format!("SELECT {udf}(geometry, {square}) FROM t");
+            let array_array_column_first = format!(
+                "SELECT {udf}(t.geometry, s.square) FROM t CROSS JOIN (SELECT {square} AS square) AS s"
+            );
+            assert_eq!(
+                query_booleans(&ctx, &scalar_first).await,
+                query_booleans(&ctx, &array_array).await,
+                "{udf}(scalar, array)"
+            );
+            assert_eq!(
+                query_booleans(&ctx, &column_first).await,
+                query_booleans(&ctx, &array_array_column_first).await,
+                "{udf}(array, scalar)"
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn test_null_scalar_is_null() {
+        let ctx = SessionContext::new();
+        register_relate_udfs(&ctx);
+        points_table(&ctx);
+
+        for sql in [
+            "SELECT ST_Contains(ST_GeomFromText(CAST(NULL AS VARCHAR)), geometry) FROM t",
+            "SELECT ST_Within(geometry, ST_GeomFromText(CAST(NULL AS VARCHAR))) FROM t",
+            "SELECT ST_Intersects(ST_GeomFromText(CAST(NULL AS VARCHAR)), geometry) FROM t",
+            "SELECT ST_Intersects(geometry, ST_GeomFromText(CAST(NULL AS VARCHAR))) FROM t",
+        ] {
+            assert_eq!(query_booleans(&ctx, sql).await, vec![None, None], "{sql}");
+        }
     }
 
     /// https://postgis.net/docs/ST_Overlaps.html
