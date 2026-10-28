@@ -6,15 +6,16 @@ use arrow_array::types::Float64Type;
 use arrow_schema::{DataType, Field, FieldRef};
 use datafusion::common::scalar::ScalarStructBuilder;
 use datafusion::error::{DataFusionError, Result};
-use datafusion::logical_expr::function::AccumulatorArgs;
+use datafusion::logical_expr::function::{AccumulatorArgs, StateFieldsArgs};
+use datafusion::logical_expr::utils::format_state_name;
 use datafusion::logical_expr::{Accumulator, AggregateUDFImpl, Signature};
 use datafusion::scalar::ScalarValue;
 use geoarrow_array::array::from_arrow_array;
 use geoarrow_schema::{BoxType, Dimension, Metadata};
 
 use crate::data_types::any_single_geometry_type_input;
-use crate::error::GeoDataFusionResult;
-use crate::udf::native::bounding_box::util::bounds::{BoundingRect, total_bounds};
+use crate::error::{GeoDataFusionError, GeoDataFusionResult};
+use crate::udf::native::bounding_box::util::bounds::total_bounds;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Extent;
@@ -50,85 +51,137 @@ impl AggregateUDFImpl for Extent {
 
     fn accumulator(&self, acc_args: AccumulatorArgs) -> Result<Box<dyn Accumulator>> {
         let input_field = acc_args.exprs[0].return_field(acc_args.schema)?;
-        Ok(Box::new(ExtentAccumulator::new(input_field)))
+        Ok(Box::new(ExtentAccumulator::new(
+            input_field,
+            acc_args.return_field,
+        )))
+    }
+
+    fn state_fields(&self, args: StateFieldsArgs) -> Result<Vec<FieldRef>> {
+        Ok(["xmin", "ymin", "xmax", "ymax"]
+            .into_iter()
+            .map(|name| {
+                Arc::new(Field::new(
+                    format_state_name(args.name, name),
+                    DataType::Float64,
+                    true,
+                ))
+            })
+            .collect())
     }
 }
 
 fn return_field_impl(args: &[FieldRef]) -> GeoDataFusionResult<FieldRef> {
-    let metadata = Arc::new(Metadata::try_from(args[0].as_ref()).unwrap_or_default());
+    let metadata = Arc::new(Metadata::try_from(args[0].as_ref())?);
     let output_type = BoxType::new(Dimension::XY, metadata);
     Ok(Arc::new(output_type.to_field("", true)))
 }
 
 #[derive(Debug)]
 struct ExtentAccumulator {
-    inner: BoundingRect,
     field: FieldRef,
+    return_field: FieldRef,
+    bounds: Option<[f64; 4]>,
 }
 
 impl ExtentAccumulator {
-    pub fn new(field: FieldRef) -> Self {
+    pub fn new(field: FieldRef, return_field: FieldRef) -> Self {
         Self {
-            inner: BoundingRect::new(false),
             field,
+            return_field,
+            bounds: None,
         }
+    }
+
+    fn update_bounds(&mut self, bounds: [f64; 4]) {
+        self.bounds = Some(match self.bounds {
+            Some(current) => [
+                current[0].min(bounds[0]),
+                current[1].min(bounds[1]),
+                current[2].max(bounds[2]),
+                current[3].max(bounds[3]),
+            ],
+            None => bounds,
+        });
     }
 }
 
 impl Accumulator for ExtentAccumulator {
     /// Intermediate state of the accumulator.
     fn state(&mut self) -> Result<Vec<ScalarValue>> {
-        Ok(vec![
-            ScalarValue::from(self.inner.minx()),
-            ScalarValue::from(self.inner.miny()),
-            ScalarValue::from(self.inner.maxx()),
-            ScalarValue::from(self.inner.maxy()),
-        ])
+        Ok(match self.bounds {
+            Some(bounds) => bounds.into_iter().map(|value| value.into()).collect(),
+            None => vec![
+                ScalarValue::Float64(None),
+                ScalarValue::Float64(None),
+                ScalarValue::Float64(None),
+                ScalarValue::Float64(None),
+            ],
+        })
     }
 
     /// Finish the accumulator
     fn evaluate(&mut self) -> Result<ScalarValue> {
+        let Some([xmin, ymin, xmax, ymax]) = self.bounds else {
+            return ScalarValue::try_from(self.return_field.data_type());
+        };
+        let DataType::Struct(fields) = self.return_field.data_type() else {
+            return Err(DataFusionError::Internal(format!(
+                "ST_Extent expected a struct return type, got {}",
+                self.return_field.data_type()
+            )));
+        };
+
         ScalarStructBuilder::new()
-            .with_scalar(
-                Field::new("xmin", DataType::Float64, false),
-                self.inner.minx().into(),
-            )
-            .with_scalar(
-                Field::new("ymin", DataType::Float64, false),
-                self.inner.miny().into(),
-            )
-            .with_scalar(
-                Field::new("xmax", DataType::Float64, false),
-                self.inner.maxx().into(),
-            )
-            .with_scalar(
-                Field::new("ymax", DataType::Float64, false),
-                self.inner.maxy().into(),
-            )
+            .with_scalar(Arc::clone(&fields[0]), xmin.into())
+            .with_scalar(Arc::clone(&fields[1]), ymin.into())
+            .with_scalar(Arc::clone(&fields[2]), xmax.into())
+            .with_scalar(Arc::clone(&fields[3]), ymax.into())
             .build()
     }
 
     fn update_batch(&mut self, values: &[ArrayRef]) -> Result<()> {
-        let geo_arr = from_arrow_array(&values[0], &self.field).unwrap();
-        let bounds = total_bounds(&geo_arr).unwrap();
-        self.inner.update(&bounds);
+        let value = values.first().ok_or_else(|| {
+            DataFusionError::Internal("ST_Extent received no input batch".to_string())
+        })?;
+        let geo_arr = from_arrow_array(value, &self.field).map_err(GeoDataFusionError::GeoArrow)?;
+        let bounds = total_bounds(&geo_arr).map_err(GeoDataFusionError::GeoArrow)?;
+        let bounds = [bounds.minx(), bounds.miny(), bounds.maxx(), bounds.maxy()];
+        if bounds.into_iter().all(f64::is_finite) {
+            self.update_bounds(bounds);
+        }
         Ok(())
     }
 
     fn merge_batch(&mut self, states: &[ArrayRef]) -> Result<()> {
-        let states_minx = arrow_arith::aggregate::min(states[0].as_primitive::<Float64Type>())
-            .unwrap_or(f64::MAX);
-        let states_miny = arrow_arith::aggregate::min(states[1].as_primitive::<Float64Type>())
-            .unwrap_or(f64::MAX);
-        let states_maxx = arrow_arith::aggregate::max(states[2].as_primitive::<Float64Type>())
-            .unwrap_or(f64::MIN);
-        let states_maxy = arrow_arith::aggregate::max(states[3].as_primitive::<Float64Type>())
-            .unwrap_or(f64::MIN);
+        if states.len() != 4 {
+            return Err(DataFusionError::Internal(format!(
+                "ST_Extent expected four state arrays, got {}",
+                states.len()
+            )));
+        }
 
-        self.inner.minx = self.inner.minx.min(states_minx);
-        self.inner.miny = self.inner.miny.min(states_miny);
-        self.inner.maxx = self.inner.maxx.max(states_maxx);
-        self.inner.maxy = self.inner.maxy.max(states_maxy);
+        let state_array = |index: usize| -> Result<&arrow_array::PrimitiveArray<Float64Type>> {
+            states[index]
+                .as_primitive_opt::<Float64Type>()
+                .ok_or_else(|| {
+                    DataFusionError::Internal(format!(
+                        "ST_Extent state field {index} has type {}, expected Float64",
+                        states[index].data_type()
+                    ))
+                })
+        };
+        let merged = [
+            arrow_arith::aggregate::min(state_array(0)?),
+            arrow_arith::aggregate::min(state_array(1)?),
+            arrow_arith::aggregate::max(state_array(2)?),
+            arrow_arith::aggregate::max(state_array(3)?),
+        ];
+        if let [Some(xmin), Some(ymin), Some(xmax), Some(ymax)] = merged
+            && [xmin, ymin, xmax, ymax].into_iter().all(f64::is_finite)
+        {
+            self.update_bounds([xmin, ymin, xmax, ymax]);
+        }
 
         Ok(())
     }
