@@ -122,9 +122,14 @@ pub(crate) fn geo(m: &Bound<PyModule>) -> PyResult<()> {
 
 ### 3. Update Python API
 
-The Python API is in `python/geodatafusion/__init__.py`. Update `register_all()` or add specific registration functions if needed.
+`register_all()` exports the scalar and aggregate UDFs from the Rust
+`geodatafusion::register()` registry through DataFusion FFI capsules. Category
+registration functions use the corresponding Rust module registrars. Adding a
+UDF to an existing Rust module therefore makes it available to Python without
+maintaining another name list.
 
-This ensures that the UDF is easily injected onto a DataFusion `SessionContext`.
+Add or update a Python wrapper class only when users need to construct the UDF
+with non-default options, such as `coord_type`.
 
 ### 4. Add Tests
 
