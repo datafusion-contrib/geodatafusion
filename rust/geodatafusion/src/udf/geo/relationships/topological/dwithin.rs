@@ -20,6 +20,9 @@ use geoarrow_array::array::from_arrow_array;
 use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
 
 use crate::error::GeoDataFusionResult;
+use crate::udf::native::bounding_box::util::{
+    GeometryBounds, expanded_bounds_intersect, geometry_bounds,
+};
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct DWithin;
@@ -73,12 +76,23 @@ impl ScalarUDFImpl for DWithin {
         Some(DOCUMENTATION.get_or_init(|| {
             Documentation::builder(
                 DOC_SECTION_OTHER,
-                "Returns true if the minimum 2D Cartesian distance between two geometries is less than or equal to the given radius, in coordinate-system units.",
+                "Returns true when the minimum 2D Cartesian distance between two \
+                 non-empty geometries is less than or equal to a finite, non-negative \
+                 radius. Distance and radius use coordinate-system units. The predicate \
+                 applies an exact outward-rounded bounds check before using the same \
+                 planar distance kernel as ST_Distance, so it can be false where a \
+                 rounded ST_Distance result equals the radius at a floating-point \
+                 boundary. It never changes ST_Distance semantics. NULL inputs return \
+                 NULL; EMPTY geometries return false; non-finite geometry coordinates \
+                 or an invalid radius are errors.",
                 "ST_DWithin(geomA, geomB, radius)",
             )
             .with_argument("geomA", "geometry")
             .with_argument("geomB", "geometry")
-            .with_argument("radius", "finite, nonnegative numeric distance")
+            .with_argument(
+                "radius",
+                "finite non-negative distance in coordinate-system units",
+            )
             .build()
         }))
     }
@@ -134,7 +148,7 @@ fn dwithin_impl(args: &ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue>
         };
         if !radius.is_finite() || radius < 0.0 {
             return Err(DataFusionError::Execution(format!(
-                "ST_DWithin radius must be finite and nonnegative, got {radius}"
+                "ST_DWithin radius must be finite and non-negative, got {radius}"
             ))
             .into());
         }
@@ -143,12 +157,40 @@ fn dwithin_impl(args: &ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue>
             (GeometryValue::Null, _) | (_, GeometryValue::Null) => builder.append_null(),
             (GeometryValue::Empty, _) | (_, GeometryValue::Empty) => builder.append_value(false),
             (GeometryValue::Geometry(left), GeometryValue::Geometry(right)) => {
-                builder.append_value(Euclidean.distance(&left, &right) <= radius);
+                builder.append_value(geometries_are_within(&left, &right, radius));
             }
         }
     }
 
     Ok(ColumnarValue::Array(Arc::new(builder.finish())))
+}
+
+fn geometries_are_within(
+    left: &geo::Geometry<f64>,
+    right: &geo::Geometry<f64>,
+    radius: f64,
+) -> bool {
+    let (GeometryBounds::Finite(left_bounds), GeometryBounds::Finite(right_bounds)) =
+        (geometry_bounds(left), geometry_bounds(right))
+    else {
+        return false;
+    };
+
+    expanded_bounds_intersect(
+        [
+            left_bounds.minx(),
+            left_bounds.miny(),
+            left_bounds.maxx(),
+            left_bounds.maxy(),
+        ],
+        [
+            right_bounds.minx(),
+            right_bounds.miny(),
+            right_bounds.maxx(),
+            right_bounds.maxy(),
+        ],
+        radius,
+    ) && Euclidean.distance(left, right) <= radius
 }
 
 fn geometry_array_to_values(array: &dyn GeoArrowArray) -> GeoDataFusionResult<Vec<GeometryValue>> {
@@ -792,7 +834,7 @@ mod test {
             );
             let error = query_error(&ctx, &sql).await;
             assert!(
-                error.contains("radius must be finite and nonnegative"),
+                error.contains("radius must be finite and non-negative"),
                 "{sql}: {error}"
             );
         }
@@ -821,7 +863,7 @@ mod test {
         )
         .await;
         assert!(
-            error.contains("radius must be finite and nonnegative"),
+            error.contains("radius must be finite and non-negative"),
             "{error}"
         );
     }

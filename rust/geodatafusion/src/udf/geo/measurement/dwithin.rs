@@ -1,24 +1,18 @@
-use std::sync::{Arc, OnceLock};
-
-use arrow_array::builder::BooleanBuilder;
+use arrow_array::Array;
 use arrow_array::cast::AsArray;
 use arrow_array::types::Float64Type;
-use arrow_array::{Array, ArrayRef, BooleanArray};
 use arrow_schema::{DataType, Field};
-use datafusion::arrow::compute::{cast as cast_array, filter as filter_array};
+use datafusion::arrow::compute::cast as cast_array;
 use datafusion::common::metadata::FieldMetadata;
 use datafusion::common::{Column, ScalarValue};
 use datafusion::error::{DataFusionError, Result};
-use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
-use datafusion::logical_expr::{
-    ColumnarValue, Documentation, Expr, ScalarFunctionArgs, ScalarUDFImpl, Signature, Volatility,
-};
-use geoarrow_array::array::from_arrow_array;
+use datafusion::logical_expr::Expr;
 use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, WrapArray, downcast_geoarrow_array};
 use geoarrow_schema::GeoArrowType;
 
 use crate::error::GeoDataFusionResult;
-use crate::udf::native::bounding_box::util::{GeometryBounds, geometry_bounds};
+pub use crate::udf::geo::relationships::DWithin;
+use crate::udf::native::bounding_box::util::{GeometryBounds, expand_bounds, geometry_bounds};
 
 /// A conservative planar XY envelope for a spatial index candidate query.
 ///
@@ -150,223 +144,9 @@ fn geo_array_bounds_impl<'a>(
     Ok(bounds)
 }
 
-fn expand_bounds(bounds: [f64; 4], radius: f64) -> [f64; 4] {
-    // This directed rounding covers the exact mathematical condition
-    // `distance <= radius`. It deliberately makes no claim about the error of
-    // the distance kernel. ST_DWithin enforces this same envelope before it
-    // calls that kernel, which is what makes the extracted candidate safe.
-    [
-        (bounds[0] - radius).next_down(),
-        (bounds[1] - radius).next_down(),
-        (bounds[2] + radius).next_up(),
-        (bounds[3] + radius).next_up(),
-    ]
-}
-
-fn expanded_bounds_intersect(left: [f64; 4], right: [f64; 4], radius: f64) -> bool {
-    let left_expanded = expand_bounds(left, radius);
-    let right_expanded = expand_bounds(right, radius);
-
-    bounds_intersect(left_expanded, right) && bounds_intersect(right_expanded, left)
-}
-
-fn bounds_intersect(left: [f64; 4], right: [f64; 4]) -> bool {
-    left[0] <= right[2] && right[0] <= left[2] && left[1] <= right[3] && right[1] <= left[3]
-}
-
-#[derive(Debug, Eq, PartialEq, Hash)]
-pub struct DWithin;
-
-impl DWithin {
-    pub fn new() -> Self {
-        Self
-    }
-}
-
-impl Default for DWithin {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-static SIGNATURE: std::sync::LazyLock<Signature> =
-    std::sync::LazyLock::new(|| Signature::any(3, Volatility::Immutable));
-static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
-
-impl ScalarUDFImpl for DWithin {
-    fn name(&self) -> &str {
-        "st_dwithin"
-    }
-
-    fn signature(&self) -> &Signature {
-        &SIGNATURE
-    }
-
-    fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
-        Ok(DataType::Boolean)
-    }
-
-    fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
-        Ok(dwithin_impl(args)?)
-    }
-
-    fn is_strict(&self) -> bool {
-        true
-    }
-
-    fn documentation(&self) -> Option<&Documentation> {
-        Some(DOCUMENTATION.get_or_init(|| {
-            Documentation::builder(
-                DOC_SECTION_OTHER,
-                "Returns true when the minimum 2D Cartesian distance between two \
-                 non-empty geometries is less than or equal to a finite, non-negative \
-                 radius. Distance and radius use coordinate-system units. The predicate \
-                 applies an exact outward-rounded bounds check before using the same \
-                 planar distance kernel as ST_Distance, so it can be false where a \
-                 rounded ST_Distance result equals the radius at a floating-point \
-                 boundary. It never changes ST_Distance semantics. NULL inputs return \
-                 NULL; EMPTY geometries return false; non-finite geometry coordinates \
-                 or an invalid radius are errors.",
-                "ST_DWithin(geomA, geomB, radius)",
-            )
-            .with_argument("geomA", "geometry")
-            .with_argument("geomB", "geometry")
-            .with_argument(
-                "radius",
-                "finite non-negative distance in coordinate-system units",
-            )
-            .build()
-        }))
-    }
-}
-
-fn dwithin_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
-    let arrays = ColumnarValue::values_to_arrays(&args.args)?;
-    if arrays.len() != 3 {
-        return Err(DataFusionError::Internal(format!(
-            "ST_DWithin expects 3 arguments, got {}",
-            arrays.len()
-        ))
-        .into());
-    }
-
-    let number_rows = args.number_rows;
-    if number_rows == 0 {
-        return Ok(ColumnarValue::Array(Arc::new(BooleanArray::from(Vec::<
-            bool,
-        >::new(
-        )))));
-    }
-
-    if arrays.iter().any(|array| array_is_all_null(array.as_ref())) {
-        return Ok(ColumnarValue::Array(null_result(number_rows)));
-    }
-
-    let radius_values = radius_values(arrays[2].as_ref())?;
-    for radius in radius_values.iter().flatten() {
-        if !radius.is_finite() || *radius < 0.0 {
-            return Err(DataFusionError::Execution(
-                "ST_DWithin radius must be finite and non-negative".to_string(),
-            )
-            .into());
-        }
-    }
-
-    let left_bounds = geometry_array_bounds(arrays[0].as_ref(), &args.arg_fields[0])?;
-    let right_bounds = geometry_array_bounds(arrays[1].as_ref(), &args.arg_fields[1])?;
-
-    for index in 0..number_rows {
-        if arrays
-            .iter()
-            .any(|array| array_value_is_null(array.as_ref(), index))
-        {
-            continue;
-        }
-        if matches!(left_bounds[index], Some(GeometryBounds::NonFinite))
-            || matches!(right_bounds[index], Some(GeometryBounds::NonFinite))
-        {
-            return Err(DataFusionError::Execution(
-                "ST_DWithin geometry coordinates must be finite".to_string(),
-            )
-            .into());
-        }
-    }
-
-    let candidates = (0..number_rows)
-        .map(|index| {
-            let (
-                Some(GeometryBounds::Finite(left)),
-                Some(GeometryBounds::Finite(right)),
-                Some(radius),
-            ) = (
-                left_bounds[index],
-                right_bounds[index],
-                radius_values[index],
-            )
-            else {
-                return false;
-            };
-
-            expanded_bounds_intersect(
-                [left.minx(), left.miny(), left.maxx(), left.maxy()],
-                [right.minx(), right.miny(), right.maxx(), right.maxy()],
-                radius,
-            )
-        })
-        .collect::<Vec<_>>();
-    let candidate_array = BooleanArray::from(candidates.clone());
-
-    let distances = if candidates.iter().any(|candidate| *candidate) {
-        let left = filter_array(arrays[0].as_ref(), &candidate_array)?;
-        let right = filter_array(arrays[1].as_ref(), &candidate_array)?;
-        let left = from_arrow_array(left.as_ref(), args.arg_fields[0].as_ref())?;
-        let right = from_arrow_array(right.as_ref(), args.arg_fields[1].as_ref())?;
-        Some(geoarrow_expr_geo::euclidean_distance(
-            left.as_ref(),
-            right.as_ref(),
-        )?)
-    } else {
-        None
-    };
-
-    let mut builder = BooleanBuilder::with_capacity(number_rows);
-    let mut distance_index = 0;
-
-    for index in 0..number_rows {
-        if arrays
-            .iter()
-            .any(|array| array_value_is_null(array.as_ref(), index))
-        {
-            builder.append_null();
-            continue;
-        }
-
-        if !candidates[index] {
-            builder.append_value(false);
-            continue;
-        }
-
-        let distance = distances
-            .as_ref()
-            .and_then(|distances| {
-                (!distances.is_null(distance_index)).then(|| distances.value(distance_index))
-            })
-            .unwrap_or(f64::NAN);
-        let radius = radius_values[index].expect("candidate rows have a radius");
-        builder.append_value(distance <= radius);
-        distance_index += 1;
-    }
-
-    Ok(ColumnarValue::Array(Arc::new(builder.finish())))
-}
-
-fn geometry_array_bounds(
-    array: &dyn Array,
-    field: &Field,
-) -> GeoDataFusionResult<Vec<Option<GeometryBounds>>> {
-    let geo_type = GeoArrowType::from_arrow_field(field)?;
-    let geo_array = geo_type.wrap_array(array)?;
-    geo_array_bounds(geo_array.as_ref())
+fn array_is_all_null(array: &dyn Array) -> bool {
+    matches!(array.data_type(), DataType::Null)
+        || (!array.is_empty() && array.null_count() == array.len())
 }
 
 fn radius_values(array: &dyn Array) -> GeoDataFusionResult<Vec<Option<f64>>> {
@@ -408,35 +188,25 @@ fn is_supported_radius_type(data_type: &DataType) -> bool {
     )
 }
 
-fn null_result(number_rows: usize) -> ArrayRef {
-    Arc::new(BooleanArray::from(vec![None; number_rows]))
-}
-
-fn array_is_all_null(array: &dyn Array) -> bool {
-    matches!(array.data_type(), DataType::Null)
-        || (!array.is_empty() && array.null_count() == array.len())
-}
-
-fn array_value_is_null(array: &dyn Array, index: usize) -> bool {
-    matches!(array.data_type(), DataType::Null) || array.is_null(index)
-}
-
 #[cfg(test)]
 mod tests {
     use std::future::Future;
     use std::pin::Pin;
-    use std::sync::Mutex;
+    use std::sync::{Arc, LazyLock, Mutex};
 
     use arrow_array::builder::BooleanBuilder;
     use arrow_array::cast::AsArray;
-    use arrow_array::{Int32Array, RecordBatch, StringArray};
+    use arrow_array::{BooleanArray, Int32Array, RecordBatch, StringArray};
     use arrow_schema::{Schema, SchemaRef};
     use datafusion::arrow::compute::filter_record_batch;
     use datafusion::catalog::Session;
     use datafusion::common::TableReference;
     use datafusion::datasource::memory::MemTable;
     use datafusion::datasource::{TableProvider, TableType};
-    use datafusion::logical_expr::{ScalarUDF, TableProviderFilterPushDown};
+    use datafusion::logical_expr::{
+        ColumnarValue, ScalarFunctionArgs, ScalarUDF, ScalarUDFImpl, Signature,
+        TableProviderFilterPushDown, Volatility,
+    };
     use datafusion::physical_plan::ExecutionPlan;
     use datafusion::prelude::SessionContext;
     use geo::Distance;
@@ -478,13 +248,16 @@ mod tests {
     #[derive(Debug, Eq, PartialEq, Hash)]
     struct FakeDWithin;
 
+    static FAKE_SIGNATURE: LazyLock<Signature> =
+        LazyLock::new(|| Signature::any(3, Volatility::Immutable));
+
     impl ScalarUDFImpl for FakeDWithin {
         fn name(&self) -> &str {
             "st_dwithin"
         }
 
         fn signature(&self) -> &Signature {
-            &SIGNATURE
+            &FAKE_SIGNATURE
         }
 
         fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -772,7 +545,7 @@ mod tests {
         assert_query_error(
             &ctx,
             "SELECT ST_DWithin(ST_Point(0, 0), ST_Point(1, 0), '1')",
-            "must be numeric",
+            "Function 'st_dwithin' requires Float64, but received String",
         )
         .await;
         assert_query_error(
@@ -782,7 +555,7 @@ mod tests {
                 ST_Point(0, 0), \
                 1\
             )",
-            "coordinates must be finite",
+            "requires finite XY coordinates",
         )
         .await;
         assert_query_error(

@@ -225,6 +225,29 @@ pub(crate) fn geometry_bounds(geometry: &impl GeometryTrait<T = f64>) -> Geometr
     }
 }
 
+pub(crate) fn expand_bounds(bounds: [f64; 4], radius: f64) -> [f64; 4] {
+    // Directed rounding covers the exact mathematical condition
+    // `distance <= radius` without assuming an error bound for the distance
+    // kernel.
+    [
+        (bounds[0] - radius).next_down(),
+        (bounds[1] - radius).next_down(),
+        (bounds[2] + radius).next_up(),
+        (bounds[3] + radius).next_up(),
+    ]
+}
+
+pub(crate) fn expanded_bounds_intersect(left: [f64; 4], right: [f64; 4], radius: f64) -> bool {
+    let left_expanded = expand_bounds(left, radius);
+    let right_expanded = expand_bounds(right, radius);
+
+    bounds_intersect(left_expanded, right) && bounds_intersect(right_expanded, left)
+}
+
+fn bounds_intersect(left: [f64; 4], right: [f64; 4]) -> bool {
+    left[0] <= right[2] && right[0] <= left[2] && left[1] <= right[3] && right[1] <= left[3]
+}
+
 #[derive(Clone, Copy)]
 enum CoordinateState {
     Empty,
