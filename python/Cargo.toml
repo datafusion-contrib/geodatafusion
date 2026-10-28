@@ -22,7 +22,7 @@ datafusion = { version = "55", default-features = false }
 datafusion-ffi = "55"
 geoarrow-schema = "0.9.0"
 geodatafusion = { path = "../rust/geodatafusion" }
-pyo3 = { version = "0.26", features = [
+pyo3 = { version = "0.29", features = [
     "hashbrown",
     "serde",
     "anyhow",

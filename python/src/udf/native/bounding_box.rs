@@ -22,7 +22,7 @@ impl_udf!(ZMax, PyZMax, "ZMax");
 impl_udf!(MakeBox2D, PyMakeBox2D, "MakeBox2D");
 impl_udf!(MakeBox3D, PyMakeBox3D, "MakeBox3D");
 
-#[pyclass(module = "geodatafusion", name = "Extent", frozen)]
+#[pyclass(module = "geodatafusion", name = "Extent", frozen, from_py_object)]
 #[derive(Debug, Clone)]
 pub struct PyExtent(Arc<Extent>);
 
@@ -38,10 +38,6 @@ impl PyExtent {
         py: Python<'py>,
     ) -> PyResult<Bound<'py, PyCapsule>> {
         let udf = Arc::new(AggregateUDF::new_from_shared_impl(self.0.clone()));
-        PyCapsule::new(
-            py,
-            FFI_AggregateUDF::from(udf),
-            Some(AGGREGATE_UDF_CAPSULE_NAME.into()),
-        )
+        PyCapsule::new_with_value(py, FFI_AggregateUDF::from(udf), AGGREGATE_UDF_CAPSULE_NAME)
     }
 }

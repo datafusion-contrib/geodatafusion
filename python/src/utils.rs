@@ -9,8 +9,10 @@ pub(crate) enum PyCoordType {
     Separated,
 }
 
-impl<'a> FromPyObject<'a> for PyCoordType {
-    fn extract_bound(ob: &Bound<'a, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for PyCoordType {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<'_, '_, PyAny>) -> PyResult<Self> {
         let s: String = ob.extract()?;
         match s.to_lowercase().as_str() {
             "interleaved" => Ok(Self::Interleaved),
@@ -34,7 +36,7 @@ impl From<PyCoordType> for CoordType {
 #[macro_export]
 macro_rules! impl_udf {
     ($base:ident, $py_name:ident, $python_name:literal) => {
-        #[::pyo3::pyclass(module = "geodatafusion", name = $python_name, frozen)]
+        #[::pyo3::pyclass(module = "geodatafusion", name = $python_name, frozen, from_py_object)]
         #[derive(Debug, Clone)]
         pub struct $py_name(::std::sync::Arc<$base>);
 
@@ -52,10 +54,10 @@ macro_rules! impl_udf {
                 let udf = ::std::sync::Arc::new(
                     ::datafusion::logical_expr::ScalarUDF::new_from_shared_impl(self.0.clone()),
                 );
-                ::pyo3::types::PyCapsule::new(
+                ::pyo3::types::PyCapsule::new_with_value(
                     py,
                     ::datafusion_ffi::udf::FFI_ScalarUDF::from(udf),
-                    Some($crate::constants::SCALAR_UDF_CAPSULE_NAME.into()),
+                    $crate::constants::SCALAR_UDF_CAPSULE_NAME,
                 )
             }
         }
@@ -67,7 +69,7 @@ macro_rules! impl_udf {
 #[macro_export]
 macro_rules! impl_udf_coord_type_arg {
     ($base:ident, $py_name:ident, $python_name:literal) => {
-        #[::pyo3::pyclass(module = "geodatafusion", name = $python_name, frozen)]
+        #[::pyo3::pyclass(module = "geodatafusion", name = $python_name, frozen, from_py_object)]
         #[derive(Debug, Clone)]
         pub struct $py_name(::std::sync::Arc<$base>);
 
@@ -87,10 +89,10 @@ macro_rules! impl_udf_coord_type_arg {
                 let udf = ::std::sync::Arc::new(
                     ::datafusion::logical_expr::ScalarUDF::new_from_shared_impl(self.0.clone()),
                 );
-                ::pyo3::types::PyCapsule::new(
+                ::pyo3::types::PyCapsule::new_with_value(
                     py,
                     ::datafusion_ffi::udf::FFI_ScalarUDF::from(udf),
-                    Some($crate::constants::SCALAR_UDF_CAPSULE_NAME.into()),
+                    $crate::constants::SCALAR_UDF_CAPSULE_NAME,
                 )
             }
         }
