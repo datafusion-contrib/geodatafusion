@@ -9,8 +9,8 @@ pub(crate) enum PyCoordType {
     Separated,
 }
 
-impl<'a> FromPyObject<'a> for PyCoordType {
-    fn extract_bound(ob: &Bound<'a, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_> for PyCoordType {
+    fn extract(ob: Borrowed<'_, '_, PyAny>) -> PyResult<Self> {
         let s: String = ob.extract()?;
         match s.to_lowercase().as_str() {
             "interleaved" => Ok(Self::Interleaved),

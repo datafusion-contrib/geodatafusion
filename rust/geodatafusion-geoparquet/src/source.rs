@@ -1,6 +1,7 @@
 use std::fmt::Formatter;
 use std::sync::Arc;
 
+use datafusion::common::tree_node::TreeNodeRecursion;
 use datafusion::config::ConfigOptions;
 use datafusion::datasource::physical_plan::{FileScanConfig, FileSource};
 use datafusion::error::Result;
@@ -121,5 +122,12 @@ impl FileSource for GeoParquetSource {
         _eq_properties: &datafusion::physical_expr::EquivalenceProperties,
     ) -> Result<datafusion::physical_plan::SortOrderPushdownResult<Arc<dyn FileSource>>> {
         Ok(datafusion::physical_plan::SortOrderPushdownResult::Unsupported)
+    }
+
+    fn apply_expressions(
+        &self,
+        f: &mut dyn FnMut(&Arc<dyn PhysicalExpr>) -> Result<TreeNodeRecursion>,
+    ) -> Result<TreeNodeRecursion> {
+        self.inner.apply_expressions(f)
     }
 }
