@@ -8,12 +8,12 @@ use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature, Volatility,
 };
-use geo::CoordNum;
 use geo::relate::IntersectionMatrix;
-use geo::{CoordsIter, Geometry, GeometryCollection, MultiPoint, PreparedGeometry, Relate};
-use geo_traits::{
-    GeometryCollectionTrait, GeometryTrait, MultiPointTrait, PointTrait, to_geo::ToGeoPoint,
+use geo::{
+    CoordNum, CoordsIter, Geometry, GeometryCollection, MultiPoint, PreparedGeometry, Relate,
 };
+use geo_traits::to_geo::ToGeoPoint;
+use geo_traits::{GeometryCollectionTrait, GeometryTrait, MultiPointTrait, PointTrait};
 use geoarrow_array::array::from_arrow_array;
 use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
 use geoarrow_expr_geo::util::to_geo::geometry_to_geo;
