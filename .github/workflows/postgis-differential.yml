@@ -1,0 +1,45 @@
+name: PostGIS Differential
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  postgis-smoke:
+    name: PostGIS differential smoke
+    runs-on: ubuntu-latest
+    services:
+      postgis:
+        image: postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4
+        env:
+          POSTGRES_USER: geodatafusion
+          POSTGRES_PASSWORD: geodatafusion
+          POSTGRES_DB: geodatafusion
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U geodatafusion -d geodatafusion"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: "recursive"
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Reviewed baseline
+        run: cargo test -p geodatafusion --test postgis
+      - name: Live PostGIS differential
+        env:
+          GEODATAFUSION_POSTGIS_URL: postgresql://geodatafusion:geodatafusion@127.0.0.1:55432/geodatafusion
+          GEODATAFUSION_POSTGIS_IMAGE: postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4
+        run: cargo test -p geodatafusion --test postgis -- --ignored

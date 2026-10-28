@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "dwithin-points-at-radius",
+      "function": "ST_DWithin",
+      "tags": ["scalar", "boundary"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(3 4)"
+        },
+        {
+          "type": "float64",
+          "value": 5.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_DWithin.html"
+    },
+    {
+      "id": "dwithin-points-below-radius",
+      "function": "ST_DWithin",
+      "tags": ["scalar", "boundary"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(3 4)"
+        },
+        {
+          "type": "float64",
+          "value": 4.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_DWithin.html"
+    },
+    {
+      "id": "dwithin-coincident-points-zero-radius",
+      "function": "ST_DWithin",
+      "tags": ["scalar", "boundary"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_DWithin.html"
+    },
+    {
+      "id": "dwithin-point-to-linestring-inside-radius",
+      "function": "ST_DWithin",
+      "tags": ["scalar", "line"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(1 1, 2 2)"
+        },
+        {
+          "type": "float64",
+          "value": 2.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_DWithin.html"
+    }
+  ]
+}

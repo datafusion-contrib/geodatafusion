@@ -39,8 +39,14 @@ approx = { workspace = true }
 datafusion = { workspace = true, features = ["sql"] }
 geo-traits = { workspace = true }
 geoarrow-array = { workspace = true, features = ["test-data"] }
+hex = "0.4"
 object_store = { workspace = true, features = ["http"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { workspace = true }
+sha2 = "0.10"
 tokio = { workspace = true, features = ["macros", "fs", "rt-multi-thread"] }
+tokio-postgres = { version = "0.7", default-features = false, features = ["runtime"] }
+wkb = { workspace = true }
 
 [package.metadata.docs.rs]
 all-features = true

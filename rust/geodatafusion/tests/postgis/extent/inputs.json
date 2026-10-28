@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "extent-two-points",
+      "function": "ST_Extent",
+      "tags": ["aggregate", "points"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(-3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Extent.html"
+    },
+    {
+      "id": "extent-polygon-and-point",
+      "function": "ST_Extent",
+      "tags": ["aggregate", "polygon"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0, 0 3, 3 3, 3 0, 0 0))"
+        },
+        {
+          "type": "text",
+          "value": "POINT(-1 5)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Extent.html"
+    },
+    {
+      "id": "extent-fractional-points",
+      "function": "ST_Extent",
+      "tags": ["aggregate", "fractional"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1.5 -2.25)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(4.75 3.5)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Extent.html"
+    }
+  ]
+}

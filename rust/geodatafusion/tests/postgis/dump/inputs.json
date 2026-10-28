@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "dump-multipoint",
+      "function": "ST_Dump",
+      "tags": ["list", "path"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT(0 0, 1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "path",
+          "type": "int32_list"
+        },
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dump.html"
+    },
+    {
+      "id": "dump-linestring-atomic",
+      "function": "ST_Dump",
+      "tags": ["atomic", "path"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0, 1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "path",
+          "type": "int32_list"
+        },
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dump.html"
+    },
+    {
+      "id": "dump-geometrycollection-nested-paths",
+      "function": "ST_Dump",
+      "tags": ["collection", "nested", "path"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(MULTIPOINT(0 0, 1 1), POINT(2 2))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "path",
+          "type": "int32_list"
+        },
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dump.html"
+    },
+    {
+      "id": "dump-empty-collection",
+      "function": "ST_Dump",
+      "tags": ["empty", "set-returning"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "path",
+          "type": "int32_list"
+        },
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dump.html"
+    },
+    {
+      "id": "dump-polygon-atomic",
+      "function": "ST_Dump",
+      "tags": ["atomic", "polygon", "path"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0, 0 3, 3 3, 3 0, 0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "path",
+          "type": "int32_list"
+        },
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dump.html"
+    }
+  ]
+}
