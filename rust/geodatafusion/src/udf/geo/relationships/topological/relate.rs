@@ -3,17 +3,21 @@ use std::sync::{Arc, OnceLock};
 use arrow_array::BooleanArray;
 use arrow_array::builder::BooleanBuilder;
 use arrow_schema::{DataType, Field};
-use datafusion::error::Result;
+use datafusion::error::{DataFusionError, Result};
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature, Volatility,
 };
 use geo::relate::IntersectionMatrix;
-use geo::{PreparedGeometry, Relate};
+use geo::{
+    CoordNum, CoordsIter, Geometry, GeometryCollection, MultiPoint, PreparedGeometry, Relate,
+};
+use geo_traits::to_geo::ToGeoPoint;
+use geo_traits::{GeometryCollectionTrait, GeometryTrait, MultiPointTrait, PointTrait};
 use geoarrow_array::array::from_arrow_array;
 use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
 use geoarrow_expr_geo::util::to_geo::geometry_to_geo;
-use geoarrow_schema::error::GeoArrowResult;
+use geoarrow_schema::error::{GeoArrowError, GeoArrowResult};
 
 use crate::error::GeoDataFusionResult;
 
@@ -177,25 +181,16 @@ fn relate_impl(
         (ColumnarValue::Array(left_arr), ColumnarValue::Array(right_arr)) => {
             let left_arr = from_arrow_array(&left_arr, left_field)?;
             let right_arr = from_arrow_array(&right_arr, right_field)?;
-            let result = geoarrow_expr_geo::relate_boolean(&left_arr, &right_arr, relate_cb)?;
+            let result = relate_arrays(&left_arr, &right_arr, relate_cb)?;
             Ok(ColumnarValue::Array(Arc::new(result)))
         }
         (ColumnarValue::Scalar(left_scalar), ColumnarValue::Array(right_array)) => {
             let left_scalar_array = ColumnarValue::values_to_arrays(&[left_scalar.into()])?;
             let left_geo_array = from_arrow_array(&left_scalar_array[0], left_field)?;
-            let Some(left_geo_scalar) = to_geo_scalar(left_geo_array.as_ref())? else {
-                // Relating anything to a NULL geometry is NULL.
-                return Ok(ColumnarValue::Array(Arc::new(BooleanArray::new_null(
-                    right_array.len(),
-                ))));
-            };
-
-            let left_prepared_geometry = PreparedGeometry::from(left_geo_scalar);
-
             let right_geo_array = from_arrow_array(&right_array, right_field)?;
             let result = relate_prepared_geometry(
                 &right_geo_array,
-                &left_prepared_geometry,
+                &left_geo_array,
                 PreparedSide::Left,
                 relate_cb,
             )?;
@@ -204,19 +199,10 @@ fn relate_impl(
         (ColumnarValue::Array(left_array), ColumnarValue::Scalar(right_scalar)) => {
             let right_scalar_array = ColumnarValue::values_to_arrays(&[right_scalar.into()])?;
             let right_geo_array = from_arrow_array(&right_scalar_array[0], right_field)?;
-            let Some(right_geo_scalar) = to_geo_scalar(right_geo_array.as_ref())? else {
-                // Relating anything to a NULL geometry is NULL.
-                return Ok(ColumnarValue::Array(Arc::new(BooleanArray::new_null(
-                    left_array.len(),
-                ))));
-            };
-
-            let right_prepared_geometry = PreparedGeometry::from(right_geo_scalar);
-
             let left_geo_array = from_arrow_array(&left_array, left_field)?;
             let result = relate_prepared_geometry(
                 &left_geo_array,
-                &right_prepared_geometry,
+                &right_geo_array,
                 PreparedSide::Right,
                 relate_cb,
             )?;
@@ -238,55 +224,156 @@ enum PreparedSide {
     Right,
 }
 
-/// Convert a length-1 GeoArrowArray to a geo::Geometry scalar.
-fn to_geo_scalar(arr: &dyn GeoArrowArray) -> GeoArrowResult<Option<geo::Geometry>> {
-    downcast_geoarrow_array!(arr, _to_geo_scalar_impl)
+type GeoGeometryIter<'a> = Box<dyn Iterator<Item = Option<GeoArrowResult<Geometry<f64>>>> + 'a>;
+
+/// Convert a GeoArrowArray into an iterator of geo::Geometry values.
+///
+/// Keeping the conversion inside the iterator preserves SQL NULL semantics: a
+/// geometry that is never paired with a non-null geometry is never converted.
+fn to_geo_iter<'a>(array: &'a dyn GeoArrowArray) -> GeoArrowResult<GeoGeometryIter<'a>> {
+    downcast_geoarrow_array!(array, _to_geo_iter_impl)
 }
 
-fn _to_geo_scalar_impl<'a>(
-    arr: &'a impl GeoArrowArrayAccessor<'a>,
-) -> GeoArrowResult<Option<geo::Geometry>> {
-    if let Some(geom) = arr.iter().next().unwrap() {
-        Some(geometry_to_geo(&geom?)).transpose()
-    } else {
-        Ok(None)
+fn _to_geo_iter_impl<'a>(
+    array: &'a impl GeoArrowArrayAccessor<'a>,
+) -> GeoArrowResult<GeoGeometryIter<'a>> {
+    Ok(Box::new(array.iter().map(|item| {
+        item.map(|geometry| geometry.and_then(|geometry| geometry_to_geo_for_relate(&geometry)))
+    })))
+}
+
+/// Convert a length-1 GeoArrowArray to a geo::Geometry scalar.
+fn to_geo_scalar(arr: &dyn GeoArrowArray) -> GeoArrowResult<Option<geo::Geometry>> {
+    let mut values = to_geo_iter(arr)?;
+    match values.next() {
+        Some(Some(geometry)) => Ok(Some(geometry?)),
+        Some(None) | None => Ok(None),
     }
+}
+
+/// Convert a GeoArrow geometry to a geo::Geometry for topology operations.
+///
+/// geo-types cannot represent empty points, so an empty point becomes an empty
+/// GeometryCollection and empty points are removed from multi-geometries and
+/// collections. The resulting point set is unchanged, while every non-empty
+/// geometry still uses the same conversion as the existing GeoArrow helpers.
+fn geometry_to_geo_for_relate<T: CoordNum>(
+    geometry: &impl GeometryTrait<T = T>,
+) -> GeoArrowResult<Geometry<T>> {
+    use geo_traits::GeometryType;
+
+    match geometry.as_type() {
+        GeometryType::Point(point) => {
+            if point.coord().is_none() {
+                Ok(Geometry::GeometryCollection(GeometryCollection::empty()))
+            } else {
+                geometry_to_geo(geometry)
+            }
+        }
+        GeometryType::MultiPoint(multi_point) => {
+            let points = multi_point
+                .points()
+                .filter_map(|point| point.try_to_point())
+                .collect();
+            Ok(Geometry::MultiPoint(MultiPoint::new(points)))
+        }
+        GeometryType::GeometryCollection(collection) => {
+            let geometries = collection
+                .geometries()
+                .filter(|child| {
+                    !matches!(child.as_type(), GeometryType::Point(point) if point.coord().is_none())
+                })
+                .map(|child| geometry_to_geo_for_relate(&child))
+                .collect::<GeoArrowResult<_>>()?;
+            Ok(Geometry::GeometryCollection(GeometryCollection::new_from(
+                geometries,
+            )))
+        }
+        _ => geometry_to_geo(geometry),
+    }
+}
+
+fn validate_finite_coordinates(geometry: &Geometry<f64>) -> GeoDataFusionResult<()> {
+    if let Some(coord) = geometry
+        .coords_iter()
+        .find(|coord| !coord.x.is_finite() || !coord.y.is_finite())
+    {
+        return Err(DataFusionError::Execution(format!(
+            "relate requires finite coordinates, found ({}, {})",
+            coord.x, coord.y
+        ))
+        .into());
+    }
+
+    Ok(())
+}
+
+fn relate_arrays(
+    left: &dyn GeoArrowArray,
+    right: &dyn GeoArrowArray,
+    relate_cb: impl Fn(IntersectionMatrix) -> bool,
+) -> GeoDataFusionResult<BooleanArray> {
+    if left.len() != right.len() {
+        return Err(GeoArrowError::InvalidGeoArrow(
+            "Input arrays must have the same length".to_string(),
+        )
+        .into());
+    }
+
+    let left_values = to_geo_iter(left)?;
+    let right_values = to_geo_iter(right)?;
+    let mut builder = BooleanBuilder::with_capacity(left.len());
+
+    for (left, right) in left_values.zip(right_values) {
+        match (left, right) {
+            (Some(left), Some(right)) => {
+                let left = left?;
+                let right = right?;
+                validate_finite_coordinates(&left)?;
+                validate_finite_coordinates(&right)?;
+                builder.append_value(relate_cb(left.relate(&right)));
+            }
+            _ => builder.append_null(),
+        }
+    }
+
+    Ok(builder.finish())
 }
 
 fn relate_prepared_geometry(
     array: &dyn GeoArrowArray,
-    prepared: &PreparedGeometry<geo::Geometry>,
+    scalar: &dyn GeoArrowArray,
     prepared_side: PreparedSide,
     relate_cb: impl Fn(IntersectionMatrix) -> bool,
 ) -> GeoDataFusionResult<BooleanArray> {
-    downcast_geoarrow_array!(
-        array,
-        _relate_prepared_geometry_impl,
-        prepared,
-        prepared_side,
-        relate_cb
-    )
-}
+    if scalar.is_null(0) {
+        return Ok(BooleanArray::new_null(array.len()));
+    }
 
-fn _relate_prepared_geometry_impl<'a>(
-    arr: &'a impl GeoArrowArrayAccessor<'a>,
-    prepared: &PreparedGeometry<geo::Geometry>,
-    prepared_side: PreparedSide,
-    relate_cb: impl Fn(IntersectionMatrix) -> bool,
-) -> GeoDataFusionResult<BooleanArray> {
-    let mut builder = BooleanBuilder::with_capacity(arr.len());
+    let mut prepared = None;
+    let mut builder = BooleanBuilder::with_capacity(array.len());
 
-    for item in arr.iter() {
-        if let Some(geom) = item {
-            let geo_geom = geometry_to_geo(&geom?)?;
-            let matrix = match prepared_side {
-                PreparedSide::Left => prepared.relate(&geo_geom),
-                PreparedSide::Right => geo_geom.relate(prepared),
-            };
-            builder.append_value(relate_cb(matrix));
-        } else {
+    for item in to_geo_iter(array)? {
+        let Some(geometry) = item else {
             builder.append_null();
+            continue;
+        };
+        let geometry = geometry?;
+        validate_finite_coordinates(&geometry)?;
+
+        if prepared.is_none() {
+            let Some(scalar) = to_geo_scalar(scalar)? else {
+                return Ok(BooleanArray::new_null(array.len()));
+            };
+            validate_finite_coordinates(&scalar)?;
+            prepared = Some(PreparedGeometry::from(scalar));
         }
+
+        let matrix = match prepared_side {
+            PreparedSide::Left => prepared.as_ref().unwrap().relate(&geometry),
+            PreparedSide::Right => geometry.relate(prepared.as_ref().unwrap()),
+        };
+        builder.append_value(relate_cb(matrix));
     }
 
     Ok(builder.finish())
@@ -296,13 +383,108 @@ fn _relate_prepared_geometry_impl<'a>(
 mod test {
     use arrow_array::RecordBatch;
     use arrow_array::cast::AsArray;
-    use arrow_schema::Schema;
+    use arrow_schema::{DataType, Field, Schema};
+    use datafusion::config::ConfigOptions;
     use datafusion::prelude::SessionContext;
-    use geoarrow_array::builder::PointBuilder;
-    use geoarrow_schema::{Dimension, PointType};
+    use datafusion::scalar::ScalarValue;
+    use geoarrow_array::array::{GenericWkbArray, PointArray};
+    use geoarrow_array::builder::{PointBuilder, WkbBuilder};
+    use geoarrow_schema::{Dimension, PointType, WkbType};
 
     use super::*;
     use crate::udf::native::io::GeomFromText;
+
+    #[derive(Clone, Copy)]
+    enum TestPoint {
+        Empty,
+        Coord(f64, f64),
+        Null,
+    }
+
+    fn point_type() -> PointType {
+        PointType::new(Dimension::XY, Default::default())
+    }
+
+    fn point_array(points: &[TestPoint]) -> PointArray {
+        let mut builder = PointBuilder::new(point_type());
+        for point in points {
+            match point {
+                TestPoint::Empty => builder.push_empty(),
+                TestPoint::Coord(x, y) => {
+                    builder.push_point(Some(&geo::Point::new(*x, *y)));
+                }
+                TestPoint::Null => builder.push_null(),
+            }
+        }
+        builder.finish()
+    }
+
+    fn decode_hex(value: &str) -> Vec<u8> {
+        value
+            .as_bytes()
+            .as_chunks::<2>()
+            .0
+            .iter()
+            .map(|pair| {
+                let high = (pair[0] as char).to_digit(16).unwrap();
+                let low = (pair[1] as char).to_digit(16).unwrap();
+                ((high << 4) | low) as u8
+            })
+            .collect()
+    }
+
+    fn wkb_array(values: &[Option<&str>]) -> GenericWkbArray<i32> {
+        let mut builder = WkbBuilder::<i32>::new(WkbType::default());
+        for value in values {
+            let bytes = value.map(decode_hex);
+            builder.push_wkb(bytes.as_deref()).unwrap();
+        }
+        builder.finish()
+    }
+
+    fn geometry_field(array: &dyn GeoArrowArray) -> Field {
+        array.data_type().to_field("geometry", true)
+    }
+
+    fn array_value(array: &dyn GeoArrowArray) -> ColumnarValue {
+        ColumnarValue::Array(array.to_array_ref())
+    }
+
+    fn scalar_value(array: &dyn GeoArrowArray) -> ColumnarValue {
+        let array = array.to_array_ref();
+        ColumnarValue::Scalar(ScalarValue::try_from_array(array.as_ref(), 0).unwrap())
+    }
+
+    fn invoke_udf<U: ScalarUDFImpl>(
+        udf: &U,
+        left: ColumnarValue,
+        left_field: &Field,
+        right: ColumnarValue,
+        right_field: &Field,
+        number_rows: usize,
+    ) -> Result<ColumnarValue> {
+        udf.invoke_with_args(ScalarFunctionArgs {
+            args: vec![left, right],
+            arg_fields: vec![Arc::new(left_field.clone()), Arc::new(right_field.clone())],
+            number_rows,
+            return_field: Arc::new(Field::new("result", DataType::Boolean, true)),
+            config_options: Arc::new(ConfigOptions::default()),
+        })
+    }
+
+    fn invoke_bool<U: ScalarUDFImpl>(
+        udf: &U,
+        left: ColumnarValue,
+        left_field: &Field,
+        right: ColumnarValue,
+        right_field: &Field,
+        number_rows: usize,
+    ) -> Vec<Option<bool>> {
+        match invoke_udf(udf, left, left_field, right, right_field, number_rows).unwrap() {
+            ColumnarValue::Array(array) => array.as_boolean().iter().collect(),
+            other => panic!("unexpected relation result: {other:?}"),
+        }
+    }
 
     #[tokio::test]
     async fn test_intersects_scalars_true() {
@@ -364,6 +546,384 @@ mod test {
         let col = batch.column(0);
         assert!(col.as_boolean().value(0));
         assert!(!col.as_boolean().value(1));
+    }
+
+    #[test]
+    fn test_empty_point_semantics_across_columnar_combinations() {
+        let empty = point_array(&[TestPoint::Empty]);
+        let mixed = point_array(&[
+            TestPoint::Empty,
+            TestPoint::Coord(0.0, 0.0),
+            TestPoint::Null,
+        ]);
+        let empty_field = geometry_field(&empty);
+        let mixed_field = geometry_field(&mixed);
+
+        assert_eq!(
+            invoke_bool(
+                &Equals::new(),
+                array_value(&mixed),
+                &mixed_field,
+                array_value(&mixed),
+                &mixed_field,
+                mixed.len(),
+            ),
+            vec![Some(true), Some(true), None]
+        );
+        assert_eq!(
+            invoke_bool(
+                &Equals::new(),
+                scalar_value(&empty),
+                &empty_field,
+                array_value(&mixed),
+                &mixed_field,
+                mixed.len(),
+            ),
+            vec![Some(true), Some(false), None]
+        );
+        assert_eq!(
+            invoke_bool(
+                &Equals::new(),
+                array_value(&mixed),
+                &mixed_field,
+                scalar_value(&empty),
+                &empty_field,
+                mixed.len(),
+            ),
+            vec![Some(true), Some(false), None]
+        );
+        assert_eq!(
+            invoke_bool(
+                &Disjoint::new(),
+                scalar_value(&empty),
+                &empty_field,
+                array_value(&mixed),
+                &mixed_field,
+                mixed.len(),
+            ),
+            vec![Some(true), Some(true), None]
+        );
+        assert_eq!(
+            invoke_bool(
+                &Covers::new(),
+                scalar_value(&empty),
+                &empty_field,
+                array_value(&mixed),
+                &mixed_field,
+                mixed.len(),
+            ),
+            vec![Some(false), Some(false), None]
+        );
+    }
+
+    #[test]
+    fn test_empty_point_matches_other_empty_geometries() {
+        let point = point_array(&[TestPoint::Empty]);
+        // An empty polygon has the same point set as an empty point.
+        let polygon = wkb_array(&[Some("010300000000000000")]);
+        let point_field = geometry_field(&point);
+        let polygon_field = geometry_field(&polygon);
+
+        assert_eq!(
+            invoke_bool(
+                &Equals::new(),
+                array_value(&point),
+                &point_field,
+                array_value(&polygon),
+                &polygon_field,
+                1,
+            ),
+            vec![Some(true)]
+        );
+        assert_eq!(
+            invoke_bool(
+                &Disjoint::new(),
+                array_value(&point),
+                &point_field,
+                array_value(&polygon),
+                &polygon_field,
+                1,
+            ),
+            vec![Some(true)]
+        );
+        assert_eq!(
+            invoke_bool(
+                &Covers::new(),
+                array_value(&point),
+                &point_field,
+                array_value(&polygon),
+                &polygon_field,
+                1,
+            ),
+            vec![Some(false)]
+        );
+    }
+
+    #[test]
+    fn test_empty_points_in_multi_geometries() {
+        // MULTIPOINT(EMPTY, (0 0)) and MULTIPOINT(0 0).
+        let multipoint_with_empty = wkb_array(&[Some(
+            "0104000000020000000101000000000000000000f87f000000000000f87f010100000000000000000000000000000000000000",
+        )]);
+        let multipoint = wkb_array(&[Some(
+            "010400000001000000010100000000000000000000000000000000000000",
+        )]);
+
+        // GEOMETRYCOLLECTION(POINT EMPTY, POINT(0 0)) and
+        // GEOMETRYCOLLECTION(POINT(0 0)).
+        let collection_with_empty = wkb_array(&[Some(
+            "0107000000020000000101000000000000000000f87f000000000000f87f010100000000000000000000000000000000000000",
+        )]);
+        let collection = wkb_array(&[Some(
+            "010700000001000000010100000000000000000000000000000000000000",
+        )]);
+
+        for (left, right, name) in [
+            (
+                &multipoint_with_empty as &dyn GeoArrowArray,
+                &multipoint as &dyn GeoArrowArray,
+                "multipoint",
+            ),
+            (&collection_with_empty, &collection, "geometry collection"),
+        ] {
+            let left_field = geometry_field(left);
+            let right_field = geometry_field(right);
+            assert_eq!(
+                invoke_bool(
+                    &Equals::new(),
+                    array_value(left),
+                    &left_field,
+                    array_value(right),
+                    &right_field,
+                    1,
+                ),
+                vec![Some(true)],
+                "{name}"
+            );
+            assert_eq!(
+                invoke_bool(
+                    &Covers::new(),
+                    array_value(left),
+                    &left_field,
+                    array_value(right),
+                    &right_field,
+                    1,
+                ),
+                vec![Some(true)],
+                "{name}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_nonfinite_coordinates_return_execution_errors() {
+        let valid = point_array(&[TestPoint::Coord(0.0, 0.0)]);
+        let valid_field = geometry_field(&valid);
+
+        for (x, y) in [(f64::NAN, 0.0), (0.0, f64::INFINITY)] {
+            let malformed = point_array(&[TestPoint::Coord(x, y)]);
+            let malformed_field = geometry_field(&malformed);
+
+            let error = invoke_udf(
+                &Intersects::new(),
+                array_value(&malformed),
+                &malformed_field,
+                array_value(&valid),
+                &valid_field,
+                1,
+            )
+            .unwrap_err();
+            assert!(
+                matches!(error, DataFusionError::Execution(_)),
+                "left malformed coordinate ({x}, {y}): {error}"
+            );
+
+            let error = invoke_udf(
+                &Intersects::new(),
+                array_value(&valid),
+                &valid_field,
+                array_value(&malformed),
+                &malformed_field,
+                1,
+            )
+            .unwrap_err();
+            assert!(
+                matches!(error, DataFusionError::Execution(_)),
+                "right malformed coordinate ({x}, {y}): {error}"
+            );
+
+            let error = invoke_udf(
+                &Intersects::new(),
+                scalar_value(&malformed),
+                &malformed_field,
+                array_value(&valid),
+                &valid_field,
+                1,
+            )
+            .unwrap_err();
+            assert!(
+                matches!(error, DataFusionError::Execution(_)),
+                "scalar-first malformed coordinate ({x}, {y}): {error}"
+            );
+
+            let error = invoke_udf(
+                &Intersects::new(),
+                array_value(&valid),
+                &valid_field,
+                scalar_value(&malformed),
+                &malformed_field,
+                1,
+            )
+            .unwrap_err();
+            assert!(
+                matches!(error, DataFusionError::Execution(_)),
+                "scalar-second malformed coordinate ({x}, {y}): {error}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_unused_malformed_scalars_and_null_rows_are_not_evaluated() {
+        let malformed = point_array(&[TestPoint::Coord(f64::NAN, 0.0)]);
+        let malformed_field = geometry_field(&malformed);
+        let nulls = point_array(&[TestPoint::Null, TestPoint::Null]);
+        let nulls_field = geometry_field(&nulls);
+
+        assert_eq!(
+            invoke_bool(
+                &Intersects::new(),
+                scalar_value(&malformed),
+                &malformed_field,
+                array_value(&nulls),
+                &nulls_field,
+                nulls.len(),
+            ),
+            vec![None, None]
+        );
+        assert_eq!(
+            invoke_bool(
+                &Intersects::new(),
+                array_value(&nulls),
+                &nulls_field,
+                scalar_value(&malformed),
+                &malformed_field,
+                nulls.len(),
+            ),
+            vec![None, None]
+        );
+
+        let zero_rows = point_array(&[]);
+        let zero_rows_field = geometry_field(&zero_rows);
+        assert!(
+            invoke_bool(
+                &Intersects::new(),
+                scalar_value(&malformed),
+                &malformed_field,
+                array_value(&zero_rows),
+                &zero_rows_field,
+                0,
+            )
+            .is_empty()
+        );
+
+        let null = point_array(&[TestPoint::Null]);
+        let null_field = geometry_field(&null);
+        assert_eq!(
+            invoke_bool(
+                &Intersects::new(),
+                array_value(&malformed),
+                &malformed_field,
+                array_value(&null),
+                &null_field,
+                1,
+            ),
+            vec![None]
+        );
+    }
+
+    #[test]
+    fn test_relate_paths_agree_for_valid_points() {
+        let left = point_array(&[TestPoint::Coord(0.0, 0.0), TestPoint::Coord(1.0, 1.0)]);
+        let right = point_array(&[TestPoint::Coord(0.0, 0.0), TestPoint::Coord(2.0, 2.0)]);
+        let left_scalar = point_array(&[TestPoint::Coord(0.0, 0.0)]);
+        let right_scalar = point_array(&[TestPoint::Coord(0.0, 0.0)]);
+        let left_field = geometry_field(&left);
+        let right_field = geometry_field(&right);
+        let left_scalar_field = geometry_field(&left_scalar);
+        let right_scalar_field = geometry_field(&right_scalar);
+
+        let array_array = vec![Some(true), Some(false)];
+        assert_eq!(
+            invoke_bool(
+                &Intersects::new(),
+                array_value(&left),
+                &left_field,
+                array_value(&right),
+                &right_field,
+                left.len(),
+            ),
+            array_array
+        );
+        assert_eq!(
+            invoke_bool(
+                &Intersects::new(),
+                scalar_value(&left_scalar),
+                &left_scalar_field,
+                array_value(&right),
+                &right_field,
+                right.len(),
+            ),
+            array_array
+        );
+        assert_eq!(
+            invoke_bool(
+                &Intersects::new(),
+                array_value(&left),
+                &left_field,
+                scalar_value(&right_scalar),
+                &right_scalar_field,
+                left.len(),
+            ),
+            array_array
+        );
+    }
+
+    #[tokio::test]
+    async fn test_empty_point_sql_integration() {
+        let ctx = SessionContext::new();
+        register_relate_udfs(&ctx);
+
+        let df = ctx
+            .sql(
+                "SELECT \
+                    ST_Equals(ST_GeomFromText('POINT EMPTY'), ST_GeomFromText('GEOMETRYCOLLECTION EMPTY')) AS equals, \
+                    ST_Disjoint(ST_GeomFromText('POINT EMPTY'), ST_GeomFromText('GEOMETRYCOLLECTION EMPTY')) AS disjoint, \
+                    ST_Covers(ST_GeomFromText('POINT EMPTY'), ST_GeomFromText('GEOMETRYCOLLECTION EMPTY')) AS covers",
+            )
+            .await
+            .unwrap();
+        let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+        assert!(
+            batch
+                .column_by_name("equals")
+                .unwrap()
+                .as_boolean()
+                .value(0)
+        );
+        assert!(
+            batch
+                .column_by_name("disjoint")
+                .unwrap()
+                .as_boolean()
+                .value(0)
+        );
+        assert!(
+            !batch
+                .column_by_name("covers")
+                .unwrap()
+                .as_boolean()
+                .value(0)
+        );
     }
 
     fn register_relate_udfs(ctx: &SessionContext) {
