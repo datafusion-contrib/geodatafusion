@@ -23,12 +23,7 @@ fn register_group(ctx: &SessionContext, group: &str) -> PyResult<()> {
             geodatafusion::udf::geo::validation::register(ctx);
         }
         "geohash" => geodatafusion::udf::geohash::register(ctx),
-        "native" => {
-            geodatafusion::udf::native::accessors::register(ctx);
-            geodatafusion::udf::native::bounding_box::register(ctx);
-            geodatafusion::udf::native::constructors::register(ctx);
-            geodatafusion::udf::native::io::register(ctx);
-        }
+        "native" => geodatafusion::udf::native::register(ctx),
         _ => {
             return Err(PyValueError::new_err(
                 "registration group must be one of: all, geo, geohash, native",
