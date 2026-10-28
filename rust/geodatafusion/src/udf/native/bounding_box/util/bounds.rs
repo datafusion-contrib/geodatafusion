@@ -5,9 +5,9 @@ use std::ops::Add;
 use arrow_array::Float64Array;
 use arrow_array::builder::Float64Builder;
 use geo_traits::{
-    CoordTrait, GeometryCollectionTrait, GeometryTrait, GeometryType, LineStringTrait,
+    CoordTrait, GeometryCollectionTrait, GeometryTrait, GeometryType, LineStringTrait, LineTrait,
     MultiLineStringTrait, MultiPointTrait, MultiPolygonTrait, PointTrait, PolygonTrait, RectTrait,
-    UnimplementedGeometryCollection, UnimplementedLine, UnimplementedLineString,
+    TriangleTrait, UnimplementedGeometryCollection, UnimplementedLine, UnimplementedLineString,
     UnimplementedMultiLineString, UnimplementedMultiPoint, UnimplementedMultiPolygon,
     UnimplementedPoint, UnimplementedPolygon, UnimplementedTriangle,
 };
@@ -163,7 +163,15 @@ impl BoundingRect {
             MultiPolygon(g) => self.add_multi_polygon(g),
             GeometryCollection(g) => self.add_geometry_collection(g),
             Rect(g) => self.add_rect(g),
-            Triangle(_) | Line(_) => unreachable!(),
+            Triangle(triangle) => {
+                for coord in triangle.coords() {
+                    self.add_coord(&coord);
+                }
+            }
+            Line(line) => {
+                self.add_coord(&line.start());
+                self.add_coord(&line.end());
+            }
         }
     }
 
@@ -183,6 +191,124 @@ impl BoundingRect {
 
     pub fn update(&mut self, other: &BoundingRect) {
         self.add_rect(other)
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+pub(crate) enum GeometryBounds {
+    Empty,
+    NonFinite,
+    Finite(BoundingRect),
+}
+
+/// Classify one geometry before using its planar XY bounds.
+pub(crate) fn geometry_bounds(geometry: &impl GeometryTrait<T = f64>) -> GeometryBounds {
+    match coordinate_state(geometry) {
+        CoordinateState::Empty => return GeometryBounds::Empty,
+        CoordinateState::NonFinite => return GeometryBounds::NonFinite,
+        CoordinateState::Finite => {}
+    }
+
+    let mut bounds = BoundingRect::new(false);
+    bounds.add_geometry(geometry);
+
+    if bounds.minx.is_finite()
+        && bounds.miny.is_finite()
+        && bounds.maxx.is_finite()
+        && bounds.maxy.is_finite()
+        && bounds.minx <= bounds.maxx
+        && bounds.miny <= bounds.maxy
+    {
+        GeometryBounds::Finite(bounds)
+    } else {
+        GeometryBounds::Empty
+    }
+}
+
+#[derive(Clone, Copy)]
+enum CoordinateState {
+    Empty,
+    Finite,
+    NonFinite,
+}
+
+impl CoordinateState {
+    fn combine(self, other: Self) -> Self {
+        match (self, other) {
+            (Self::NonFinite, _) | (_, Self::NonFinite) => Self::NonFinite,
+            (Self::Finite, _) | (_, Self::Finite) => Self::Finite,
+            (Self::Empty, Self::Empty) => Self::Empty,
+        }
+    }
+}
+
+fn coordinate_state(geometry: &impl GeometryTrait<T = f64>) -> CoordinateState {
+    use GeometryType::*;
+
+    match geometry.as_type() {
+        Point(point) => point
+            .coord()
+            .map_or(CoordinateState::Empty, |coord| coord_state(&coord)),
+        LineString(line_string) => coords_state(line_string.coords()),
+        Polygon(polygon) => {
+            let exterior = polygon
+                .exterior()
+                .map_or(CoordinateState::Empty, |ring| coords_state(ring.coords()));
+            polygon.interiors().fold(exterior, |state, ring| {
+                state.combine(coords_state(ring.coords()))
+            })
+        }
+        MultiPoint(multi_point) => {
+            multi_point
+                .points()
+                .fold(CoordinateState::Empty, |state, point| {
+                    state.combine(
+                        point
+                            .coord()
+                            .map_or(CoordinateState::Empty, |coord| coord_state(&coord)),
+                    )
+                })
+        }
+        MultiLineString(multi_line_string) => multi_line_string
+            .line_strings()
+            .fold(CoordinateState::Empty, |state, line_string| {
+                state.combine(coords_state(line_string.coords()))
+            }),
+        MultiPolygon(multi_polygon) => {
+            multi_polygon
+                .polygons()
+                .fold(CoordinateState::Empty, |state, polygon| {
+                    let exterior = polygon
+                        .exterior()
+                        .map_or(CoordinateState::Empty, |ring| coords_state(ring.coords()));
+                    let polygon_state = polygon.interiors().fold(exterior, |state, ring| {
+                        state.combine(coords_state(ring.coords()))
+                    });
+                    state.combine(polygon_state)
+                })
+        }
+        GeometryCollection(collection) => collection
+            .geometries()
+            .fold(CoordinateState::Empty, |state, geometry| {
+                state.combine(coordinate_state(&geometry))
+            }),
+        Rect(rect) => coord_state(&rect.min()).combine(coord_state(&rect.max())),
+        Triangle(triangle) => coords_state(triangle.coords().into_iter()),
+        Line(line) => coord_state(&line.start()).combine(coord_state(&line.end())),
+    }
+}
+
+fn coords_state(iter: impl Iterator<Item = impl CoordTrait<T = f64>>) -> CoordinateState {
+    iter.fold(CoordinateState::Empty, |state, coord| {
+        state.combine(coord_state(&coord))
+    })
+}
+
+fn coord_state(coord: &impl CoordTrait<T = f64>) -> CoordinateState {
+    if coord.x().is_finite() && coord.y().is_finite() {
+        CoordinateState::Finite
+    } else {
+        CoordinateState::NonFinite
     }
 }
 
