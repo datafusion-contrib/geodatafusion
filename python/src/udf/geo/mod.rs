@@ -27,6 +27,7 @@ pub(crate) fn geo(m: &Bound<PyModule>) -> PyResult<()> {
     m.add_class::<relationships::PyCovers>()?;
     m.add_class::<relationships::PyCrosses>()?;
     m.add_class::<relationships::PyDisjoint>()?;
+    m.add_class::<relationships::PyDWithin>()?;
     m.add_class::<relationships::PyEquals>()?;
     m.add_class::<relationships::PyIntersects>()?;
     m.add_class::<relationships::PyOverlaps>()?;
