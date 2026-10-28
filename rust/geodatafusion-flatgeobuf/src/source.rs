@@ -56,6 +56,11 @@ impl FlatGeobufSource {
             ..self
         }
     }
+
+    #[cfg(test)]
+    pub(crate) fn bbox(&self) -> Option<[f64; 4]> {
+        self.bbox
+    }
 }
 
 impl From<FlatGeobufSource> for Arc<dyn FileSource> {
@@ -107,7 +112,9 @@ impl FileSource for FlatGeobufSource {
                 && let Some(extracted) = extract_bbox(filter)?
             {
                 bbox = Some(extracted);
-                pushdown_flags.push(PushedDown::Yes);
+                // The FlatGeobuf index only produces candidates. Keep the exact
+                // predicate in the plan so DataFusion rechecks each geometry.
+                pushdown_flags.push(PushedDown::No);
                 continue;
             }
             pushdown_flags.push(PushedDown::No);
