@@ -36,6 +36,7 @@ def register_all_geo(ctx: SessionContext):
     ctx.register_udf(udf(geo.Covers()))
     ctx.register_udf(udf(geo.Crosses()))
     ctx.register_udf(udf(geo.Disjoint()))
+    ctx.register_udf(udf(geo.DWithin()))
     ctx.register_udf(udf(geo.Equals()))
     ctx.register_udf(udf(geo.Intersects()))
     ctx.register_udf(udf(geo.Overlaps()))

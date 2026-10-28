@@ -227,6 +227,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_Covers                | ✅          | Tests if every point of B lies in A.                                                                                                    |
 | ST_Crosses               | ✅          | Tests if two geometries have some, but not all, interior points in common.                                                              |
 | ST_Disjoint              | ✅          | Tests if two geometries have no points in common.                                                                                       |
+| ST_DWithin               | ✅          | Tests if two geometries are within a given 2D Cartesian distance, in coordinate-system units.                                           |
 | ST_Equals                | ✅          | Tests if two geometries include the same set of points.                                                                                 |
 | ST_Intersects            | ✅          | Tests if two geometries intersect (they have at least one point in common).                                                             |
 | ST_LineCrossingDirection |             | Returns a number indicating the crossing behavior of two LineStrings.                                                                   |
