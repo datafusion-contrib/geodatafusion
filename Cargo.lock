@@ -1940,6 +1940,7 @@ name = "geodatafusion-geoparquet"
 version = "0.6.0"
 dependencies = [
  "approx",
+ "arrow-array",
  "arrow-schema",
  "async-trait",
  "datafusion",
@@ -1951,8 +1952,11 @@ dependencies = [
  "geodatafusion",
  "geoparquet",
  "object_store",
+ "parquet",
  "serde_json",
+ "tempfile",
  "tokio",
+ "wkt 0.14.0",
 ]
 
 [[package]]
