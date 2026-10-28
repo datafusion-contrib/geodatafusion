@@ -1092,6 +1092,35 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_dwithin_mixed_geometry_collection_dispatch() {
+        let ctx = SessionContext::new();
+        crate::register(&ctx);
+
+        let collection = "GEOMETRYCOLLECTION (\
+            POINT(10 0), \
+            LINESTRING(20 0, 21 0), \
+            MULTIPOINT((30 0), (31 0)), \
+            POLYGON((40 0, 42 0, 42 2, 40 0))\
+        )";
+        for (radius, expected) in [(10.0, true), (10.0f64.next_down(), false)] {
+            for sql in [
+                format!(
+                    "SELECT ST_DWithin(ST_GeomFromText('{collection}'), ST_Point(0, 0), {radius})"
+                ),
+                format!(
+                    "SELECT ST_DWithin(ST_Point(0, 0), ST_GeomFromText('{collection}'), {radius})"
+                ),
+            ] {
+                assert_eq!(
+                    execute_bools(&ctx, &sql).await,
+                    vec![Some(expected)],
+                    "{sql}"
+                );
+            }
+        }
+    }
+
+    #[tokio::test]
     async fn test_dwithin_array_scalar_combinations() {
         let ctx = SessionContext::new();
         crate::register(&ctx);
