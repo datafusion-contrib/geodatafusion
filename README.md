@@ -227,6 +227,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_Covers                | ✅          | Tests if every point of B lies in A.                                                                                                    |
 | ST_Crosses               | ✅          | Tests if two geometries have some, but not all, interior points in common.                                                              |
 | ST_Disjoint              | ✅          | Tests if two geometries have no points in common.                                                                                       |
+| ST_DWithin               | ✅          | Tests if two geometries are within a given 2D Cartesian distance, in coordinate-system units.                                           |
 | ST_Equals                | ✅          | Tests if two geometries include the same set of points.                                                                                 |
 | ST_Intersects            | ✅          | Tests if two geometries intersect (they have at least one point in common).                                                             |
 | ST_LineCrossingDirection |             | Returns a number indicating the crossing behavior of two LineStrings.                                                                   |
@@ -247,6 +248,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_ClosestPoint         |             | Returns the 2D point on g1 that is closest to g2. This is the first point of the shortest line from one geometry to the other. |
 | ST_3DClosestPoint       |             | Returns the 3D point on g1 that is closest to g2. This is the first point of the 3D shortest line.                             |
 | ST_Distance             | ✅          | Returns the distance between two geometry or geography values.                                                                 |
+| ST_DWithin              | ✅          | Returns whether the minimum 2D Cartesian distance is within a finite, non-negative radius.                                     |
 | ST_3DDistance           |             | Returns the 3D cartesian minimum distance (based on spatial ref) between two geometries in projected units.                    |
 | ST_DistanceSphere       |             | Returns minimum distance in meters between two lon/lat geometries using a spherical earth model.                               |
 | ST_DistanceSpheroid     |             | Returns the minimum distance between two lon/lat geometries using a spheroidal earth model.                                    |
