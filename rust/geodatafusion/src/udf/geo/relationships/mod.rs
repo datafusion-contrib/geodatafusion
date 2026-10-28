@@ -1,8 +1,7 @@
 mod topological;
 
 pub use topological::{
-    Contains, CoveredBy, Covers, Crosses, DWithin, Disjoint, Equals, Intersects, Overlaps, Touches,
-    Within,
+    Contains, CoveredBy, Covers, Crosses, Disjoint, Equals, Intersects, Overlaps, Touches, Within,
 };
 
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
@@ -11,7 +10,6 @@ pub fn register(session_context: &datafusion::prelude::SessionContext) {
     session_context.register_udf(Covers::default().into());
     session_context.register_udf(Crosses::default().into());
     session_context.register_udf(Disjoint::default().into());
-    session_context.register_udf(DWithin.into());
     session_context.register_udf(Equals::default().into());
     session_context.register_udf(Intersects::default().into());
     session_context.register_udf(Overlaps::default().into());
