@@ -1,0 +1,1081 @@
+use std::sync::{Arc, OnceLock};
+
+use arrow_array::builder::BooleanBuilder;
+use arrow_array::cast::AsArray;
+use arrow_array::types::Float64Type;
+use arrow_array::{Array, ArrayRef, BooleanArray};
+use arrow_schema::{DataType, Field};
+use datafusion::arrow::compute::{cast as cast_array, filter as filter_array};
+use datafusion::common::metadata::FieldMetadata;
+use datafusion::common::{Column, ScalarValue};
+use datafusion::error::{DataFusionError, Result};
+use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
+use datafusion::logical_expr::{
+    ColumnarValue, Documentation, Expr, ScalarFunctionArgs, ScalarUDFImpl, Signature, Volatility,
+};
+use geoarrow_array::array::from_arrow_array;
+use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, WrapArray, downcast_geoarrow_array};
+use geoarrow_schema::GeoArrowType;
+
+use crate::error::GeoDataFusionResult;
+use crate::udf::native::bounding_box::util::{GeometryBounds, geometry_bounds};
+
+/// A conservative planar XY envelope for a spatial index candidate query.
+///
+/// `envelope` is `[min_x, min_y, max_x, max_y]`. The bounds are expanded
+/// outward to cover the distance condition before the caller queries an index.
+#[derive(Debug, Clone, PartialEq)]
+pub struct DWithinIndexFilter {
+    /// The indexed geometry column, including its optional qualifier.
+    pub column: Column,
+    /// A conservative planar XY envelope in coordinate-system units.
+    pub envelope: [f64; 4],
+}
+
+/// Extract the indexable shape of a root `ST_DWithin` expression.
+///
+/// The helper accepts exactly one bare geometry column and one folded geometry
+/// literal with a finite, non-negative constant radius. It does not recurse
+/// through `AND`, `OR`, or `NOT`; callers should pass individual pushdown
+/// conjuncts.
+///
+/// A returned envelope is the directed-rounded mathematical bounds condition
+/// enforced by [`DWithin`]. `ST_DWithin` checks the same condition before it
+/// invokes the distance kernel, so every `ST_DWithin` true row is a candidate
+/// without assuming an error bound for that kernel. Providers must declare an
+/// inexact pushdown and retain the original predicate for exact rechecking.
+pub fn extract_dwithin_index_filter(expr: &Expr) -> Result<Option<DWithinIndexFilter>> {
+    Ok(extract_dwithin_index_filter_impl(expr)?)
+}
+
+fn extract_dwithin_index_filter_impl(
+    expr: &Expr,
+) -> GeoDataFusionResult<Option<DWithinIndexFilter>> {
+    let Expr::ScalarFunction(function) = expr else {
+        return Ok(None);
+    };
+
+    if !function.func.inner().is::<DWithin>() || function.args.len() != 3 {
+        return Ok(None);
+    }
+
+    let (column, geometry, metadata) = match (&function.args[0], &function.args[1]) {
+        (Expr::Column(column), Expr::Literal(geometry, metadata)) => (column, geometry, metadata),
+        (Expr::Literal(geometry, metadata), Expr::Column(column)) => (column, geometry, metadata),
+        _ => return Ok(None),
+    };
+
+    let Expr::Literal(radius, _) = &function.args[2] else {
+        return Ok(None);
+    };
+
+    let Some(bounds) = literal_geometry_bounds(geometry, metadata.as_ref())? else {
+        return Ok(None);
+    };
+    let Some(radius) = literal_radius(radius)? else {
+        return Ok(None);
+    };
+
+    let envelope = expand_bounds(bounds, radius);
+    if !envelope.iter().all(|value| value.is_finite()) {
+        return Ok(None);
+    }
+
+    Ok(Some(DWithinIndexFilter {
+        column: column.clone(),
+        envelope,
+    }))
+}
+
+fn literal_geometry_bounds(
+    value: &ScalarValue,
+    metadata: Option<&FieldMetadata>,
+) -> GeoDataFusionResult<Option<[f64; 4]>> {
+    if value.is_null() {
+        return Ok(None);
+    }
+
+    let array = value.to_array()?;
+    let mut field = Field::new("geometry", value.data_type(), true);
+    if let Some(metadata) = metadata {
+        field = metadata.add_to_field(field);
+    }
+
+    let Ok(geo_type) = GeoArrowType::from_arrow_field(&field) else {
+        return Ok(None);
+    };
+    let geo_array = geo_type.wrap_array(array.as_ref())?;
+    let Some(Some(bounds)) = geo_array_bounds(geo_array.as_ref())?.into_iter().next() else {
+        return Ok(None);
+    };
+
+    Ok(match bounds {
+        GeometryBounds::Finite(bounds) => {
+            Some([bounds.minx(), bounds.miny(), bounds.maxx(), bounds.maxy()])
+        }
+        GeometryBounds::Empty | GeometryBounds::NonFinite => None,
+    })
+}
+
+fn literal_radius(value: &ScalarValue) -> GeoDataFusionResult<Option<f64>> {
+    if value.is_null() || !is_supported_radius_type(&value.data_type()) {
+        return Ok(None);
+    }
+
+    let array = value.to_array()?;
+    let radius = radius_values(array.as_ref())?.into_iter().next().flatten();
+
+    Ok(radius.filter(|radius| radius.is_finite() && *radius >= 0.0))
+}
+
+fn geo_array_bounds(array: &dyn GeoArrowArray) -> GeoDataFusionResult<Vec<Option<GeometryBounds>>> {
+    downcast_geoarrow_array!(array, geo_array_bounds_impl)
+}
+
+fn geo_array_bounds_impl<'a>(
+    array: &'a impl GeoArrowArrayAccessor<'a>,
+) -> GeoDataFusionResult<Vec<Option<GeometryBounds>>> {
+    let mut bounds = Vec::with_capacity(array.len());
+
+    for item in array.iter() {
+        let Some(geometry) = item else {
+            bounds.push(None);
+            continue;
+        };
+
+        let geometry = geometry?;
+        bounds.push(Some(geometry_bounds(&geometry)));
+    }
+
+    Ok(bounds)
+}
+
+fn expand_bounds(bounds: [f64; 4], radius: f64) -> [f64; 4] {
+    // This directed rounding covers the exact mathematical condition
+    // `distance <= radius`. It deliberately makes no claim about the error of
+    // the distance kernel. ST_DWithin enforces this same envelope before it
+    // calls that kernel, which is what makes the extracted candidate safe.
+    [
+        (bounds[0] - radius).next_down(),
+        (bounds[1] - radius).next_down(),
+        (bounds[2] + radius).next_up(),
+        (bounds[3] + radius).next_up(),
+    ]
+}
+
+fn expanded_bounds_intersect(left: [f64; 4], right: [f64; 4], radius: f64) -> bool {
+    let left_expanded = expand_bounds(left, radius);
+    let right_expanded = expand_bounds(right, radius);
+
+    bounds_intersect(left_expanded, right) && bounds_intersect(right_expanded, left)
+}
+
+fn bounds_intersect(left: [f64; 4], right: [f64; 4]) -> bool {
+    left[0] <= right[2] && right[0] <= left[2] && left[1] <= right[3] && right[1] <= left[3]
+}
+
+#[derive(Debug, Eq, PartialEq, Hash)]
+pub struct DWithin;
+
+impl DWithin {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl Default for DWithin {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+static SIGNATURE: std::sync::LazyLock<Signature> =
+    std::sync::LazyLock::new(|| Signature::any(3, Volatility::Immutable));
+static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
+
+impl ScalarUDFImpl for DWithin {
+    fn name(&self) -> &str {
+        "st_dwithin"
+    }
+
+    fn signature(&self) -> &Signature {
+        &SIGNATURE
+    }
+
+    fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
+        Ok(DataType::Boolean)
+    }
+
+    fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        Ok(dwithin_impl(args)?)
+    }
+
+    fn is_strict(&self) -> bool {
+        true
+    }
+
+    fn documentation(&self) -> Option<&Documentation> {
+        Some(DOCUMENTATION.get_or_init(|| {
+            Documentation::builder(
+                DOC_SECTION_OTHER,
+                "Returns true when the minimum 2D Cartesian distance between two \
+                 non-empty geometries is less than or equal to a finite, non-negative \
+                 radius. Distance and radius use coordinate-system units. The predicate \
+                 applies an exact outward-rounded bounds check before using the same \
+                 planar distance kernel as ST_Distance, so it can be false where a \
+                 rounded ST_Distance result equals the radius at a floating-point \
+                 boundary. It never changes ST_Distance semantics. NULL inputs return \
+                 NULL; EMPTY geometries return false; non-finite geometry coordinates \
+                 or an invalid radius are errors.",
+                "ST_DWithin(geomA, geomB, radius)",
+            )
+            .with_argument("geomA", "geometry")
+            .with_argument("geomB", "geometry")
+            .with_argument(
+                "radius",
+                "finite non-negative distance in coordinate-system units",
+            )
+            .build()
+        }))
+    }
+}
+
+fn dwithin_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
+    let arrays = ColumnarValue::values_to_arrays(&args.args)?;
+    if arrays.len() != 3 {
+        return Err(DataFusionError::Internal(format!(
+            "ST_DWithin expects 3 arguments, got {}",
+            arrays.len()
+        ))
+        .into());
+    }
+
+    let number_rows = args.number_rows;
+    if number_rows == 0 {
+        return Ok(ColumnarValue::Array(Arc::new(BooleanArray::from(Vec::<
+            bool,
+        >::new(
+        )))));
+    }
+
+    if arrays.iter().any(|array| array_is_all_null(array.as_ref())) {
+        return Ok(ColumnarValue::Array(null_result(number_rows)));
+    }
+
+    let radius_values = radius_values(arrays[2].as_ref())?;
+    for radius in radius_values.iter().flatten() {
+        if !radius.is_finite() || *radius < 0.0 {
+            return Err(DataFusionError::Execution(
+                "ST_DWithin radius must be finite and non-negative".to_string(),
+            )
+            .into());
+        }
+    }
+
+    let left_bounds = geometry_array_bounds(arrays[0].as_ref(), &args.arg_fields[0])?;
+    let right_bounds = geometry_array_bounds(arrays[1].as_ref(), &args.arg_fields[1])?;
+
+    for index in 0..number_rows {
+        if arrays
+            .iter()
+            .any(|array| array_value_is_null(array.as_ref(), index))
+        {
+            continue;
+        }
+        if matches!(left_bounds[index], Some(GeometryBounds::NonFinite))
+            || matches!(right_bounds[index], Some(GeometryBounds::NonFinite))
+        {
+            return Err(DataFusionError::Execution(
+                "ST_DWithin geometry coordinates must be finite".to_string(),
+            )
+            .into());
+        }
+    }
+
+    let candidates = (0..number_rows)
+        .map(|index| {
+            let (
+                Some(GeometryBounds::Finite(left)),
+                Some(GeometryBounds::Finite(right)),
+                Some(radius),
+            ) = (
+                left_bounds[index],
+                right_bounds[index],
+                radius_values[index],
+            )
+            else {
+                return false;
+            };
+
+            expanded_bounds_intersect(
+                [left.minx(), left.miny(), left.maxx(), left.maxy()],
+                [right.minx(), right.miny(), right.maxx(), right.maxy()],
+                radius,
+            )
+        })
+        .collect::<Vec<_>>();
+    let candidate_array = BooleanArray::from(candidates.clone());
+
+    let distances = if candidates.iter().any(|candidate| *candidate) {
+        let left = filter_array(arrays[0].as_ref(), &candidate_array)?;
+        let right = filter_array(arrays[1].as_ref(), &candidate_array)?;
+        let left = from_arrow_array(left.as_ref(), args.arg_fields[0].as_ref())?;
+        let right = from_arrow_array(right.as_ref(), args.arg_fields[1].as_ref())?;
+        Some(geoarrow_expr_geo::euclidean_distance(
+            left.as_ref(),
+            right.as_ref(),
+        )?)
+    } else {
+        None
+    };
+
+    let mut builder = BooleanBuilder::with_capacity(number_rows);
+    let mut distance_index = 0;
+
+    for index in 0..number_rows {
+        if arrays
+            .iter()
+            .any(|array| array_value_is_null(array.as_ref(), index))
+        {
+            builder.append_null();
+            continue;
+        }
+
+        if !candidates[index] {
+            builder.append_value(false);
+            continue;
+        }
+
+        let distance = distances
+            .as_ref()
+            .and_then(|distances| {
+                (!distances.is_null(distance_index)).then(|| distances.value(distance_index))
+            })
+            .unwrap_or(f64::NAN);
+        let radius = radius_values[index].expect("candidate rows have a radius");
+        builder.append_value(distance <= radius);
+        distance_index += 1;
+    }
+
+    Ok(ColumnarValue::Array(Arc::new(builder.finish())))
+}
+
+fn geometry_array_bounds(
+    array: &dyn Array,
+    field: &Field,
+) -> GeoDataFusionResult<Vec<Option<GeometryBounds>>> {
+    let geo_type = GeoArrowType::from_arrow_field(field)?;
+    let geo_array = geo_type.wrap_array(array)?;
+    geo_array_bounds(geo_array.as_ref())
+}
+
+fn radius_values(array: &dyn Array) -> GeoDataFusionResult<Vec<Option<f64>>> {
+    if array_is_all_null(array) {
+        return Ok(vec![None; array.len()]);
+    }
+
+    if !is_supported_radius_type(array.data_type()) {
+        return Err(DataFusionError::Execution(format!(
+            "ST_DWithin radius must be numeric, got {}",
+            array.data_type()
+        ))
+        .into());
+    }
+
+    let array = cast_array(array, &DataType::Float64)?;
+    let array = array.as_primitive::<Float64Type>();
+    Ok((0..array.len())
+        .map(|index| (!array.is_null(index)).then(|| array.value(index)))
+        .collect())
+}
+
+fn is_supported_radius_type(data_type: &DataType) -> bool {
+    matches!(
+        data_type,
+        DataType::Int8
+            | DataType::Int16
+            | DataType::Int32
+            | DataType::Int64
+            | DataType::UInt8
+            | DataType::UInt16
+            | DataType::UInt32
+            | DataType::UInt64
+            | DataType::Float16
+            | DataType::Float32
+            | DataType::Float64
+            | DataType::Decimal128(_, _)
+            | DataType::Decimal256(_, _)
+    )
+}
+
+fn null_result(number_rows: usize) -> ArrayRef {
+    Arc::new(BooleanArray::from(vec![None; number_rows]))
+}
+
+fn array_is_all_null(array: &dyn Array) -> bool {
+    matches!(array.data_type(), DataType::Null)
+        || (!array.is_empty() && array.null_count() == array.len())
+}
+
+fn array_value_is_null(array: &dyn Array, index: usize) -> bool {
+    matches!(array.data_type(), DataType::Null) || array.is_null(index)
+}
+
+#[cfg(test)]
+mod tests {
+    use std::future::Future;
+    use std::pin::Pin;
+    use std::sync::Mutex;
+
+    use arrow_array::builder::BooleanBuilder;
+    use arrow_array::cast::AsArray;
+    use arrow_array::{Int32Array, RecordBatch, StringArray};
+    use arrow_schema::{Schema, SchemaRef};
+    use datafusion::arrow::compute::filter_record_batch;
+    use datafusion::catalog::Session;
+    use datafusion::common::TableReference;
+    use datafusion::datasource::memory::MemTable;
+    use datafusion::datasource::{TableProvider, TableType};
+    use datafusion::logical_expr::{ScalarUDF, TableProviderFilterPushDown};
+    use datafusion::physical_plan::ExecutionPlan;
+    use datafusion::prelude::SessionContext;
+    use geo::Distance;
+    use geoarrow_array::GeoArrowArray;
+    use geoarrow_array::array::{WktArray, from_arrow_array};
+    use geoarrow_array::builder::PointBuilder;
+    use geoarrow_schema::{Dimension, Metadata, PointType};
+    use wkt::wkt;
+
+    use super::*;
+    use crate::udf::native::bounding_box::util::total_bounds;
+
+    async fn execute_bools(ctx: &SessionContext, sql: &str) -> Vec<Option<bool>> {
+        let dataframe = ctx
+            .sql(sql)
+            .await
+            .unwrap_or_else(|error| panic!("failed to plan {sql}: {error}"));
+        let batches = dataframe
+            .collect()
+            .await
+            .unwrap_or_else(|error| panic!("failed to execute {sql}: {error}"));
+        let column = batches[0].column(0).as_boolean();
+        (0..column.len())
+            .map(|index| (!column.is_null(index)).then(|| column.value(index)))
+            .collect()
+    }
+
+    async fn assert_query_error(ctx: &SessionContext, sql: &str, expected: &str) {
+        let error = match ctx.sql(sql).await {
+            Ok(dataframe) => dataframe.collect().await.unwrap_err(),
+            Err(error) => error,
+        };
+        assert!(
+            error.to_string().contains(expected),
+            "expected error containing {expected:?}, got {error}"
+        );
+    }
+
+    #[derive(Debug, Eq, PartialEq, Hash)]
+    struct FakeDWithin;
+
+    impl ScalarUDFImpl for FakeDWithin {
+        fn name(&self) -> &str {
+            "st_dwithin"
+        }
+
+        fn signature(&self) -> &Signature {
+            &SIGNATURE
+        }
+
+        fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
+            Ok(DataType::Boolean)
+        }
+
+        fn invoke_with_args(&self, _args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+            Err(DataFusionError::Internal(
+                "fake ST_DWithin must not be invoked".to_string(),
+            ))
+        }
+    }
+
+    fn folded_point_literal() -> (ScalarValue, FieldMetadata) {
+        let mut builder = PointBuilder::new(PointType::new(Dimension::XY, Default::default()));
+        builder.push_point(Some(&wkt!(POINT(0.0 0.0))));
+        let geometry = builder.finish();
+        let field = geometry.data_type().to_field("geometry", true);
+        let value = ScalarValue::try_from_array(&geometry.to_array_ref(), 0).unwrap();
+        (value, FieldMetadata::from(field.metadata()))
+    }
+
+    #[test]
+    fn test_extract_dwithin_identity_qualifier_and_unsupported_shapes() {
+        let dwithin = ScalarUDF::from(DWithin::new());
+        let column = Column::new(Some(TableReference::bare("shapes")), "geometry");
+        let (geometry, metadata) = folded_point_literal();
+        let radius = Expr::Literal(ScalarValue::Float64(Some(1.0)), None);
+
+        let expression = dwithin.call(vec![
+            Expr::Column(column.clone()),
+            Expr::Literal(geometry.clone(), Some(metadata.clone())),
+            radius.clone(),
+        ]);
+        let extracted = extract_dwithin_index_filter(&expression)
+            .unwrap()
+            .expect("qualified DWithin should be extractable");
+        assert_eq!(extracted.column, column);
+
+        let reversed = dwithin.call(vec![
+            Expr::Literal(geometry.clone(), Some(metadata.clone())),
+            Expr::Column(column.clone()),
+            radius.clone(),
+        ]);
+        let extracted = extract_dwithin_index_filter(&reversed)
+            .unwrap()
+            .expect("reversed DWithin should be extractable");
+        assert_eq!(extracted.column, column);
+
+        let fake = ScalarUDF::from(FakeDWithin).call(vec![
+            Expr::Column(column.clone()),
+            Expr::Literal(geometry.clone(), Some(metadata.clone())),
+            radius.clone(),
+        ]);
+        assert!(
+            extract_dwithin_index_filter(&fake).unwrap().is_none(),
+            "a different UDF named ST_DWithin must not match"
+        );
+
+        let both_columns = dwithin.call(vec![
+            Expr::Column(column.clone()),
+            Expr::Column(Column::new_unqualified("other_geometry")),
+            radius.clone(),
+        ]);
+        assert!(
+            extract_dwithin_index_filter(&both_columns)
+                .unwrap()
+                .is_none()
+        );
+
+        let dynamic_radius = dwithin.call(vec![
+            Expr::Column(column.clone()),
+            Expr::Literal(geometry.clone(), Some(metadata.clone())),
+            Expr::Column(Column::new_unqualified("radius")),
+        ]);
+        assert!(
+            extract_dwithin_index_filter(&dynamic_radius)
+                .unwrap()
+                .is_none()
+        );
+
+        let non_finite_radius = dwithin.call(vec![
+            Expr::Column(column.clone()),
+            Expr::Literal(geometry.clone(), Some(metadata.clone())),
+            Expr::Literal(ScalarValue::Float64(Some(f64::NAN)), None),
+        ]);
+        assert!(
+            extract_dwithin_index_filter(&non_finite_radius)
+                .unwrap()
+                .is_none()
+        );
+
+        let disjunction = Expr::BinaryExpr(datafusion::logical_expr::BinaryExpr::new(
+            Box::new(expression.clone()),
+            datafusion::logical_expr::Operator::Or,
+            Box::new(Expr::Literal(ScalarValue::Boolean(Some(true)), None)),
+        ));
+        assert!(
+            extract_dwithin_index_filter(&disjunction)
+                .unwrap()
+                .is_none()
+        );
+
+        let negation = Expr::Not(Box::new(expression));
+        assert!(extract_dwithin_index_filter(&negation).unwrap().is_none());
+    }
+
+    #[tokio::test]
+    async fn test_dwithin_scalar_semantics() {
+        let ctx = SessionContext::new();
+        crate::register(&ctx);
+
+        let values =
+            execute_bools(&ctx, "SELECT ST_DWithin(ST_Point(0, 0), ST_Point(3, 4), 5)").await;
+        assert_eq!(values, vec![Some(true)]);
+
+        let values =
+            execute_bools(&ctx, "SELECT ST_DWithin(ST_Point(0, 0), ST_Point(3, 4), 4)").await;
+        assert_eq!(values, vec![Some(false)]);
+
+        let values =
+            execute_bools(&ctx, "SELECT ST_DWithin(ST_Point(3, 4), ST_Point(0, 0), 5)").await;
+        assert_eq!(values, vec![Some(true)]);
+
+        let values =
+            execute_bools(&ctx, "SELECT ST_DWithin(ST_Point(0, 0), ST_Point(0, 0), 0)").await;
+        assert_eq!(values, vec![Some(true)]);
+
+        let values =
+            execute_bools(&ctx, "SELECT ST_DWithin(ST_Point(0, 0), ST_Point(1, 0), 0)").await;
+        assert_eq!(values, vec![Some(false)]);
+    }
+
+    #[tokio::test]
+    async fn test_dwithin_non_point_geometries() {
+        let ctx = SessionContext::new();
+        crate::register(&ctx);
+
+        let values = execute_bools(
+            &ctx,
+            "SELECT ST_DWithin(\
+                ST_Point(1, 1), \
+                ST_GeomFromText('LINESTRING(0 0, 2 0)'), \
+                1\
+            )",
+        )
+        .await;
+        assert_eq!(values, vec![Some(true)]);
+
+        let values = execute_bools(
+            &ctx,
+            "SELECT ST_DWithin(\
+                ST_Point(1, 1), \
+                ST_GeomFromText('LINESTRING(0 0, 2 0)'), \
+                0.9999999999999999\
+            )",
+        )
+        .await;
+        assert_eq!(values, vec![Some(false)]);
+
+        let values = execute_bools(
+            &ctx,
+            "SELECT ST_DWithin(\
+                ST_Point(1, 1), \
+                ST_GeomFromText('POLYGON((0 0, 2 0, 2 2, 0 2, 0 0))'), \
+                0\
+            )",
+        )
+        .await;
+        assert_eq!(values, vec![Some(true)]);
+    }
+
+    #[tokio::test]
+    async fn test_dwithin_null_and_empty() {
+        let ctx = SessionContext::new();
+        crate::register(&ctx);
+
+        let values =
+            execute_bools(&ctx, "SELECT ST_DWithin(NULL, ST_Point(0, 0), 1) IS NULL").await;
+        assert_eq!(values, vec![Some(true)]);
+
+        let values = execute_bools(
+            &ctx,
+            "SELECT ST_DWithin(ST_Point(0, 0), ST_Point(0, 0), CAST(NULL AS DOUBLE)) IS NULL",
+        )
+        .await;
+        assert_eq!(values, vec![Some(true)]);
+
+        let values = execute_bools(
+            &ctx,
+            "SELECT ST_DWithin(\
+                ST_GeomFromText('POINT EMPTY'), \
+                ST_Point(0, 0), \
+                1\
+            )",
+        )
+        .await;
+        assert_eq!(values, vec![Some(false)]);
+
+        let values = execute_bools(
+            &ctx,
+            "SELECT ST_DWithin(\
+                ST_GeomFromText('POLYGON EMPTY'), \
+                ST_GeomFromText('POLYGON EMPTY'), \
+                0\
+            )",
+        )
+        .await;
+        assert_eq!(values, vec![Some(false)]);
+    }
+
+    #[tokio::test]
+    async fn test_dwithin_array_scalar_combinations() {
+        let ctx = SessionContext::new();
+        crate::register(&ctx);
+
+        let mut builder = PointBuilder::new(PointType::new(Dimension::XY, Default::default()));
+        builder.push_point(Some(&wkt!(POINT(0.0 0.0))));
+        builder.push_point(Some(&wkt!(POINT(3.0 4.0))));
+        builder.push_point(Some(&wkt!(POINT(6.0 8.0))));
+        builder.push_null();
+        let geometry = builder.finish();
+
+        let schema = Arc::new(Schema::new(vec![
+            Arc::new(Field::new("id", DataType::Int32, false)),
+            Arc::new(geometry.data_type().to_field("geometry", true)),
+        ]));
+        let batch = RecordBatch::try_new(
+            schema,
+            vec![
+                Arc::new(Int32Array::from(vec![1, 2, 3, 4])),
+                geometry.into_array_ref(),
+            ],
+        )
+        .unwrap();
+        ctx.register_batch("points", batch).unwrap();
+
+        let batches = ctx
+            .sql(
+                "SELECT \
+                    ST_DWithin(geometry, ST_GeomFromText('POINT(0 0)'), 5), \
+                    ST_DWithin(ST_GeomFromText('POINT(0 0)'), geometry, 5) \
+                 FROM points \
+                 ORDER BY id",
+            )
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        let batch = &batches[0];
+
+        for column_index in 0..2 {
+            let column = batch.column(column_index).as_boolean();
+            assert!(column.value(0));
+            assert!(column.value(1));
+            assert!(!column.value(2));
+            assert!(column.is_null(3));
+        }
+    }
+
+    #[tokio::test]
+    async fn test_dwithin_invalid_radius_and_malformed_input() {
+        let ctx = SessionContext::new();
+        crate::register(&ctx);
+
+        assert_query_error(
+            &ctx,
+            "SELECT ST_DWithin(ST_Point(0, 0), ST_Point(1, 0), -1)",
+            "finite and non-negative",
+        )
+        .await;
+        assert_query_error(
+            &ctx,
+            "SELECT ST_DWithin(ST_Point(0, 0), ST_Point(1, 0), CAST('NaN' AS DOUBLE))",
+            "finite and non-negative",
+        )
+        .await;
+        assert_query_error(
+            &ctx,
+            "SELECT ST_DWithin(ST_Point(0, 0), ST_Point(1, 0), CAST('Infinity' AS DOUBLE))",
+            "finite and non-negative",
+        )
+        .await;
+        assert_query_error(
+            &ctx,
+            "SELECT ST_DWithin(ST_Point(0, 0), ST_Point(1, 0), '1')",
+            "must be numeric",
+        )
+        .await;
+        assert_query_error(
+            &ctx,
+            "SELECT ST_DWithin(\
+                ST_Point(CAST('NaN' AS DOUBLE), 0), \
+                ST_Point(0, 0), \
+                1\
+            )",
+            "coordinates must be finite",
+        )
+        .await;
+        assert_query_error(
+            &ctx,
+            "SELECT ST_DWithin(ST_GeomFromText('not a geometry'), ST_Point(0, 0), 1)",
+            "",
+        )
+        .await;
+    }
+
+    #[tokio::test]
+    async fn test_distance_boundary_does_not_drive_candidate_extraction() {
+        let query_x = -1.0;
+        let row_x = 2f64.powi(-54);
+        let distance =
+            geo::Euclidean.distance(geo::Point::new(query_x, 0.0), geo::Point::new(row_x, 0.0));
+
+        assert_eq!(distance, 1.0);
+        assert!(row_x > 0.0f64.next_up());
+
+        let ctx = SessionContext::new();
+        crate::register(&ctx);
+        let batches = ctx
+            .sql(
+                "SELECT \
+                    ST_Distance(\
+                        ST_GeomFromText('POINT(-1 0)'), \
+                        ST_GeomFromText('POINT(0.000000000000000055511151231257827021181583404541015625 0)')\
+                    ), \
+                    ST_DWithin(\
+                        ST_GeomFromText('POINT(-1 0)'), \
+                        ST_GeomFromText('POINT(0.000000000000000055511151231257827021181583404541015625 0)'), \
+                        1\
+                    )",
+            )
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+
+        let batch = &batches[0];
+        assert_eq!(batch.column(0).as_primitive::<Float64Type>().value(0), 1.0);
+        assert!(!batch.column(1).as_boolean().value(0));
+    }
+
+    #[derive(Debug)]
+    struct OptimizedDWithinTable {
+        schema: SchemaRef,
+        batch: RecordBatch,
+        scanned_ids: Arc<Mutex<Vec<i32>>>,
+        extracted_filters: Arc<Mutex<Vec<DWithinIndexFilter>>>,
+    }
+
+    impl OptimizedDWithinTable {
+        fn new(
+            batch: RecordBatch,
+            scanned_ids: Arc<Mutex<Vec<i32>>>,
+            extracted_filters: Arc<Mutex<Vec<DWithinIndexFilter>>>,
+        ) -> Self {
+            Self {
+                schema: batch.schema(),
+                batch,
+                scanned_ids,
+                extracted_filters,
+            }
+        }
+
+        fn candidate_mask(&self, filter: &DWithinIndexFilter) -> Result<BooleanArray> {
+            let geometry_field = self.schema.field_with_name("geometry")?;
+            let geometry = from_arrow_array(
+                self.batch
+                    .column_by_name("geometry")
+                    .expect("test batch has geometry"),
+                geometry_field,
+            )
+            .map_err(|error| DataFusionError::External(Box::new(error)))?;
+            let mut mask = BooleanBuilder::with_capacity(geometry.len());
+            let [min_x, min_y, max_x, max_y] = filter.envelope;
+
+            for index in 0..geometry.len() {
+                if geometry.is_null(index) {
+                    mask.append_value(false);
+                    continue;
+                }
+
+                let bounds = total_bounds(geometry.slice(index, 1).as_ref())
+                    .map_err(|error| DataFusionError::External(Box::new(error)))?;
+                let intersects = [bounds.minx(), bounds.miny(), bounds.maxx(), bounds.maxy()]
+                    .iter()
+                    .all(|value| value.is_finite())
+                    && bounds.minx() <= max_x
+                    && min_x <= bounds.maxx()
+                    && bounds.miny() <= max_y
+                    && min_y <= bounds.maxy();
+                mask.append_value(intersects);
+            }
+
+            Ok(mask.finish())
+        }
+    }
+
+    impl TableProvider for OptimizedDWithinTable {
+        fn schema(&self) -> SchemaRef {
+            self.schema.clone()
+        }
+
+        fn table_type(&self) -> TableType {
+            TableType::Base
+        }
+
+        fn supports_filters_pushdown(
+            &self,
+            filters: &[&Expr],
+        ) -> Result<Vec<TableProviderFilterPushDown>> {
+            let mut support = Vec::with_capacity(filters.len());
+            for filter in filters {
+                support.push(if extract_dwithin_index_filter(filter)?.is_some() {
+                    TableProviderFilterPushDown::Inexact
+                } else {
+                    TableProviderFilterPushDown::Unsupported
+                });
+            }
+            Ok(support)
+        }
+
+        fn scan<'life0, 'life1, 'life2, 'life3, 'async_trait>(
+            &'life0 self,
+            state: &'life1 dyn Session,
+            projection: Option<&'life2 Vec<usize>>,
+            filters: &'life3 [Expr],
+            limit: Option<usize>,
+        ) -> Pin<Box<dyn Future<Output = Result<Arc<dyn ExecutionPlan>>> + Send + 'async_trait>>
+        where
+            'life0: 'async_trait,
+            'life1: 'async_trait,
+            'life2: 'async_trait,
+            'life3: 'async_trait,
+            Self: 'async_trait,
+        {
+            Box::pin(async move {
+                let mut batch = self.batch.clone();
+
+                for filter in filters {
+                    let Some(filter) = extract_dwithin_index_filter(filter)? else {
+                        continue;
+                    };
+                    self.extracted_filters.lock().unwrap().push(filter.clone());
+                    let mask = self.candidate_mask(&filter)?;
+                    batch = filter_record_batch(&batch, &mask)?;
+                }
+
+                let ids = batch
+                    .column_by_name("id")
+                    .expect("test batch has id")
+                    .as_primitive::<arrow_array::types::Int32Type>();
+                self.scanned_ids
+                    .lock()
+                    .unwrap()
+                    .extend((0..ids.len()).map(|index| ids.value(index)));
+
+                let table = MemTable::try_new(self.schema.clone(), vec![vec![batch]])?;
+                table.scan(state, projection, &[], limit).await
+            })
+        }
+    }
+
+    fn optimized_test_batch() -> RecordBatch {
+        let geometry = WktArray::new(
+            StringArray::from(vec![
+                Some("POINT(0 0)"),
+                Some("POINT(1 0)"),
+                Some("POINT(0.9 0.9)"),
+                Some("POINT(2 0)"),
+                Some("LINESTRING(0.5 -0.5, 0.5 0.5)"),
+                Some("LINESTRING(1.2 -0.5, 1.2 0.5)"),
+                None,
+                Some("POINT EMPTY"),
+                Some("POINT(0.000000000000000055511151231257827021181583404541015625 0)"),
+            ]),
+            Arc::new(Metadata::default()),
+        );
+        let schema = Arc::new(Schema::new(vec![
+            Arc::new(Field::new("id", DataType::Int32, false)),
+            Arc::new(geometry.data_type().to_field("geometry", true)),
+        ]));
+
+        RecordBatch::try_new(
+            schema,
+            vec![
+                Arc::new(Int32Array::from((1..=9).collect::<Vec<_>>())),
+                geometry.into_array_ref(),
+            ],
+        )
+        .unwrap()
+    }
+
+    fn collect_ids(batches: &[RecordBatch]) -> Vec<i32> {
+        let mut ids = Vec::new();
+        for batch in batches {
+            let column = batch
+                .column(0)
+                .as_primitive::<arrow_array::types::Int32Type>();
+            ids.extend((0..column.len()).map(|index| column.value(index)));
+        }
+        ids
+    }
+
+    async fn run_provider_query(sql: &str) -> (Vec<i32>, Vec<i32>, Vec<DWithinIndexFilter>) {
+        let scanned_ids = Arc::new(Mutex::new(Vec::new()));
+        let extracted_filters = Arc::new(Mutex::new(Vec::new()));
+        let table = Arc::new(OptimizedDWithinTable::new(
+            optimized_test_batch(),
+            scanned_ids.clone(),
+            extracted_filters.clone(),
+        ));
+        let ctx = SessionContext::new();
+        crate::register(&ctx);
+        ctx.register_table("shapes", table).unwrap();
+
+        let batches = ctx.sql(sql).await.unwrap().collect().await.unwrap();
+        let mut scanned_ids = scanned_ids.lock().unwrap().clone();
+        scanned_ids.sort_unstable();
+        let extracted_filters = extracted_filters.lock().unwrap().clone();
+        (collect_ids(&batches), scanned_ids, extracted_filters)
+    }
+
+    async fn run_full_scan_query(sql: &str) -> Vec<i32> {
+        let ctx = SessionContext::new();
+        crate::register(&ctx);
+        ctx.register_batch("shapes", optimized_test_batch())
+            .unwrap();
+        let batches = ctx.sql(sql).await.unwrap().collect().await.unwrap();
+        collect_ids(&batches)
+    }
+
+    #[tokio::test]
+    async fn test_optimized_provider_matches_full_scan() {
+        let sql = "SELECT id FROM shapes \
+                   WHERE ST_DWithin(geometry, ST_GeomFromText('POINT(0 0)'), 1) \
+                   ORDER BY id";
+        let full_scan = run_full_scan_query(sql).await;
+        let (indexed, scanned, filters) = run_provider_query(sql).await;
+
+        assert_eq!(full_scan, vec![1, 2, 5, 9]);
+        assert_eq!(indexed, full_scan);
+        // Row 3 is an in-bounds false positive removed by the exact recheck.
+        assert_eq!(scanned, vec![1, 2, 3, 5, 9]);
+        assert_eq!(filters.len(), 1);
+        assert_eq!(filters[0].column.name, "geometry");
+    }
+
+    #[tokio::test]
+    async fn test_optimized_provider_boundary_counterexample() {
+        let sql = "SELECT id FROM shapes \
+                   WHERE ST_DWithin(geometry, ST_GeomFromText('POINT(-1 0)'), 1) \
+                   ORDER BY id";
+        let full_scan = run_full_scan_query(sql).await;
+        let (indexed, scanned, _) = run_provider_query(sql).await;
+
+        assert_eq!(full_scan, vec![1]);
+        assert_eq!(indexed, full_scan);
+        assert_eq!(scanned, vec![1]);
+    }
+
+    #[tokio::test]
+    async fn test_optimized_provider_root_only_pushdown() {
+        let all_ids = (1..=9).collect::<Vec<_>>();
+
+        let sql_or = "SELECT id FROM shapes \
+                      WHERE ST_DWithin(geometry, ST_GeomFromText('POINT(0 0)'), 1) OR id = 6 \
+                      ORDER BY id";
+        let full_scan_or = run_full_scan_query(sql_or).await;
+        let (indexed_or, scanned_or, _) = run_provider_query(sql_or).await;
+        assert_eq!(indexed_or, full_scan_or);
+        assert_eq!(scanned_or, all_ids);
+
+        let sql_not = "SELECT id FROM shapes \
+                       WHERE NOT ST_DWithin(geometry, ST_GeomFromText('POINT(0 0)'), 1) \
+                       ORDER BY id";
+        let full_scan_not = run_full_scan_query(sql_not).await;
+        let (indexed_not, scanned_not, _) = run_provider_query(sql_not).await;
+        assert_eq!(indexed_not, full_scan_not);
+        assert_eq!(scanned_not, all_ids);
+
+        let sql_and = "SELECT id FROM shapes \
+                       WHERE ST_DWithin(geometry, ST_GeomFromText('POINT(0 0)'), 1) \
+                         AND id >= 2 \
+                       ORDER BY id";
+        let full_scan_and = run_full_scan_query(sql_and).await;
+        let (indexed_and, scanned_and, _) = run_provider_query(sql_and).await;
+        assert_eq!(full_scan_and, vec![2, 5, 9]);
+        assert_eq!(indexed_and, full_scan_and);
+        assert_eq!(scanned_and, vec![1, 2, 3, 5, 9]);
+    }
+}
