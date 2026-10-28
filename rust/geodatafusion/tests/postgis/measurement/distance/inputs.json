@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "distance-point-to-linestring-doc",
+      "function": "ST_Distance",
+      "tags": ["scalar", "documentation"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(-72.1235 42.3521)"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(-72.1260 42.45, -72.123 42.1546)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Distance.html"
+    },
+    {
+      "id": "distance-points-3-4-5",
+      "function": "ST_Distance",
+      "tags": ["scalar", "exact"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Distance.html"
+    }
+  ]
+}
