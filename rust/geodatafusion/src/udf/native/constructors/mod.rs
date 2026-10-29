@@ -1,8 +1,11 @@
+mod envelope;
 mod point;
 
+pub use envelope::MakeEnvelope;
 pub use point::{MakePoint, MakePointM, Point, PointM, PointZ, PointZM};
 
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
+    session_context.register_udf(MakeEnvelope::default().into());
     session_context.register_udf(MakePoint::default().into());
     session_context.register_udf(MakePointM::default().into());
     session_context.register_udf(Point::default().into());
