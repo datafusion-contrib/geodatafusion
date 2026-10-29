@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "hasm-xy-point",
+      "function": "ST_HasM",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_HasM.html"
+    },
+    {
+      "id": "hasm-xyz-point",
+      "function": "ST_HasM",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z(1 2 3)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_HasM.html"
+    },
+    {
+      "id": "hasm-xym-point",
+      "function": "ST_HasM",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT M(1 2 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_HasM.html"
+    },
+    {
+      "id": "hasm-xyzm-point",
+      "function": "ST_HasM",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM(1 2 3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_HasM.html"
+    },
+    {
+      "id": "hasm-xym-empty",
+      "function": "ST_HasM",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT M EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_HasM.html"
+    },
+    {
+      "id": "hasm-xym-geometrycollection",
+      "function": "ST_HasM",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION M(POINT M(1 2 4))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_HasM.html"
+    },
+    {
+      "id": "hasm-null",
+      "function": "ST_HasM",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "null_text"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_HasM.html"
+    }
+  ]
+}

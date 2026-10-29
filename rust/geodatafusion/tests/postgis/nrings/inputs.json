@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "nrings-polygon-with-interiors",
+      "function": "ST_NRings",
+      "tags": ["polygon", "interior-rings"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,1 2,2 2,1 1),(7 7,7 8,8 8,7 7))"
+        }
+      ],
+      "result_columns": [
+        {"name": "value", "type": "float64"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_NRings.html"
+    },
+    {
+      "id": "nrings-polygon-empty",
+      "function": "ST_NRings",
+      "tags": ["polygon", "empty"],
+      "arguments": [
+        {"type": "text", "value": "POLYGON EMPTY"}
+      ],
+      "result_columns": [
+        {"name": "value", "type": "float64"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_NRings.html"
+    },
+    {
+      "id": "nrings-multipolygon",
+      "function": "ST_NRings",
+      "tags": ["multipolygon", "interior-rings"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,0 5,5 5,0 0)),((10 10,10 15,15 15,10 10),(11 11,11 12,12 12,11 11)))"
+        }
+      ],
+      "result_columns": [
+        {"name": "value", "type": "float64"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_NRings.html"
+    },
+    {
+      "id": "nrings-geometrycollection",
+      "function": "ST_NRings",
+      "tags": ["geometrycollection", "recursive"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,0 0)),MULTIPOLYGON(((10 10,10 15,15 15,10 10))))"
+        }
+      ],
+      "result_columns": [
+        {"name": "value", "type": "float64"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_NRings.html"
+    },
+    {
+      "id": "nrings-nested-geometrycollection",
+      "function": "ST_NRings",
+      "tags": ["geometrycollection", "recursive", "nested"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,0 0))))"
+        }
+      ],
+      "result_columns": [
+        {"name": "value", "type": "float64"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_NRings.html"
+    },
+    {
+      "id": "nrings-nonpolygon",
+      "function": "ST_NRings",
+      "tags": ["nonpolygon"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING(0 0,1 1)"}
+      ],
+      "result_columns": [
+        {"name": "value", "type": "float64"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_NRings.html"
+    },
+    {
+      "id": "nrings-null",
+      "function": "ST_NRings",
+      "tags": ["null"],
+      "arguments": [
+        {"type": "null_text"}
+      ],
+      "result_columns": [
+        {"name": "value", "type": "float64"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_NRings.html"
+    }
+  ]
+}
