@@ -57,6 +57,51 @@ def test_st_linefrommultipoint_register_all_dimensions_and_nulls():
     ]
 
 
+def test_st_makeline_register_all_typed_and_geometry_inputs():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    typed = Table(
+        ctx.sql(
+            """
+            SELECT
+                ST_MakeLine(ST_Point(0, 0, 4326), ST_PointZ(1, 2, 3, 4326)) AS line_geom,
+                ST_AsText(ST_MakeLine(ST_Point(0, 0, 4326), ST_PointZ(1, 2, 3, 4326))) AS line_wkt,
+                ST_MakeLine(NULL, ST_Point(0, 0, 4326)) AS null_geom
+            """
+        )
+    )
+    assert typed.schema.field("line_geom").metadata_str == {
+        "ARROW:extension:metadata": '{"crs":"EPSG:4326","crs_type":"authority_code"}',
+        "ARROW:extension:name": "geoarrow.linestring",
+    }
+    assert typed.schema.field("null_geom").metadata_str == {
+        "ARROW:extension:metadata": '{"crs":"EPSG:4326","crs_type":"authority_code"}',
+        "ARROW:extension:name": "geoarrow.geometry",
+    }
+    assert typed.column("line_wkt").to_pylist() == ["LINESTRING Z(0 0 0,1 2 3)"]
+    assert typed.column("null_geom").to_pylist() == [None]
+
+    wkt_rows = ctx.sql(
+        """
+        SELECT ST_AsText(ST_MakeLine(ST_GeomFromText(left_wkt), ST_GeomFromText(right_wkt))) AS line
+        FROM (
+            VALUES
+                ('POINT(0 0)', 'LINESTRING(0 0,1 1,2 2)'),
+                ('POINT Z(0 0 1)', 'POINT M(1 1 2)'),
+                ('POINT EMPTY', 'POINT(1 2)'),
+                ('POINT Z EMPTY', 'POINT EMPTY')
+        ) AS inputs(left_wkt, right_wkt)
+        """
+    ).to_arrow_table()
+    assert wkt_rows.to_pylist() == [
+        {"line": "LINESTRING(0 0,1 1,2 2)"},
+        {"line": "LINESTRING ZM(0 0 1 0,1 1 0 2)"},
+        {"line": "LINESTRING(1 2)"},
+        {"line": "LINESTRING Z EMPTY"},
+    ]
+
+
 def test_st_makeenvelope_register_all_scalar_and_row_inputs():
     ctx = SessionContext()
     register_all(ctx)

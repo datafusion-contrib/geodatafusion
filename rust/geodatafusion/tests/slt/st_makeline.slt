@@ -1,0 +1,85 @@
+query T
+SELECT ST_AsText(ST_MakeLine(ST_Point(0, 0), ST_Point(1, 1)));
+----
+LINESTRING(0 0,1 1)
+
+query T
+SELECT ST_AsText(ST_MakeLine(ST_Point(1, 2), ST_Point(1, 2)));
+----
+LINESTRING(1 2,1 2)
+
+query TTT
+SELECT
+  ST_AsText(ST_MakeLine(ST_Point(0, 0), ST_GeomFromText('LINESTRING(1 1,2 3)'))),
+  ST_AsText(ST_MakeLine(ST_Point(0, 0), ST_GeomFromText('LINESTRING(0 0,1 1,2 2)'))),
+  ST_AsText(ST_MakeLine(ST_GeomFromText('LINESTRING(0 0,1 1)'), ST_Point(1, 1)));
+----
+LINESTRING(0 0,1 1,2 3) LINESTRING(0 0,1 1,2 2) LINESTRING(0 0,1 1,1 1)
+
+query TTTT
+SELECT
+  ST_AsText(ST_MakeLine(ST_PointZ(1, 2, 3), ST_PointZ(4, 5, 6))),
+  ST_AsText(ST_MakeLine(ST_PointM(1, 2, 3), ST_PointM(4, 5, 6))),
+  ST_AsText(ST_MakeLine(ST_PointZM(1, 2, 3, 4), ST_PointZM(5, 6, 7, 8))),
+  ST_AsText(ST_MakeLine(ST_PointZ(0, 0, 1), ST_PointM(1, 1, 2)));
+----
+LINESTRING Z(1 2 3,4 5 6) LINESTRING M(1 2 3,4 5 6) LINESTRING ZM(1 2 3 4,5 6 7 8) LINESTRING ZM(0 0 1 0,1 1 0 2)
+
+query TTT
+SELECT
+  ST_AsText(ST_MakeLine(ST_GeomFromText('POINT EMPTY'), ST_Point(1, 2))),
+  ST_AsText(ST_MakeLine(ST_GeomFromText('POINT Z EMPTY'), ST_GeomFromText('POINT EMPTY'))),
+  ST_AsText(ST_MakeLine(ST_GeomFromText('LINESTRING EMPTY'), ST_PointZ(1, 2, 3)));
+----
+LINESTRING(1 2) LINESTRING Z EMPTY LINESTRING Z(1 2 3)
+
+query T
+SELECT ST_AsText(
+  ST_MakeLine(
+    ST_GeomFromWKB(ST_AsBinary(ST_Point(1, 2))),
+    ST_GeomFromWKB(ST_AsBinary(ST_Point(3, 4)))
+  )
+);
+----
+LINESTRING(1 2,3 4)
+
+query T
+SELECT ST_AsText(ST_MakeLine(ST_GeomFromText(left_wkt), ST_GeomFromText(right_wkt)))
+FROM (
+  VALUES
+    ('POINT(0 0)', 'POINT(1 1)'),
+    ('POINT(0 0)', NULL),
+    (NULL, 'POINT(1 1)'),
+    ('MULTIPOINT((0 0),(1 1))', NULL)
+) AS pairs(left_wkt, right_wkt);
+----
+LINESTRING(0 0,1 1)
+NULL
+NULL
+NULL
+
+query BBB
+SELECT
+  ST_MakeLine(NULL, NULL) IS NULL,
+  ST_MakeLine(NULL, ST_Point(1, 2)) IS NULL,
+  ST_MakeLine(ST_Point(1, 2), NULL) IS NULL;
+----
+true true true
+
+statement error
+SELECT ST_MakeLine(ST_GeomFromText('MULTIPOINT((0 0),(1 1))'), ST_Point(2, 2));
+
+statement error
+SELECT ST_MakeLine(ST_Point(0, 0), ST_GeomFromText('POLYGON((0 0,1 0,0 1,0 0))'));
+
+statement error
+SELECT ST_MakeLine(ST_GeomFromText('LINESTRING(0 0,1 1)'), ST_PointZ(2, 2, 3));
+
+statement error
+SELECT ST_MakeLine(ST_GeomFromText('POINT Z EMPTY'), ST_GeomFromText('LINESTRING(0 0,1 1)'));
+
+statement error
+SELECT ST_MakeLine(ST_Point(0, 0, 4326), ST_Point(1, 1, 3857));
+
+statement error
+SELECT ST_MakeLine(ST_Point(0, 0, 4326), ST_Point(1, 1));

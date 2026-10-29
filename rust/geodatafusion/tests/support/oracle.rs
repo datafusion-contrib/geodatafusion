@@ -51,6 +51,7 @@ pub const GROUPS: &[&str] = &[
     "is_collection",
     "linefrommultipoint",
     "makeenvelope",
+    "makeline",
     "nrings",
     "numgeometries",
     "zmflag",
