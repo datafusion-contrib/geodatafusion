@@ -57,7 +57,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_ExteriorRing     | ✅          | Returns a LineString representing the exterior ring of a Polygon.                                       |
 | ST_GeometryN        |             | Return an element of a geometry collection.                                                             |
 | ST_GeometryType     | ✅          | Returns the SQL-MM type of a geometry as text.                                                          |
-| ST_InteriorRingN    |             | Returns the Nth interior ring (hole) of a Polygon.                                                      |
+| ST_InteriorRingN    | ✅          | Returns the Nth interior ring (hole) of a Polygon.                                                      |
 | ST_IsClosed         | ✅          | Tests if a LineStrings's start and end points are coincident.                                           |
 | ST_IsCollection     |             | Tests if a geometry is a geometry collection type.                                                      |
 | ST_IsEmpty          | ✅          | Tests if a geometry is empty.                                                                           |

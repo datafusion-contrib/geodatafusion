@@ -149,6 +149,69 @@ def test_st_dump_null_and_empty():
     assert result.to_pylist() == [{"null_dump": None, "empty_dump": []}]
 
 
+def test_st_interior_ring_n_register_all():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    result = ctx.sql(
+        """
+        SELECT
+            ST_InteriorRingN(ST_GeomFromText(wkt), n) AS ring,
+            ST_AsText(ST_InteriorRingN(ST_GeomFromText(wkt), n)) AS indexed,
+            ST_AsText(ST_InteriorRingN(ST_GeomFromText(wkt), 1)) AS broadcast
+        FROM (
+            VALUES
+                ('POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 1),(8 8,9 8,9 9,8 8))', 1),
+                ('POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 1),(8 8,9 8,9 9,8 8))', 2),
+                ('POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 1))', NULL),
+                ('MULTIPOLYGON(((0 0,1 0,1 1,0 0)))', 1)
+        ) AS inputs(wkt, n)
+        """
+    ).to_arrow_table()
+
+    ring_field = result.schema.field("ring")
+    assert ring_field.metadata.get(b"ARROW:extension:name") == b"geoarrow.geometry"
+    rows = result.to_pylist()
+    assert isinstance(rows[0]["ring"], list)
+    assert isinstance(rows[1]["ring"], list)
+    assert rows[2]["ring"] is None
+    assert rows[3]["ring"] is None
+    assert [row["indexed"] for row in rows] == [
+        "LINESTRING(1 1,2 1,2 2,1 1)",
+        "LINESTRING(8 8,9 8,9 9,8 8)",
+        None,
+        None,
+    ]
+    assert [row["broadcast"] for row in rows] == [
+        "LINESTRING(1 1,2 1,2 2,1 1)",
+        "LINESTRING(1 1,2 1,2 2,1 1)",
+        "LINESTRING(1 1,2 1,2 2,1 1)",
+        None,
+    ]
+
+    result = ctx.sql(
+        """
+        SELECT
+            ST_InteriorRingN(NULL, 1) AS null_geometry,
+            ST_InteriorRingN(
+                ST_GeomFromText(
+                    'POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 1))'
+                ),
+                NULL
+            ) AS null_index
+        """
+    ).to_arrow_table()
+    assert (
+        result.schema.field("null_geometry").metadata.get(b"ARROW:extension:name")
+        == b"geoarrow.geometry"
+    )
+    assert (
+        result.schema.field("null_index").metadata.get(b"ARROW:extension:name")
+        == b"geoarrow.geometry"
+    )
+    assert result.to_pylist() == [{"null_geometry": None, "null_index": None}]
+
+
 def test_st_exterior_ring_register_all():
     ctx = SessionContext()
     register_all(ctx)
