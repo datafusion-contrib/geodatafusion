@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "zmflag-xy-point",
+      "function": "ST_Zmflag",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "int16"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Zmflag.html"
+    },
+    {
+      "id": "zmflag-xym-point",
+      "function": "ST_Zmflag",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT M(1 2 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "int16"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Zmflag.html"
+    },
+    {
+      "id": "zmflag-xyz-point",
+      "function": "ST_Zmflag",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z(1 2 3)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "int16"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Zmflag.html"
+    },
+    {
+      "id": "zmflag-xyzm-point",
+      "function": "ST_Zmflag",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM(1 2 3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "int16"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Zmflag.html"
+    },
+    {
+      "id": "zmflag-xym-empty",
+      "function": "ST_Zmflag",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT M EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "int16"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Zmflag.html"
+    },
+    {
+      "id": "zmflag-xym-geometrycollection",
+      "function": "ST_Zmflag",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION M(POINT M(1 2 4))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "int16"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Zmflag.html"
+    },
+    {
+      "id": "zmflag-null",
+      "function": "ST_Zmflag",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "null_text"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "int16"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Zmflag.html"
+    }
+  ]
+}

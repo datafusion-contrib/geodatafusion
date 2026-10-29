@@ -1,0 +1,7 @@
+SELECT ST_MakeEnvelope(
+  CAST($1 AS DOUBLE),
+  CAST($2 AS DOUBLE),
+  CAST($3 AS DOUBLE),
+  CAST($4 AS DOUBLE),
+  CAST($5 AS BIGINT)
+) AS geom
