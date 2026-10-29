@@ -1,0 +1,23 @@
+query T
+SELECT ST_AsText(ST_ExteriorRing(ST_GeomFromText('POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,1 2,2 2,2 1,1 1))')));
+----
+LINESTRING(0 0,4 0,4 4,0 4,0 0)
+
+query T
+SELECT ST_AsText(ST_ExteriorRing(ST_GeomFromText('POLYGON EMPTY')));
+----
+LINESTRING EMPTY
+
+query TTTT
+SELECT
+  ST_AsText(ST_ExteriorRing(ST_GeomFromText('POINT(1 2)'))),
+  ST_AsText(ST_ExteriorRing(ST_GeomFromText('MULTIPOLYGON(((0 0,1 0,1 1,0 0)))'))),
+  ST_AsText(ST_ExteriorRing(ST_GeomFromText('GEOMETRYCOLLECTION(POLYGON((0 0,1 0,1 1,0 0)))'))),
+  ST_AsText(ST_ExteriorRing(ST_GeomFromText(NULL)));
+----
+NULL NULL NULL NULL
+
+query T
+SELECT ST_AsText(ST_ExteriorRing(NULL));
+----
+NULL

@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "202f8098b3aac17c067a30a4c385e334726514bfe3c2528b3313be00a066b3cb",
+  "postgis_sql_sha256": "9557da1f23017b532cc85842fd4f92fa44b8bae482c171307f0e3c6a4e0852ac",
+  "datafusion_sql_sha256": "bf05a143069727d99d77a0a8b72048b5a47be096a49ba420ea8e95e0a21534c9",
+  "cases": {
+    "exterior-ring-collection-null": {
+      "columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "exterior-ring-multipolygon-null": {
+      "columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "exterior-ring-null-input": {
+      "columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "exterior-ring-polygon-empty-zm": {
+      "columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "01020000c000000000"
+          }
+        ]
+      ]
+    },
+    "exterior-ring-polygon-hole": {
+      "columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "0102000000050000000000000000000000000000000000000000000000000010400000000000000000000000000000104000000000000010400000000000000000000000000000104000000000000000000000000000000000"
+          }
+        ]
+      ]
+    },
+    "exterior-ring-polygon-m": {
+      "columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200004005000000000000000000000000000000000000000000000000003440000000000000104000000000000000000000000000003540000000000000104000000000000010400000000000003640000000000000000000000000000010400000000000003740000000000000000000000000000000000000000000003440"
+          }
+        ]
+      ]
+    },
+    "exterior-ring-polygon-z": {
+      "columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200008005000000000000000000000000000000000000000000000000002440000000000000104000000000000000000000000000002640000000000000104000000000000010400000000000002840000000000000000000000000000010400000000000002a40000000000000000000000000000000000000000000002440"
+          }
+        ]
+      ]
+    },
+    "exterior-ring-polygon-zm": {
+      "columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "01020000c005000000000000000000000000000000000000000000000000002440000000000000344000000000000010400000000000000000000000000000264000000000000035400000000000001040000000000000104000000000000028400000000000003640000000000000000000000000000010400000000000002a4000000000000037400000000000000000000000000000000000000000000024400000000000003440"
+          }
+        ]
+      ]
+    }
+  }
+}
