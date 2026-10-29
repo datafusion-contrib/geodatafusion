@@ -1,12 +1,13 @@
 //! Accessors from Polygon geometries.
 
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_schema::{DataType, FieldRef};
 use datafusion::error::{DataFusionError, Result};
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
     ColumnarValue, Documentation, ReturnFieldArgs, ScalarFunctionArgs, ScalarUDFImpl, Signature,
+    Volatility,
 };
 use geo_traits::{CoordTrait, GeometryTrait, LineStringTrait, PolygonTrait};
 use geoarrow_array::array::{GeometryArray, LineStringArray, PolygonArray, from_arrow_array};
@@ -16,7 +17,7 @@ use geoarrow_array::scalar::LineString as LineStringScalar;
 use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, IntoArrow, downcast_geoarrow_array};
 use geoarrow_schema::{CoordType, GeoArrowType, GeometryType, LineStringType};
 
-use crate::data_types::any_single_geometry_type_input;
+use crate::data_types::any_geometry_type;
 use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -37,6 +38,11 @@ impl Default for ExteriorRing {
 }
 
 static EXTERIOR_RING_DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
+static SIGNATURE: LazyLock<Signature> = LazyLock::new(|| {
+    let mut valid_types = any_geometry_type();
+    valid_types.push(DataType::Null);
+    Signature::uniform(1, valid_types, Volatility::Immutable)
+});
 
 impl ScalarUDFImpl for ExteriorRing {
     fn name(&self) -> &str {
@@ -44,7 +50,7 @@ impl ScalarUDFImpl for ExteriorRing {
     }
 
     fn signature(&self) -> &Signature {
-        any_single_geometry_type_input()
+        &SIGNATURE
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -78,6 +84,10 @@ fn return_field_impl(
     args: ReturnFieldArgs,
     coord_type: CoordType,
 ) -> GeoDataFusionResult<FieldRef> {
+    if args.arg_fields[0].data_type() == &DataType::Null {
+        return Ok(null_geometry_output_type(coord_type));
+    }
+
     let input_type = GeoArrowType::from_arrow_field(args.arg_fields[0].as_ref())?;
     match input_type {
         GeoArrowType::Polygon(typ) => {
@@ -98,6 +108,12 @@ fn exterior_ring_impl(
     coord_type: CoordType,
 ) -> GeoDataFusionResult<ColumnarValue> {
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
+    if arrays[0].data_type() == &DataType::Null {
+        return Ok(null_geometry_array(args.number_rows, coord_type)?
+            .into_array_ref()
+            .into());
+    }
+
     let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
     let geo_array_ref = geo_array.as_ref();
 
@@ -111,6 +127,26 @@ fn exterior_ring_impl(
     };
 
     Ok(out.into_array_ref().into())
+}
+
+fn null_geometry_output_type(coord_type: CoordType) -> FieldRef {
+    Arc::new(
+        GeometryType::new(Default::default())
+            .with_coord_type(coord_type)
+            .to_field("", true),
+    )
+}
+
+fn null_geometry_array(
+    number_rows: usize,
+    coord_type: CoordType,
+) -> GeoDataFusionResult<GeometryArray> {
+    let output_type = GeometryType::new(Default::default()).with_coord_type(coord_type);
+    let mut builder = GeometryBuilder::new(output_type);
+    for _ in 0..number_rows {
+        builder.push_geometry(None::<&geo_traits::UnimplementedGeometry<f64>>)?;
+    }
+    Ok(builder.finish())
 }
 
 fn polygon_impl(

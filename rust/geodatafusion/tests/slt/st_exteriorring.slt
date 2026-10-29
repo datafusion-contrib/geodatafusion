@@ -16,3 +16,8 @@ SELECT
   ST_AsText(ST_ExteriorRing(ST_GeomFromText(NULL)));
 ----
 NULL NULL NULL NULL
+
+query T
+SELECT ST_AsText(ST_ExteriorRing(NULL));
+----
+NULL

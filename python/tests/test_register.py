@@ -187,6 +187,28 @@ def test_st_exterior_ring_register_all():
     ]
 
 
+def test_st_exterior_ring_register_all_untyped_null():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    result = ctx.sql("SELECT ST_ExteriorRing(NULL) AS value").to_arrow_table()
+
+    value_field = result.schema.field("value")
+    assert value_field.metadata.get(b"ARROW:extension:name") == b"geoarrow.geometry"
+    assert result.to_pylist() == [{"value": None}]
+
+    result = ctx.sql(
+        """
+        SELECT ST_ExteriorRing(value) AS value
+        FROM (VALUES (NULL), (NULL)) AS inputs(value)
+        """
+    ).to_arrow_table()
+
+    value_field = result.schema.field("value")
+    assert value_field.metadata.get(b"ARROW:extension:name") == b"geoarrow.geometry"
+    assert result.to_pylist() == [{"value": None}, {"value": None}]
+
+
 def test_st_isempty_and_extent():
     ctx = SessionContext()
     register_all(ctx)

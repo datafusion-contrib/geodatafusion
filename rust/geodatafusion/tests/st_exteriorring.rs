@@ -105,6 +105,43 @@ async fn collect_one(ctx: &SessionContext, sql: &str) -> RecordBatch {
 }
 
 #[tokio::test]
+async fn untyped_null_sql_returns_typed_null_geometry() {
+    let ctx = SessionContext::new();
+    geodatafusion::register(&ctx);
+
+    let batch = collect_one(&ctx, "SELECT ST_ExteriorRing(NULL) AS ring").await;
+    let output_field = batch.schema().field(0).clone();
+    let output_type = output_field.try_extension_type::<GeometryType>().unwrap();
+    assert_eq!(output_type.coord_type(), CoordType::default());
+    assert!(output_type.metadata().crs().crs_value().is_none());
+
+    let rings = GeometryArray::try_from((batch.column(0).as_ref(), output_field.as_ref())).unwrap();
+    assert_eq!(
+        rings.data_type(),
+        GeoArrowType::Geometry(output_type.clone())
+    );
+    assert_eq!(rings.len(), 1);
+    assert!(rings.is_null(0));
+
+    let batch = collect_one(
+        &ctx,
+        "SELECT ST_ExteriorRing(value) AS ring \
+         FROM (VALUES (NULL), (NULL)) AS inputs(value)",
+    )
+    .await;
+    let output_field = batch.schema().field(0).clone();
+    let output_type = output_field.try_extension_type::<GeometryType>().unwrap();
+    let rings = GeometryArray::try_from((batch.column(0).as_ref(), output_field.as_ref())).unwrap();
+    assert_eq!(
+        rings.data_type(),
+        GeoArrowType::Geometry(output_type.clone())
+    );
+    assert_eq!(rings.len(), 2);
+    assert!(rings.is_null(0));
+    assert!(rings.is_null(1));
+}
+
+#[tokio::test]
 async fn typed_polygon_raw_arrow_preserves_dimension_crs_layout_slices_and_nulls() {
     for coord_type in [CoordType::Separated, CoordType::Interleaved] {
         for dimension in [
