@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from datafusion import udaf, udf
 
+from . import _rust
 from ._rust import *
 from ._rust import ___version
 
@@ -13,97 +14,27 @@ if TYPE_CHECKING:
     from datafusion import SessionContext
 
 
+def _register_exports(ctx: SessionContext, group: str) -> None:
+    scalar_udfs, aggregate_udfs = _rust._registration_exports(group)
+
+    for _, _, capsule in scalar_udfs:
+        ctx.register_udf(udf(capsule))
+
+    for _, _, capsule in aggregate_udfs:
+        ctx.register_udaf(udaf(capsule))
+
+
 def register_all_geo(ctx: SessionContext):
-    from . import geo
-
-    # measurement
-    ctx.register_udf(udf(geo.Area()))
-    ctx.register_udf(udf(geo.Distance()))
-    ctx.register_udf(udf(geo.DWithin()))
-    ctx.register_udf(udf(geo.Length()))
-
-    # processing
-    ctx.register_udf(udf(geo.Centroid()))
-    ctx.register_udf(udf(geo.ConvexHull()))
-    ctx.register_udf(udf(geo.OrientedEnvelope()))
-    ctx.register_udf(udf(geo.PointOnSurface()))
-    ctx.register_udf(udf(geo.Simplify()))
-    ctx.register_udf(udf(geo.SimplifyPreserveTopology()))
-    ctx.register_udf(udf(geo.SimplifyVW()))
-
-    # relationships
-    ctx.register_udf(udf(geo.Contains()))
-    ctx.register_udf(udf(geo.CoveredBy()))
-    ctx.register_udf(udf(geo.Covers()))
-    ctx.register_udf(udf(geo.Crosses()))
-    ctx.register_udf(udf(geo.Disjoint()))
-    ctx.register_udf(udf(geo.Equals()))
-    ctx.register_udf(udf(geo.Intersects()))
-    ctx.register_udf(udf(geo.Overlaps()))
-    ctx.register_udf(udf(geo.Touches()))
-    ctx.register_udf(udf(geo.Within()))
-
-    # validation
-    ctx.register_udf(udf(geo.IsValid()))
-    ctx.register_udf(udf(geo.IsValidReason()))
+    _register_exports(ctx, "geo")
 
 
 def register_all_geohash(ctx: SessionContext):
-    from . import geohash
-
-    ctx.register_udf(udf(geohash.GeoHash()))
-    ctx.register_udf(udf(geohash.PointFromGeoHash()))
-    ctx.register_udf(udf(geohash.Box2DFromGeoHash()))
+    _register_exports(ctx, "geohash")
 
 
 def register_all_native(ctx: SessionContext):
-    from . import native
-
-    # accessors
-    ctx.register_udf(udf(native.CoordDim()))
-    ctx.register_udf(udf(native.EndPoint()))
-    ctx.register_udf(udf(native.IsClosed()))
-    ctx.register_udf(udf(native.GeometryType()))
-    ctx.register_udf(udf(native.M()))
-    ctx.register_udf(udf(native.NDims()))
-    ctx.register_udf(udf(native.NPoints()))
-    ctx.register_udf(udf(native.NumInteriorRings()))
-    ctx.register_udf(udf(native.StartPoint()))
-    ctx.register_udf(udf(native.STGeometryType()))
-    ctx.register_udf(udf(native.X()))
-    ctx.register_udf(udf(native.Y()))
-    ctx.register_udf(udf(native.Z()))
-
-    # bounding box
-    ctx.register_udf(udf(native.Box2D()))
-    ctx.register_udf(udf(native.Box3D()))
-    ctx.register_udf(udf(native.XMin()))
-    ctx.register_udf(udf(native.YMin()))
-    ctx.register_udf(udf(native.ZMin()))
-    ctx.register_udf(udf(native.XMax()))
-    ctx.register_udf(udf(native.YMax()))
-    ctx.register_udf(udf(native.ZMax()))
-    ctx.register_udf(udf(native.MakeBox2D()))
-    ctx.register_udf(udf(native.MakeBox3D()))
-    # https://github.com/apache/datafusion-python/issues/1237
-    ctx.register_udaf(udaf(native.Extent()))  # type: ignore
-
-    # constructors
-    ctx.register_udf(udf(native.Point()))
-    ctx.register_udf(udf(native.PointZ()))
-    ctx.register_udf(udf(native.PointM()))
-    ctx.register_udf(udf(native.PointZM()))
-    ctx.register_udf(udf(native.MakePoint()))
-    ctx.register_udf(udf(native.MakePointM()))
-
-    # io
-    ctx.register_udf(udf(native.AsText()))
-    ctx.register_udf(udf(native.AsBinary()))
-    ctx.register_udf(udf(native.GeomFromText()))
-    ctx.register_udf(udf(native.GeomFromWKB()))
+    _register_exports(ctx, "native")
 
 
 def register_all(ctx: SessionContext):
-    register_all_geo(ctx)
-    register_all_geohash(ctx)
-    register_all_native(ctx)
+    _register_exports(ctx, "all")

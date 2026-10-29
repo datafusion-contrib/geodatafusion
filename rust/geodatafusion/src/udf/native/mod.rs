@@ -4,16 +4,10 @@ pub mod accessors;
 pub mod bounding_box;
 pub mod constructors;
 pub mod io;
-// mod processing;
 
-// use datafusion::prelude::SessionContext;
-
-// /// Register all provided native-Rust functions
-// pub fn register_native(ctx: &SessionContext) {
-//     accessors::register_udfs(ctx);
-//     bounding_box::register_udfs(ctx);
-//     constructors::register_udfs(ctx);
-//     io::register_udfs(ctx);
-//     measurement::register_udfs(ctx);
-//     processing::register_udfs(ctx);
-// }
+pub fn register(session_context: &datafusion::prelude::SessionContext) {
+    accessors::register(session_context);
+    bounding_box::register(session_context);
+    constructors::register(session_context);
+    io::register(session_context);
+}

@@ -1,6 +1,7 @@
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
 pub(crate) mod constants;
+mod registration;
 mod udf;
 mod utils;
 
@@ -36,6 +37,7 @@ fn check_debug_build(py: Python) -> PyResult<()> {
 fn _rust(py: Python, m: &Bound<PyModule>) -> PyResult<()> {
     check_debug_build(py)?;
     m.add_wrapped(wrap_pyfunction!(___version))?;
+    m.add_wrapped(wrap_pyfunction!(registration::_registration_exports))?;
 
     let native_mod = wrap_pymodule!(udf::native::native)(py);
     m.add_submodule(native_mod.bind(py))?;

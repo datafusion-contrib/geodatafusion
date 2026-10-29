@@ -21,6 +21,10 @@ ctx = SessionContext()
 register_all(ctx)
 ```
 
+`register_all` registers the scalar and aggregate functions included in the
+compiled Rust crate. The Python package currently does not enable GEOS-backed
+functions, and it does not export window or table functions.
+
 Then you can use the UDFs in SQL queries:
 
 ```py
