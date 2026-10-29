@@ -7,12 +7,12 @@ POINT(1.5 -2.25)
 query R
 SELECT ST_Distance(ST_Point(0, 0), ST_Point(3, 4));
 ----
-5
+5.0
 
 query R
 SELECT ST_X(ST_Point(7, 8));
 ----
-7
+7.0
 
 query R
 SELECT ST_Distance(
@@ -21,3 +21,6 @@ SELECT ST_Distance(
 );
 ----
 NULL
+
+statement error
+SELECT 1 / 0;
