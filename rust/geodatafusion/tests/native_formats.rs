@@ -524,6 +524,33 @@ async fn format_boundary_errors_are_explicit() {
         first_batch(&batches).column(0).as_string::<i32>().value(0),
         "LINESTRING(0 0,1 1)"
     );
+    // +2^63 is one past i64::MAX and must not saturate to i64::MAX; -2^63
+    // remains representable and encodes.
+    let error = collect(
+        &ctx,
+        "SELECT ST_AsEncodedPolyline(\
+         ST_GeomFromEWKT('SRID=4326;LINESTRING(0 0,9223372036854775808 0)'), 0)",
+    )
+    .await
+    .unwrap_err()
+    .to_string();
+    assert!(
+        error.contains("exceeds the supported integer range"),
+        "{error}"
+    );
+    let batches = collect(
+        &ctx,
+        "SELECT ST_AsEncodedPolyline(\
+         ST_GeomFromEWKT('SRID=4326;LINESTRING(0 0,-9223372036854775808 0)'), 0)",
+    )
+    .await
+    .unwrap();
+    assert!(
+        !first_batch(&batches)
+            .column(0)
+            .as_string::<i32>()
+            .is_null(0)
+    );
 
     let error = collect(
         &ctx,

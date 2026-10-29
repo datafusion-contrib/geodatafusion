@@ -1806,6 +1806,7 @@ reason = "precision-above-18-returns-an-explicit-error"
 evidence = [
   "rust/geodatafusion/tests/slt/formats.slt",
   "rust/geodatafusion/tests/native_formats.rs::format_boundary_errors_are_explicit",
+  "rust/geodatafusion/src/udf/native/io/polyline.rs::coordinate_domain_rejects_positive_two_to_the_sixty_third",
   "rust/geodatafusion/tests/postgis/formats/polyline_to/inputs.json",
 ]
 

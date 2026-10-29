@@ -448,8 +448,14 @@ fn multi_point_coords(
 }
 
 fn round_coordinate(value: f64, scale: f64) -> std::result::Result<i64, String> {
+    // `i64::MAX` is not representable in f64, so its nearest f64 value is 2^63.
+    // The upper bound is therefore exclusive, while the exactly representable
+    // -2^63 stays a legal coordinate.
+    const I64_MIN_AS_F64: f64 = -9_223_372_036_854_775_808.0;
+    const I64_MAX_EXCLUSIVE_AS_F64: f64 = 9_223_372_036_854_775_808.0;
+
     let scaled = (value * scale).round();
-    if !scaled.is_finite() || scaled < i64::MIN as f64 || scaled > i64::MAX as f64 {
+    if !scaled.is_finite() || scaled < I64_MIN_AS_F64 || scaled >= I64_MAX_EXCLUSIVE_AS_F64 {
         return Err(format!(
             "encoded polyline coordinate {value} exceeds the supported integer range"
         ));
@@ -554,6 +560,29 @@ mod tests {
         assert_eq!(
             decode_polyline(&encoded, 18).unwrap(),
             vec![(0.0, 0.0), (1.0, 1.0)]
+        );
+    }
+
+    #[test]
+    fn coordinate_domain_rejects_positive_two_to_the_sixty_third() {
+        // 2^63 is one past i64::MAX and is representable in f64; a saturating
+        // `as i64` cast would silently clamp it to i64::MAX.
+        let error = round_coordinate(9_223_372_036_854_775_808.0, 1.0).unwrap_err();
+        assert!(
+            error.contains("exceeds the supported integer range"),
+            "{error}"
+        );
+
+        // -2^63 is representable and stays legal.
+        assert_eq!(
+            round_coordinate(-9_223_372_036_854_775_808.0, 1.0).unwrap(),
+            i64::MIN
+        );
+
+        // The largest f64 below +2^63 is 2^63 - 1024 and is still exact.
+        assert_eq!(
+            round_coordinate(9_223_372_036_854_774_784.0, 1.0).unwrap(),
+            9_223_372_036_854_774_784
         );
     }
 }
