@@ -1,0 +1,1 @@
+SELECT ST_PointN(ST_GeomFromText($1), CAST(CAST($2 AS VARCHAR) AS INTEGER)) AS point

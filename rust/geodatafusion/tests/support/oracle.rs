@@ -36,6 +36,7 @@ pub const PINNED_POSTGIS_IMAGE: &str = "postgis/postgis:18-3.6@sha256:4a43e3c3e5
 pub const GROUPS: &[&str] = &[
     "accessors/exterior_ring",
     "accessors/interior_ring_n",
+    "accessors/point_n",
     "has_m",
     "has_z",
     "measurement/area",

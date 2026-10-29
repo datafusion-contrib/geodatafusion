@@ -74,7 +74,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_NumInteriorRings | ✅          | Returns the number of interior rings (holes) of a Polygon.                                              |
 | ST_NumInteriorRing  | ✅          | Returns the number of interior rings (holes) of a Polygon. Aias for ST_NumInteriorRings                 |
 | ST_NumPoints        | ✅          | Returns the number of points in a LineString or CircularString.                                         |
-| ST_PointN           |             | Returns the Nth point in the first LineString or circular LineString in a geometry.                     |
+| ST_PointN           | ✅          | Returns the Nth point in the first LineString or circular LineString in a geometry.                     |
 | ST_Points           |             | Returns a MultiPoint containing the coordinates of a geometry.                                          |
 | ST_StartPoint       | ✅          | Returns the first point of a LineString.                                                                |
 | ST_Summary          |             | Returns a text summary of the contents of a geometry.                                                   |
