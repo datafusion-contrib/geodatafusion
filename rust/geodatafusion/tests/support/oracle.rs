@@ -34,6 +34,7 @@ pub const PINNED_POSTGIS_IMAGE: &str = "postgis/postgis:18-3.6@sha256:4a43e3c3e5
 
 /// Case groups are independent because each group has one parameter shape.
 pub const GROUPS: &[&str] = &[
+    "accessors/interior_ring_n",
     "measurement/area",
     "measurement/distance",
     "measurement/dwithin",
