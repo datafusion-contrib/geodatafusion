@@ -9,17 +9,11 @@ use datafusion::logical_expr::{
     ColumnarValue, Documentation, ReturnFieldArgs, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
 use geo_traits::{CoordTrait, GeometryTrait, PointTrait};
+use geoarrow_array::array::from_arrow_array;
 use geoarrow_array::{GeoArrowArrayAccessor, downcast_geoarrow_array};
 
-use crate::data_types::any_single_geometry_type_input;
+use crate::data_types::any_point_type_input;
 use crate::error::GeoDataFusionResult;
-use crate::udf::native::geometry::geometry_array_from_arrow;
-
-fn coordinate_field() -> arrow_schema::FieldRef {
-    // Empty points and missing Z/M ordinates produce SQL NULL even when the input
-    // geometry field is declared non-nullable.
-    Arc::new(Field::new("", DataType::Float64, true))
-}
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct X {
@@ -29,7 +23,7 @@ pub struct X {
 impl X {
     pub fn new() -> Self {
         Self {
-            signature: any_single_geometry_type_input().clone(),
+            signature: any_point_type_input(1),
         }
     }
 }
@@ -56,18 +50,18 @@ impl ScalarUDFImpl for X {
     }
 
     fn return_field_from_args(&self, _args: ReturnFieldArgs) -> Result<arrow_schema::FieldRef> {
-        Ok(coordinate_field())
+        Ok(Arc::new(Field::new("", DataType::Float64, false)))
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
-        Ok(axis_impl(args, Axis::X, self.name())?)
+        Ok(nth_impl(args, 0)?)
     }
 
     fn documentation(&self) -> Option<&Documentation> {
         Some(X_DOCUMENTATION.get_or_init(|| {
             Documentation::builder(
                 DOC_SECTION_OTHER,
-                "Return the X coordinate of the point, or NULL if not available. Input must be a point; other geometry types raise an error, matching PostGIS.",
+                "Return the X coordinate of the point, or NULL if not available. Input must be a point.",
                 "ST_X(geometry)",
             )
             .with_argument("a_point", "geometry")
@@ -84,7 +78,7 @@ pub struct Y {
 impl Y {
     pub fn new() -> Self {
         Self {
-            signature: any_single_geometry_type_input().clone(),
+            signature: any_point_type_input(1),
         }
     }
 }
@@ -111,24 +105,57 @@ impl ScalarUDFImpl for Y {
     }
 
     fn return_field_from_args(&self, _args: ReturnFieldArgs) -> Result<arrow_schema::FieldRef> {
-        Ok(coordinate_field())
+        Ok(Arc::new(Field::new("", DataType::Float64, false)))
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
-        Ok(axis_impl(args, Axis::Y, self.name())?)
+        Ok(nth_impl(args, 1)?)
     }
 
     fn documentation(&self) -> Option<&Documentation> {
         Some(Y_DOCUMENTATION.get_or_init(|| {
             Documentation::builder(
                 DOC_SECTION_OTHER,
-                "Return the Y coordinate of the point, or NULL if not available. Input must be a point; other geometry types raise an error, matching PostGIS.",
+                "Return the Y coordinate of the point, or NULL if not available. Input must be a point.",
                 "ST_Y(geometry)",
             )
             .with_argument("a_point", "geometry")
             .build()
         }))
     }
+}
+
+fn nth_impl(args: ScalarFunctionArgs, n: usize) -> GeoDataFusionResult<ColumnarValue> {
+    let array = ColumnarValue::values_to_arrays(&args.args)?
+        .into_iter()
+        .next()
+        .unwrap();
+    let geo_array = from_arrow_array(array.as_ref(), args.arg_fields[0].as_ref())?;
+    let geo_ref = geo_array.as_ref();
+    let result = downcast_geoarrow_array!(geo_ref, _nth_impl, n)?;
+    Ok(ColumnarValue::Array(Arc::new(result)))
+}
+
+fn _nth_impl<'a>(
+    array: &'a impl GeoArrowArrayAccessor<'a>,
+    n: usize,
+) -> GeoDataFusionResult<Float64Array> {
+    let mut builder = Float64Builder::with_capacity(array.len());
+    for geom in array.iter() {
+        if let Some(geo_geom) = geom {
+            match geo_geom?.as_type() {
+                geo_traits::GeometryType::Point(point) => {
+                    builder.append_option(point.coord().and_then(|c| c.nth(n)));
+                }
+                _ => {
+                    builder.append_null();
+                }
+            }
+        } else {
+            builder.append_null();
+        }
+    }
+    Ok(builder.finish())
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -139,7 +166,7 @@ pub struct Z {
 impl Z {
     pub fn new() -> Self {
         Self {
-            signature: any_single_geometry_type_input().clone(),
+            signature: any_point_type_input(1),
         }
     }
 }
@@ -166,18 +193,18 @@ impl ScalarUDFImpl for Z {
     }
 
     fn return_field_from_args(&self, _args: ReturnFieldArgs) -> Result<arrow_schema::FieldRef> {
-        Ok(coordinate_field())
+        Ok(Arc::new(Field::new("", DataType::Float64, false)))
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
-        Ok(axis_impl(args, Axis::Z, self.name())?)
+        Ok(nth_impl(args, 2)?)
     }
 
     fn documentation(&self) -> Option<&Documentation> {
         Some(Z_DOCUMENTATION.get_or_init(|| {
             Documentation::builder(
                 DOC_SECTION_OTHER,
-                "Return the Z coordinate of the point, or NULL if not available. Input must be a point; other geometry types raise an error, matching PostGIS.",
+                "Return the Z coordinate of the point, or NULL if not available. Input must be a point.",
                 "ST_Z(geometry)",
             )
             .with_argument("a_point", "geometry")
@@ -194,7 +221,7 @@ pub struct M {
 impl M {
     pub fn new() -> Self {
         Self {
-            signature: any_single_geometry_type_input().clone(),
+            signature: any_point_type_input(1),
         }
     }
 }
@@ -221,18 +248,18 @@ impl ScalarUDFImpl for M {
     }
 
     fn return_field_from_args(&self, _args: ReturnFieldArgs) -> Result<arrow_schema::FieldRef> {
-        Ok(coordinate_field())
+        Ok(Arc::new(Field::new("", DataType::Float64, false)))
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
-        Ok(axis_impl(args, Axis::M, self.name())?)
+        Ok(m_impl(args)?)
     }
 
     fn documentation(&self) -> Option<&Documentation> {
         Some(M_DOCUMENTATION.get_or_init(|| {
             Documentation::builder(
                 DOC_SECTION_OTHER,
-                "Return the M coordinate of the point, or NULL if not available. Input must be a point; other geometry types raise an error, matching PostGIS.",
+                "Return the M coordinate of the point, or NULL if not available. Input must be a point.",
                 "ST_M(geometry)",
             )
             .with_argument("a_point", "geometry")
@@ -241,72 +268,42 @@ impl ScalarUDFImpl for M {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Axis {
-    X,
-    Y,
-    Z,
-    M,
-}
-
-fn axis_impl(
-    args: ScalarFunctionArgs,
-    axis: Axis,
-    name: &str,
-) -> GeoDataFusionResult<ColumnarValue> {
-    let arrays = ColumnarValue::values_to_arrays(&args.args)?;
-    let geo_array = geometry_array_from_arrow(&arrays[0], &args.arg_fields[0])?;
+fn m_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
+    let array = ColumnarValue::values_to_arrays(&args.args)?
+        .into_iter()
+        .next()
+        .unwrap();
+    let geo_array = from_arrow_array(array.as_ref(), args.arg_fields[0].as_ref())?;
     let geo_ref = geo_array.as_ref();
-    let result = downcast_geoarrow_array!(geo_ref, axis_array, axis, name)?;
+    let result = downcast_geoarrow_array!(geo_ref, _m_impl)?;
     Ok(ColumnarValue::Array(Arc::new(result)))
 }
 
-fn axis_array<'a>(
-    array: &'a impl GeoArrowArrayAccessor<'a>,
-    axis: Axis,
-    name: &str,
-) -> GeoDataFusionResult<Float64Array> {
+fn _m_impl<'a>(array: &'a impl GeoArrowArrayAccessor<'a>) -> GeoDataFusionResult<Float64Array> {
     let mut builder = Float64Builder::with_capacity(array.len());
-    for item in array.iter() {
-        match item {
-            Some(geom) => {
-                let geom = geom?;
-                match geom.as_type() {
-                    geo_traits::GeometryType::Point(point) => builder
-                        .append_option(point.coord().and_then(|coord| axis_value(&coord, axis))),
-                    _ => {
-                        return Err(DataFusionError::Execution(format!(
-                            "Argument to {name}() must have type POINT"
-                        ))
-                        .into());
-                    }
+    for geom in array.iter() {
+        if let Some(geo_geom) = geom {
+            match geo_geom?.as_type() {
+                geo_traits::GeometryType::Point(point) => {
+                    builder.append_option(point.coord().and_then(|c| match c.dim() {
+                        geo_traits::Dimensions::Xym => c.nth(2),
+                        geo_traits::Dimensions::Xyzm => c.nth(3),
+                        _ => None,
+                    }));
+                }
+                _ => {
+                    builder.append_null();
                 }
             }
-            None => builder.append_null(),
+        } else {
+            builder.append_null();
         }
     }
     Ok(builder.finish())
 }
 
-fn axis_value(coord: &impl CoordTrait<T = f64>, axis: Axis) -> Option<f64> {
-    match axis {
-        Axis::X => Some(coord.x()),
-        Axis::Y => Some(coord.y()),
-        Axis::Z => match coord.dim() {
-            geo_traits::Dimensions::Xyz | geo_traits::Dimensions::Xyzm => coord.nth(2),
-            _ => None,
-        },
-        Axis::M => match coord.dim() {
-            geo_traits::Dimensions::Xym => coord.nth(2),
-            geo_traits::Dimensions::Xyzm => coord.nth(3),
-            _ => None,
-        },
-    }
-}
-
 #[cfg(test)]
 mod test {
-    use arrow_array::Array;
     use arrow_array::cast::AsArray;
     use arrow_array::types::Float64Type;
     use datafusion::prelude::SessionContext;
@@ -365,7 +362,7 @@ mod test {
         assert_eq!(batch.column(0).as_primitive::<Float64Type>().value(0), 4.0);
     }
 
-    // Coordinate getters can return NULL even when the input geometry is non-nullable.
+    // Test that return schema correctly declares non-nullable
     #[tokio::test]
     async fn test_return_schema() {
         let ctx = SessionContext::new();
@@ -374,27 +371,35 @@ mod test {
         ctx.register_udf(Y::new().into());
         ctx.register_udf(Z::new().into());
         ctx.register_udf(M::new().into());
+        ctx.register_udf(PointZ::new(Default::default()).into());
+        ctx.register_udf(PointM::new(Default::default()).into());
+        ctx.register_udf(PointZM::new(Default::default()).into());
         ctx.register_udf(GeomFromText::new(Default::default()).into());
 
         let df = ctx
-            .sql(
-                "SELECT \
-                 ST_X(ST_GeomFromText('POINT EMPTY')), \
-                 ST_Y(ST_GeomFromText('POINT EMPTY')), \
-                 ST_Z(ST_GeomFromText('POINT(1 2)')), \
-                 ST_M(ST_GeomFromText('POINT(1 2)'))",
-            )
+            .sql("SELECT ST_X(ST_GeomFromText('POINT(1 2)'));")
             .await
             .unwrap();
         let df_schema = df.schema().inner().clone();
-        for field in df_schema.fields() {
-            assert_eq!(field.data_type(), &DataType::Float64);
-            assert!(field.is_nullable(), "{} must be nullable", field.name());
-        }
         let batch = df.collect().await.unwrap().into_iter().next().unwrap();
         assert_eq!(df_schema, batch.schema());
-        for index in 0..4 {
-            assert!(batch.column(index).is_null(0));
-        }
+
+        let df = ctx
+            .sql("SELECT ST_Y(ST_GeomFromText('POINT(1 2)'));")
+            .await
+            .unwrap();
+        let df_schema = df.schema().inner().clone();
+        let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+        assert_eq!(df_schema, batch.schema());
+
+        let df = ctx.sql("SELECT ST_Z(ST_PointZ(1, 2, 3));").await.unwrap();
+        let df_schema = df.schema().inner().clone();
+        let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+        assert_eq!(df_schema, batch.schema());
+
+        let df = ctx.sql("SELECT ST_M(ST_PointM(1, 2, 3));").await.unwrap();
+        let df_schema = df.schema().inner().clone();
+        let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+        assert_eq!(df_schema, batch.schema());
     }
 }

@@ -1,6 +1,5 @@
 use std::sync::{Arc, OnceLock};
 
-use arrow_array::builder::Float64Builder;
 use arrow_schema::DataType;
 use datafusion::error::Result;
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
@@ -8,12 +7,12 @@ use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
 use geo_traits::{CoordTrait, RectTrait};
+use geoarrow_array::array::from_arrow_array;
 use geoarrow_array::scalar::Rect;
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 use crate::udf::native::bounding_box::util::bounds::impl_extrema;
-use crate::udf::native::geometry::{geometry_array_from_arrow, is_null_geometry_input};
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct XMin;
@@ -343,14 +342,7 @@ fn extrema_impl(
     cb: impl Fn(Rect) -> f64,
 ) -> GeoDataFusionResult<ColumnarValue> {
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
-    if is_null_geometry_input(args.arg_fields[0].as_ref(), arrays[0].as_ref()) {
-        let mut builder = Float64Builder::with_capacity(arrays[0].len());
-        for _ in 0..arrays[0].len() {
-            builder.append_null();
-        }
-        return Ok(ColumnarValue::Array(Arc::new(builder.finish())));
-    }
-    let geo_array = geometry_array_from_arrow(&arrays[0], &args.arg_fields[0])?;
+    let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
     let result = impl_extrema(&geo_array, include_z, cb)?;
     Ok(ColumnarValue::Array(Arc::new(result)))
 }

@@ -1,1 +1,0 @@
-SELECT ST_GeometryType(m.geom) AS geom_type, ST_IsEmpty(m.geom) AS is_empty, ST_X(m.geom) AS x, ST_Y(m.geom) AS y, ST_Z(m.geom) AS z FROM (SELECT ST_GeometricMedian(ST_GeomFromText($1::text), $2::float8, CAST(CAST($3 AS bigint) AS integer), CAST($4 AS boolean)) AS geom) m

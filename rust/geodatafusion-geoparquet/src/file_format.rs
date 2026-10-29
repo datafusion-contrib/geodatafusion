@@ -82,17 +82,11 @@ impl GetExt for GeoParquetFormatFactory {
 }
 
 /// GeoParquet `FileFormat` implementation
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct GeoParquetFormat {
     inner: ParquetFormat,
     parse_to_native: bool,
     coord_type: CoordType,
-}
-
-impl Default for GeoParquetFormat {
-    fn default() -> Self {
-        Self::new(ParquetFormat::default())
-    }
 }
 
 impl GeoParquetFormat {

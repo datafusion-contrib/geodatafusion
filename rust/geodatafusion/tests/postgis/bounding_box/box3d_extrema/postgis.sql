@@ -1,1 +1,0 @@
-SELECT ST_XMin(Box3D(ST_GeomFromText($1::text))) AS xmin, ST_YMin(Box3D(ST_GeomFromText($1::text))) AS ymin, ST_ZMin(Box3D(ST_GeomFromText($1::text))) AS zmin, ST_XMax(Box3D(ST_GeomFromText($1::text))) AS xmax, ST_YMax(Box3D(ST_GeomFromText($1::text))) AS ymax, ST_ZMax(Box3D(ST_GeomFromText($1::text))) AS zmax

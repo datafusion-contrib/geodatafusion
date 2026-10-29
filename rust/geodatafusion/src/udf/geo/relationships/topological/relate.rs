@@ -2,21 +2,24 @@ use std::sync::{Arc, OnceLock};
 
 use arrow_array::BooleanArray;
 use arrow_array::builder::BooleanBuilder;
-use arrow_schema::{DataType, Field, FieldRef};
+use arrow_schema::{DataType, Field};
 use datafusion::error::{DataFusionError, Result};
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
-    ColumnarValue, Documentation, ReturnFieldArgs, ScalarFunctionArgs, ScalarUDFImpl, Signature,
-    Volatility,
+    ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature, Volatility,
 };
 use geo::relate::IntersectionMatrix;
-use geo::{CoordsIter, Geometry, PreparedGeometry, Relate};
-use geoarrow_array::GeoArrowArray;
+use geo::{
+    CoordNum, CoordsIter, Geometry, GeometryCollection, MultiPoint, PreparedGeometry, Relate,
+};
+use geo_traits::to_geo::ToGeoPoint;
+use geo_traits::{GeometryCollectionTrait, GeometryTrait, MultiPointTrait, PointTrait};
+use geoarrow_array::array::from_arrow_array;
+use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
+use geoarrow_expr_geo::util::to_geo::geometry_to_geo;
 use geoarrow_schema::error::{GeoArrowError, GeoArrowResult};
 
 use crate::error::GeoDataFusionResult;
-use crate::udf::geo::to_geo::to_geo_iter;
-use crate::udf::native::geometry::{geometry_array_from_arrow, merge_metadata};
 
 macro_rules! impl_relate_udf {
     ($struct_name:ident, $udf_name:expr, $documentation_name:ident, $callback:expr, $doc_text:expr, $doc_example:expr) => {
@@ -52,16 +55,6 @@ macro_rules! impl_relate_udf {
 
             fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
                 Ok(DataType::Boolean)
-            }
-
-            fn return_field_from_args(&self, args: ReturnFieldArgs) -> Result<FieldRef> {
-                // The predicate result carries no geometry metadata, but
-                // PostGIS rejects predicates evaluated across mixed SRIDs.
-                merge_metadata(
-                    [args.arg_fields[0].as_ref(), args.arg_fields[1].as_ref()],
-                    self.name(),
-                )?;
-                Ok(Arc::new(Field::new(self.name(), DataType::Boolean, true)))
             }
 
             fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
@@ -186,15 +179,15 @@ fn relate_impl(
             relate_impl(left_array, left_field, right_array, right_field, relate_cb)
         }
         (ColumnarValue::Array(left_arr), ColumnarValue::Array(right_arr)) => {
-            let left_arr = geometry_array_from_arrow(&left_arr, left_field)?;
-            let right_arr = geometry_array_from_arrow(&right_arr, right_field)?;
+            let left_arr = from_arrow_array(&left_arr, left_field)?;
+            let right_arr = from_arrow_array(&right_arr, right_field)?;
             let result = relate_arrays(&left_arr, &right_arr, relate_cb)?;
             Ok(ColumnarValue::Array(Arc::new(result)))
         }
         (ColumnarValue::Scalar(left_scalar), ColumnarValue::Array(right_array)) => {
             let left_scalar_array = ColumnarValue::values_to_arrays(&[left_scalar.into()])?;
-            let left_geo_array = geometry_array_from_arrow(&left_scalar_array[0], left_field)?;
-            let right_geo_array = geometry_array_from_arrow(&right_array, right_field)?;
+            let left_geo_array = from_arrow_array(&left_scalar_array[0], left_field)?;
+            let right_geo_array = from_arrow_array(&right_array, right_field)?;
             let result = relate_prepared_geometry(
                 &right_geo_array,
                 &left_geo_array,
@@ -205,8 +198,8 @@ fn relate_impl(
         }
         (ColumnarValue::Array(left_array), ColumnarValue::Scalar(right_scalar)) => {
             let right_scalar_array = ColumnarValue::values_to_arrays(&[right_scalar.into()])?;
-            let right_geo_array = geometry_array_from_arrow(&right_scalar_array[0], right_field)?;
-            let left_geo_array = geometry_array_from_arrow(&left_array, left_field)?;
+            let right_geo_array = from_arrow_array(&right_scalar_array[0], right_field)?;
+            let left_geo_array = from_arrow_array(&left_array, left_field)?;
             let result = relate_prepared_geometry(
                 &left_geo_array,
                 &right_geo_array,
@@ -231,12 +224,72 @@ enum PreparedSide {
     Right,
 }
 
+type GeoGeometryIter<'a> = Box<dyn Iterator<Item = Option<GeoArrowResult<Geometry<f64>>>> + 'a>;
+
+/// Convert a GeoArrowArray into an iterator of geo::Geometry values.
+///
+/// Keeping the conversion inside the iterator preserves SQL NULL semantics: a
+/// geometry that is never paired with a non-null geometry is never converted.
+fn to_geo_iter<'a>(array: &'a dyn GeoArrowArray) -> GeoArrowResult<GeoGeometryIter<'a>> {
+    downcast_geoarrow_array!(array, _to_geo_iter_impl)
+}
+
+fn _to_geo_iter_impl<'a>(
+    array: &'a impl GeoArrowArrayAccessor<'a>,
+) -> GeoArrowResult<GeoGeometryIter<'a>> {
+    Ok(Box::new(array.iter().map(|item| {
+        item.map(|geometry| geometry.and_then(|geometry| geometry_to_geo_for_relate(&geometry)))
+    })))
+}
+
 /// Convert a length-1 GeoArrowArray to a geo::Geometry scalar.
 fn to_geo_scalar(arr: &dyn GeoArrowArray) -> GeoArrowResult<Option<geo::Geometry>> {
     let mut values = to_geo_iter(arr)?;
     match values.next() {
         Some(Some(geometry)) => Ok(Some(geometry?)),
         Some(None) | None => Ok(None),
+    }
+}
+
+/// Convert a GeoArrow geometry to a geo::Geometry for topology operations.
+///
+/// geo-types cannot represent empty points, so an empty point becomes an empty
+/// GeometryCollection and empty points are removed from multi-geometries and
+/// collections. The resulting point set is unchanged, while every non-empty
+/// geometry still uses the same conversion as the existing GeoArrow helpers.
+fn geometry_to_geo_for_relate<T: CoordNum>(
+    geometry: &impl GeometryTrait<T = T>,
+) -> GeoArrowResult<Geometry<T>> {
+    use geo_traits::GeometryType;
+
+    match geometry.as_type() {
+        GeometryType::Point(point) => {
+            if point.coord().is_none() {
+                Ok(Geometry::GeometryCollection(GeometryCollection::empty()))
+            } else {
+                geometry_to_geo(geometry)
+            }
+        }
+        GeometryType::MultiPoint(multi_point) => {
+            let points = multi_point
+                .points()
+                .filter_map(|point| point.try_to_point())
+                .collect();
+            Ok(Geometry::MultiPoint(MultiPoint::new(points)))
+        }
+        GeometryType::GeometryCollection(collection) => {
+            let geometries = collection
+                .geometries()
+                .filter(|child| {
+                    !matches!(child.as_type(), GeometryType::Point(point) if point.coord().is_none())
+                })
+                .map(|child| geometry_to_geo_for_relate(&child))
+                .collect::<GeoArrowResult<_>>()?;
+            Ok(Geometry::GeometryCollection(GeometryCollection::new_from(
+                geometries,
+            )))
+        }
+        _ => geometry_to_geo(geometry),
     }
 }
 

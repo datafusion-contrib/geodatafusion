@@ -8,19 +8,22 @@
 
 pub(crate) mod data_types;
 pub(crate) mod error;
-pub mod spatial_statistics;
 pub mod udf;
 
 /// Register all UDFs defined in geodatafusion
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
-    crate::udf::geo::register(session_context);
+    crate::udf::geo::measurement::register(session_context);
+
+    crate::udf::geo::processing::register(session_context);
+
+    crate::udf::geo::relationships::register(session_context);
+
+    crate::udf::geo::validation::register(session_context);
 
     #[cfg(feature = "geos-3_11")]
-    crate::udf::geos::register(session_context);
+    crate::udf::geos::processing::register(session_context);
 
     crate::udf::geohash::register(session_context);
-
-    crate::udf::flatgeobuf::register(session_context);
 
     crate::udf::native::register(session_context);
 }

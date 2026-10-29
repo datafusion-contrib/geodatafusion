@@ -27,8 +27,6 @@ async-trait = "0.1"
 datafusion = { version = "55", default-features = false }
 datafusion-datasource = { version = "55", default-features = false }
 datafusion-datasource-parquet = "55"
-datafusion-functions-window-common = { version = "55.1", default-features = false }
-flatbuffers = "24.12.23"
 flatgeobuf = { version = "5.0", default-features = false }
 futures = "0.3"
 geo = "0.33.1"
@@ -38,25 +36,16 @@ geoarrow-flatgeobuf = "0.9.0"
 geoarrow-expr-geo = "0.9.0"
 geoarrow-geojson = "0.9.0"
 geoarrow-schema = "0.9.0"
-geographiclib-rs = "0.2.7"
 geodatafusion = { path = "rust/geodatafusion", version = "0.6.0" }
-crs-definitions = { version = "0.6.0", default-features = false, features = ["proj4"] }
 geohash = "0.13.1"
 geojson = "0.24"
 geoparquet = "0.9.0"
-geobuf-codec = "0.1.0"
 geos = { version = "11.1", default-features = false }
 http-range-client = { version = "0.9", default-features = false }
 object_store = "0.13.2"
-quick-xml = "0.39"
-proptest = "1"
-robust = "1.2.0"
-serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-sqllogictest = "0.29.1"
 tempfile = "3"
 thiserror = "2"
 tokio = { version = "1.9", default-features = false }
-toml_edit = "0.25"
-wkb = "0.9.3"
+wkb = "0.9"
 wkt = "0.14"

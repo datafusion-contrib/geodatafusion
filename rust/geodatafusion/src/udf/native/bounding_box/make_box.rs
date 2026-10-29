@@ -8,14 +8,11 @@ use datafusion::logical_expr::{
     ColumnarValue, Documentation, ReturnFieldArgs, ScalarFunctionArgs, ScalarUDFImpl, Signature,
     Volatility,
 };
-use geo_traits::CoordTrait;
 use geoarrow_array::GeoArrowArray;
-use geoarrow_array::array::{CoordBuffer, PointArray};
-use geoarrow_array::builder::RectBuilder;
-use geoarrow_schema::{BoxType, CoordType, Dimension, PointType};
+use geoarrow_array::array::{CoordBuffer, PointArray, RectArray};
+use geoarrow_schema::{BoxType, CoordType, Dimension, Metadata, PointType};
 
 use crate::error::GeoDataFusionResult;
-use crate::udf::native::geometry::{is_null_geometry_input, merge_metadata};
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct MakeBox2D;
@@ -60,12 +57,8 @@ impl ScalarUDFImpl for MakeBox2D {
         Err(DataFusionError::Internal("return_type".to_string()))
     }
 
-    fn return_field_from_args(&self, args: ReturnFieldArgs) -> Result<FieldRef> {
-        let metadata = merge_metadata(
-            [args.arg_fields[0].as_ref(), args.arg_fields[1].as_ref()],
-            "ST_MakeBox2D",
-        )?;
-        let output_type = BoxType::new(Dimension::XY, metadata);
+    fn return_field_from_args(&self, _args: ReturnFieldArgs) -> Result<FieldRef> {
+        let output_type = BoxType::new(Dimension::XY, Arc::new(Metadata::default()));
         Ok(Arc::new(output_type.to_field("", true)))
     }
 
@@ -130,12 +123,8 @@ impl ScalarUDFImpl for MakeBox3D {
         Err(DataFusionError::Internal("return_type".to_string()))
     }
 
-    fn return_field_from_args(&self, args: ReturnFieldArgs) -> Result<FieldRef> {
-        let metadata = merge_metadata(
-            [args.arg_fields[0].as_ref(), args.arg_fields[1].as_ref()],
-            "ST_3DMakeBox",
-        )?;
-        let output_type = BoxType::new(Dimension::XYZ, metadata);
+    fn return_field_from_args(&self, _args: ReturnFieldArgs) -> Result<FieldRef> {
+        let output_type = BoxType::new(Dimension::XYZ, Arc::new(Metadata::default()));
         Ok(Arc::new(output_type.to_field("", true)))
     }
 
@@ -162,18 +151,6 @@ fn make_box_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue>
     let mut arrays = ColumnarValue::values_to_arrays(&args.args)?.into_iter();
     let lower = arrays.next().unwrap();
     let upper = arrays.next().unwrap();
-    let output_type = args.return_field.try_extension_type::<BoxType>()?;
-    let dimension = output_type.dimension();
-
-    if is_null_geometry_input(args.arg_fields[0].as_ref(), lower.as_ref())
-        || is_null_geometry_input(args.arg_fields[1].as_ref(), upper.as_ref())
-    {
-        let mut builder = RectBuilder::with_capacity(output_type, lower.len());
-        for _ in 0..lower.len() {
-            builder.push_null();
-        }
-        return Ok(builder.finish().into_array_ref().into());
-    }
 
     let lower_type = args.arg_fields[0].try_extension_type::<PointType>()?;
     let upper_type = args.arg_fields[1].try_extension_type::<PointType>()?;
@@ -195,33 +172,14 @@ fn make_box_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue>
         CoordBuffer::Separated(coords) => coords,
         CoordBuffer::Interleaved(_) => unreachable!(),
     };
-    let mut builder = RectBuilder::with_capacity(output_type, lower.len());
-    for index in 0..lower.len() {
-        if nulls.as_ref().is_some_and(|nulls| nulls.is_null(index)) {
-            builder.push_null();
-            continue;
-        }
+    let rect_arr = RectArray::new(
+        lower_coords.clone(),
+        upper_coords.clone(),
+        nulls,
+        Arc::new(Metadata::default()),
+    );
 
-        let lower = lower_coords.value(index);
-        let upper = upper_coords.value(index);
-        let min = wkt::types::Coord {
-            x: lower.x().min(upper.x()),
-            y: lower.y().min(upper.y()),
-            z: (dimension == Dimension::XYZ)
-                .then(|| lower.nth_or_panic(2).min(upper.nth_or_panic(2))),
-            m: None,
-        };
-        let max = wkt::types::Coord {
-            x: lower.x().max(upper.x()),
-            y: lower.y().max(upper.y()),
-            z: (dimension == Dimension::XYZ)
-                .then(|| lower.nth_or_panic(2).max(upper.nth_or_panic(2))),
-            m: None,
-        };
-        builder.push_min_max(&min, &max);
-    }
-
-    Ok(builder.finish().into_array_ref().into())
+    Ok(rect_arr.into_array_ref().into())
 }
 
 #[cfg(test)]
@@ -230,7 +188,6 @@ mod test {
     use datafusion::prelude::*;
     use geo_traits::{CoordTrait, RectTrait};
     use geoarrow_array::GeoArrowArrayAccessor;
-    use geoarrow_array::array::RectArray;
 
     use super::*;
     use crate::udf::native::constructors::{Point, PointZ};

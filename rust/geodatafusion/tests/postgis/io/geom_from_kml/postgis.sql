@@ -1,1 +1,0 @@
-SELECT ST_AsEWKB(ST_GeomFromKML($1)) AS geom

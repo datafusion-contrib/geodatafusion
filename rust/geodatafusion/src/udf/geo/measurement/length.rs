@@ -6,11 +6,11 @@ use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
+use geoarrow_array::array::from_arrow_array;
+use geoarrow_expr_geo::euclidean_length;
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
-use crate::udf::native::geometry::{geometry_array_from_arrow, is_null_geometry_field};
-use crate::udf::native::measurement::{Axis, is_null_array, linear_length, null_float64};
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Length;
@@ -73,13 +73,8 @@ fn length_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
         .next()
         .unwrap();
     let field = &args.arg_fields[0];
-    if is_null_array(&array) || is_null_geometry_field(field) {
-        return Ok(ColumnarValue::Array(Arc::new(null_float64(
-            args.number_rows,
-        ))));
-    }
-    let geo_array = geometry_array_from_arrow(&array, field)?;
-    let result = linear_length(geo_array.as_ref(), Axis::TwoDimensional)?;
+    let geo_array = from_arrow_array(&array, field)?;
+    let result = euclidean_length(&geo_array)?;
     Ok(ColumnarValue::Array(Arc::new(result)))
 }
 
@@ -158,39 +153,5 @@ mod test {
         let col = batch.column(0);
         let val = col.as_primitive::<Float64Type>().value(0);
         assert_eq!(val, 0.0); // Polygons return 0 for length
-    }
-
-    #[tokio::test]
-    async fn test_geometry_collection_length_uses_linear_components() {
-        let ctx = SessionContext::new();
-
-        ctx.register_udf(Length::new().into());
-        ctx.register_udf(GeomFromText::new(Default::default()).into());
-
-        let df = ctx
-            .sql("SELECT ST_Length(ST_GeomFromText('GEOMETRYCOLLECTION(POLYGON((0 0, 1 0, 1 1, 0 0)), LINESTRING(0 0, 3 4))'));")
-            .await
-            .unwrap();
-        let batch = df.collect().await.unwrap().into_iter().next().unwrap();
-        let col = batch.column(0);
-        let val = col.as_primitive::<Float64Type>().value(0);
-        assert_eq!(val, 5.0);
-    }
-
-    #[tokio::test]
-    async fn test_length_ignores_z() {
-        let ctx = SessionContext::new();
-
-        ctx.register_udf(Length::new().into());
-        ctx.register_udf(GeomFromText::new(Default::default()).into());
-
-        let df = ctx
-            .sql("SELECT ST_Length(ST_GeomFromText('LINESTRING Z (0 0 0, 3 4 12)'));")
-            .await
-            .unwrap();
-        let batch = df.collect().await.unwrap().into_iter().next().unwrap();
-        let col = batch.column(0);
-        let val = col.as_primitive::<Float64Type>().value(0);
-        assert_eq!(val, 5.0);
     }
 }

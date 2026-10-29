@@ -1,1 +1,0 @@
-SELECT ST_AsKML(ST_GeomFromEWKT($1)) AS kml

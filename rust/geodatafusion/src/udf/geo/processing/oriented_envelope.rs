@@ -1,26 +1,17 @@
 use std::sync::{Arc, OnceLock};
 
-use arrow_array::Array;
 use arrow_schema::{DataType, FieldRef};
 use datafusion::error::{DataFusionError, Result};
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
     ColumnarValue, Documentation, ReturnFieldArgs, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
-use geo::{ConvexHull, MinimumRotatedRect};
-use geoarrow_array::array::GeometryArray;
-use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
-use geoarrow_expr_geo::util::to_geo::geometry_to_geo;
-use geoarrow_schema::{CoordType, GeoArrowType, GeometryType};
-use wkt::Wkt;
+use geoarrow_array::GeoArrowArray;
+use geoarrow_array::array::from_arrow_array;
+use geoarrow_schema::{CoordType, Dimension, Metadata, PolygonType};
 
-use super::util::{degenerate_hull, empty_polygon_wkt, is_empty_geometry, polygon_wkt};
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
-use crate::udf::native::geometry::{
-    StrictGeometryBuilder, field_metadata_or_default, geometry_array_from_arrow,
-    is_null_geometry_input, null_geometry_array,
-};
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct OrientedEnvelope {
@@ -59,7 +50,7 @@ impl ScalarUDFImpl for OrientedEnvelope {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
-        Ok(oriented_envelope_impl(args)?)
+        Ok(convex_hull_impl(args, self.coord_type)?)
     }
 
     fn documentation(&self) -> Option<&Documentation> {
@@ -79,65 +70,17 @@ fn return_field_impl(
     args: ReturnFieldArgs,
     coord_type: CoordType,
 ) -> GeoDataFusionResult<FieldRef> {
-    let input_field = args.arg_fields[0].as_ref();
-    let coord_type = GeoArrowType::from_arrow_field(input_field)
-        .ok()
-        .and_then(|input_type| input_type.coord_type())
-        .unwrap_or(coord_type);
-    let output_type =
-        GeometryType::new(field_metadata_or_default(input_field)?).with_coord_type(coord_type);
+    let metadata = Arc::new(Metadata::try_from(args.arg_fields[0].as_ref()).unwrap_or_default());
+    let output_type = PolygonType::new(Dimension::XY, metadata).with_coord_type(coord_type);
     Ok(Arc::new(output_type.to_field("", true)))
 }
 
-fn oriented_envelope_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
+fn convex_hull_impl(
+    args: ScalarFunctionArgs,
+    coord_type: CoordType,
+) -> GeoDataFusionResult<ColumnarValue> {
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
-    let input_field = args.arg_fields[0].as_ref();
-    let GeoArrowType::Geometry(output_type) =
-        GeoArrowType::from_arrow_field(args.return_field.as_ref())?
-    else {
-        return Err(DataFusionError::Internal(
-            "ST_OrientedEnvelope result field is not a generic Geometry".to_string(),
-        )
-        .into());
-    };
-    if is_null_geometry_input(input_field, arrays[0].as_ref()) {
-        return Ok(null_geometry_array(output_type, arrays[0].len())?.into());
-    }
-
-    let geo_array = geometry_array_from_arrow(&arrays[0], input_field)?;
-    let geo_array_ref = geo_array.as_ref();
-    let output = downcast_geoarrow_array!(geo_array_ref, oriented_envelope_array, &output_type)?;
-    Ok(output.into_array_ref().into())
-}
-
-fn oriented_envelope_array<'a>(
-    array: &'a impl GeoArrowArrayAccessor<'a>,
-    output_type: &GeometryType,
-) -> GeoDataFusionResult<GeometryArray> {
-    let mut builder = StrictGeometryBuilder::new(output_type.clone());
-    for item in array.iter() {
-        match item {
-            None => builder.push_geometry(None::<&Wkt<f64>>)?,
-            Some(geometry) => {
-                let geometry = geometry?;
-                if is_empty_geometry(&geometry) {
-                    builder.push_geometry(Some(&empty_polygon_wkt()))?;
-                    continue;
-                }
-
-                let geometry = geometry_to_geo(&geometry)?;
-                let hull = geometry.convex_hull();
-                if let Some(output) = degenerate_hull(&hull) {
-                    builder.push_geometry(Some(&output))?;
-                    continue;
-                }
-
-                let output = geometry
-                    .minimum_rotated_rect()
-                    .map_or_else(empty_polygon_wkt, |rectangle| polygon_wkt(&rectangle));
-                builder.push_geometry(Some(&output))?;
-            }
-        }
-    }
-    Ok(builder.finish())
+    let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
+    let result = geoarrow_expr_geo::minimum_rotated_rect(&geo_array, coord_type)?;
+    Ok(ColumnarValue::Array(result.into_array_ref()))
 }

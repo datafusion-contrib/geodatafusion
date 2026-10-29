@@ -5,11 +5,11 @@ use std::ops::Add;
 use arrow_array::Float64Array;
 use arrow_array::builder::Float64Builder;
 use geo_traits::{
-    CoordTrait, Dimensions, GeometryCollectionTrait, GeometryTrait, GeometryType, LineStringTrait,
-    LineTrait, MultiLineStringTrait, MultiPointTrait, MultiPolygonTrait, PointTrait, PolygonTrait,
-    RectTrait, TriangleTrait, UnimplementedGeometryCollection, UnimplementedLine,
-    UnimplementedLineString, UnimplementedMultiLineString, UnimplementedMultiPoint,
-    UnimplementedMultiPolygon, UnimplementedPoint, UnimplementedPolygon, UnimplementedTriangle,
+    CoordTrait, GeometryCollectionTrait, GeometryTrait, GeometryType, LineStringTrait, LineTrait,
+    MultiLineStringTrait, MultiPointTrait, MultiPolygonTrait, PointTrait, PolygonTrait, RectTrait,
+    TriangleTrait, UnimplementedGeometryCollection, UnimplementedLine, UnimplementedLineString,
+    UnimplementedMultiLineString, UnimplementedMultiPoint, UnimplementedMultiPolygon,
+    UnimplementedPoint, UnimplementedPolygon, UnimplementedTriangle,
 };
 use geoarrow_array::array::RectArray;
 use geoarrow_array::builder::RectBuilder;
@@ -57,6 +57,14 @@ impl BoundingRect {
         self.miny
     }
 
+    fn minz(&self) -> Option<f64> {
+        if self.minz == f64::INFINITY {
+            None
+        } else {
+            Some(self.minz)
+        }
+    }
+
     pub fn maxx(&self) -> f64 {
         self.maxx
     }
@@ -65,19 +73,18 @@ impl BoundingRect {
         self.maxy
     }
 
-    pub(crate) fn is_empty(&self) -> bool {
-        self.minx > self.maxx || self.miny > self.maxy
+    fn maxz(&self) -> Option<f64> {
+        if self.maxz == -f64::INFINITY {
+            None
+        } else {
+            Some(self.maxz)
+        }
     }
 
     fn add_coord(&mut self, coord: &impl CoordTrait<T = f64>) {
         let x = coord.x();
         let y = coord.y();
-        // XYM coordinates store M in the third ordinate. Only treat the
-        // third ordinate as Z when the coordinate declares a Z dimension.
-        let z = match coord.dim() {
-            Dimensions::Xyz | Dimensions::Xyzm => coord.nth(2),
-            Dimensions::Xy | Dimensions::Xym | Dimensions::Unknown(_) => None,
-        };
+        let z = coord.nth(2);
 
         if x < self.minx {
             self.minx = x;
@@ -322,240 +329,6 @@ impl Add for BoundingRect {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct ExtentBounds {
-    min: [f64; 4],
-    max: [f64; 4],
-    dimensions: Dimensions,
-}
-
-impl ExtentBounds {
-    pub fn min(&self) -> [f64; 4] {
-        self.min
-    }
-
-    pub fn max(&self) -> [f64; 4] {
-        self.max
-    }
-
-    pub fn dimensions(&self) -> Dimensions {
-        self.dimensions
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct Extent3DBounds {
-    min: [f64; 3],
-    max: [f64; 3],
-}
-
-impl Extent3DBounds {
-    pub fn new(min: [f64; 3], max: [f64; 3]) -> Self {
-        Self { min, max }
-    }
-
-    pub fn min(&self) -> [f64; 3] {
-        self.min
-    }
-
-    pub fn max(&self) -> [f64; 3] {
-        self.max
-    }
-
-    pub fn merge(self, other: Self) -> Self {
-        Self {
-            min: [
-                self.min[0].min(other.min[0]),
-                self.min[1].min(other.min[1]),
-                self.min[2].min(other.min[2]),
-            ],
-            max: [
-                self.max[0].max(other.max[0]),
-                self.max[1].max(other.max[1]),
-                self.max[2].max(other.max[2]),
-            ],
-        }
-    }
-}
-
-pub(crate) enum GeometryExtent {
-    Empty,
-    NonFinite,
-    Finite(ExtentBounds),
-}
-
-pub(crate) enum GeometryExtent3D {
-    Empty,
-    NonFinite,
-    Finite(Extent3DBounds),
-}
-
-/// Calculate the XY, Z, and M bounds of one geometry.
-pub(crate) fn geometry_extent(geometry: &impl GeometryTrait<T = f64>) -> GeometryExtent {
-    let mut extent = ExtentAccumulator::new(geometry.dim(), ExtentAxes::All);
-    extent.add_geometry(geometry);
-    if extent.has_non_finite {
-        GeometryExtent::NonFinite
-    } else if !extent.has_coords {
-        GeometryExtent::Empty
-    } else {
-        GeometryExtent::Finite(ExtentBounds {
-            min: extent.min,
-            max: extent.max,
-            dimensions: extent.dimensions,
-        })
-    }
-}
-
-/// Calculate the PostGIS `ST_3DExtent` bounds of one geometry.
-///
-/// Coordinates without a Z ordinate contribute `z = 0`, and M ordinates are
-/// ignored entirely.
-pub(crate) fn geometry_extent_3d(geometry: &impl GeometryTrait<T = f64>) -> GeometryExtent3D {
-    let mut extent = ExtentAccumulator::new(geometry.dim(), ExtentAxes::Postgis3D);
-    extent.add_geometry(geometry);
-    if extent.has_non_finite {
-        GeometryExtent3D::NonFinite
-    } else if !extent.has_coords {
-        GeometryExtent3D::Empty
-    } else {
-        GeometryExtent3D::Finite(Extent3DBounds {
-            min: [extent.min[0], extent.min[1], extent.min[2]],
-            max: [extent.max[0], extent.max[1], extent.max[2]],
-        })
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ExtentAxes {
-    All,
-    Postgis3D,
-}
-
-struct ExtentAccumulator {
-    min: [f64; 4],
-    max: [f64; 4],
-    dimensions: Dimensions,
-    axes: ExtentAxes,
-    has_coords: bool,
-    has_non_finite: bool,
-}
-
-impl ExtentAccumulator {
-    fn new(dimensions: Dimensions, axes: ExtentAxes) -> Self {
-        Self {
-            min: [f64::INFINITY; 4],
-            max: [f64::NEG_INFINITY; 4],
-            dimensions,
-            axes,
-            has_coords: false,
-            has_non_finite: false,
-        }
-    }
-
-    fn add_coord(&mut self, coord: &impl CoordTrait<T = f64>) {
-        self.has_coords = true;
-        let values = [(0, coord.x()), (1, coord.y())];
-        for (index, value) in values {
-            self.add_value(index, value);
-        }
-
-        match self.axes {
-            ExtentAxes::All => match coord.dim() {
-                Dimensions::Xyz => self.add_value(2, coord.nth_or_panic(2)),
-                Dimensions::Xym => self.add_value(3, coord.nth_or_panic(2)),
-                Dimensions::Xyzm => {
-                    self.add_value(2, coord.nth_or_panic(2));
-                    self.add_value(3, coord.nth_or_panic(3));
-                }
-                Dimensions::Xy | Dimensions::Unknown(_) => {}
-            },
-            ExtentAxes::Postgis3D => {
-                let z = match coord.dim() {
-                    Dimensions::Xyz | Dimensions::Xyzm => Some(coord.nth_or_panic(2)),
-                    Dimensions::Xy | Dimensions::Xym => Some(0.0),
-                    Dimensions::Unknown(_) => None,
-                };
-                if let Some(z) = z {
-                    self.add_value(2, z);
-                }
-            }
-        }
-    }
-
-    fn add_value(&mut self, index: usize, value: f64) {
-        if !value.is_finite() {
-            self.has_non_finite = true;
-        }
-        self.min[index] = self.min[index].min(value);
-        self.max[index] = self.max[index].max(value);
-    }
-
-    fn add_geometry(&mut self, geometry: &impl GeometryTrait<T = f64>) {
-        use GeometryType::*;
-
-        match geometry.as_type() {
-            Point(point) => {
-                if let Some(coord) = point.coord() {
-                    self.add_coord(&coord);
-                }
-            }
-            LineString(line_string) => self.add_line_string(line_string),
-            Polygon(polygon) => self.add_polygon(polygon),
-            MultiPoint(multi_point) => {
-                for point in multi_point.points() {
-                    if let Some(coord) = point.coord() {
-                        self.add_coord(&coord);
-                    }
-                }
-            }
-            MultiLineString(multi_line_string) => {
-                for line_string in multi_line_string.line_strings() {
-                    self.add_line_string(&line_string);
-                }
-            }
-            MultiPolygon(multi_polygon) => {
-                for polygon in multi_polygon.polygons() {
-                    self.add_polygon(&polygon);
-                }
-            }
-            GeometryCollection(collection) => {
-                for geometry in collection.geometries() {
-                    self.add_geometry(&geometry);
-                }
-            }
-            Rect(rect) => {
-                self.add_coord(&rect.min());
-                self.add_coord(&rect.max());
-            }
-            Triangle(triangle) => {
-                for coord in triangle.coords() {
-                    self.add_coord(&coord);
-                }
-            }
-            Line(line) => {
-                self.add_coord(&line.start());
-                self.add_coord(&line.end());
-            }
-        }
-    }
-
-    fn add_line_string(&mut self, line_string: &impl LineStringTrait<T = f64>) {
-        for coord in line_string.coords() {
-            self.add_coord(&coord);
-        }
-    }
-
-    fn add_polygon(&mut self, polygon: &impl PolygonTrait<T = f64>) {
-        if let Some(exterior) = polygon.exterior() {
-            self.add_line_string(&exterior);
-        }
-        for interior in polygon.interiors() {
-            self.add_line_string(&interior);
-        }
-    }
-}
-
 impl RectTrait for BoundingRect {
     type CoordType<'a> = wkt::types::Coord;
 
@@ -566,12 +339,8 @@ impl RectTrait for BoundingRect {
             z: None,
             m: None,
         };
-        if self.include_z {
-            c.z = Some(if self.minz == f64::INFINITY {
-                0.0
-            } else {
-                self.minz
-            });
+        if self.include_z && self.minz != f64::INFINITY {
+            c.z = Some(self.minz);
         }
         c
     }
@@ -583,12 +352,8 @@ impl RectTrait for BoundingRect {
             z: None,
             m: None,
         };
-        if self.include_z {
-            c.z = Some(if self.maxz == -f64::INFINITY {
-                0.0
-            } else {
-                self.maxz
-            });
+        if self.include_z && self.maxz != -f64::INFINITY {
+            c.z = Some(self.maxz);
         }
         c
     }
@@ -638,7 +403,7 @@ impl GeometryTrait for BoundingRect {
         Self: 'a;
 
     fn dim(&self) -> geo_traits::Dimensions {
-        if self.include_z {
+        if self.include_z && self.minz().is_some() && self.maxz().is_some() {
             geo_traits::Dimensions::Xyz
         } else {
             geo_traits::Dimensions::Xy
@@ -670,49 +435,10 @@ impl GeometryTrait for BoundingRect {
 /// coordinates.
 pub(crate) fn bounding_rect(arr: &dyn GeoArrowArray, include_z: bool) -> GeoArrowResult<RectArray> {
     if let Some(rect_arr) = arr.as_rect_opt() {
-        rect_with_dimension(rect_arr, include_z)
+        Ok(rect_arr.clone())
     } else {
         downcast_geoarrow_array!(arr, impl_array_accessor, include_z)
     }
-}
-
-fn rect_with_dimension(rect: &RectArray, include_z: bool) -> GeoArrowResult<RectArray> {
-    let dimension = if include_z {
-        Dimension::XYZ
-    } else {
-        Dimension::XY
-    };
-    if rect.data_type().dimension() == Some(dimension) {
-        return Ok(rect.clone());
-    }
-
-    let mut builder = RectBuilder::with_capacity(
-        BoxType::new(dimension, rect.data_type().metadata().clone()),
-        rect.len(),
-    );
-    for value in rect.iter() {
-        let Some(value) = value.transpose()? else {
-            builder.push_null();
-            continue;
-        };
-        let min = value.min();
-        let max = value.max();
-        let min = Coord {
-            x: min.x(),
-            y: min.y(),
-            z: include_z.then_some(0.0),
-            m: None,
-        };
-        let max = Coord {
-            x: max.x(),
-            y: max.y(),
-            z: include_z.then_some(0.0),
-            m: None,
-        };
-        builder.push_min_max(&min, &max);
-    }
-
-    Ok(builder.finish())
 }
 
 /// The actual implementation of computing the bounding rect
@@ -736,11 +462,7 @@ fn impl_array_accessor<'a>(
                 if let Some(item) = item {
                     let mut rect = BoundingRect::new(include_z);
                     rect.add_geometry(&item?);
-                    if rect.is_empty() {
-                        builder.push_null();
-                    } else {
-                        builder.push_rect(Some(&rect));
-                    }
+                    builder.push_rect(Some(&rect));
                 } else {
                     builder.push_null();
                 }
@@ -755,15 +477,6 @@ pub fn total_bounds(arr: &dyn GeoArrowArray) -> GeoArrowResult<BoundingRect> {
     downcast_geoarrow_array!(arr, impl_total_bounds)
 }
 
-/// Get the PostGIS `ST_3DExtent` bounds of the entire array.
-///
-/// Returns `None` when the array has no non-empty geometries or when any
-/// coordinate is non-finite. Non-finite batches are skipped, matching the
-/// finite-only contract used by `total_bounds`.
-pub(crate) fn total_bounds_3d(arr: &dyn GeoArrowArray) -> GeoArrowResult<Option<Extent3DBounds>> {
-    downcast_geoarrow_array!(arr, impl_total_bounds_3d)
-}
-
 /// The actual implementation of computing the total bounds
 fn impl_total_bounds<'a>(arr: &'a impl GeoArrowArrayAccessor<'a>) -> GeoArrowResult<BoundingRect> {
     let mut rect = BoundingRect::new(false);
@@ -773,30 +486,6 @@ fn impl_total_bounds<'a>(arr: &'a impl GeoArrowArrayAccessor<'a>) -> GeoArrowRes
     }
 
     Ok(rect)
-}
-
-fn impl_total_bounds_3d<'a>(
-    arr: &'a impl GeoArrowArrayAccessor<'a>,
-) -> GeoArrowResult<Option<Extent3DBounds>> {
-    let mut bounds: Option<Extent3DBounds> = None;
-
-    for item in arr.iter() {
-        let Some(item) = item else {
-            continue;
-        };
-        match geometry_extent_3d(&item?) {
-            GeometryExtent3D::Empty => {}
-            GeometryExtent3D::NonFinite => return Ok(None),
-            GeometryExtent3D::Finite(item_bounds) => {
-                bounds = Some(match bounds {
-                    Some(current) => current.merge(item_bounds),
-                    None => item_bounds,
-                });
-            }
-        }
-    }
-
-    Ok(bounds)
 }
 
 /// The actual implementation of computing the bounding rect

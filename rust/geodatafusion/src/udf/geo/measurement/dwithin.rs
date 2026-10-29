@@ -21,12 +21,12 @@ use geo_traits::{
     MultiLineStringTrait, MultiPointTrait, MultiPolygonTrait, PointTrait, PolygonTrait, RectTrait,
     TriangleTrait,
 };
-use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
+use geoarrow_array::array::from_arrow_array;
+use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, WrapArray, downcast_geoarrow_array};
 use geoarrow_schema::GeoArrowType;
 
 use crate::error::GeoDataFusionResult;
 use crate::udf::native::bounding_box::util::{GeometryBounds, geometry_bounds};
-use crate::udf::native::geometry::{geometry_array_from_arrow, geometry_array_from_type};
 
 /// A conservative planar XY envelope for a spatial index candidate query.
 ///
@@ -112,7 +112,7 @@ fn literal_geometry_bounds(
     let Ok(geo_type) = GeoArrowType::from_arrow_field(&field) else {
         return Ok(None);
     };
-    let geo_array = geometry_array_from_type(&geo_type, array.as_ref())?;
+    let geo_array = geo_type.wrap_array(array.as_ref())?;
     let Some(Some(bounds)) = geo_array_bounds(geo_array.as_ref())?.into_iter().next() else {
         return Ok(None);
     };
@@ -288,8 +288,8 @@ fn dwithin_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> 
         return Ok(ColumnarValue::Array(null_result(number_rows)));
     }
 
-    let left_array = geometry_array_from_arrow(&arrays[0], &args.arg_fields[0])?;
-    let right_array = geometry_array_from_arrow(&arrays[1], &args.arg_fields[1])?;
+    let left_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
+    let right_array = from_arrow_array(&arrays[1], &args.arg_fields[1])?;
     let left = geometry_array_to_values(left_array.as_ref())?;
     let right = geometry_array_to_values(right_array.as_ref())?;
 
@@ -389,7 +389,7 @@ fn geometry_array_to_values_impl<'a>(
     Ok(values)
 }
 
-pub(super) fn to_distance_geometry<G: GeometryTrait<T = f64>>(
+fn to_distance_geometry<G: GeometryTrait<T = f64>>(
     geometry: &G,
 ) -> GeoDataFusionResult<Option<geo::Geometry<f64>>> {
     match geometry.as_type() {
@@ -610,7 +610,9 @@ mod tests {
     use datafusion::prelude::SessionContext;
     use geo::Distance;
     use geoarrow_array::GeoArrowArray;
-    use geoarrow_array::array::{CoordBuffer, InterleavedCoordBuffer, MultiPolygonArray, WktArray};
+    use geoarrow_array::array::{
+        CoordBuffer, InterleavedCoordBuffer, MultiPolygonArray, WktArray, from_arrow_array,
+    };
     use geoarrow_array::builder::{
         GeometryBuilder, GeometryCollectionBuilder, LineStringBuilder, MultiLineStringBuilder,
         MultiPointBuilder, PointBuilder, PolygonBuilder,
@@ -1359,7 +1361,7 @@ mod tests {
 
         fn candidate_mask(&self, filter: &DWithinIndexFilter) -> Result<BooleanArray> {
             let geometry_field = self.schema.field_with_name("geometry")?;
-            let geometry = geometry_array_from_arrow(
+            let geometry = from_arrow_array(
                 self.batch
                     .column_by_name("geometry")
                     .expect("test batch has geometry"),

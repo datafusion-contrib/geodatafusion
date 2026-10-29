@@ -7,15 +7,12 @@ use datafusion::logical_expr::{
     ColumnarValue, Documentation, ReturnFieldArgs, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
 use geoarrow_array::GeoArrowArray;
-use geoarrow_array::builder::RectBuilder;
-use geoarrow_schema::{BoxType, Dimension};
+use geoarrow_array::array::from_arrow_array;
+use geoarrow_schema::{BoxType, Dimension, Metadata};
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 use crate::udf::native::bounding_box::util::bounds::bounding_rect;
-use crate::udf::native::geometry::{
-    field_metadata_or_default, geometry_array_from_arrow, is_null_geometry_input,
-};
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Box2D;
@@ -120,7 +117,7 @@ impl ScalarUDFImpl for Box3D {
 }
 
 fn return_field_impl(args: ReturnFieldArgs, dim: Dimension) -> GeoDataFusionResult<FieldRef> {
-    let metadata = field_metadata_or_default(args.arg_fields[0].as_ref())?;
+    let metadata = Arc::new(Metadata::try_from(args.arg_fields[0].as_ref()).unwrap_or_default());
     let output_type = BoxType::new(dim, metadata);
     Ok(Arc::new(output_type.to_field("", true)))
 }
@@ -128,22 +125,7 @@ fn return_field_impl(args: ReturnFieldArgs, dim: Dimension) -> GeoDataFusionResu
 // Note: this is exactly the same impl as ST_Envelope. Perhaps we should use an alias instead
 fn box_impl(args: ScalarFunctionArgs, include_z: bool) -> GeoDataFusionResult<ColumnarValue> {
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
-    let dimension = if include_z {
-        Dimension::XYZ
-    } else {
-        Dimension::XY
-    };
-    let metadata = field_metadata_or_default(args.arg_fields[0].as_ref())?;
-    if is_null_geometry_input(args.arg_fields[0].as_ref(), arrays[0].as_ref()) {
-        let mut builder =
-            RectBuilder::with_capacity(BoxType::new(dimension, metadata), arrays[0].len());
-        for _ in 0..arrays[0].len() {
-            builder.push_null();
-        }
-        return Ok(ColumnarValue::Array(builder.finish().into_array_ref()));
-    }
-
-    let geo_array = geometry_array_from_arrow(&arrays[0], &args.arg_fields[0])?;
+    let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
     let rect_array = bounding_rect(&geo_array, include_z)?;
     Ok(ColumnarValue::Array(rect_array.into_array_ref()))
 }

@@ -1,1 +1,0 @@
-SELECT ST_AsEWKT(ST_GeomFromEWKT($1), CAST($2 AS INT)) AS ewkt

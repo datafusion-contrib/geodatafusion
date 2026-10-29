@@ -9,7 +9,7 @@
     "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
     "geos_version": "3.14.1-CAPI-1.20.5"
   },
-  "inputs_sha256": "7c9dcec88584ba8fbce3f48ac070cbaaf06182822f2f624b7281bc75ae91c533",
+  "inputs_sha256": "1148a0c4a28418d116199f1e884a58d2fe76d50ccd01d4f62e5764f396cf4b74",
   "postgis_sql_sha256": "1ee1e2726a211e631f8559644841c826ca25223812eebca0b57b2889a367c5fa",
   "datafusion_sql_sha256": "fd144a349978c037c7817ccce3379fa01704a002021b966ad8db392731566105",
   "cases": {

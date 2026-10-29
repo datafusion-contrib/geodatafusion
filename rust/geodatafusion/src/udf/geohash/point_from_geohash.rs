@@ -1,7 +1,7 @@
 use std::sync::{Arc, OnceLock};
 
+use arrow_array::StringArrayType;
 use arrow_array::cast::AsArray;
-use arrow_array::{Array, ArrayRef, StringArrayType};
 use arrow_schema::{DataType, FieldRef};
 use datafusion::error::{DataFusionError, Result};
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
@@ -9,13 +9,11 @@ use datafusion::logical_expr::{
     ColumnarValue, Documentation, ReturnFieldArgs, ScalarFunctionArgs, ScalarUDFImpl, Signature,
     Volatility,
 };
-use geo::Coord;
 use geoarrow_array::GeoArrowArray;
 use geoarrow_array::array::PointArray;
 use geoarrow_array::builder::PointBuilder;
 use geoarrow_schema::{CoordType, Dimension, Metadata, PointType};
 
-use super::geohash_codec::{coerce_text_and_precision, decode_bounds};
 use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -27,7 +25,11 @@ pub struct PointFromGeoHash {
 impl PointFromGeoHash {
     pub fn new(coord_type: CoordType) -> Self {
         Self {
-            signature: Signature::user_defined(Volatility::Immutable),
+            signature: Signature::uniform(
+                1,
+                vec![DataType::Utf8, DataType::LargeUtf8, DataType::Utf8View],
+                Volatility::Immutable,
+            ),
             coord_type,
         }
     }
@@ -50,14 +52,8 @@ impl ScalarUDFImpl for PointFromGeoHash {
         &self.signature
     }
 
-    fn coerce_types(&self, arg_types: &[DataType]) -> Result<Vec<DataType>> {
-        coerce_text_and_precision(arg_types, "ST_PointFromGeoHash")
-    }
-
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
-        Err(DataFusionError::Internal(
-            "return_field_from_args computes ST_PointFromGeoHash output".to_string(),
-        ))
+        Err(DataFusionError::Internal("return_type".to_string()))
     }
 
     fn return_field_from_args(&self, args: ReturnFieldArgs) -> Result<FieldRef> {
@@ -72,11 +68,10 @@ impl ScalarUDFImpl for PointFromGeoHash {
         Some(DOCUMENTATION.get_or_init(|| {
             Documentation::builder(
                 DOC_SECTION_OTHER,
-                "Return a point from a GeoHash string. The point represents the center point of the GeoHash. The optional precision selects the number of GeoHash characters to decode.",
-                "ST_PointFromGeoHash(geohash[, precision])",
+                "Return a point from a GeoHash string. The point represents the center point of the GeoHash.",
+                "ST_PointFromGeoHash(geohash)",
             )
             .with_argument("text", "geohash")
-            .with_argument("precision", "optional number of GeoHash characters")
             .build()
         }))
     }
@@ -86,84 +81,42 @@ fn return_field_impl(
     args: ReturnFieldArgs,
     coord_type: CoordType,
 ) -> GeoDataFusionResult<FieldRef> {
-    let nullable = args.arg_fields.iter().any(|field| field.is_nullable());
-    let output_type =
-        PointType::new(Dimension::XY, Arc::new(Metadata::default())).with_coord_type(coord_type);
-    Ok(Arc::new(
-        output_type.to_field(args.arg_fields[0].name().clone(), nullable),
-    ))
+    let metadata = Arc::new(Metadata::try_from(args.arg_fields[0].as_ref()).unwrap_or_default());
+    let output_type = PointType::new(Dimension::XY, metadata).with_coord_type(coord_type);
+    Ok(Arc::new(output_type.to_field("", true)))
 }
 
 fn point_from_geohash_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
-    let arrays = ColumnarValue::values_to_arrays(&args.args)?;
-    let length = args.number_rows;
-
-    if arrays[0].data_type() == &DataType::Null {
-        let typ = args.return_field.extension_type::<PointType>();
-        let mut builder = PointBuilder::with_capacity(typ, length);
-        for _ in 0..length {
-            builder.push_null();
-        }
-        return Ok(ColumnarValue::Array(builder.finish().into_array_ref()));
-    }
+    let array = ColumnarValue::values_to_arrays(&args.args)?
+        .into_iter()
+        .next()
+        .unwrap();
 
     let typ = args.return_field.extension_type::<PointType>();
-    let precision = arrays.get(1).cloned();
-    let result = match arrays[0].data_type() {
-        DataType::Utf8 => build_point_arr(typ, &arrays[0].as_string::<i32>(), precision.as_ref())?,
-        DataType::LargeUtf8 => {
-            build_point_arr(typ, &arrays[0].as_string::<i64>(), precision.as_ref())?
-        }
-        DataType::Utf8View => {
-            build_point_arr(typ, &arrays[0].as_string_view(), precision.as_ref())?
-        }
-        other => {
-            return Err(DataFusionError::Execution(format!(
-                "ST_PointFromGeoHash received unexpected type {other}"
-            ))
-            .into());
-        }
-    };
+    let rect_arr = match array.data_type() {
+        DataType::Utf8 => build_point_arr(typ, &array.as_string::<i32>()),
+        DataType::LargeUtf8 => build_point_arr(typ, &array.as_string::<i64>()),
+        DataType::Utf8View => build_point_arr(typ, &array.as_string_view()),
+        _ => unreachable!(),
+    }?;
 
-    Ok(ColumnarValue::Array(result.into_array_ref()))
+    Ok(ColumnarValue::Array(rect_arr.into_array_ref()))
 }
 
 fn build_point_arr<'a>(
     typ: PointType,
     array: &impl StringArrayType<'a>,
-    precision: Option<&ArrayRef>,
 ) -> GeoDataFusionResult<PointArray> {
     let mut builder = PointBuilder::with_capacity(typ, array.len());
-    for (row, value) in array.iter().enumerate() {
-        let Some(value) = value else {
+    for s in array.iter() {
+        if let Some(s) = s {
+            let (coord, _, _) = geohash::decode(s)?;
+            builder.push_coord(Some(&coord));
+        } else {
             builder.push_null();
-            continue;
-        };
-        let precision = precision.and_then(|array| int_value(array, row));
-        let bounds = decode_bounds(value, precision).map_err(DataFusionError::Execution)?;
-        let (x, y) = bounds.center();
-        builder.push_coord(Some(&Coord { x, y }));
+        }
     }
     Ok(builder.finish())
-}
-
-fn int_value(array: &ArrayRef, row: usize) -> Option<i64> {
-    if array.is_null(row) {
-        return None;
-    }
-    match array.data_type() {
-        DataType::Int64 => Some(
-            array
-                .as_primitive::<arrow_array::types::Int64Type>()
-                .value(row),
-        ),
-        DataType::Int32 => Some(i64::from(
-            array
-                .as_primitive::<arrow_array::types::Int32Type>()
-                .value(row),
-        )),
-        _ => None,
-    }
 }
 
 #[cfg(test)]

@@ -6,13 +6,12 @@ use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
+use geoarrow_array::WrapArray;
 use geoarrow_expr_geo::unsigned_area;
 use geoarrow_schema::GeoArrowType;
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
-use crate::udf::native::geometry::{geometry_array_from_type, is_null_geometry_input};
-use crate::udf::native::measurement::null_float64;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Area;
@@ -66,14 +65,8 @@ fn area_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
         .into_iter()
         .next()
         .unwrap();
-    let field = args.arg_fields[0].as_ref();
-    if is_null_geometry_input(field, array.as_ref()) {
-        return Ok(ColumnarValue::Array(Arc::new(null_float64(
-            args.number_rows,
-        ))));
-    }
-    let geo_type = GeoArrowType::from_arrow_field(field)?;
-    let result = unsigned_area(geometry_array_from_type(&geo_type, array.as_ref())?.as_ref())?;
+    let geo_type = GeoArrowType::from_arrow_field(&args.arg_fields[0])?;
+    let result = unsigned_area(&geo_type.wrap_array(&array)?)?;
     Ok(ColumnarValue::Array(Arc::new(result)))
 }
 

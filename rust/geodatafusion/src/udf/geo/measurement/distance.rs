@@ -6,9 +6,9 @@ use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature, Volatility,
 };
+use geoarrow_array::array::from_arrow_array;
 
 use crate::error::GeoDataFusionResult;
-use crate::udf::native::geometry::geometry_array_from_arrow;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Distance;
@@ -57,8 +57,8 @@ impl ScalarUDFImpl for Distance {
 
 fn distance_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
-    let left_arr = geometry_array_from_arrow(&arrays[0], &args.arg_fields[0])?;
-    let right_arr = geometry_array_from_arrow(&arrays[1], &args.arg_fields[1])?;
+    let left_arr = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
+    let right_arr = from_arrow_array(&arrays[1], &args.arg_fields[1])?;
     let result = geoarrow_expr_geo::euclidean_distance(&left_arr, &right_arr)?;
     Ok(ColumnarValue::Array(Arc::new(result)))
 }

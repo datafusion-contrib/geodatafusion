@@ -9,9 +9,6 @@
 
 pub mod file_format;
 pub mod source;
-pub mod spatial_statistics;
-
-pub use spatial_statistics::{spatial_statistics, with_spatial_statistics};
 
 #[cfg(test)]
 mod tests {

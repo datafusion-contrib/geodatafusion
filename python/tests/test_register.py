@@ -12,15 +12,11 @@ from geodatafusion import (
 )
 
 
-def registration_names(group: str) -> tuple[set[str], set[str], set[str], set[str]]:
-    scalar_udfs, aggregate_udfs, window_udfs, table_functions = (
-        _rust._registration_exports(group)
-    )
+def registration_names(group: str) -> tuple[set[str], set[str]]:
+    scalar_udfs, aggregate_udfs = _rust._registration_exports(group)
     return (
         {name for name, _, _ in scalar_udfs},
         {name for name, _, _ in aggregate_udfs},
-        {name for name, _, _ in window_udfs},
-        {name for name, _ in table_functions},
     )
 
 
@@ -34,7 +30,7 @@ def test_register_all_matches_rust_registry():
     ctx = SessionContext()
     register_all(ctx)
 
-    scalar_udfs, aggregate_udfs, window_udfs, _ = _rust._registration_exports("all")
+    scalar_udfs, aggregate_udfs = _rust._registration_exports("all")
     for name, aliases, _ in scalar_udfs:
         assert ctx.udf(name).name == name
         for alias in aliases:
@@ -45,29 +41,20 @@ def test_register_all_matches_rust_registry():
         for alias in aliases:
             assert ctx.udaf(alias).name == name
 
-    for name, aliases, _ in window_udfs:
-        assert ctx.udwf(name).name == name
-        for alias in aliases:
-            assert ctx.udwf(alias).name == name
-
 
 def test_registration_groups_cover_rust_register():
-    all_scalar, all_aggregate, all_window, all_table = registration_names("all")
+    all_scalar, all_aggregate = registration_names("all")
 
     category_scalar: set[str] = set()
     category_aggregate: set[str] = set()
-    category_window: set[str] = set()
-    category_table: set[str] = set()
     for group, register in (
         ("geo", register_all_geo),
         ("geohash", register_all_geohash),
         ("native", register_all_native),
     ):
-        scalar, aggregate, window, table = registration_names(group)
+        scalar, aggregate = registration_names(group)
         category_scalar.update(scalar)
         category_aggregate.update(aggregate)
-        category_window.update(window)
-        category_table.update(table)
 
         ctx = SessionContext()
         register(ctx)
@@ -75,20 +62,13 @@ def test_registration_groups_cover_rust_register():
             assert ctx.udf(name).name == name
         for name in aggregate:
             assert ctx.udaf(name).name == name
-        for name in window:
-            assert ctx.udwf(name).name == name
-        # datafusion-python 55.0.0 exposes no table-function introspection, so
-        # the names are compared as sets here and the real consumers run in
-        # `test_register_all_registers_table_functions`.
 
     assert category_scalar == all_scalar
     assert category_aggregate == all_aggregate
-    assert category_window == all_window
-    assert category_table == all_table
 
 
 def test_register_all_does_not_export_builtins():
-    scalar_udfs, aggregate_udfs, _, _ = _rust._registration_exports("all")
+    scalar_udfs, aggregate_udfs = _rust._registration_exports("all")
     scalar_names = {name for name, _, _ in scalar_udfs}
     aggregate_names = {name for name, _, _ in aggregate_udfs}
 
@@ -97,158 +77,6 @@ def test_register_all_does_not_export_builtins():
     assert "st_dump" in scalar_names
     assert "st_isempty" in scalar_names
     assert "st_extent" in aggregate_names
-    # Async scalar UDFs capture the registering session catalog, and the
-    # synchronous FFI capsule cannot carry that session. The Rust side filters
-    # them generically through `ScalarUDF::as_async`; ST_EstimatedExtent is the
-    # concrete instance that proves the filter fires.
-    assert "st_estimatedextent" not in scalar_names
-
-
-def test_register_all_covers_window_functions():
-    """`register_all` exports every window UDF the Rust registry offers.
-
-    The set is empty until the Rust crate grows window functions; once they
-    land, this covers them generically instead of pinning names here.
-    """
-    _, _, window_udfs, _ = _rust._registration_exports("all")
-    ctx = SessionContext()
-    register_all(ctx)
-
-    exported = {name for name, _, _ in window_udfs}
-    for name, aliases, _ in window_udfs:
-        assert ctx.udwf(name).name == name
-        for alias in aliases:
-            assert ctx.udwf(alias).name == name
-
-    # Every exported window UDF must come from the Rust registry, not from a
-    # hand-maintained list on the Python side.
-    assert exported == registration_names("all")[2]
-
-
-def test_register_all_registers_table_functions():
-    """`register_all` carries the Rust registry's table functions into SQL."""
-    _, _, _, table_functions = _rust._registration_exports("all")
-    ctx = SessionContext()
-    register_all(ctx)
-
-    exported = {name for name, _ in table_functions}
-    assert exported == registration_names("all")[3]
-    assert "st_hexagongrid" in exported
-    assert "st_squaregrid" in exported
-
-    grid = ctx.sql(
-        """
-        SELECT count(*) AS cells
-        FROM ST_HexagonGrid(1, NULL) AS grid
-        """
-    ).to_arrow_table()
-    assert grid.to_pylist() == [{"cells": 0}]
-
-
-def test_table_function_typed_literals_cross_the_ffi():
-    """Typed literal arguments must still work once they lose their metadata.
-
-    `datafusion-proto` serializes `Expr::Literal` without its field metadata and
-    reconstructs it with `None`, so a GeoArrow-typed literal argument arrives as
-    a bare Arrow shape. The grid functions only need that shape for a bounding
-    box, so they recover it instead of rejecting the call. These cases crash the
-    interpreter when the extension is built with a different compiler than the
-    host, which is what `python/rust-toolchain.toml` pins.
-    """
-    ctx = SessionContext()
-    register_all(ctx)
-
-    def cells(sql: str) -> int:
-        return ctx.sql(sql).to_arrow_table().to_pylist()[0]["cells"]
-
-    # Bounds constructed by the extension itself.
-    assert (
-        cells(
-            """
-            SELECT count(*) AS cells
-            FROM ST_HexagonGrid(1, ST_MakeEnvelope(0, 0, 10, 10))
-            """
-        )
-        == 52
-    )
-    assert (
-        cells(
-            """
-            SELECT count(*) AS cells
-            FROM ST_SquareGrid(1, ST_MakeEnvelope(0, 0, 1.5, 1.5))
-            """
-        )
-        == 4
-    )
-
-    # Bounds whose GeoArrow type is the union of every geometry kind, which is
-    # what `ST_GeomFromText` returns.
-    assert (
-        cells(
-            """
-            SELECT count(*) AS cells
-            FROM ST_SquareGrid(1, ST_GeomFromText('POLYGON((0 0,0 3,3 3,3 0,0 0))'))
-            """
-        )
-        == 16
-    )
-    assert (
-        cells(
-            """
-            SELECT count(*) AS cells
-            FROM ST_HexagonGrid(2, ST_GeomFromText('LINESTRING(0 0, 5 5)'))
-            """
-        )
-        == 6
-    )
-
-    # NULL bounds stay a valid empty grid.
-    assert cells("SELECT count(*) AS cells FROM ST_HexagonGrid(1, NULL)") == 0
-
-
-def test_table_function_registers_into_caller_catalog():
-    """A table function sees the calling session's catalog through the FFI."""
-    ctx = SessionContext()
-    register_all(ctx)
-
-    encoded = ctx.sql(
-        """
-        SELECT ST_AsFlatGeobuf(ST_PointFromText(wkt, 4326), id, label) AS fgb
-        FROM (
-            VALUES
-                (1, 'point', 'POINT ZM(1 2 3 4)'),
-                (2, NULL, 'POINT EMPTY'),
-                (3, 'null-geom', NULL)
-        ) AS input(id, label, wkt)
-        """
-    ).to_arrow_table()
-    fgb = encoded.column("fgb")[0].as_py()
-    assert len(fgb) > 0
-
-    registered = ctx.sql(
-        f"""
-        SELECT count(*) AS rows
-        FROM st_fromflatgeobuftotable('public', 'py_ffi_catalog', decode('{fgb.hex()}', 'hex'))
-        """
-    ).to_arrow_table()
-    assert registered.to_pylist() == [{"rows": 3}]
-
-    read_back = ctx.sql(
-        """
-        SELECT count(*) AS rows FROM py_ffi_catalog
-        """
-    ).to_arrow_table()
-    assert read_back.to_pylist() == [{"rows": 3}]
-
-
-def test_register_all_keeps_builtin_window_functions():
-    ctx = SessionContext()
-    builtin = set(ctx.udwfs())
-    assert "row_number" in builtin
-
-    register_all(ctx)
-
-    assert set(ctx.udwfs()) >= builtin
 
     ctx = SessionContext()
     register_all(ctx)

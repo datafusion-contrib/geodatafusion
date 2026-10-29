@@ -1,6 +1,4 @@
-//! Thin SQLLogicTest runner for GeoDataFusion SQL contracts.
-
-mod support;
+//! Runs the SQLLogicTest smoke suite through the public UDF registry.
 
 #[path = "support/slt_runner.rs"]
 mod slt_runner;
@@ -20,8 +18,8 @@ fn main() {
 
     match runtime.block_on(slt_runner::run_root(&root, &filters)) {
         Ok(summary) => println!(
-            "sqllogictest: executed {} file(s), {} SQL statement(s), skipped {} file(s)",
-            summary.executed_files, summary.executed_statements, summary.skipped_files
+            "sqllogictest: executed {} file(s), {} SQL statement(s)",
+            summary.executed_files, summary.executed_statements
         ),
         Err(error) => {
             eprintln!("sqllogictest failed: {error}");

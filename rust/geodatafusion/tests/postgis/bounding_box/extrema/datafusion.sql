@@ -1,1 +1,0 @@
-SELECT ST_XMin(ST_GeomFromText($1)) AS xmin, ST_YMin(ST_GeomFromText($1)) AS ymin, ST_ZMin(ST_GeomFromText($1)) AS zmin, ST_XMax(ST_GeomFromText($1)) AS xmax, ST_YMax(ST_GeomFromText($1)) AS ymax, ST_ZMax(ST_GeomFromText($1)) AS zmax

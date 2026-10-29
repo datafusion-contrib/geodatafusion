@@ -1,1 +1,0 @@
-SELECT ST_AsGML(ST_GeomFromEWKT($1)) AS gml

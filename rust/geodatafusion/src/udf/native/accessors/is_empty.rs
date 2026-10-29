@@ -12,12 +12,11 @@ use geo_traits::{
     GeometryCollectionTrait, GeometryTrait, LineStringTrait, MultiLineStringTrait, MultiPointTrait,
     MultiPolygonTrait, PointTrait, PolygonTrait,
 };
-use geoarrow_array::{GeoArrowArrayAccessor, downcast_geoarrow_array};
+use geoarrow_array::{GeoArrowArrayAccessor, WrapArray, downcast_geoarrow_array};
 use geoarrow_schema::GeoArrowType;
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
-use crate::udf::native::geometry::geometry_array_from_type;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct IsEmpty;
@@ -107,7 +106,7 @@ fn is_empty_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue>
         .next()
         .unwrap();
     let geo_type = GeoArrowType::from_arrow_field(&args.arg_fields[0])?;
-    let geo_array = geometry_array_from_type(&geo_type, array.as_ref())?;
+    let geo_array = geo_type.wrap_array(&array)?;
     let geo_array_ref = geo_array.as_ref();
 
     let result = downcast_geoarrow_array!(geo_array_ref, impl_is_empty)?;

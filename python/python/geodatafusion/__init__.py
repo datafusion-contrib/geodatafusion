@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from datafusion import TableFunction, udaf, udf, udwf
+from datafusion import udaf, udf
 
 from . import _rust
 from ._rust import *
@@ -15,21 +15,13 @@ if TYPE_CHECKING:
 
 
 def _register_exports(ctx: SessionContext, group: str) -> None:
-    scalar_udfs, aggregate_udfs, window_udfs, table_functions = (
-        _rust._registration_exports(group)
-    )
+    scalar_udfs, aggregate_udfs = _rust._registration_exports(group)
 
     for _, _, capsule in scalar_udfs:
         ctx.register_udf(udf(capsule))
 
     for _, _, capsule in aggregate_udfs:
         ctx.register_udaf(udaf(capsule))
-
-    for _, _, capsule in window_udfs:
-        ctx.register_udwf(udwf(capsule))
-
-    for name, export in table_functions:
-        ctx.register_udtf(TableFunction(name, export, ctx))
 
 
 def register_all_geo(ctx: SessionContext):

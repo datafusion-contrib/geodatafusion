@@ -1,6 +1,5 @@
 {
   "schema_version": 1,
-  "required_features": [],
   "cases": [
     {
       "id": "distance-point-to-linestring-doc",

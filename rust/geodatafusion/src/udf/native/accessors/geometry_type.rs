@@ -9,12 +9,12 @@ use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
 use geo_traits::*;
+use geoarrow_array::array::from_arrow_array;
 use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
 use geoarrow_schema::error::GeoArrowResult;
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
-use crate::udf::native::geometry::geometry_array_from_arrow;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct GeometryType;
@@ -113,7 +113,7 @@ impl ScalarUDFImpl for ST_GeometryType {
 
 fn geometry_type_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
-    let geo_array = geometry_array_from_arrow(&arrays[0], &args.arg_fields[0])?;
+    let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
 
     let result = Arc::new(geometry_type_array(&geo_array)?) as ArrayRef;
     Ok(ColumnarValue::Array(result))
@@ -157,13 +157,13 @@ fn geometry_type_str(geom: &impl GeometryTrait) -> &'static str {
         GeometryCollection(_) => "GEOMETRYCOLLECTION",
         Rect(_) => "POLYGON",
         Line(_) => "LINESTRING",
-        Triangle(_) => "TRIANGLE",
+        Triangle(_) => "POLYGON",
     }
 }
 
 fn geometry_type_impl_st(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
-    let geo_array = geometry_array_from_arrow(&arrays[0], &args.arg_fields[0])?;
+    let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
 
     let result = Arc::new(geometry_type_array_st(&geo_array)?) as ArrayRef;
     Ok(ColumnarValue::Array(result))
@@ -198,28 +198,22 @@ fn geometry_type_str_st(geom: &impl GeometryTrait) -> &'static str {
         LineString(_) => "ST_LineString",
         Polygon(_) => "ST_Polygon",
         MultiPoint(_) => "ST_MultiPoint",
-        MultiLineString(_) => "ST_MultiLineString",
+        MultiLineString(_) => "ST_MultilineString",
         MultiPolygon(_) => "ST_MultiPolygon",
         GeometryCollection(_) => "ST_GeometryCollection",
         Rect(_) => "ST_Polygon",
         Line(_) => "ST_LineString",
-        Triangle(_) => "ST_Triangle",
+        Triangle(_) => "ST_Polygon",
     }
 }
 
 #[inline]
-/// Dimension suffix of the PostGIS `GeometryType()` name.
-///
-/// The pinned answers in `tests/postgis/accessors/attributes` show that
-/// PostGIS appends `M` for measure-only geometries but never names the Z or ZM
-/// dimensions, so `Xyz` and `Xyzm` stay unsuffixed here.
 fn geometry_suffix_str(geom: &impl GeometryTrait) -> &'static str {
     match geom.dim() {
         geo_traits::Dimensions::Xy | geo_traits::Dimensions::Unknown(2) => "",
+        geo_traits::Dimensions::Xyz => "Z",
         geo_traits::Dimensions::Xym => "M",
-        geo_traits::Dimensions::Xyz
-        | geo_traits::Dimensions::Xyzm
-        | geo_traits::Dimensions::Unknown(3 | 4) => "",
+        geo_traits::Dimensions::Xyzm | geo_traits::Dimensions::Unknown(4) => "ZM",
         geo_traits::Dimensions::Unknown(_) => "",
     }
 }
