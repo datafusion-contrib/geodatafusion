@@ -1,4 +1,4 @@
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_array::BooleanArray;
 use arrow_array::builder::BooleanBuilder;
@@ -6,7 +6,8 @@ use arrow_schema::DataType;
 use datafusion::error::Result;
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
-    ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature,
+    ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature, TypeSignature,
+    Volatility,
 };
 use geo_traits::{Dimensions, GeometryTrait};
 use geoarrow_array::array::from_arrow_array;
@@ -32,13 +33,23 @@ impl Default for HasZ {
 
 static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
+static SIGNATURE: LazyLock<Signature> = LazyLock::new(|| {
+    Signature::one_of(
+        vec![
+            TypeSignature::Uniform(1, vec![DataType::Null]),
+            any_single_geometry_type_input().type_signature.clone(),
+        ],
+        Volatility::Immutable,
+    )
+});
+
 impl ScalarUDFImpl for HasZ {
     fn name(&self) -> &str {
         "st_hasz"
     }
 
     fn signature(&self) -> &Signature {
-        any_single_geometry_type_input()
+        &SIGNATURE
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -67,6 +78,11 @@ fn has_z_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
         .into_iter()
         .next()
         .unwrap();
+    if array.data_type() == &DataType::Null {
+        return Ok(ColumnarValue::Array(Arc::new(BooleanArray::new_null(
+            array.len(),
+        ))));
+    }
     let geo_array = from_arrow_array(&array, &args.arg_fields[0])?;
     let geo_array_ref = geo_array.as_ref();
     let result = downcast_geoarrow_array!(geo_array_ref, has_z_array)?;
