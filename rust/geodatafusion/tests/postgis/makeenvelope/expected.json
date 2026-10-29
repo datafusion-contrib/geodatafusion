@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "ffdcd7c229b34c922208f040114f7059d21d9196ca2fd7fd1c6bfdb0cd76ca92",
+  "postgis_sql_sha256": "001dcc9ed58f546f4f5f97a837983efce7f5b49250b7edbfde6d8861389b0d78",
+  "datafusion_sql_sha256": "f31d5a0b87af6722694f94bd8d2fea3e90f3bd48f961ba29c3f68529b2fb1e8b",
+  "cases": {
+    "makeenvelope-nan-coordinate": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "01030000000100000005000000000000000000f87f0000000000000000000000000000f87f000000000000f03f000000000000f03f000000000000f03f000000000000f03f0000000000000000000000000000f87f0000000000000000"
+          }
+        ]
+      ]
+    },
+    "makeenvelope-null-coordinate": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "makeenvelope-null-srid": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "makeenvelope-point-degenerate": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010300000001000000050000000000000000000040000000000000084000000000000000400000000000000840000000000000004000000000000008400000000000000040000000000000084000000000000000400000000000000840"
+          }
+        ]
+      ]
+    },
+    "makeenvelope-reversed": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "01030000000100000005000000000000000000244000000000000018400000000000002440000000000000f03f0000000000000000000000000000f03f0000000000000000000000000000184000000000000024400000000000001840"
+          }
+        ]
+      ]
+    },
+    "makeenvelope-standard": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010300000001000000050000000000000000000000000000000000f03f00000000000000000000000000001840000000000000244000000000000018400000000000002440000000000000f03f0000000000000000000000000000f03f"
+          }
+        ]
+      ]
+    }
+  }
+}
