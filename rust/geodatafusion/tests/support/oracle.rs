@@ -10,7 +10,7 @@ use std::{fmt, fs};
 
 use arrow_array::cast::AsArray;
 use arrow_array::types::Int32Type;
-use arrow_array::{Array, ArrayRef, BinaryArray, BooleanArray, Float64Array};
+use arrow_array::{Array, ArrayRef, BinaryArray, BooleanArray, Float64Array, Int16Array};
 use datafusion::prelude::SessionContext;
 use datafusion::scalar::ScalarValue;
 use geo_traits::{
@@ -40,6 +40,7 @@ pub const GROUPS: &[&str] = &[
     "measurement/length",
     "dump",
     "extent",
+    "zmflag",
 ];
 
 #[derive(Debug, Deserialize)]
@@ -80,6 +81,7 @@ pub struct ResultColumn {
 pub enum ColumnType {
     Boolean,
     Float64,
+    Int16,
     Int32List,
     Ewkb,
 }
@@ -114,6 +116,7 @@ pub struct Skip {
 pub enum TypedValue {
     Boolean { value: bool },
     Float64 { bits: String },
+    Int16 { value: i16 },
     Int32List { values: Vec<i32> },
     Ewkb { hex: String },
     Null,
@@ -459,6 +462,7 @@ fn validate_value(
         (_, TypedValue::Null) => true,
         (ColumnType::Boolean, TypedValue::Boolean { .. }) => true,
         (ColumnType::Float64, TypedValue::Float64 { bits }) => parse_bits(bits).is_ok(),
+        (ColumnType::Int16, TypedValue::Int16 { .. }) => true,
         (ColumnType::Int32List, TypedValue::Int32List { .. }) => true,
         (ColumnType::Ewkb, TypedValue::Ewkb { hex }) => decode_ewkb_hex(hex).is_ok(),
         _ => false,
@@ -771,6 +775,29 @@ fn datafusion_column_values(
                 })
                 .collect())
         }
+        ColumnType::Int16 => {
+            if array.data_type() != &arrow_schema::DataType::Int16 {
+                return fail(format!(
+                    "DataFusion column `{}` is not Int16: {}",
+                    field.name(),
+                    array.data_type()
+                ));
+            }
+            let values = array.as_any().downcast_ref::<Int16Array>().ok_or_else(|| {
+                format!(
+                    "DataFusion column `{}` is not Int16: {}",
+                    field.name(),
+                    array.data_type()
+                )
+            })?;
+            Ok(values
+                .iter()
+                .map(|value| match value {
+                    Some(value) => TypedValue::Int16 { value },
+                    None => TypedValue::Null,
+                })
+                .collect())
+        }
         ColumnType::Int32List => {
             let arrow_schema::DataType::List(item) = array.data_type() else {
                 return fail(format!(
@@ -861,6 +888,10 @@ async fn execute_postgis(
                 },
                 ColumnType::Float64 => match row.try_get::<_, Option<f64>>(column_index)? {
                     Some(value) => TypedValue::float64(value),
+                    None => TypedValue::Null,
+                },
+                ColumnType::Int16 => match row.try_get::<_, Option<i16>>(column_index)? {
+                    Some(value) => TypedValue::Int16 { value },
                     None => TypedValue::Null,
                 },
                 ColumnType::Int32List => match row.try_get::<_, Option<Vec<i32>>>(column_index)? {

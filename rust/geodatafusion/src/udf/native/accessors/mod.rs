@@ -7,6 +7,7 @@ mod line_string;
 mod npoints;
 mod num_interior_rings;
 mod point;
+mod zm_flag;
 
 pub use coord_dim::{CoordDim, NDims};
 pub use dump::Dump;
@@ -17,6 +18,7 @@ pub use line_string::{EndPoint, StartPoint};
 pub use npoints::NPoints;
 pub use num_interior_rings::NumInteriorRings;
 pub use point::{M, X, Y, Z};
+pub use zm_flag::ZmFlag;
 
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
     session_context.register_udf(CoordDim.into());
@@ -34,4 +36,5 @@ pub fn register(session_context: &datafusion::prelude::SessionContext) {
     session_context.register_udf(X::default().into());
     session_context.register_udf(Y::default().into());
     session_context.register_udf(Z::default().into());
+    session_context.register_udf(ZmFlag.into());
 }

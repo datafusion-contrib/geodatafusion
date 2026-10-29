@@ -216,3 +216,53 @@ def test_st_dwithin_registered():
     assert result.column("outside")[0].as_py() is False
     assert result.column("empty")[0].as_py() is False
     assert result.column("null_wins_invalid_radius")[0].as_py() is None
+
+
+def test_register_all_st_zmflag_scalar_and_array():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    scalar = ctx.sql(
+        """
+        SELECT
+            ST_Zmflag(ST_GeomFromText('POINT(1 2)')) AS xy,
+            ST_Zmflag(ST_GeomFromText('POINT M(1 2 4)')) AS xym,
+            ST_Zmflag(ST_GeomFromText('POINT Z(1 2 3)')) AS xyz,
+            ST_Zmflag(ST_GeomFromText('POINT ZM(1 2 3 4)')) AS xyzm,
+            ST_Zmflag(ST_GeomFromText(NULL)) AS null_value,
+            ST_Zmflag(NULL) AS raw_null
+        """
+    ).to_arrow_table()
+    assert scalar.schema.field("xy").type == pa.int16()
+    assert scalar.to_pylist() == [
+        {
+            "xy": 0,
+            "xym": 1,
+            "xyz": 2,
+            "xyzm": 3,
+            "null_value": None,
+            "raw_null": None,
+        }
+    ]
+
+    array = ctx.sql(
+        """
+        SELECT ST_Zmflag(ST_GeomFromText(g)) AS zm_flag
+        FROM (
+            VALUES (0, 'POINT(1 2)'), (1, 'POINT M(1 2 4)'),
+                   (2, 'POINT Z(1 2 3)'), (3, 'POINT ZM(1 2 3 4)')
+        ) AS t(id, g)
+        ORDER BY id
+        """
+    ).to_arrow_table()
+    assert array.schema.field("zm_flag").type == pa.int16()
+    assert array.column("zm_flag").to_pylist() == [0, 1, 2, 3]
+
+    null_column = ctx.sql(
+        """
+        SELECT ST_Zmflag(g) AS zm_flag
+        FROM (VALUES (NULL), (NULL)) AS t(g)
+        """
+    ).to_arrow_table()
+    assert null_column.schema.field("zm_flag").type == pa.int16()
+    assert null_column.column("zm_flag").to_pylist() == [None, None]
