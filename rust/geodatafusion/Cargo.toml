@@ -36,6 +36,7 @@ wkt = { workspace = true }
 
 [dev-dependencies]
 approx = { workspace = true }
+async-trait = { workspace = true }
 datafusion = { workspace = true, features = ["sql"] }
 geo-traits = { workspace = true }
 geoarrow-array = { workspace = true, features = ["test-data"] }
@@ -44,9 +45,15 @@ object_store = { workspace = true, features = ["http"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = { workspace = true }
 sha2 = "0.10"
+sqllogictest = "0.29.1"
+tempfile = { workspace = true }
 tokio = { workspace = true, features = ["macros", "fs", "rt-multi-thread"] }
 tokio-postgres = { version = "0.7", default-features = false, features = ["runtime"] }
 wkb = { workspace = true }
+
+[[test]]
+name = "sqllogictests"
+harness = false
 
 [package.metadata.docs.rs]
 all-features = true

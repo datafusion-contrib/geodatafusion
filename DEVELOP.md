@@ -54,6 +54,24 @@ cargo test --all-features
 cargo test -p geodatafusion
 ```
 
+### SQL Logic Tests
+
+Run the SQL smoke suite through the public registration entry point:
+
+```bash
+cargo test -p geodatafusion --all-features --test sqllogictests
+```
+
+Pass part of a file path after `--` to run matching files:
+
+```bash
+cargo test -p geodatafusion --all-features --test sqllogictests -- smoke
+```
+
+Add new cases as `.slt` files under `rust/geodatafusion/tests/slt/`. Each file
+gets a fresh `SessionContext`; keep expected values deterministic and use
+`statement error` for expected SQL failures.
+
 ### Code Formatting
 
 We use `rustfmt`:
