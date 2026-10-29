@@ -21,8 +21,8 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | Name                  | Implemented | Description                                                                                                                |
 | --------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------- |
 | ST_Collect            |             | Creates a GeometryCollection or Multi\* geometry from a set of geometries.                                                 |
-| ST_LineFromMultiPoint |             | Creates a LineString from a MultiPoint geometry.                                                                           |
-| ST_MakeEnvelope       |             | Creates a rectangular Polygon from minimum and maximum coordinates.                                                        |
+| ST_LineFromMultiPoint | ✅          | Creates a LineString from a MultiPoint geometry.                                                                           |
+| ST_MakeEnvelope       | ✅          | Creates a rectangular Polygon from minimum and maximum coordinates.                                                        |
 | ST_MakeLine           |             | Creates a LineString from Point, MultiPoint, or LineString geometries.                                                     |
 | ST_MakePoint          | ✅          | Creates a 2D, 3DZ or 4D Point.                                                                                             |
 | ST_MakePointM         | ✅          | Creates a Point from X, Y and M values.                                                                                    |
@@ -54,10 +54,10 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_DumpRings        |             | Returns a set of geometry_dump rows for the exterior and interior rings of a Polygon.                   |
 | ST_EndPoint         | ✅          | Returns the last point of a LineString or CircularLineString.                                           |
 | ST_Envelope         |             | Returns a geometry representing the bounding box of a geometry.                                         |
-| ST_ExteriorRing     |             | Returns a LineString representing the exterior ring of a Polygon.                                       |
+| ST_ExteriorRing     | ✅          | Returns a LineString representing the exterior ring of a Polygon.                                       |
 | ST_GeometryN        |             | Return an element of a geometry collection.                                                             |
 | ST_GeometryType     | ✅          | Returns the SQL-MM type of a geometry as text.                                                          |
-| ST_InteriorRingN    |             | Returns the Nth interior ring (hole) of a Polygon.                                                      |
+| ST_InteriorRingN    | ✅          | Returns the Nth interior ring (hole) of a Polygon.                                                      |
 | ST_IsClosed         | ✅          | Tests if a LineStrings's start and end points are coincident.                                           |
 | ST_IsCollection     |             | Tests if a geometry is a geometry collection type.                                                      |
 | ST_IsEmpty          | ✅          | Tests if a geometry is empty.                                                                           |
@@ -74,16 +74,16 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_NumInteriorRings | ✅          | Returns the number of interior rings (holes) of a Polygon.                                              |
 | ST_NumInteriorRing  | ✅          | Returns the number of interior rings (holes) of a Polygon. Aias for ST_NumInteriorRings                 |
 | ST_NumPoints        | ✅          | Returns the number of points in a LineString or CircularString.                                         |
-| ST_PointN           |             | Returns the Nth point in the first LineString or circular LineString in a geometry.                     |
+| ST_PointN           | ✅          | Returns the Nth point in the first LineString or circular LineString in a geometry.                     |
 | ST_Points           |             | Returns a MultiPoint containing the coordinates of a geometry.                                          |
 | ST_StartPoint       | ✅          | Returns the first point of a LineString.                                                                |
 | ST_Summary          |             | Returns a text summary of the contents of a geometry.                                                   |
 | ST_X                | ✅          | Returns the X coordinate of a Point.                                                                    |
 | ST_Y                | ✅          | Returns the Y coordinate of a Point.                                                                    |
 | ST_Z                | ✅          | Returns the Z coordinate of a Point.                                                                    |
-| ST_Zmflag           |             | Returns a code indicating the ZM coordinate dimension of a geometry.                                    |
-| ST_HasZ             |             | Checks if a geometry has a Z dimension.                                                                 |
-| ST_HasM             |             | Checks if a geometry has an M (measure) dimension.                                                      |
+| ST_Zmflag           | ✅          | Returns a code indicating the ZM coordinate dimension of a geometry.                                    |
+| ST_HasZ             | ✅          | Checks if a geometry has a Z dimension.                                                                 |
+| ST_HasM             | ✅          | Checks if a geometry has an M (measure) dimension.                                                      |
 
 ### Geometry Editors
 
