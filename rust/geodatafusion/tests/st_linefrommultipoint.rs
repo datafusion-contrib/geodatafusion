@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use arrow_schema::Field;
 use datafusion::config::ConfigOptions;
 use datafusion::logical_expr::{ColumnarValue, ReturnFieldArgs, ScalarFunctionArgs, ScalarUDFImpl};
 use datafusion::prelude::SessionContext;
@@ -105,6 +106,21 @@ fn typed_multi_point_slices_preserve_nulls_empty_lines_and_order() {
 }
 
 #[test]
+fn typed_all_null_multi_point_keeps_typed_line_output() {
+    let typ = MultiPointType::new(Dimension::XYZ, Default::default());
+    let mut builder = MultiPointBuilder::new(typ);
+    builder.push_multi_point(None::<&WktMultiPoint>).unwrap();
+    let input = builder.finish();
+    let (return_field, output) = invoke_line_from_multi_point(&input, CoordType::Interleaved);
+
+    let output_type = return_field.extension_type::<geoarrow_schema::LineStringType>();
+    assert_eq!(output_type.dimension(), Dimension::XYZ);
+    assert_eq!(output_type.coord_type(), CoordType::Interleaved);
+    assert_eq!(output.len(), 1);
+    assert!(output.is_null(0));
+}
+
+#[test]
 fn typed_multi_point_with_empty_member_returns_execution_error() {
     let multi_point = WktMultiPoint::new(
         vec![
@@ -137,6 +153,40 @@ fn typed_multi_point_with_empty_member_returns_execution_error() {
             .to_string()
             .contains("does not support MULTIPOINT values containing EMPTY points")
     );
+}
+
+#[test]
+fn missing_extension_metadata_is_not_treated_as_untyped_null() {
+    let typ = MultiPointType::new(Dimension::XY, Default::default());
+    let mut builder = MultiPointBuilder::new(typ);
+    builder.push_multi_point(None::<&WktMultiPoint>).unwrap();
+    let input = builder.finish();
+    let input_array = input.to_array_ref();
+    let input_field = Arc::new(Field::new(
+        "geometry",
+        input_array.data_type().clone(),
+        true,
+    ));
+    let udf = LineFromMultiPoint::default();
+
+    let error = udf
+        .return_field_from_args(ReturnFieldArgs {
+            arg_fields: std::slice::from_ref(&input_field),
+            scalar_arguments: &[],
+        })
+        .unwrap_err();
+    assert!(error.to_string().contains("without extension metadata"));
+
+    let return_field = Arc::new(GeometryType::new(Default::default()).to_field("geometry", true));
+    let args = ScalarFunctionArgs {
+        args: vec![ColumnarValue::Array(input_array)],
+        arg_fields: vec![input_field],
+        number_rows: 1,
+        return_field,
+        config_options: Arc::new(ConfigOptions::default()),
+    };
+    let error = udf.invoke_with_args(args).unwrap_err();
+    assert!(error.to_string().contains("without extension metadata"));
 }
 
 #[tokio::test]

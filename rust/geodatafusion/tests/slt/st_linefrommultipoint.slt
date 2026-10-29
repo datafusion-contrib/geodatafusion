@@ -53,7 +53,7 @@ SELECT ST_LineFromMultiPoint(NULL) IS NULL;
 ----
 true
 
-query BB
+query B
 SELECT ST_LineFromMultiPoint(geom) IS NULL
 FROM (VALUES (NULL), (NULL)) AS points(geom);
 ----

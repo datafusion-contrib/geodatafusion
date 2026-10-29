@@ -1,12 +1,13 @@
 //! MultiPoint to LineString constructor
 
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, LazyLock, OnceLock};
 
 use arrow_schema::{DataType, FieldRef};
 use datafusion::error::{DataFusionError, Result};
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
     ColumnarValue, Documentation, ReturnFieldArgs, ScalarFunctionArgs, ScalarUDFImpl, Signature,
+    Volatility,
 };
 use geo_traits::{CoordTrait, Dimensions, GeometryTrait, MultiPointTrait, PointTrait};
 use geoarrow_array::array::{GeometryArray, LineStringArray, MultiPointArray, from_arrow_array};
@@ -18,7 +19,7 @@ use geoarrow_schema::{CoordType, GeoArrowType, GeometryType, LineStringType};
 use wkt::Wkt;
 use wkt::types::{Coord, Dimension as WktDimension, LineString as WktLineString};
 
-use crate::data_types::any_single_geometry_type_input;
+use crate::data_types::any_geometry_type;
 use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -39,6 +40,11 @@ impl Default for LineFromMultiPoint {
 }
 
 static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
+static SIGNATURE: LazyLock<Signature> = LazyLock::new(|| {
+    let mut valid_types = any_geometry_type();
+    valid_types.push(DataType::Null);
+    Signature::uniform(1, valid_types, Volatility::Immutable)
+});
 
 impl ScalarUDFImpl for LineFromMultiPoint {
     fn name(&self) -> &str {
@@ -46,7 +52,7 @@ impl ScalarUDFImpl for LineFromMultiPoint {
     }
 
     fn signature(&self) -> &Signature {
-        any_single_geometry_type_input()
+        &SIGNATURE
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -80,11 +86,11 @@ fn return_field_impl(
     args: ReturnFieldArgs,
     coord_type: CoordType,
 ) -> GeoDataFusionResult<FieldRef> {
-    // Untyped NULL may be coerced to geometry storage without extension metadata.
-    let Ok(input_type) = GeoArrowType::from_arrow_field(args.arg_fields[0].as_ref()) else {
-        let output_type = GeometryType::new(Default::default()).with_coord_type(coord_type);
-        return Ok(Arc::new(output_type.to_field("", true)));
-    };
+    if args.arg_fields[0].data_type() == &DataType::Null {
+        return Ok(null_geometry_output_type(coord_type));
+    }
+
+    let input_type = GeoArrowType::from_arrow_field(args.arg_fields[0].as_ref())?;
     match input_type {
         GeoArrowType::MultiPoint(typ) => {
             let output_type = LineStringType::new(typ.dimension(), typ.metadata().clone())
@@ -104,17 +110,10 @@ fn line_from_multi_point_impl(
     coord_type: CoordType,
 ) -> GeoDataFusionResult<ColumnarValue> {
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
-    // Match the generic field emitted for untyped NULL when every row is null.
-    if arrays[0].null_count() == arrays[0].len()
-        && args
-            .return_field
-            .try_extension_type::<GeometryType>()
-            .is_ok()
-    {
-        let output = create_null_geometry_array(&args.return_field, args.number_rows)?;
+    if arrays[0].data_type() == &DataType::Null {
+        let output = null_geometry_array(args.number_rows, coord_type)?;
         return Ok(output.into_array_ref().into());
     }
-    GeoArrowType::from_arrow_field(args.arg_fields[0].as_ref())?;
     let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
     let geo_array_ref = geo_array.as_ref();
 
@@ -132,14 +131,22 @@ fn line_from_multi_point_impl(
     Ok(out.into_array_ref().into())
 }
 
-fn create_null_geometry_array(
-    return_field: &FieldRef,
+fn null_geometry_output_type(coord_type: CoordType) -> FieldRef {
+    Arc::new(
+        GeometryType::new(Default::default())
+            .with_coord_type(coord_type)
+            .to_field("", true),
+    )
+}
+
+fn null_geometry_array(
     number_rows: usize,
+    coord_type: CoordType,
 ) -> GeoDataFusionResult<GeometryArray> {
-    let output_type = return_field.extension_type::<GeometryType>();
+    let output_type = GeometryType::new(Default::default()).with_coord_type(coord_type);
     let mut builder = GeometryBuilder::new(output_type);
     for _ in 0..number_rows {
-        builder.push_null();
+        builder.push_geometry(None::<&geo_traits::UnimplementedGeometry<f64>>)?;
     }
     Ok(builder.finish())
 }
