@@ -1,0 +1,34 @@
+query BBBB
+SELECT
+  ST_HasM(ST_GeomFromText('POINT(1 2)')),
+  ST_HasM(ST_GeomFromText('POINT Z(1 2 3)')),
+  ST_HasM(ST_GeomFromText('POINT M(1 2 4)')),
+  ST_HasM(ST_GeomFromText('POINT ZM(1 2 3 4)'));
+----
+false false true true
+
+query BBBB
+SELECT
+  ST_HasM(ST_GeomFromText('POINT EMPTY')),
+  ST_HasM(ST_GeomFromText('POINT Z EMPTY')),
+  ST_HasM(ST_GeomFromText('POINT M EMPTY')),
+  ST_HasM(ST_GeomFromText('POINT ZM EMPTY'));
+----
+false false true true
+
+query BB
+SELECT
+  ST_HasM(ST_GeomFromText('GEOMETRYCOLLECTION M(POINT M(1 2 4))')),
+  ST_HasM(ST_GeomFromText('GEOMETRYCOLLECTION Z(POINT Z(1 2 3))'));
+----
+true false
+
+query B
+SELECT ST_HasM(ST_GeomFromText(NULL));
+----
+NULL
+
+query B
+SELECT ST_HasM(NULL);
+----
+NULL
