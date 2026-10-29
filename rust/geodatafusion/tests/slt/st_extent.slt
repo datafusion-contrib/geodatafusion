@@ -1,0 +1,12 @@
+query RRRR
+SELECT e.xmin, e.ymin, e.xmax, e.ymax
+FROM (
+  SELECT ST_Extent(geom) AS e
+  FROM (
+    SELECT ST_Point(0, 0) AS geom
+    UNION ALL
+    SELECT ST_Point(2, 2)
+  )
+);
+----
+0.0 0.0 2.0 2.0

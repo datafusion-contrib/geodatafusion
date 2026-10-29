@@ -1,0 +1,4 @@
+query R
+SELECT ST_Y(ST_Point(7, 8));
+----
+8.0

@@ -1,0 +1,15 @@
+query BB
+SELECT
+  ST_DWithin(ST_Point(0, 0), ST_Point(3, 4), 5),
+  ST_DWithin(ST_Point(0, 0), ST_Point(3, 4), 4);
+----
+true false
+
+query B
+SELECT ST_DWithin(
+  ST_Point(0, 0),
+  ST_Point(0, 0),
+  CAST(NULL AS DOUBLE)
+);
+----
+NULL

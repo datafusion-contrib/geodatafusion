@@ -44,9 +44,15 @@ object_store = { workspace = true, features = ["http"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = { workspace = true }
 sha2 = "0.10"
+sqllogictest = "0.29.1"
 tokio = { workspace = true, features = ["macros", "fs", "rt-multi-thread"] }
 tokio-postgres = { version = "0.7", default-features = false, features = ["runtime"] }
 wkb = { workspace = true }
+
+[[test]]
+name = "sqllogictests"
+harness = false
+required-features = ["geos-3_11"]
 
 [package.metadata.docs.rs]
 all-features = true

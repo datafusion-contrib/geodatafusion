@@ -1,0 +1,4 @@
+query R
+SELECT ST_Z(ST_PointZ(1, 2, 3));
+----
+3.0

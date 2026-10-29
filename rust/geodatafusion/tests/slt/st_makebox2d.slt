@@ -1,0 +1,5 @@
+query RRRR
+SELECT b.xmin, b.ymin, b.xmax, b.ymax
+FROM (SELECT ST_MakeBox2D(ST_Point(0, 5), ST_Point(10, 20)) AS b);
+----
+0.0 5.0 10.0 20.0

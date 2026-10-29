@@ -1,0 +1,4 @@
+query T
+SELECT ST_IsValidReason(ST_GeomFromText('POLYGON((0 0,2 0,2 2,0 2,0 0))'));
+----
+Valid Geometry

@@ -1,0 +1,4 @@
+query T
+SELECT ST_AsText(ST_PointOnSurface(ST_GeomFromText('POLYGON((0 0,2 0,2 2,0 2,0 0))')));
+----
+POINT(1 1)

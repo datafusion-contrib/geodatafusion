@@ -1,0 +1,16 @@
+query R
+SELECT ST_X(ST_Point(7, 8));
+----
+7.0
+
+query R
+SELECT ST_X(ST_Point(CAST(x AS DOUBLE), CAST(y AS DOUBLE)))
+FROM (VALUES (1.0, 10.0), (2.0, 20.0)) AS points(x, y);
+----
+1.0
+2.0
+
+query R
+SELECT ST_X(ST_Point(CAST(NULL AS DOUBLE), 0));
+----
+NULL

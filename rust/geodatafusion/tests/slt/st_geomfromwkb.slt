@@ -1,0 +1,9 @@
+query T
+SELECT ST_AsText(ST_GeomFromWKB(ST_AsBinary(ST_Point(1, 2))));
+----
+POINT(1 2)
+
+query T
+SELECT ST_AsText(ST_WKBToSQL(ST_AsBinary(ST_Point(3, 4))));
+----
+POINT(3 4)

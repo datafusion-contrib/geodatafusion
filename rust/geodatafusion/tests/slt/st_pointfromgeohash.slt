@@ -1,0 +1,4 @@
+query T
+SELECT ST_AsText(ST_PointFromGeoHash('9qqj'));
+----
+POINT(-115.13671875 36.123046875)

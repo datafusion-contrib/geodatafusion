@@ -1,0 +1,6 @@
+query BB
+SELECT
+  ST_IsEmpty(ST_GeomFromText('POINT EMPTY')),
+  ST_IsEmpty(ST_GeomFromText('POINT(1 2)'));
+----
+true false

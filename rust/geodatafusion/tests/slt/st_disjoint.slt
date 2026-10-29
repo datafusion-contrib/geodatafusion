@@ -1,0 +1,4 @@
+query B
+SELECT ST_Disjoint(ST_Point(0, 0), ST_Point(1, 1));
+----
+true

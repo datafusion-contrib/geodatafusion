@@ -1,0 +1,22 @@
+query R
+SELECT ST_Distance(ST_Point(0, 0), ST_Point(3, 4));
+----
+5.0
+
+query R
+SELECT ST_Distance(
+  ST_Point(CAST(x AS DOUBLE), CAST(y AS DOUBLE)),
+  ST_Point(0, 0)
+)
+FROM (VALUES (1.0, 0.0), (0.0, 2.0)) AS points(x, y);
+----
+1.0
+2.0
+
+query R
+SELECT ST_Distance(
+  ST_Point(CAST(NULL AS DOUBLE), 0),
+  ST_Point(0, 0)
+);
+----
+NULL
