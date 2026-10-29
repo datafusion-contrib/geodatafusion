@@ -1,0 +1,4 @@
+query T
+SELECT ST_AsText(ST_PointZ(1, 2, 3));
+----
+POINT Z(1 2 3)

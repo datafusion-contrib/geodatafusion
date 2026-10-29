@@ -1,0 +1,5 @@
+query RRRRRR
+SELECT b.xmin, b.ymin, b.zmin, b.xmax, b.ymax, b.zmax
+FROM (SELECT Box3D(ST_GeomFromText('LINESTRING Z(1 2 3,5 6 7)')) AS b);
+----
+1.0 2.0 3.0 5.0 6.0 7.0

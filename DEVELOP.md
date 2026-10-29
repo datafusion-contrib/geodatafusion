@@ -57,7 +57,8 @@ cargo test -p geodatafusion
 ### SQL Logic Tests
 
 The `sqllogictests` target uses `sqllogictest::harness!` and the public
-registration entry point. Run the function SQL tests with:
+registration entry point. It requires the `geos-3_11` feature, so the default
+`cargo test` invocation does not run it. Run the function SQL tests with:
 
 ```bash
 cargo test -p geodatafusion --all-features --test sqllogictests

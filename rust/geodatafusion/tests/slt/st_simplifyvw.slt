@@ -1,0 +1,4 @@
+query T
+SELECT ST_AsText(ST_SimplifyVW(ST_GeomFromText('LINESTRING(5 2, 3 8, 6 20, 7 25, 10 10)'), 30));
+----
+LINESTRING(5 2,7 25,10 10)

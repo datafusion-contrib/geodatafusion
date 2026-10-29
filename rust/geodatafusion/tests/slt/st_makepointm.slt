@@ -1,0 +1,4 @@
+query T
+SELECT ST_AsText(ST_MakePointM(1, 2, 3));
+----
+POINT M(1 2 3)

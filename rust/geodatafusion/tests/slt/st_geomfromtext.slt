@@ -1,0 +1,14 @@
+query T
+SELECT ST_AsText(ST_GeomFromText('POINT(1 2)'));
+----
+POINT(1 2)
+
+query T
+SELECT ST_AsText(ST_GeometryFromText('POINT(3 4)'));
+----
+POINT(3 4)
+
+query T
+SELECT ST_AsText(ST_WKTToSQL('POINT(5 6)'));
+----
+POINT(5 6)

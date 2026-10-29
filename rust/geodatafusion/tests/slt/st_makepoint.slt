@@ -1,0 +1,9 @@
+query T
+SELECT ST_AsText(ST_MakePoint(1.5, -2.5));
+----
+POINT(1.5 -2.5)
+
+query T
+SELECT ST_AsText(ST_MakePoint(1, 2, 3));
+----
+POINT Z(1 2 3)

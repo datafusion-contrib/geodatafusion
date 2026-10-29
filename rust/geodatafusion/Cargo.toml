@@ -52,6 +52,7 @@ wkb = { workspace = true }
 [[test]]
 name = "sqllogictests"
 harness = false
+required-features = ["geos-3_11"]
 
 [package.metadata.docs.rs]
 all-features = true

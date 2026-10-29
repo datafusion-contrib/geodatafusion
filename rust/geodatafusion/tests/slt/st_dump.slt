@@ -1,0 +1,8 @@
+query T
+SELECT ST_AsText(comp.geom)
+FROM (
+  SELECT unnest(ST_Dump(ST_GeomFromText('MULTIPOINT(0 0,1 1)'))) AS comp
+);
+----
+POINT(0 0)
+POINT(1 1)

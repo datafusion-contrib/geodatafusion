@@ -1,0 +1,4 @@
+query T
+SELECT ST_GeoHash(ST_Point(-126, 48));
+----
+c0w3hf1s70w3

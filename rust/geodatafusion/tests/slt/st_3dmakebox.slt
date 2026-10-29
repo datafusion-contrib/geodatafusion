@@ -1,0 +1,7 @@
+query RRRRRR
+SELECT b.xmin, b.ymin, b.zmin, b.xmax, b.ymax, b.zmax
+FROM (
+  SELECT ST_3DMakeBox(ST_PointZ(0, 5, 1), ST_PointZ(10, 20, 30)) AS b
+);
+----
+0.0 5.0 1.0 10.0 20.0 30.0
