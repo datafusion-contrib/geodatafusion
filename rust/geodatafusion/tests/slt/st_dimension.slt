@@ -1,0 +1,26 @@
+query IIIIIIII
+SELECT
+  ST_Dimension(ST_GeomFromText('POINT EMPTY')),
+  ST_Dimension(ST_GeomFromText('LINESTRING EMPTY')),
+  ST_Dimension(ST_GeomFromText('POLYGON EMPTY')),
+  ST_Dimension(ST_GeomFromText('MULTIPOINT EMPTY')),
+  ST_Dimension(ST_GeomFromText('MULTILINESTRING EMPTY')),
+  ST_Dimension(ST_GeomFromText('MULTIPOLYGON EMPTY')),
+  ST_Dimension(ST_GeomFromText('GEOMETRYCOLLECTION EMPTY')),
+  ST_Dimension(ST_GeomFromText('GEOMETRYCOLLECTION(POLYGON EMPTY)'))
+;
+----
+0 1 2 0 1 2 0 2
+
+query II
+SELECT
+  ST_Dimension(ST_GeomFromText('GEOMETRYCOLLECTION(LINESTRING EMPTY,POINT EMPTY)')),
+  ST_Dimension(ST_GeomFromText('GEOMETRYCOLLECTION(POINT(1 2),POLYGON EMPTY)'))
+;
+----
+1 2
+
+query I
+SELECT ST_Dimension(NULL);
+----
+NULL
