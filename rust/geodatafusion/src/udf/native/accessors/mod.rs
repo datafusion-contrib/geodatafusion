@@ -1,4 +1,5 @@
 mod coord_dim;
+mod dimension;
 mod dump;
 mod geometry_type;
 mod is_closed;
@@ -9,6 +10,7 @@ mod num_interior_rings;
 mod point;
 
 pub use coord_dim::{CoordDim, NDims};
+pub use dimension::Dimension;
 pub use dump::Dump;
 pub use geometry_type::{GeometryType, ST_GeometryType};
 pub use is_closed::IsClosed;
@@ -20,6 +22,7 @@ pub use point::{M, X, Y, Z};
 
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
     session_context.register_udf(CoordDim.into());
+    session_context.register_udf(Dimension.into());
     session_context.register_udf(NDims.into());
     session_context.register_udf(GeometryType.into());
     session_context.register_udf(ST_GeometryType.into());

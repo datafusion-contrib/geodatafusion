@@ -149,6 +149,62 @@ def test_st_dump_null_and_empty():
     assert result.to_pylist() == [{"null_dump": None, "empty_dump": []}]
 
 
+def test_st_dimension_register_all():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    result = ctx.sql(
+        """
+        SELECT ST_Dimension(ST_GeomFromText(wkt)) AS dimension
+        FROM (
+            VALUES
+                ('POINT EMPTY'),
+                ('LINESTRING EMPTY'),
+                ('POLYGON EMPTY'),
+                ('MULTIPOINT EMPTY'),
+                ('MULTILINESTRING EMPTY'),
+                ('MULTIPOLYGON EMPTY'),
+                ('GEOMETRYCOLLECTION EMPTY'),
+                ('GEOMETRYCOLLECTION(POLYGON EMPTY)'),
+                ('GEOMETRYCOLLECTION(LINESTRING EMPTY,POINT EMPTY)'),
+                (NULL)
+        ) AS inputs(wkt)
+        """
+    ).to_arrow_table()
+
+    assert result.schema.field("dimension").type == pa.int32()
+    assert result.to_pylist() == [
+        {"dimension": 0},
+        {"dimension": 1},
+        {"dimension": 2},
+        {"dimension": 0},
+        {"dimension": 1},
+        {"dimension": 2},
+        {"dimension": 0},
+        {"dimension": 2},
+        {"dimension": 1},
+        {"dimension": None},
+    ]
+
+    result = ctx.sql(
+        """
+        SELECT
+            ST_Dimension(NULL) AS scalar_null,
+            column_null
+        FROM (
+            SELECT ST_Dimension(value) AS column_null
+            FROM (VALUES (NULL), (NULL)) AS inputs(value)
+        )
+        """
+    ).to_arrow_table()
+    assert result.schema.field("scalar_null").type == pa.int32()
+    assert result.schema.field("column_null").type == pa.int32()
+    assert result.to_pylist() == [
+        {"scalar_null": None, "column_null": None},
+        {"scalar_null": None, "column_null": None},
+    ]
+
+
 def test_st_isempty_and_extent():
     ctx = SessionContext()
     register_all(ctx)

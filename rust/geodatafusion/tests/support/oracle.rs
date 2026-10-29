@@ -10,7 +10,7 @@ use std::{fmt, fs};
 
 use arrow_array::cast::AsArray;
 use arrow_array::types::Int32Type;
-use arrow_array::{Array, ArrayRef, BinaryArray, BooleanArray, Float64Array};
+use arrow_array::{Array, ArrayRef, BinaryArray, BooleanArray, Float64Array, Int32Array};
 use datafusion::prelude::SessionContext;
 use datafusion::scalar::ScalarValue;
 use geo_traits::{
@@ -34,6 +34,7 @@ pub const PINNED_POSTGIS_IMAGE: &str = "postgis/postgis:18-3.6@sha256:4a43e3c3e5
 
 /// Case groups are independent because each group has one parameter shape.
 pub const GROUPS: &[&str] = &[
+    "accessors/dimension",
     "measurement/area",
     "measurement/distance",
     "measurement/dwithin",
@@ -80,6 +81,7 @@ pub struct ResultColumn {
 pub enum ColumnType {
     Boolean,
     Float64,
+    Int32,
     Int32List,
     Ewkb,
 }
@@ -114,6 +116,7 @@ pub struct Skip {
 pub enum TypedValue {
     Boolean { value: bool },
     Float64 { bits: String },
+    Int32 { value: i32 },
     Int32List { values: Vec<i32> },
     Ewkb { hex: String },
     Null,
@@ -459,6 +462,7 @@ fn validate_value(
         (_, TypedValue::Null) => true,
         (ColumnType::Boolean, TypedValue::Boolean { .. }) => true,
         (ColumnType::Float64, TypedValue::Float64 { bits }) => parse_bits(bits).is_ok(),
+        (ColumnType::Int32, TypedValue::Int32 { .. }) => true,
         (ColumnType::Int32List, TypedValue::Int32List { .. }) => true,
         (ColumnType::Ewkb, TypedValue::Ewkb { hex }) => decode_ewkb_hex(hex).is_ok(),
         _ => false,
@@ -771,6 +775,29 @@ fn datafusion_column_values(
                 })
                 .collect())
         }
+        ColumnType::Int32 => {
+            if array.data_type() != &arrow_schema::DataType::Int32 {
+                return fail(format!(
+                    "DataFusion column `{}` is not Int32: {}",
+                    field.name(),
+                    array.data_type()
+                ));
+            }
+            let values = array.as_any().downcast_ref::<Int32Array>().ok_or_else(|| {
+                format!(
+                    "DataFusion column `{}` is not Int32: {}",
+                    field.name(),
+                    array.data_type()
+                )
+            })?;
+            Ok(values
+                .iter()
+                .map(|value| match value {
+                    Some(value) => TypedValue::Int32 { value },
+                    None => TypedValue::Null,
+                })
+                .collect())
+        }
         ColumnType::Int32List => {
             let arrow_schema::DataType::List(item) = array.data_type() else {
                 return fail(format!(
@@ -861,6 +888,10 @@ async fn execute_postgis(
                 },
                 ColumnType::Float64 => match row.try_get::<_, Option<f64>>(column_index)? {
                     Some(value) => TypedValue::float64(value),
+                    None => TypedValue::Null,
+                },
+                ColumnType::Int32 => match row.try_get::<_, Option<i32>>(column_index)? {
+                    Some(value) => TypedValue::Int32 { value },
                     None => TypedValue::Null,
                 },
                 ColumnType::Int32List => match row.try_get::<_, Option<Vec<i32>>>(column_index)? {
