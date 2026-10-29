@@ -422,6 +422,57 @@ def test_st_dwithin_registered():
     assert result.column("null_wins_invalid_radius")[0].as_py() is None
 
 
+def test_register_all_st_iscollection_scalar_and_array():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    scalar = ctx.sql(
+        """
+        SELECT
+            ST_IsCollection(ST_GeomFromText('POINT(1 2)')) AS point,
+            ST_IsCollection(ST_GeomFromText('MULTIPOINT(1 2)')) AS multipoint,
+            ST_IsCollection(
+                ST_GeomFromText('GEOMETRYCOLLECTION EMPTY')
+            ) AS empty_collection,
+            ST_IsCollection(ST_GeomFromText(NULL)) AS null_value,
+            ST_IsCollection(NULL) AS raw_null
+        """
+    ).to_arrow_table()
+    assert scalar.schema.field("point").type == pa.bool_()
+    assert scalar.to_pylist() == [
+        {
+            "point": False,
+            "multipoint": True,
+            "empty_collection": True,
+            "null_value": None,
+            "raw_null": None,
+        }
+    ]
+
+    array = ctx.sql(
+        """
+        SELECT ST_IsCollection(ST_GeomFromText(g)) AS is_collection
+        FROM (
+            VALUES (0, 'POINT(1 2)'), (1, 'MULTIPOINT(1 2)'),
+                   (2, 'LINESTRING(0 0,1 1)'),
+                   (3, 'MULTILINESTRING((0 0,1 1))')
+        ) AS t(id, g)
+        ORDER BY id
+        """
+    ).to_arrow_table()
+    assert array.schema.field("is_collection").type == pa.bool_()
+    assert array.column("is_collection").to_pylist() == [False, True, False, True]
+
+    null_column = ctx.sql(
+        """
+        SELECT ST_IsCollection(g) AS is_collection
+        FROM (VALUES (NULL), (NULL)) AS t(g)
+        """
+    ).to_arrow_table()
+    assert null_column.schema.field("is_collection").type == pa.bool_()
+    assert null_column.column("is_collection").to_pylist() == [None, None]
+
+
 def test_register_all_st_zmflag_scalar_and_array():
     ctx = SessionContext()
     register_all(ctx)

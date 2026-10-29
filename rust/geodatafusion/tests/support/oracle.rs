@@ -45,6 +45,7 @@ pub const GROUPS: &[&str] = &[
     "measurement/length",
     "dump",
     "extent",
+    "is_collection",
     "linefrommultipoint",
     "makeenvelope",
     "nrings",
