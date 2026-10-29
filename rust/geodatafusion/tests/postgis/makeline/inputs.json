@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "makeline-points-xy",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "linestring"],
+      "arguments": [
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "POINT(1 1)"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-points-duplicate-preserved",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "duplicate"],
+      "arguments": [
+        {"type": "text", "value": "POINT(1 2)"},
+        {"type": "text", "value": "POINT(1 2)"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-point-linestring-xy",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "linestring"],
+      "arguments": [
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "LINESTRING(1 1, 2 3)"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-point-linestring-dedup-start",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "dedup"],
+      "arguments": [
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "LINESTRING(0 0, 1 1, 2 2)"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-linestring-point-duplicate-preserved",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "duplicate"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING(0 0, 1 1)"},
+        {"type": "text", "value": "POINT(1 1)"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-linestring-linestring-dedup-boundary",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "dedup"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING(0 0, 1 1)"},
+        {"type": "text", "value": "LINESTRING(1 1, 2 2, 2 2, 3 3)"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-points-xyz",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "xyz"],
+      "arguments": [
+        {"type": "text", "value": "POINT Z(1 2 3)"},
+        {"type": "text", "value": "POINT Z(4 5 6)"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-points-xym",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "xym"],
+      "arguments": [
+        {"type": "text", "value": "POINT M(1 2 3)"},
+        {"type": "text", "value": "POINT M(4 5 6)"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-points-xyzm",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "xyzm"],
+      "arguments": [
+        {"type": "text", "value": "POINT ZM(1 2 3 4)"},
+        {"type": "text", "value": "POINT ZM(5 6 7 8)"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-mixed-point-z-point-m",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "xyzm"],
+      "arguments": [
+        {"type": "text", "value": "POINT Z(0 0 1)"},
+        {"type": "text", "value": "POINT M(1 1 2)"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-point-xy-linestring-z",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "xyz"],
+      "arguments": [
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "LINESTRING Z(1 1 2, 2 2 3)"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-point-z-linestring-z-dedup-keeps-left-z",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "dedup", "xyz"],
+      "arguments": [
+        {"type": "text", "value": "POINT Z(0 0 9)"},
+        {"type": "text", "value": "LINESTRING Z(0 0 5, 1 1 6)"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-empty-left-point",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "empty", "single-point"],
+      "arguments": [
+        {"type": "text", "value": "POINT EMPTY"},
+        {"type": "text", "value": "POINT(1 2)"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-empty-both-points-z",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "empty", "xyz"],
+      "arguments": [
+        {"type": "text", "value": "POINT Z EMPTY"},
+        {"type": "text", "value": "POINT EMPTY"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-empty-linestring-with-point-z",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "empty", "xyz"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING EMPTY"},
+        {"type": "text", "value": "POINT Z(1 2 3)"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-null-left",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "null"],
+      "arguments": [
+        {"type": "null_text"},
+        {"type": "text", "value": "POINT(1 2)"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    },
+    {
+      "id": "makeline-null-right",
+      "function": "ST_MakeLine",
+      "tags": ["constructor", "null"],
+      "arguments": [
+        {"type": "text", "value": "POINT(1 2)"},
+        {"type": "null_text"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeLine.html"
+    }
+  ]
+}
