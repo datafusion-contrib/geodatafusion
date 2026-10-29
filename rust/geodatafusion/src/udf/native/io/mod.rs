@@ -1,6 +1,6 @@
 //! Geometry Input and Output
 
-mod geometry;
+pub(crate) mod geometry;
 mod wkb;
 mod wkt;
 

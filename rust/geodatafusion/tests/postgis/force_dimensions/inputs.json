@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "force-dimensions-point-xy",
+      "function": "ST_Force2D",
+      "tags": ["editor", "point", "xy"],
+      "arguments": [
+        {"type": "text", "value": "POINT(1 2)"},
+        {"type": "float64", "value": 9.5},
+        {"type": "float64", "value": 11.25}
+      ],
+      "result_columns": [
+        {"name": "force_2d", "type": "ewkb"},
+        {"name": "force_3d_default", "type": "ewkb"},
+        {"name": "force_3d_custom", "type": "ewkb"},
+        {"name": "force_3dz_default", "type": "ewkb"},
+        {"name": "force_3dz_custom", "type": "ewkb"},
+        {"name": "force_3dm_default", "type": "ewkb"},
+        {"name": "force_3dm_custom", "type": "ewkb"},
+        {"name": "force_4d_default", "type": "ewkb"},
+        {"name": "force_4d_custom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Force4D.html"
+    },
+    {
+      "id": "force-dimensions-point-xyz",
+      "function": "ST_Force3DZ",
+      "tags": ["editor", "point", "xyz"],
+      "arguments": [
+        {"type": "text", "value": "POINT Z(1 2 3)"},
+        {"type": "float64", "value": 9.5},
+        {"type": "float64", "value": 11.25}
+      ],
+      "result_columns": [
+        {"name": "force_2d", "type": "ewkb"},
+        {"name": "force_3d_default", "type": "ewkb"},
+        {"name": "force_3d_custom", "type": "ewkb"},
+        {"name": "force_3dz_default", "type": "ewkb"},
+        {"name": "force_3dz_custom", "type": "ewkb"},
+        {"name": "force_3dm_default", "type": "ewkb"},
+        {"name": "force_3dm_custom", "type": "ewkb"},
+        {"name": "force_4d_default", "type": "ewkb"},
+        {"name": "force_4d_custom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Force3DZ.html"
+    },
+    {
+      "id": "force-dimensions-point-xym",
+      "function": "ST_Force3DM",
+      "tags": ["editor", "point", "xym"],
+      "arguments": [
+        {"type": "text", "value": "POINT M(1 2 4)"},
+        {"type": "float64", "value": 9.5},
+        {"type": "float64", "value": 11.25}
+      ],
+      "result_columns": [
+        {"name": "force_2d", "type": "ewkb"},
+        {"name": "force_3d_default", "type": "ewkb"},
+        {"name": "force_3d_custom", "type": "ewkb"},
+        {"name": "force_3dz_default", "type": "ewkb"},
+        {"name": "force_3dz_custom", "type": "ewkb"},
+        {"name": "force_3dm_default", "type": "ewkb"},
+        {"name": "force_3dm_custom", "type": "ewkb"},
+        {"name": "force_4d_default", "type": "ewkb"},
+        {"name": "force_4d_custom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Force3DM.html"
+    },
+    {
+      "id": "force-dimensions-point-xyzm",
+      "function": "ST_Force4D",
+      "tags": ["editor", "point", "xyzm"],
+      "arguments": [
+        {"type": "text", "value": "POINT ZM(1 2 3 4)"},
+        {"type": "float64", "value": 9.5},
+        {"type": "float64", "value": 11.25}
+      ],
+      "result_columns": [
+        {"name": "force_2d", "type": "ewkb"},
+        {"name": "force_3d_default", "type": "ewkb"},
+        {"name": "force_3d_custom", "type": "ewkb"},
+        {"name": "force_3dz_default", "type": "ewkb"},
+        {"name": "force_3dz_custom", "type": "ewkb"},
+        {"name": "force_3dm_default", "type": "ewkb"},
+        {"name": "force_3dm_custom", "type": "ewkb"},
+        {"name": "force_4d_default", "type": "ewkb"},
+        {"name": "force_4d_custom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Force4D.html"
+    },
+    {
+      "id": "force-dimensions-point-empty-xyzm",
+      "function": "ST_Force2D",
+      "tags": ["editor", "point", "empty"],
+      "arguments": [
+        {"type": "text", "value": "POINT ZM EMPTY"},
+        {"type": "float64", "value": 9.5},
+        {"type": "float64", "value": 11.25}
+      ],
+      "result_columns": [
+        {"name": "force_2d", "type": "ewkb"},
+        {"name": "force_3d_default", "type": "ewkb"},
+        {"name": "force_3d_custom", "type": "ewkb"},
+        {"name": "force_3dz_default", "type": "ewkb"},
+        {"name": "force_3dz_custom", "type": "ewkb"},
+        {"name": "force_3dm_default", "type": "ewkb"},
+        {"name": "force_3dm_custom", "type": "ewkb"},
+        {"name": "force_4d_default", "type": "ewkb"},
+        {"name": "force_4d_custom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Force2D.html"
+    },
+    {
+      "id": "force-dimensions-linestring-xyz",
+      "function": "ST_Force3DM",
+      "tags": ["editor", "linestring", "xyz"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING Z(1 2 3, 4 5 6)"},
+        {"type": "float64", "value": 9.5},
+        {"type": "float64", "value": 11.25}
+      ],
+      "result_columns": [
+        {"name": "force_2d", "type": "ewkb"},
+        {"name": "force_3d_default", "type": "ewkb"},
+        {"name": "force_3d_custom", "type": "ewkb"},
+        {"name": "force_3dz_default", "type": "ewkb"},
+        {"name": "force_3dz_custom", "type": "ewkb"},
+        {"name": "force_3dm_default", "type": "ewkb"},
+        {"name": "force_3dm_custom", "type": "ewkb"},
+        {"name": "force_4d_default", "type": "ewkb"},
+        {"name": "force_4d_custom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Force3DM.html"
+    },
+    {
+      "id": "force-dimensions-polygon-xym",
+      "function": "ST_Force4D",
+      "tags": ["editor", "polygon", "xym"],
+      "arguments": [
+        {"type": "text", "value": "POLYGON M((0 0 1, 0 2 2, 2 2 3, 2 0 4, 0 0 1))"},
+        {"type": "float64", "value": 9.5},
+        {"type": "float64", "value": 11.25}
+      ],
+      "result_columns": [
+        {"name": "force_2d", "type": "ewkb"},
+        {"name": "force_3d_default", "type": "ewkb"},
+        {"name": "force_3d_custom", "type": "ewkb"},
+        {"name": "force_3dz_default", "type": "ewkb"},
+        {"name": "force_3dz_custom", "type": "ewkb"},
+        {"name": "force_3dm_default", "type": "ewkb"},
+        {"name": "force_3dm_custom", "type": "ewkb"},
+        {"name": "force_4d_default", "type": "ewkb"},
+        {"name": "force_4d_custom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Force4D.html"
+    },
+    {
+      "id": "force-dimensions-null",
+      "function": "ST_Force2D",
+      "tags": ["editor", "null"],
+      "arguments": [
+        {"type": "null_text"},
+        {"type": "float64", "value": 9.5},
+        {"type": "float64", "value": 11.25}
+      ],
+      "result_columns": [
+        {"name": "force_2d", "type": "ewkb"},
+        {"name": "force_3d_default", "type": "ewkb"},
+        {"name": "force_3d_custom", "type": "ewkb"},
+        {"name": "force_3dz_default", "type": "ewkb"},
+        {"name": "force_3dz_custom", "type": "ewkb"},
+        {"name": "force_3dm_default", "type": "ewkb"},
+        {"name": "force_3dm_custom", "type": "ewkb"},
+        {"name": "force_4d_default", "type": "ewkb"},
+        {"name": "force_4d_custom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Force2D.html"
+    }
+  ]
+}

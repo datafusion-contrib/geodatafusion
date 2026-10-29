@@ -659,3 +659,35 @@ def test_register_all_st_hasm_scalar_and_array():
     ).to_arrow_table()
     assert array.schema.field("has_m").type == pa.bool_()
     assert array.column("has_m").to_pylist() == [False, False, True, True]
+
+
+def test_register_all_st_force_dimensions():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    result = ctx.sql(
+        """
+        SELECT
+            ST_AsText(ST_Force2D(ST_GeomFromText('POINT ZM(1 2 3 4)'))) AS force_2d,
+            ST_AsText(ST_Force3D(ST_GeomFromText('POINT(1 2)'), 9.0)) AS force_3d,
+            ST_AsText(ST_Force3DZ(ST_GeomFromText('POINT M(1 2 4)'), 9.0)) AS force_3dz,
+            ST_AsText(ST_Force3DM(ST_GeomFromText('POINT Z(1 2 3)'), 11.0)) AS force_3dm,
+            ST_AsText(ST_Force4D(ST_GeomFromText('POINT(1 2)'), 9.0, 11.0)) AS force_4d,
+            ST_Force4D(NULL, 9.0, 11.0) AS null_geom
+        """
+    ).to_arrow_table()
+
+    assert (
+        result.schema.field("null_geom").metadata.get(b"ARROW:extension:name")
+        == b"geoarrow.geometry"
+    )
+    assert result.to_pylist() == [
+        {
+            "force_2d": "POINT(1 2)",
+            "force_3d": "POINT Z(1 2 9)",
+            "force_3dz": "POINT Z(1 2 9)",
+            "force_3dm": "POINT M(1 2 11)",
+            "force_4d": "POINT ZM(1 2 9 11)",
+            "null_geom": None,
+        }
+    ]

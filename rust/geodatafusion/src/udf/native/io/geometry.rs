@@ -14,7 +14,7 @@ use geoarrow_schema::{Dimension, GeometryCollectionType, GeometryType};
 /// representation remains subject to GeoArrow's `MixedGeometryBuilder`; all
 /// other geometries and nulls use the regular builder.
 #[derive(Debug)]
-pub(super) struct GeometryArrayBuilder {
+pub(crate) struct GeometryArrayBuilder {
     inner: GeometryBuilder,
     collections: [GeometryCollectionBuilder; 4],
     collection_lengths: [usize; 4],
@@ -23,7 +23,7 @@ pub(super) struct GeometryArrayBuilder {
 }
 
 impl GeometryArrayBuilder {
-    pub(super) fn new(typ: GeometryType) -> Self {
+    pub(crate) fn new(typ: GeometryType) -> Self {
         let coord_type = typ.coord_type();
         let metadata = typ.metadata().clone();
         let collections = std::array::from_fn(|index| {
@@ -42,7 +42,7 @@ impl GeometryArrayBuilder {
         }
     }
 
-    pub(super) fn push_geometry(
+    pub(crate) fn push_geometry(
         &mut self,
         geometry: Option<&impl GeometryTrait<T = f64>>,
     ) -> GeoArrowResult<()> {
@@ -77,7 +77,7 @@ impl GeometryArrayBuilder {
         Ok(())
     }
 
-    pub(super) fn finish(self) -> GeometryArray {
+    pub(crate) fn finish(self) -> GeometryArray {
         let inner = self.inner.finish();
         let mut type_ids = inner.type_ids().to_vec();
         let mut offsets = inner.offsets().to_vec();
