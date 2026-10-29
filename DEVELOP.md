@@ -57,8 +57,14 @@ cargo test -p geodatafusion
 ### SQL Logic Tests
 
 The `sqllogictests` target uses `sqllogictest::harness!` and the public
-registration entry point. It requires the `geos-3_11` feature, so the default
-`cargo test` invocation does not run it. Run the function SQL tests with:
+registration entry point. Tests that do not require GEOS run with the default
+features:
+
+```bash
+cargo test -p geodatafusion --test sqllogictests
+```
+
+The `geos-3_11` feature adds the GEOS-backed tests:
 
 ```bash
 cargo test -p geodatafusion --all-features --test sqllogictests
@@ -67,11 +73,13 @@ cargo test -p geodatafusion --all-features --test sqllogictests
 Use the standard libtest filter to run matching files:
 
 ```bash
-cargo test -p geodatafusion --all-features --test sqllogictests -- st_distance
+cargo test -p geodatafusion --test sqllogictests -- st_distance
+cargo test -p geodatafusion --all-features --test sqllogictests -- st_linemerge
 ```
 
 Keep one `.slt` file per function under `rust/geodatafusion/tests/slt/`, named
-after the SQL function (for example, `st_distance.slt`). Each file gets a fresh
+after the SQL function (for example, `st_distance.slt`). Place tests that
+require GEOS under `rust/geodatafusion/tests/slt_geos/`. Each file gets a fresh
 `SessionContext`; use `statement error` for expected SQL failures.
 
 ### Code Formatting

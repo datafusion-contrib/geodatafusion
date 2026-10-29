@@ -103,7 +103,15 @@ fn rows_from_batches(batches: &[RecordBatch]) -> Result<Vec<Vec<String>>, DataFu
     Ok(rows)
 }
 
+// GEOS-only cases live in the sibling `slt_geos/` directory.
+#[cfg(not(feature = "geos-3_11"))]
 sqllogictest::harness!(
     DataFusionConnection::new,
     concat!(env!("CARGO_MANIFEST_DIR"), "/tests/slt/**/*.slt")
+);
+
+#[cfg(feature = "geos-3_11")]
+sqllogictest::harness!(
+    DataFusionConnection::new,
+    concat!(env!("CARGO_MANIFEST_DIR"), "/tests/slt*/**/*.slt")
 );
