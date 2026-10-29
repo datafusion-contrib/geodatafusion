@@ -81,7 +81,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_X                | ✅          | Returns the X coordinate of a Point.                                                                    |
 | ST_Y                | ✅          | Returns the Y coordinate of a Point.                                                                    |
 | ST_Z                | ✅          | Returns the Z coordinate of a Point.                                                                    |
-| ST_Zmflag           |             | Returns a code indicating the ZM coordinate dimension of a geometry.                                    |
+| ST_Zmflag           | ✅          | Returns a code indicating the ZM coordinate dimension of a geometry.                                    |
 | ST_HasZ             | ✅          | Checks if a geometry has a Z dimension.                                                                 |
 | ST_HasM             | ✅          | Checks if a geometry has an M (measure) dimension.                                                      |
 
