@@ -1,0 +1,19 @@
+query T
+SELECT ST_AsText(ST_Point(1.5, -2.25));
+----
+POINT(1.5 -2.25)
+
+query T
+SELECT ST_AsText(ST_Point(CAST(x AS DOUBLE), CAST(y AS DOUBLE)))
+FROM (VALUES (1.0, 2.0), (3.0, 4.0)) AS points(x, y);
+----
+POINT(1 2)
+POINT(3 4)
+
+query T
+SELECT ST_AsText(ST_Point(CAST(NULL AS DOUBLE), 0));
+----
+NULL
+
+statement error
+SELECT ST_Point('not-a-number', 0);

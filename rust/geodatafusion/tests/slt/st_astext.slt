@@ -1,0 +1,20 @@
+query T
+SELECT ST_AsText(ST_GeomFromText('LINESTRING(0 0, 1 1)'));
+----
+LINESTRING(0 0,1 1)
+
+query T
+SELECT ST_AsText(ST_GeomFromText(wkt))
+FROM (
+  VALUES
+    ('POINT(1 2)'),
+    ('LINESTRING(0 0,2 2)')
+) AS geometries(wkt);
+----
+POINT(1 2)
+LINESTRING(0 0,2 2)
+
+query T
+SELECT ST_AsText(CAST(NULL AS VARCHAR));
+----
+NULL

@@ -57,7 +57,7 @@ cargo test -p geodatafusion
 ### SQL Logic Tests
 
 The `sqllogictests` target uses `sqllogictest::harness!` and the public
-registration entry point. Run the smoke suite with:
+registration entry point. Run the function SQL tests with:
 
 ```bash
 cargo test -p geodatafusion --all-features --test sqllogictests
@@ -66,11 +66,12 @@ cargo test -p geodatafusion --all-features --test sqllogictests
 Use the standard libtest filter to run matching files:
 
 ```bash
-cargo test -p geodatafusion --all-features --test sqllogictests -- smoke
+cargo test -p geodatafusion --all-features --test sqllogictests -- st_distance
 ```
 
-Add new cases as `.slt` files under `rust/geodatafusion/tests/slt/`. Each file
-gets a fresh `SessionContext`; use `statement error` for expected SQL failures.
+Keep one `.slt` file per function under `rust/geodatafusion/tests/slt/`, named
+after the SQL function (for example, `st_distance.slt`). Each file gets a fresh
+`SessionContext`; use `statement error` for expected SQL failures.
 
 ### Code Formatting
 
