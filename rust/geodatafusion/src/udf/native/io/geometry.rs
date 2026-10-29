@@ -6,12 +6,13 @@ use geoarrow_schema::error::{GeoArrowError, GeoArrowResult};
 use geoarrow_schema::type_id::GeometryTypeId;
 use geoarrow_schema::{Dimension, GeometryCollectionType, GeometryType};
 
-/// Builds a generic GeoArrow geometry array without flattening collections.
+/// Builds a generic GeoArrow geometry array while preserving top-level collection identity.
 ///
 /// GeoArrow 0.9's `GeometryBuilder` canonicalizes a one-member
-/// `GeometryCollection` to its child geometry. Collections use a dedicated
-/// child builder here, while all other geometries and nulls use the regular
-/// builder.
+/// top-level `GeometryCollection` to its child geometry. This builder routes
+/// top-level collections through a dedicated child builder. Nested collection
+/// representation remains subject to GeoArrow's `MixedGeometryBuilder`; all
+/// other geometries and nulls use the regular builder.
 #[derive(Debug)]
 pub(super) struct GeometryArrayBuilder {
     inner: GeometryBuilder,
