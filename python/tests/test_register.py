@@ -229,7 +229,8 @@ def test_register_all_st_hasm_scalar_and_array():
             ST_HasM(ST_GeomFromText('POINT Z(1 2 3)')) AS xyz,
             ST_HasM(ST_GeomFromText('POINT M(1 2 4)')) AS xym,
             ST_HasM(ST_GeomFromText('POINT ZM(1 2 3 4)')) AS xyzm,
-            ST_HasM(ST_GeomFromText(NULL)) AS null_value
+            ST_HasM(ST_GeomFromText(NULL)) AS null_value,
+            ST_HasM(NULL) AS raw_null
         """
     ).to_arrow_table()
     assert scalar.schema.field("xy").type == pa.bool_()
@@ -240,6 +241,7 @@ def test_register_all_st_hasm_scalar_and_array():
             "xym": True,
             "xyzm": True,
             "null_value": None,
+            "raw_null": None,
         }
     ]
 

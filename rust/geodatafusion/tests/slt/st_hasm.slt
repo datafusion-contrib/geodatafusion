@@ -27,3 +27,8 @@ query B
 SELECT ST_HasM(ST_GeomFromText(NULL));
 ----
 NULL
+
+query B
+SELECT ST_HasM(NULL);
+----
+NULL

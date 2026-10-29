@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use arrow_array::cast::AsArray;
-use arrow_array::{Array, Int32Array, RecordBatch, StringArray};
+use arrow_array::{Array, Int32Array, NullArray, RecordBatch, StringArray};
 use arrow_schema::{DataType, Field, Schema};
 use datafusion::prelude::SessionContext;
 use geoarrow_array::GeoArrowArray;
@@ -168,4 +168,40 @@ async fn native_generic_wkt_and_wkb_handle_mixed_dimensions_and_nulls() {
     }
     register_geo_array(&ctx, "wkb", wkb_builder.finish());
     assert_eq!(has_m_values(&ctx, "wkb").await, expected);
+}
+
+#[tokio::test]
+async fn raw_null_array_propagates() {
+    let ctx = SessionContext::new();
+    geodatafusion::register(&ctx);
+
+    let ids = Arc::new(Int32Array::from_iter_values(0..3));
+    let schema = Arc::new(Schema::new(vec![
+        Field::new("id", DataType::Int32, false),
+        Field::new("geometry", DataType::Null, true),
+    ]));
+    let batch = RecordBatch::try_new(schema, vec![ids, Arc::new(NullArray::new(3))])
+        .expect("valid null batch");
+    ctx.register_batch("raw_nulls", batch)
+        .expect("register null batch");
+
+    assert_eq!(
+        has_m_values(&ctx, "raw_nulls").await,
+        vec![None, None, None]
+    );
+}
+
+#[tokio::test]
+async fn non_geometry_type_is_rejected() {
+    let ctx = SessionContext::new();
+    geodatafusion::register(&ctx);
+
+    let error = match ctx.sql("SELECT ST_HasM(42)").await {
+        Ok(dataframe) => dataframe.collect().await.expect_err("query should fail"),
+        Err(error) => error,
+    };
+    assert!(
+        error.to_string().contains("Invalid WKT format"),
+        "unexpected error: {error}"
+    );
 }
