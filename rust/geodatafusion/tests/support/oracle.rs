@@ -34,8 +34,10 @@ pub const PINNED_POSTGIS_IMAGE: &str = "postgis/postgis:18-3.6@sha256:4a43e3c3e5
 
 /// Case groups are independent because each group has one parameter shape.
 pub const GROUPS: &[&str] = &[
+    "measurement/area",
     "measurement/distance",
     "measurement/dwithin",
+    "measurement/length",
     "dump",
     "extent",
 ];
@@ -63,6 +65,7 @@ pub struct OracleCase {
 pub enum OracleArgument {
     Text { value: String },
     Float64 { value: f64 },
+    NullText,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -656,6 +659,7 @@ async fn execute_datafusion(
         .map(|argument| match argument {
             OracleArgument::Text { value } => ScalarValue::Utf8(Some(value.clone())),
             OracleArgument::Float64 { value } => ScalarValue::Float64(Some(*value)),
+            OracleArgument::NullText => ScalarValue::Utf8(None),
         })
         .collect::<Vec<_>>();
 
@@ -841,6 +845,7 @@ async fn execute_postgis(
         match argument {
             OracleArgument::Text { value } => params.push(value),
             OracleArgument::Float64 { value } => params.push(value),
+            OracleArgument::NullText => params.push(&None::<String>),
         }
     }
 
