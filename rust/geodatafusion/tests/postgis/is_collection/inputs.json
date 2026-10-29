@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "iscollection-point",
+      "function": "ST_IsCollection",
+      "tags": ["scalar", "type"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsCollection.html"
+    },
+    {
+      "id": "iscollection-linestring",
+      "function": "ST_IsCollection",
+      "tags": ["scalar", "type"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsCollection.html"
+    },
+    {
+      "id": "iscollection-polygon",
+      "function": "ST_IsCollection",
+      "tags": ["scalar", "type"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,1 0,1 1,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsCollection.html"
+    },
+    {
+      "id": "iscollection-multipoint",
+      "function": "ST_IsCollection",
+      "tags": ["scalar", "type"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsCollection.html"
+    },
+    {
+      "id": "iscollection-multilinestring",
+      "function": "ST_IsCollection",
+      "tags": ["scalar", "type"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((0 0,1 1))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsCollection.html"
+    },
+    {
+      "id": "iscollection-multipolygon",
+      "function": "ST_IsCollection",
+      "tags": ["scalar", "type"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,1 0,1 1,0 0)))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsCollection.html"
+    },
+    {
+      "id": "iscollection-geometrycollection",
+      "function": "ST_IsCollection",
+      "tags": ["scalar", "type"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POINT(1 2),LINESTRING(0 0,1 1))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsCollection.html"
+    },
+    {
+      "id": "iscollection-multipoint-empty",
+      "function": "ST_IsCollection",
+      "tags": ["scalar", "type"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsCollection.html"
+    },
+    {
+      "id": "iscollection-geometrycollection-empty",
+      "function": "ST_IsCollection",
+      "tags": ["scalar", "type"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsCollection.html"
+    },
+    {
+      "id": "iscollection-null",
+      "function": "ST_IsCollection",
+      "tags": ["scalar", "type"],
+      "arguments": [
+        {
+          "type": "null_text"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsCollection.html"
+    }
+  ]
+}

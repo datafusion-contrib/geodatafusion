@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "dimension-point-empty",
+      "function": "ST_Dimension",
+      "tags": ["point", "empty"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "dimension-linestring-empty",
+      "function": "ST_Dimension",
+      "tags": ["linestring", "empty"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "dimension-polygon-empty",
+      "function": "ST_Dimension",
+      "tags": ["polygon", "empty"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "dimension-multipoint-empty",
+      "function": "ST_Dimension",
+      "tags": ["multipoint", "empty"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "dimension-multilinestring-empty",
+      "function": "ST_Dimension",
+      "tags": ["multilinestring", "empty"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "dimension-multipolygon-empty",
+      "function": "ST_Dimension",
+      "tags": ["multipolygon", "empty"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "dimension-geometrycollection-empty",
+      "function": "ST_Dimension",
+      "tags": ["geometrycollection", "empty"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "dimension-geometrycollection-polygon-empty",
+      "function": "ST_Dimension",
+      "tags": ["geometrycollection", "polygon", "empty"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POLYGON EMPTY)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "dimension-geometrycollection-empty-members",
+      "function": "ST_Dimension",
+      "tags": ["geometrycollection", "empty"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(LINESTRING EMPTY,POINT EMPTY)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "dimension-geometrycollection-maximum",
+      "function": "ST_Dimension",
+      "tags": ["geometrycollection", "maximum"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POINT(1 2),POLYGON EMPTY)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "dimension-null",
+      "function": "ST_Dimension",
+      "tags": ["null"],
+      "arguments": [
+        {
+          "type": "null_text"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    }
+  ]
+}

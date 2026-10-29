@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "point-n-zm-first",
+      "function": "ST_PointN",
+      "tags": ["linestring", "index", "xyzm"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM (0 0 1 2,1 1 3 4,2 2 5 6)"
+        },
+        {
+          "type": "text",
+          "value": "1"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointN.html"
+    },
+    {
+      "id": "point-n-zm-last",
+      "function": "ST_PointN",
+      "tags": ["linestring", "negative-index", "xyzm"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM (0 0 1 2,1 1 3 4,2 2 5 6)"
+        },
+        {
+          "type": "text",
+          "value": "-1"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointN.html"
+    },
+    {
+      "id": "point-n-m-second-from-end",
+      "function": "ST_PointN",
+      "tags": ["linestring", "negative-index", "xym"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M (0 0 10,1 1 20,2 2 30)"
+        },
+        {
+          "type": "text",
+          "value": "-2"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointN.html"
+    },
+    {
+      "id": "point-n-zero-null",
+      "function": "ST_PointN",
+      "tags": ["linestring", "index", "null"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)"
+        },
+        {
+          "type": "text",
+          "value": "0"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointN.html"
+    },
+    {
+      "id": "point-n-positive-out-of-range-null",
+      "function": "ST_PointN",
+      "tags": ["linestring", "index", "null"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)"
+        },
+        {
+          "type": "text",
+          "value": "3"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointN.html"
+    },
+    {
+      "id": "point-n-negative-out-of-range-null",
+      "function": "ST_PointN",
+      "tags": ["linestring", "negative-index", "null"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)"
+        },
+        {
+          "type": "text",
+          "value": "-3"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointN.html"
+    },
+    {
+      "id": "point-n-empty-line-string-null",
+      "function": "ST_PointN",
+      "tags": ["linestring", "empty", "null"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM EMPTY"
+        },
+        {
+          "type": "text",
+          "value": "1"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointN.html"
+    },
+    {
+      "id": "point-n-multilinestring-null",
+      "function": "ST_PointN",
+      "tags": ["multilinestring", "null"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((0 0,1 1))"
+        },
+        {
+          "type": "text",
+          "value": "1"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointN.html"
+    },
+    {
+      "id": "point-n-null-geometry",
+      "function": "ST_PointN",
+      "tags": ["null"],
+      "arguments": [
+        {
+          "type": "null_text"
+        },
+        {
+          "type": "text",
+          "value": "1"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointN.html"
+    },
+    {
+      "id": "point-n-null-index",
+      "function": "ST_PointN",
+      "tags": ["linestring", "null-index"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)"
+        },
+        {
+          "type": "null_text"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointN.html"
+    }
+  ]
+}
