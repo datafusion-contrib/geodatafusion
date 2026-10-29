@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "hasz-xy-point",
+      "function": "ST_HasZ",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_HasZ.html"
+    },
+    {
+      "id": "hasz-xyz-point",
+      "function": "ST_HasZ",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z(1 2 3)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_HasZ.html"
+    },
+    {
+      "id": "hasz-xym-point",
+      "function": "ST_HasZ",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT M(1 2 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_HasZ.html"
+    },
+    {
+      "id": "hasz-xyzm-point",
+      "function": "ST_HasZ",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM(1 2 3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_HasZ.html"
+    },
+    {
+      "id": "hasz-xyz-empty",
+      "function": "ST_HasZ",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_HasZ.html"
+    },
+    {
+      "id": "hasz-xyz-geometrycollection",
+      "function": "ST_HasZ",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION Z(POINT Z(1 2 3))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_HasZ.html"
+    },
+    {
+      "id": "hasz-null",
+      "function": "ST_HasZ",
+      "tags": ["scalar", "dimension"],
+      "arguments": [
+        {
+          "type": "null_text"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_HasZ.html"
+    }
+  ]
+}
