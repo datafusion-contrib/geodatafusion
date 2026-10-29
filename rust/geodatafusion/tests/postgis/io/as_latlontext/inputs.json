@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "latlon-default",
+      "function": "ST_AsLatLonText",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(-3.2342342 -2.32498)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "text",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsLatLonText.html",
+      "tags": ["default-format"]
+    },
+    {
+      "id": "latlon-normalized",
+      "function": "ST_AsLatLonText",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(-302.2342342 -792.32498)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "text",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsLatLonText.html",
+      "tags": ["normalization"]
+    },
+    {
+      "id": "latlon-point-z",
+      "function": "ST_AsLatLonText",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z(1.5 2.25 9)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "text",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsLatLonText.html",
+      "tags": ["3d"]
+    },
+    {
+      "id": "latlon-null",
+      "function": "ST_AsLatLonText",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "text",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsLatLonText.html",
+      "tags": ["null"]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+# ST_BoundingDiagonal basics.
+
+query T
+SELECT ST_AsText(ST_BoundingDiagonal(ST_GeomFromText('LINESTRING(1 2,3 4,5 0)')));
+----
+LINESTRING(1 0,5 4)
+
+query T
+SELECT ST_AsText(ST_BoundingDiagonal(ST_GeomFromText('LINESTRING Z(1 2 3,3 4 5,5 6 0)')));
+----
+LINESTRING Z(1 2 0,5 6 5)
+
+query T
+SELECT ST_AsText(ST_BoundingDiagonal(ST_GeomFromText('LINESTRING M(1 2 9,3 4 5)')));
+----
+LINESTRING M(1 2 5,3 4 9)
+
+query T
+SELECT ST_AsText(ST_BoundingDiagonal(ST_GeomFromText('LINESTRING ZM(1 2 3 9,3 4 5 6)')));
+----
+LINESTRING ZM(1 2 3 6,3 4 5 9)
+
+query T
+SELECT ST_AsText(ST_BoundingDiagonal(ST_GeomFromText('LINESTRING(1.25 -2.75,3.5 4.125)')));
+----
+LINESTRING(1.25 -2.75,3.5 4.125)
+
+query T
+SELECT ST_AsText(ST_BoundingDiagonal(ST_GeomFromText('POINT(1 2)')));
+----
+LINESTRING(1 2,1 2)
+
+query T
+SELECT ST_AsText(ST_BoundingDiagonal(ST_GeomFromText('POINT EMPTY')));
+----
+LINESTRING EMPTY
+
+query T
+SELECT ST_AsText(ST_BoundingDiagonal(ST_GeomFromText('POINT Z EMPTY')));
+----
+LINESTRING Z EMPTY
+
+query T
+SELECT ST_AsText(ST_BoundingDiagonal(ST_GeomFromText('POINT Z EMPTY'), true));
+----
+LINESTRING Z(0 0 0,0 0 0)
+
+query T
+SELECT ST_AsText(ST_BoundingDiagonal(ST_GeomFromText('POINT M EMPTY'), true));
+----
+LINESTRING M(0 0 0,0 0 0)
+
+query T
+SELECT ST_AsText(ST_BoundingDiagonal(ST_GeomFromText('POINT(1 2)'), NULL));
+----
+NULL
+
+query T
+SELECT ST_AsText(ST_BoundingDiagonal(NULL));
+----
+NULL

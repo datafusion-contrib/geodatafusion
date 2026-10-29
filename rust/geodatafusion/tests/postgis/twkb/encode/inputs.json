@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "twkb-point-default",
+      "function": "ST_AsTWKB",
+      "arguments": [
+        { "type": "text", "value": "POINT(1.23456789 2.3456789)" }
+      ],
+      "result_columns": [
+        { "name": "twkb", "type": "bytea" }
+      ],
+      "comparison": { "mode": "binary-exact" },
+      "source": "https://postgis.net/docs/ST_AsTWKB.html",
+      "tags": ["scalar", "default-precision"]
+    },
+    {
+      "id": "twkb-point-empty",
+      "function": "ST_AsTWKB",
+      "arguments": [
+        { "type": "text", "value": "POINT EMPTY" }
+      ],
+      "result_columns": [
+        { "name": "twkb", "type": "bytea" }
+      ],
+      "comparison": { "mode": "binary-exact" },
+      "source": "https://postgis.net/docs/ST_AsTWKB.html",
+      "tags": ["scalar", "empty"]
+    },
+    {
+      "id": "twkb-linestring-default",
+      "function": "ST_AsTWKB",
+      "arguments": [
+        { "type": "text", "value": "LINESTRING(-1.5 2.25,3.5 -4.75)" }
+      ],
+      "result_columns": [
+        { "name": "twkb", "type": "bytea" }
+      ],
+      "comparison": { "mode": "binary-exact" },
+      "source": "https://postgis.net/docs/ST_AsTWKB.html",
+      "tags": ["scalar", "linestring"]
+    },
+    {
+      "id": "twkb-geometrycollection-empty",
+      "function": "ST_AsTWKB",
+      "arguments": [
+        { "type": "text", "value": "GEOMETRYCOLLECTION EMPTY" }
+      ],
+      "result_columns": [
+        { "name": "twkb", "type": "bytea" }
+      ],
+      "comparison": { "mode": "binary-exact" },
+      "source": "https://postgis.net/docs/ST_AsTWKB.html",
+      "tags": ["scalar", "empty", "collection"]
+    },
+    {
+      "id": "twkb-geometrycollection-mixed",
+      "function": "ST_AsTWKB",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POINT(1 2),LINESTRING(0 0,1 1))"
+        }
+      ],
+      "result_columns": [
+        { "name": "twkb", "type": "bytea" }
+      ],
+      "comparison": { "mode": "binary-exact" },
+      "source": "https://postgis.net/docs/ST_AsTWKB.html",
+      "tags": ["scalar", "collection"]
+    }
+  ]
+}

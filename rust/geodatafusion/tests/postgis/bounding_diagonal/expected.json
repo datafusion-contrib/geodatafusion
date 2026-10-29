@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "a7b67b150a1b8dc9417cc8fb4e5e27e4eea003eaa75494ad2c03e47c8befe686",
+  "postgis_sql_sha256": "14085ae9ce67d634ea7e50b462e0f45729de989c85192773478fddd099160c57",
+  "datafusion_sql_sha256": "1316b23290461be4fb72f39418433f3d543545117cb2d17d0054721c8fbec072",
+  "cases": {
+    "bounding-diagonal-collection-xyz": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200008002000000000000000000f03f00000000000000000000000000000840000000000000144000000000000010400000000000001840"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-empty-2d": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200000000000000"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-empty-xym": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200004000000000"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-empty-xyz": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200008000000000"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-empty-xyzm": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "01020000c000000000"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-fractional-line-2d": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200000002000000000000000000f43f00000000000006c00000000000000c400000000000801040"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-line-2d": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200000002000000000000000000f03f000000000000000000000000000014400000000000001040"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-line-xym": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200004002000000000000000000f03f00000000000000400000000000001440000000000000084000000000000010400000000000002240"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-line-xyz": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200008002000000000000000000f03f00000000000000400000000000000000000000000000144000000000000018400000000000001440"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-line-xyzm": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "01020000c002000000000000000000f03f0000000000000040000000000000084000000000000018400000000000000840000000000000104000000000000014400000000000002240"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-multilinestring-xyz": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200008002000000000000000000f03f00000000000000000000000000000040000000000000144000000000000014400000000000001840"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-multipoint-2d": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200000002000000000000000000f03f000000000000000000000000000014400000000000001040"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-multipolygon-2d": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200000002000000000000000000f03f000000000000004000000000000008400000000000001040"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-point-2d": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200000002000000000000000000f03f0000000000000040000000000000f03f0000000000000040"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-point-xym": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200004002000000000000000000f03f00000000000000400000000000002240000000000000f03f00000000000000400000000000002240"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-point-xyz": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200008002000000000000000000f03f00000000000000400000000000000840000000000000f03f00000000000000400000000000000840"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-point-xyzm": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "01020000c002000000000000000000f03f000000000000004000000000000008400000000000002240000000000000f03f000000000000004000000000000008400000000000002240"
+          }
+        ]
+      ]
+    },
+    "bounding-diagonal-polygon-xyz": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010200008002000000000000000000f03f00000000000000400000000000000840000000000000104000000000000014400000000000001040"
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_12"],
+  "cases": [
+    {
+      "id": "invalid-edges-adjacent-valid",
+      "function": "ST_CoverageInvalidEdges",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,1 0,1 1,0 1,0 0))"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON((1 0,2 0,2 1,1 1,1 0))"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON((10 0,11 0,11 1,10 1,10 0))"
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_CoverageInvalidEdges.html",
+      "tags": [
+        "window",
+        "adjacent",
+        "valid"
+      ]
+    },
+    {
+      "id": "invalid-edges-overlap",
+      "function": "ST_CoverageInvalidEdges",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,1 0,1 1,0 1,0 0))"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON((0.5 0,1.5 0,1.5 1,0.5 1,0.5 0))"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON((10 0,11 0,11 1,10 1,10 0))"
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_CoverageInvalidEdges.html",
+      "tags": [
+        "window",
+        "overlap"
+      ]
+    },
+    {
+      "id": "invalid-edges-small-gap-detected",
+      "function": "ST_CoverageInvalidEdges",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,1 0,1 1,0 1,0 0))"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON((1.1 0,2.1 0,2.1 1,1.1 1,1.1 0))"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON((10 0,11 0,11 1,10 1,10 0))"
+        },
+        {
+          "type": "float64",
+          "value": 0.2
+        },
+        {
+          "type": "float64",
+          "value": 0.2
+        },
+        {
+          "type": "float64",
+          "value": 0.2
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_CoverageInvalidEdges.html",
+      "tags": [
+        "window",
+        "gap",
+        "tolerance"
+      ]
+    },
+    {
+      "id": "invalid-edges-small-gap-ignored",
+      "function": "ST_CoverageInvalidEdges",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,1 0,1 1,0 1,0 0))"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON((1.1 0,2.1 0,2.1 1,1.1 1,1.1 0))"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON((10 0,11 0,11 1,10 1,10 0))"
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_CoverageInvalidEdges.html",
+      "tags": [
+        "window",
+        "gap",
+        "tolerance"
+      ]
+    },
+    {
+      "id": "invalid-edges-z",
+      "function": "ST_CoverageInvalidEdges",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z ((0 0 1,1 0 2,1 1 3,0 1 4,0 0 1))"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON Z ((0.5 0 2,1.5 0 3,1.5 1 4,0.5 1 5,0.5 0 2))"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON Z ((10 0 1,11 0 2,11 1 3,10 1 4,10 0 1))"
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_CoverageInvalidEdges.html",
+      "tags": [
+        "window",
+        "z",
+        "overlap"
+      ]
+    },
+    {
+      "id": "invalid-edges-skips-null-and-point",
+      "function": "ST_CoverageInvalidEdges",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,1 0,1 1,0 1,0 0))"
+        },
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_CoverageInvalidEdges.html",
+      "tags": [
+        "window",
+        "null",
+        "non-polygonal"
+      ]
+    },
+    {
+      "id": "invalid-edges-partition-isolation",
+      "function": "ST_CoverageInvalidEdges",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,1 0,1 1,0 1,0 0))"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON((0.5 0,1.5 0,1.5 1,0.5 1,0.5 0))"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON((10 0,11 0,11 1,10 1,10 0))"
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_CoverageInvalidEdges.html",
+      "tags": [
+        "window",
+        "partition"
+      ]
+    }
+  ]
+}

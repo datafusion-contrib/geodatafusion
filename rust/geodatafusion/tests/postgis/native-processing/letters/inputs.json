@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "letters-default-a",
+      "function": "ST_Letters",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "A"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom_type",
+          "type": "text"
+        },
+        {
+          "name": "is_empty",
+          "type": "boolean"
+        },
+        {
+          "name": "ndims",
+          "type": "float64"
+        },
+        {
+          "name": "has_points",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Letters.html"
+    },
+    {
+      "id": "letters-default-mixed",
+      "function": "ST_Letters",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "Az09"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom_type",
+          "type": "text"
+        },
+        {
+          "name": "is_empty",
+          "type": "boolean"
+        },
+        {
+          "name": "ndims",
+          "type": "float64"
+        },
+        {
+          "name": "has_points",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Letters.html"
+    },
+    {
+      "id": "letters-default-space",
+      "function": "ST_Letters",
+      "arguments": [
+        {
+          "type": "text",
+          "value": " "
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom_type",
+          "type": "text"
+        },
+        {
+          "name": "is_empty",
+          "type": "boolean"
+        },
+        {
+          "name": "ndims",
+          "type": "float64"
+        },
+        {
+          "name": "has_points",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Letters.html"
+    },
+    {
+      "id": "letters-default-empty",
+      "function": "ST_Letters",
+      "arguments": [
+        {
+          "type": "text",
+          "value": ""
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom_type",
+          "type": "text"
+        },
+        {
+          "name": "is_empty",
+          "type": "boolean"
+        },
+        {
+          "name": "ndims",
+          "type": "float64"
+        },
+        {
+          "name": "has_points",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Letters.html"
+    },
+    {
+      "id": "letters-default-unknown",
+      "function": "ST_Letters",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "\u00e9"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom_type",
+          "type": "text"
+        },
+        {
+          "name": "is_empty",
+          "type": "boolean"
+        },
+        {
+          "name": "ndims",
+          "type": "float64"
+        },
+        {
+          "name": "has_points",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Letters.html"
+    }
+  ]
+}

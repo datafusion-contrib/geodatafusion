@@ -16,12 +16,18 @@ name = "_rust"
 crate-type = ["cdylib"]
 
 [features]
+# Forward the Rust crate's GEOS-backed UDFs. The published wheel is built with
+# only `pyo3/extension-module`, so those UDFs are absent from it; build with
+# `--features geos-3_12` where GEOS 3.12 or newer is available to include them.
+geos-3_11 = ["geodatafusion/geos-3_11"]
+geos-3_12 = ["geos-3_11", "geodatafusion/geos-3_12"]
 
 [dependencies]
 datafusion = { version = "55", default-features = false }
 datafusion-ffi = "55"
 geoarrow-schema = "0.9.0"
 geodatafusion = { path = "../rust/geodatafusion" }
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread", "sync"] }
 pyo3 = { version = "0.29", features = [
     "hashbrown",
     "serde",

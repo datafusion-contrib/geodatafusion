@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "geobuf-properties-and-null",
+      "function": "ST_AsGeobuf",
+      "arguments": [
+        { "type": "text", "value": "POINT(1.5 2.5)", "nullable": false },
+        { "type": "text", "value": "alpha", "nullable": false },
+        { "type": "int64", "value": 7, "nullable": false },
+        { "type": "text", "value": null, "nullable": true }
+      ],
+      "result_columns": [
+        { "name": "geobuf", "type": "bytea" }
+      ],
+      "comparison": { "mode": "geobuf-semantic" },
+      "source": "https://postgis.net/docs/ST_AsGeobuf.html",
+      "tags": ["aggregate", "properties", "null"]
+    },
+    {
+      "id": "geobuf-negative-int",
+      "function": "ST_AsGeobuf",
+      "arguments": [
+        { "type": "text", "value": "POINT(3 4)", "nullable": false },
+        { "type": "text", "value": "beta", "nullable": false },
+        { "type": "int64", "value": -12, "nullable": false },
+        { "type": "text", "value": "present", "nullable": false }
+      ],
+      "result_columns": [
+        { "name": "geobuf", "type": "bytea" }
+      ],
+      "comparison": { "mode": "geobuf-semantic" },
+      "source": "https://postgis.net/docs/ST_AsGeobuf.html",
+      "tags": ["aggregate", "properties", "negative-int"]
+    },
+    {
+      "id": "geobuf-empty-point",
+      "function": "ST_AsGeobuf",
+      "arguments": [
+        { "type": "text", "value": "POINT EMPTY", "nullable": false },
+        { "type": "text", "value": "empty", "nullable": false },
+        { "type": "int64", "value": 0, "nullable": false },
+        { "type": "text", "value": "x", "nullable": false }
+      ],
+      "result_columns": [
+        { "name": "geobuf", "type": "bytea" }
+      ],
+      "comparison": { "mode": "geobuf-semantic" },
+      "source": "https://postgis.net/docs/ST_AsGeobuf.html",
+      "tags": ["aggregate", "empty"]
+    },
+    {
+      "id": "geobuf-multipolygon",
+      "function": "ST_AsGeobuf",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,0 3,3 3,3 0,0 0)),((10 10,10 12,12 12,12 10,10 10)))",
+          "nullable": false
+        },
+        { "type": "text", "value": "multi", "nullable": false },
+        { "type": "int64", "value": 2, "nullable": false },
+        { "type": "text", "value": null, "nullable": true }
+      ],
+      "result_columns": [
+        { "name": "geobuf", "type": "bytea" }
+      ],
+      "comparison": { "mode": "geobuf-semantic" },
+      "source": "https://postgis.net/docs/ST_AsGeobuf.html",
+      "tags": ["aggregate", "multipolygon"]
+    },
+    {
+      "id": "geobuf-null-geometry",
+      "function": "ST_AsGeobuf",
+      "arguments": [
+        { "type": "text", "value": null, "nullable": true },
+        { "type": "text", "value": "null-geom", "nullable": false },
+        { "type": "int64", "value": 1, "nullable": false },
+        { "type": "text", "value": "x", "nullable": false }
+      ],
+      "result_columns": [
+        { "name": "geobuf", "type": "bytea" }
+      ],
+      "comparison": { "mode": "geobuf-semantic" },
+      "source": "https://postgis.net/docs/ST_AsGeobuf.html",
+      "tags": ["aggregate", "null-geometry"]
+    }
+  ]
+}

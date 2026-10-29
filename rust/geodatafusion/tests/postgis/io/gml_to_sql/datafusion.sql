@@ -1,0 +1,1 @@
+SELECT ST_AsEWKB(ST_GMLToSQL($1)) AS geom

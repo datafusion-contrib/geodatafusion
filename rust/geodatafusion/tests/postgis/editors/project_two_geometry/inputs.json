@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "project-two-geometry",
+      "function": "ST_Project",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT(3 4)"
+        },
+        {
+          "type": "float64",
+          "value": 50000.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 16
+      },
+      "source": "https://postgis.net/docs/ST_Project.html",
+      "tags": [
+        "two-geometry"
+      ]
+    },
+    {
+      "id": "project-two-geometry-zero",
+      "function": "ST_Project",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT(3 4)"
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 16
+      },
+      "source": "https://postgis.net/docs/ST_Project.html",
+      "tags": [
+        "two-geometry",
+        "zero"
+      ]
+    },
+    {
+      "id": "project-two-geometry-negative",
+      "function": "ST_Project",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT(3 4)"
+        },
+        {
+          "type": "float64",
+          "value": -1000.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 16
+      },
+      "source": "https://postgis.net/docs/ST_Project.html",
+      "tags": [
+        "two-geometry",
+        "negative"
+      ]
+    },
+    {
+      "id": "project-two-geometry-same",
+      "function": "ST_Project",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT(1 2)"
+        },
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT(1 2)"
+        },
+        {
+          "type": "float64",
+          "value": 50000.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 16
+      },
+      "source": "https://postgis.net/docs/ST_Project.html",
+      "tags": [
+        "two-geometry",
+        "same-point"
+      ]
+    },
+    {
+      "id": "project-two-geometry-z",
+      "function": "ST_Project",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT Z(0 0 10)"
+        },
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT Z(3 4 20)"
+        },
+        {
+          "type": "float64",
+          "value": 5.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 16
+      },
+      "source": "https://postgis.net/docs/ST_Project.html",
+      "tags": [
+        "two-geometry",
+        "xyz"
+      ]
+    },
+    {
+      "id": "project-two-geometry-m",
+      "function": "ST_Project",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT M(0 0 10)"
+        },
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT M(3 4 20)"
+        },
+        {
+          "type": "float64",
+          "value": 5.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 16
+      },
+      "source": "https://postgis.net/docs/ST_Project.html",
+      "tags": [
+        "two-geometry",
+        "xym"
+      ]
+    },
+    {
+      "id": "project-two-geometry-zm",
+      "function": "ST_Project",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT ZM(0 0 10 100)"
+        },
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT ZM(3 4 20 200)"
+        },
+        {
+          "type": "float64",
+          "value": 5.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 16
+      },
+      "source": "https://postgis.net/docs/ST_Project.html",
+      "tags": [
+        "two-geometry",
+        "xyzm"
+      ]
+    },
+    {
+      "id": "project-two-geometry-mixed-srid",
+      "function": "ST_Project",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=3857;POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT(3 4)"
+        },
+        {
+          "type": "float64",
+          "value": 50000.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 16
+      },
+      "source": "https://postgis.net/docs/ST_Project.html",
+      "tags": [
+        "two-geometry",
+        "mixed-srid"
+      ]
+    },
+    {
+      "id": "project-two-geometry-empty",
+      "function": "ST_Project",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT EMPTY"
+        },
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT(3 4)"
+        },
+        {
+          "type": "float64",
+          "value": 1000.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 16
+      },
+      "source": "https://postgis.net/docs/ST_Project.html",
+      "tags": [
+        "two-geometry",
+        "empty"
+      ]
+    }
+  ]
+}

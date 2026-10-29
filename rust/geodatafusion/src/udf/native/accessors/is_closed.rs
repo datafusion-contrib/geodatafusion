@@ -8,12 +8,17 @@ use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
-use geo_traits::{CoordTrait, GeometryTrait, LineStringTrait, MultiLineStringTrait};
-use geoarrow_array::{GeoArrowArrayAccessor, WrapArray, downcast_geoarrow_array};
+use geo_traits::{
+    CoordTrait, GeometryCollectionTrait, GeometryTrait, LineStringTrait, MultiLineStringTrait,
+    MultiPointTrait, MultiPolygonTrait, PointTrait,
+};
+use geoarrow_array::{GeoArrowArrayAccessor, downcast_geoarrow_array};
 use geoarrow_schema::GeoArrowType;
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
+use crate::udf::native::accessors::is_empty::is_geometry_topologically_empty;
+use crate::udf::native::geometry::geometry_array_from_type;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct IsClosed;
@@ -53,7 +58,9 @@ impl ScalarUDFImpl for IsClosed {
         Some(DOCUMENTATION.get_or_init(|| {
             Documentation::builder(
                 DOC_SECTION_OTHER,
-                "Tests if a LineStrings's start and end points are coincident.",
+                "Returns true when a geometry is non-empty, every part is non-empty, and every \
+                 line-like part has coincident start and end points. ST_IsClosed(NULL) is NULL \
+                 and EMPTY geometries are not closed, following PostGIS.",
                 "ST_IsClosed(geom)",
             )
             .with_argument("geom", "geometry")
@@ -68,7 +75,7 @@ fn is_closed_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue
         .next()
         .unwrap();
     let geo_type = GeoArrowType::from_arrow_field(&args.arg_fields[0])?;
-    let geo_array = geo_type.wrap_array(&array)?;
+    let geo_array = geometry_array_from_type(&geo_type, &array)?;
     let geo_array_ref = geo_array.as_ref();
 
     let result = downcast_geoarrow_array!(geo_array_ref, impl_is_closed)?;
@@ -83,29 +90,30 @@ fn impl_is_closed<'a>(
 
     for item in array.iter() {
         match item {
-            Some(geom) => {
-                let geom = geom?;
-                let is_closed = match geom.as_type() {
-                    geo_traits::GeometryType::LineString(ls) => check_ls_closed(ls),
-                    geo_traits::GeometryType::MultiLineString(mls) => {
-                        mls.num_line_strings() > 0
-                            && mls.line_strings().all(|ls| check_ls_closed(&ls))
-                    }
-                    geo_traits::GeometryType::Point(_)
-                    | geo_traits::GeometryType::MultiPoint(_)
-                    | geo_traits::GeometryType::Polygon(_)
-                    | geo_traits::GeometryType::MultiPolygon(_) => true,
-                    _ => false,
-                };
-                builder.append_value(is_closed);
-            }
-            None => {
-                builder.append_null();
-            }
+            Some(geom) => builder.append_value(is_closed(&geom?)),
+            None => builder.append_null(),
         }
     }
 
     Ok(builder.finish())
+}
+
+/// PostGIS reports a geometry as closed when it is non-empty, every part is
+/// non-empty, and every line-like part has coincident start and end points.
+fn is_closed(geom: &impl GeometryTrait<T = f64>) -> bool {
+    use geo_traits::GeometryType::*;
+
+    if is_geometry_topologically_empty(geom) {
+        return false;
+    }
+    match geom.as_type() {
+        Point(_) | Polygon(_) | Rect(_) | Triangle(_) | Line(_) => true,
+        LineString(line_string) => check_ls_closed(line_string),
+        MultiPoint(points) => points.points().all(|point| point.coord().is_some()),
+        MultiLineString(lines) => lines.line_strings().all(|line| is_closed(&line)),
+        MultiPolygon(polygons) => polygons.polygons().all(|polygon| is_closed(&polygon)),
+        GeometryCollection(collection) => collection.geometries().all(|child| is_closed(&child)),
+    }
 }
 
 fn check_ls_closed(ls: &impl LineStringTrait<T = f64>) -> bool {

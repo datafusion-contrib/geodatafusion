@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "generic-two-rows-2d-zm",
+      "function": "ST_GeomFromText",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(30 10)"
+        },
+        {
+          "type": "text",
+          "value": "01010000000000000000003e400000000000002440"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING ZM (0 0 1 2,1 2 3 4)"
+        },
+        {
+          "type": "text",
+          "value": "01ba0b00000200000000000000000000000000000000000000000000000000f03f0000000000000040000000000000f03f000000000000004000000000000008400000000000001040"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom_from_text",
+          "type": "ewkb"
+        },
+        {
+          "name": "geometry_from_text",
+          "type": "ewkb"
+        },
+        {
+          "name": "wkt_to_sql",
+          "type": "ewkb"
+        },
+        {
+          "name": "geom_from_wkb",
+          "type": "ewkb"
+        },
+        {
+          "name": "wkb_to_sql",
+          "type": "ewkb"
+        },
+        {
+          "name": "as_binary",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromText.html",
+      "tags": [
+        "generic-wkt",
+        "generic-wkb",
+        "alias",
+        "multi-row",
+        "dimensions",
+        "empty",
+        "null"
+      ]
+    },
+    {
+      "id": "generic-empty-and-collection",
+      "function": "ST_GeomFromText",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POINT(1 2))"
+        },
+        {
+          "type": "text",
+          "value": "0107000000010000000101000000000000000000f03f0000000000000040"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        },
+        {
+          "type": "text",
+          "value": "010300000000000000"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom_from_text",
+          "type": "ewkb"
+        },
+        {
+          "name": "geometry_from_text",
+          "type": "ewkb"
+        },
+        {
+          "name": "wkt_to_sql",
+          "type": "ewkb"
+        },
+        {
+          "name": "geom_from_wkb",
+          "type": "ewkb"
+        },
+        {
+          "name": "wkb_to_sql",
+          "type": "ewkb"
+        },
+        {
+          "name": "as_binary",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromText.html",
+      "tags": [
+        "generic-wkt",
+        "generic-wkb",
+        "alias",
+        "multi-row",
+        "dimensions",
+        "empty",
+        "null"
+      ]
+    },
+    {
+      "id": "generic-null-row",
+      "function": "ST_GeomFromText",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        },
+        {
+          "type": "text",
+          "value": "01010000000000000000003e400000000000002440"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom_from_text",
+          "type": "ewkb"
+        },
+        {
+          "name": "geometry_from_text",
+          "type": "ewkb"
+        },
+        {
+          "name": "wkt_to_sql",
+          "type": "ewkb"
+        },
+        {
+          "name": "geom_from_wkb",
+          "type": "ewkb"
+        },
+        {
+          "name": "wkb_to_sql",
+          "type": "ewkb"
+        },
+        {
+          "name": "as_binary",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromText.html",
+      "tags": [
+        "generic-wkt",
+        "generic-wkb",
+        "alias",
+        "multi-row",
+        "dimensions",
+        "empty",
+        "null"
+      ]
+    }
+  ]
+}

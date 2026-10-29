@@ -1,0 +1,104 @@
+# ST_CoverageUnion aggregate contracts. Run only with geos-3_11 enabled.
+
+query R
+SELECT ST_Area(ST_CoverageUnion(ST_GeomFromText(g)))
+FROM (
+    SELECT 'POLYGON((0 0,1 0,1 1,0 1,0 0))' AS g
+    UNION ALL
+    SELECT 'POLYGON((1 0,2 0,2 1,1 1,1 0))'
+) AS t;
+----
+2
+
+query R
+SELECT ST_Area(ST_CoverageUnion(ST_GeomFromText(g)))
+FROM (
+    SELECT 'MULTIPOLYGON(((0 0,4 0,4 1,3 1,1 1,0 1,0 0)),((0 1,1 1,1 3,0 3,0 1)))' AS g
+    UNION ALL
+    SELECT 'MULTIPOLYGON(((3 1,4 1,4 3,3 3,3 1)),((0 3,1 3,3 3,4 3,4 4,0 4,0 3)))'
+) AS t;
+----
+12
+
+query I
+SELECT ST_NumInteriorRings(ST_CoverageUnion(ST_GeomFromText(g)))
+FROM (
+    SELECT 'MULTIPOLYGON(((0 0,4 0,4 1,3 1,1 1,0 1,0 0)),((0 1,1 1,1 3,0 3,0 1)))' AS g
+    UNION ALL
+    SELECT 'MULTIPOLYGON(((3 1,4 1,4 3,3 3,3 1)),((0 3,1 3,3 3,4 3,4 4,0 4,0 3)))'
+) AS t;
+----
+1
+
+query T
+SELECT ST_GeometryType(ST_CoverageUnion(ST_GeomFromText(g)))
+FROM (
+    SELECT 'POLYGON((0 0,1 0,1 1,0 1,0 0))' AS g
+    UNION ALL
+    SELECT 'POLYGON((1 0,2 0,2 1,1 1,1 0))'
+) AS t;
+----
+ST_Polygon
+
+query I
+SELECT ST_Zmflag(ST_CoverageUnion(ST_GeomFromText(g)))
+FROM (
+    SELECT 'POLYGON Z ((0 0 1,1 0 2,1 1 3,0 1 4,0 0 1))' AS g
+    UNION ALL
+    SELECT 'POLYGON Z ((1 0 2,2 0 3,2 1 4,1 1 3,1 0 2))'
+) AS t;
+----
+0
+
+query R
+SELECT ST_Area(ST_CoverageUnion(ST_GeomFromText(g)))
+FROM (
+    SELECT NULL AS g
+    UNION ALL
+    SELECT 'POLYGON((0 0,1 0,1 1,0 1,0 0))'
+) AS t;
+----
+1
+
+query R
+SELECT ST_Area(ST_CoverageUnion(ST_GeomFromText(g)))
+FROM (
+    SELECT NULL AS g
+    UNION ALL
+    SELECT NULL
+) AS t;
+----
+NULL
+
+query TR
+SELECT grp, ST_Area(ST_CoverageUnion(ST_GeomFromText(wkt)))
+FROM (
+    SELECT 'a' AS grp, 'POLYGON((0 0,1 0,1 1,0 1,0 0))' AS wkt
+    UNION ALL
+    SELECT 'a', 'POLYGON((1 0,2 0,2 1,1 1,1 0))'
+    UNION ALL
+    SELECT 'b', 'POLYGON((10 0,11 0,11 1,10 1,10 0))'
+) AS input
+GROUP BY grp
+ORDER BY grp;
+----
+a 2
+b 1
+
+query R
+SELECT ST_Area(ST_CoverageUnion(ST_GeomFromText(wkt)))
+FROM (
+    SELECT 'POLYGON((0 0,1 0,1 1,0 1,0 0))' AS wkt
+) AS input
+WHERE FALSE;
+----
+NULL
+
+query TR
+SELECT grp, ST_Area(ST_CoverageUnion(ST_GeomFromText(wkt)))
+FROM (
+    SELECT 'a' AS grp, 'POLYGON((0 0,1 0,1 1,0 1,0 0))' AS wkt
+) AS input
+WHERE FALSE
+GROUP BY grp;
+----

@@ -1,0 +1,8 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 29aea5e835bbe83251b432b8b07d43b22fc5077dd6d6fd158bc54bb7f1dc98af # shrinks to (NamedAffineParams { translate: [0.0, 0.0, 0.0], angle: 0.0, scale: [0.25, 0.25, 0.25] }, PointInput { dimension: XYM, coord_type: Separated, crs: None, coords: [0.0, 0.0, 0.0, 7266.726469943596] })
+cc a2ff905b11133a4d86ef3e197b4a35a99bfd86c4fda3e854a3b3166010227572 # shrinks to (AffineParams { a: 0.25, b: -0.0, d: 0.0, e: 0.25, z_scale: 0.25, x_off: 0.0, y_off: 0.0, z_off: 0.0 }, AffineParams { a: 0.25, b: -0.0, d: 0.0, e: 0.25, z_scale: 0.25, x_off: 0.0, y_off: 0.0, z_off: 0.0 }, PointInput { dimension: XYM, coord_type: Separated, crs: None, coords: [0.0, 0.0, 0.0, 8712.168003354054] })

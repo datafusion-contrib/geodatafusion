@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "c6764432ee3d600484ece6e0a0fb6fe85994c28f6e803529d91a8d3cd79c7d0f",
+  "postgis_sql_sha256": "d19eafe9657685e4c2014153af9c2bb5913bcf25fc94d82919d4d9192be6ffa4",
+  "datafusion_sql_sha256": "7e92417f3614a156bc1b23de48bcd569dc612c2dd0ee12a2ffdcd61b5dc3cb12",
+  "cases": {
+    "longest-line-empty-returns-null": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "longest-line-null-returns-null": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "longest-line-point-to-linestring": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "0102000000020000000000000000001440000000000000000000000000000000000000000000002440"
+          }
+        ]
+      ]
+    },
+    "longest-line-scalene-polygon": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "0102000000020000000000000000000000000000000000f03f00000000000024400000000000000000"
+          }
+        ]
+      ]
+    },
+    "longest-line-xym-input-drops-m": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "0102000000020000000000000000002440000000000000000000000000000008400000000000001040"
+          }
+        ]
+      ]
+    },
+    "longest-line-xyz-input-drops-z": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "0102000000020000000000000000002440000000000000000000000000000008400000000000001040"
+          }
+        ]
+      ]
+    },
+    "longest-line-xyzm-input-drops-z-and-m": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "0102000000020000000000000000002440000000000000000000000000000008400000000000001040"
+          }
+        ]
+      ]
+    }
+  }
+}

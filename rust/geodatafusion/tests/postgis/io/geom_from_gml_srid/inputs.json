@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "gml-srid-override-3857",
+      "function": "ST_GeomFromGML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "<gml:Point xmlns:gml=\"http://www.opengis.net/gml/3.2\" srsName=\"EPSG:4326\"><gml:pos>30 10</gml:pos></gml:Point>"
+        },
+        {
+          "type": "int64",
+          "value": 3857
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromGML.html",
+      "tags": ["srid-override"]
+    },
+    {
+      "id": "gml-srid-zero",
+      "function": "ST_GeomFromGML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "<gml:Point xmlns:gml=\"http://www.opengis.net/gml/3.2\"><gml:pos>1 2</gml:pos></gml:Point>"
+        },
+        {
+          "type": "int64",
+          "value": 0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromGML.html",
+      "tags": ["srid-zero"]
+    },
+    {
+      "id": "gml-srid-null",
+      "function": "ST_GeomFromGML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "<gml:Point xmlns:gml=\"http://www.opengis.net/gml/3.2\"><gml:pos>1 2</gml:pos></gml:Point>"
+        },
+        {
+          "type": "int64",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromGML.html",
+      "tags": ["srid-null", "strict-null"]
+    }
+  ]
+}

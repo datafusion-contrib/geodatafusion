@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "1d1ff839b629651be7c04623148d588f6d6ddc489d2e70f144365d76cc7a792b",
+  "postgis_sql_sha256": "2374d11f77c6ccff6d331d56422c7a3522b8ca4bdd125242a08a3bad993467d4",
+  "datafusion_sql_sha256": "bfb84b6823cfe0d0aecadae5e7702f82c4275e31193748029d453b991513f017",
+  "cases": {
+    "flatgeobuf-attributes-empty-null": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "text"
+        },
+        {
+          "name": "name",
+          "type": "text"
+        },
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "1"
+          },
+          {
+            "type": "text",
+            "value": "point"
+          },
+          {
+            "type": "ewkb",
+            "hex": "0101000020e6100000000000000000f03f0000000000000040"
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "value": "2"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "value": "3"
+          },
+          {
+            "type": "text",
+            "value": "null-geom"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,102 @@
+# Planar ST_Project SQL contracts.
+#
+# Expected values come from the real PostGIS geometry overloads:
+#   ST_Project(point, distance, azimuth)
+#   ST_Project(from_point, to_point, distance)
+# Azimuth is in radians clockwise from north; distance is in SRID units.
+
+query RR
+SELECT ST_X(ST_Project(ST_GeomFromText('POINT(3 4)'), 1000.0, 0.0)),
+       ST_Y(ST_Project(ST_GeomFromText('POINT(3 4)'), 1000.0, 0.0));
+----
+3 1004
+
+query RR
+SELECT ST_X(ST_Project(ST_GeomFromText('POINT(3 4)'), 1000.0, pi() / 2)),
+       ST_Y(ST_Project(ST_GeomFromText('POINT(3 4)'), 1000.0, pi() / 2));
+----
+1003 4
+
+query RR
+SELECT ST_X(ST_Project(ST_GeomFromText('POINT(3 4)'), 1000.0, pi())),
+       ST_Y(ST_Project(ST_GeomFromText('POINT(3 4)'), 1000.0, pi()));
+----
+3 -996
+
+query RR
+SELECT ST_X(ST_Project(ST_GeomFromText('POINT(3 4)'), 1000.0, -pi() / 2)),
+       ST_Y(ST_Project(ST_GeomFromText('POINT(3 4)'), 1000.0, -pi() / 2));
+----
+-997 4
+
+query R
+SELECT ST_X(ST_Project(ST_GeomFromText('POINT(3 4)'), -1000.0, pi() / 2));
+----
+-997
+
+query RRR
+SELECT ST_X(ST_Project(ST_GeomFromText('POINT Z(3 4 7)'), 1000.0, pi() / 2)),
+       ST_Y(ST_Project(ST_GeomFromText('POINT Z(3 4 7)'), 1000.0, pi() / 2)),
+       ST_Z(ST_Project(ST_GeomFromText('POINT Z(3 4 7)'), 1000.0, pi() / 2));
+----
+1003 4 7
+
+query RRR
+SELECT ST_X(ST_Project(ST_GeomFromText('POINT M(3 4 9)'), 1000.0, pi() / 2)),
+       ST_Y(ST_Project(ST_GeomFromText('POINT M(3 4 9)'), 1000.0, pi() / 2)),
+       ST_M(ST_Project(ST_GeomFromText('POINT M(3 4 9)'), 1000.0, pi() / 2));
+----
+1003 4 9
+
+query RR
+SELECT ST_X(ST_Project(
+           ST_GeomFromText('POINT(0 0)'),
+           ST_GeomFromText('POINT(3 4)'),
+           50000.0)),
+       ST_Y(ST_Project(
+           ST_GeomFromText('POINT(0 0)'),
+           ST_GeomFromText('POINT(3 4)'),
+           50000.0));
+----
+30003 40004
+
+query RR
+SELECT ST_X(ST_Project(
+           ST_GeomFromText('POINT(0 0)'),
+           ST_GeomFromText('POINT(3 4)'),
+           -1000.0)),
+       ST_Y(ST_Project(
+           ST_GeomFromText('POINT(0 0)'),
+           ST_GeomFromText('POINT(3 4)'),
+           -1000.0));
+----
+-597 -796
+
+query RR
+SELECT ST_X(ST_Project(
+           ST_GeomFromText('POINT(1 2)'),
+           ST_GeomFromText('POINT(1 2)'),
+           50000.0)),
+       ST_Y(ST_Project(
+           ST_GeomFromText('POINT(1 2)'),
+           ST_GeomFromText('POINT(1 2)'),
+           50000.0));
+----
+1 2
+
+query BBB
+SELECT ST_Project(ST_GeomFromText('POINT EMPTY'), 1000.0, 0.0) IS NULL,
+       ST_Project(ST_GeomFromText('POINT(0 0)'), 1000.0, NULL::DOUBLE) IS NULL,
+       ST_Project(ST_GeomFromText(NULL), 1000.0, 0.0) IS NULL;
+----
+true true true
+
+statement error Argument must be POINT geometry
+SELECT ST_Project(ST_GeomFromText('LINESTRING(0 0,1 1)'), 1000.0, 0.0);
+
+statement error Arguments must be POINT geometries
+SELECT ST_Project(
+    ST_GeomFromText('LINESTRING(0 0,1 1)'),
+    ST_GeomFromText('POINT(3 4)'),
+    1000.0
+);

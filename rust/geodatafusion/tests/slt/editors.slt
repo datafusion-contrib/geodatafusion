@@ -1,0 +1,357 @@
+# Geometry editor SQL contracts.
+#
+# Expected values were reviewed against PostGIS 3.6.4 and the raw-Arrow
+# differential baselines under tests/postgis/vertex-editors and
+# tests/postgis/dimension-editors.
+
+# ST_AddPoint
+
+query T
+SELECT ST_AsText(ST_AddPoint(ST_GeomFromText('LINESTRING(0 0,1 1,3 3,4 4)'), ST_GeomFromText('POINT(2 2)'), 2));
+----
+LINESTRING(0 0,1 1,2 2,3 3,4 4)
+
+query T
+SELECT ST_AsText(ST_AddPoint(ST_GeomFromText('LINESTRING(0 0,1 1,3 3,4 4)'), ST_GeomFromText('POINT(2 2)'), 4));
+----
+LINESTRING(0 0,1 1,3 3,4 4,2 2)
+
+query T
+SELECT ST_AsText(ST_AddPoint(ST_GeomFromText('LINESTRING(0 0,1 1)'), ST_GeomFromText('POINT(2 2)')));
+----
+LINESTRING(0 0,1 1,2 2)
+
+query T
+SELECT ST_AsText(ST_AddPoint(ST_GeomFromText('LINESTRING EMPTY'), ST_GeomFromText('POINT(2 2)')));
+----
+LINESTRING(2 2)
+
+query T
+SELECT ST_AsText(ST_AddPoint(ST_GeomFromText('LINESTRING Z (0 0 1,1 1 2)'), ST_GeomFromText('POINT ZM (2 2 9 8)'), 1));
+----
+LINESTRING Z(0 0 1,2 2 9,1 1 2)
+
+statement error LWGEOM_addpoint: Invalid offset
+SELECT ST_AsText(ST_AddPoint(ST_GeomFromText('LINESTRING(0 0,1 1)'), ST_GeomFromText('POINT(2 2)'), -2));
+
+statement error LWGEOM_addpoint: Invalid offset
+SELECT ST_AsText(ST_AddPoint(ST_GeomFromText('LINESTRING(0 0,1 1)'), ST_GeomFromText('POINT(2 2)'), 3));
+
+# ST_RemovePoint
+
+query T
+SELECT ST_AsText(ST_RemovePoint(ST_GeomFromText('LINESTRING Z (0 0 1,1 1 2,2 2 3)'), 1));
+----
+LINESTRING Z(0 0 1,2 2 3)
+
+query T
+SELECT ST_AsText(ST_RemovePoint(ST_GeomFromText('LINESTRING M (0 0 1,1 1 2,2 2 3)'), 1));
+----
+LINESTRING M(0 0 1,2 2 3)
+
+statement error Can't remove points from a single segment line
+SELECT ST_AsText(ST_RemovePoint(ST_GeomFromText('LINESTRING(0 0,1 1)'), 0));
+
+statement error Point index out of range \(0\.\.2\)
+SELECT ST_AsText(ST_RemovePoint(ST_GeomFromText('LINESTRING(0 0,1 1,2 2)'), 3));
+
+# ST_SetPoint
+
+query T
+SELECT ST_AsText(ST_SetPoint(ST_GeomFromText('LINESTRING Z (0 0 1,1 1 2,2 2 3)'), -1, ST_GeomFromText('POINT(9 9)')));
+----
+LINESTRING Z(0 0 1,1 1 2,9 9 0)
+
+query T
+SELECT ST_AsText(ST_SetPoint(ST_GeomFromText('LINESTRING M (0 0 1,1 1 2)'), 0, ST_GeomFromText('POINT Z (9 9 8)')));
+----
+LINESTRING M(9 9 0,1 1 2)
+
+statement error Line has no points
+SELECT ST_AsText(ST_SetPoint(ST_GeomFromText('LINESTRING EMPTY'), 0, ST_GeomFromText('POINT(1 1)')));
+
+statement error abs\(Point index\) out of range \(-\)\(0\.\.2\)
+SELECT ST_AsText(ST_SetPoint(ST_GeomFromText('LINESTRING(0 0,1 1,2 2)'), 3, ST_GeomFromText('POINT(9 9)')));
+
+# ST_Reverse
+
+query T
+SELECT ST_AsText(ST_Reverse(ST_GeomFromText('POINT M (1 2 3)')));
+----
+POINT M(1 2 3)
+
+query T
+SELECT ST_AsText(ST_Reverse(ST_GeomFromText('LINESTRING Z (0 0 1,1 1 2)')));
+----
+LINESTRING Z(1 1 2,0 0 1)
+
+query T
+SELECT ST_AsText(ST_Reverse(ST_GeomFromText('POLYGON Z ((0 0 1,8 0 2,8 8 3,0 8 4,0 0 1),(2 2 5,2 4 6,4 4 7,4 2 8,2 2 5))')));
+----
+POLYGON Z((0 0 1,0 8 4,8 8 3,8 0 2,0 0 1),(2 2 5,4 2 8,4 4 7,2 4 6,2 2 5))
+
+query T
+SELECT ST_AsText(ST_Reverse(ST_GeomFromText('GEOMETRYCOLLECTION ZM (POINT ZM (1 2 3 4),MULTILINESTRING ZM ((0 0 1 2,1 1 3 4)))')));
+----
+GEOMETRYCOLLECTION ZM(POINT ZM(1 2 3 4),MULTILINESTRING ZM((1 1 3 4,0 0 1 2)))
+
+query T
+SELECT ST_AsText(ST_Reverse(ST_GeomFromText('GEOMETRYCOLLECTION Z EMPTY')));
+----
+GEOMETRYCOLLECTION Z EMPTY
+
+# ST_Scroll
+
+query T
+SELECT ST_AsText(ST_Scroll(ST_GeomFromText('LINESTRING(0 0,10 0,5 5,0 0)'), ST_GeomFromText('POINT(5 5)')));
+----
+LINESTRING(5 5,0 0,10 0,5 5)
+
+query T
+SELECT ST_AsText(ST_Scroll(ST_GeomFromText('LINESTRING M (0 0 0,10 0 2,0 0 0)'), ST_GeomFromText('POINT Z (10 0 2)')));
+----
+LINESTRING M(10 0 2,0 0 0,10 0 2)
+
+query T
+SELECT ST_AsText(ST_Scroll(ST_GeomFromText('LINESTRING(0 0,6 0,5 5,6 0,0 0)'), ST_GeomFromText('POINT(6 0)')));
+----
+LINESTRING(6 0,5 5,6 0,0 0,6 0)
+
+statement error ptarray_scroll_in_place: input POINTARRAY is not closed
+SELECT ST_AsText(ST_Scroll(ST_GeomFromText('LINESTRING(0 0,10 0,5 5)'), ST_GeomFromText('POINT(0 0)')));
+
+statement error ptarray_scroll_in_place: input POINTARRAY does not contain the given point
+SELECT ST_AsText(ST_Scroll(ST_GeomFromText('LINESTRING(0 0,10 0,5 5,0 0)'), ST_GeomFromText('POINT(9 9)')));
+
+statement error First argument must be a line
+SELECT ST_AsText(ST_Scroll(ST_GeomFromText('POINT(0 0)'), ST_GeomFromText('POINT(0 0)')));
+
+statement error Second argument must be a point
+SELECT ST_AsText(ST_Scroll(ST_GeomFromText('LINESTRING(0 0,10 0,0 0)'), ST_GeomFromText('MULTIPOINT((10 0))')));
+
+# Dimension editors
+
+query T
+SELECT ST_AsText(ST_Force2D(ST_GeomFromText('POINT ZM (1 2 3 4)')));
+----
+POINT(1 2)
+
+query T
+SELECT ST_AsText(ST_Force2D(ST_GeomFromText('MULTILINESTRING M ((0 0 1,1 1 2))')));
+----
+MULTILINESTRING((0 0,1 1))
+
+query T
+SELECT ST_AsText(ST_FlipCoordinates(ST_GeomFromText('POINT ZM (1 2 3 4)')));
+----
+POINT ZM(2 1 3 4)
+
+query T
+SELECT ST_AsText(ST_FlipCoordinates(ST_GeomFromText('LINESTRING Z (0 1 1,2 3 4)')));
+----
+LINESTRING Z(1 0 1,3 2 4)
+
+query T
+SELECT ST_AsText(ST_Force3D(ST_GeomFromText('POINT(1 2)')));
+----
+POINT Z(1 2 0)
+
+query T
+SELECT ST_AsText(ST_Force3D(ST_GeomFromText('POINT M (1 2 3)')));
+----
+POINT Z(1 2 0)
+
+query T
+SELECT ST_AsText(ST_Force3D(ST_GeomFromText('POINT M (1 2 3)'), 9.0));
+----
+POINT Z(1 2 9)
+
+query T
+SELECT ST_AsText(ST_Force3DZ(ST_GeomFromText('POINT M (1 2 3)'), 9.0));
+----
+POINT Z(1 2 9)
+
+query T
+SELECT ST_AsText(ST_Force3DM(ST_GeomFromText('POINT Z (1 2 3)')));
+----
+POINT M(1 2 0)
+
+query T
+SELECT ST_AsText(ST_Force3DM(ST_GeomFromText('POINT Z (1 2 3)'), 8.0));
+----
+POINT M(1 2 8)
+
+query T
+SELECT ST_AsText(ST_Force4D(ST_GeomFromText('POINT(1 2)'), 9.0, 8.0));
+----
+POINT ZM(1 2 9 8)
+
+query T
+SELECT ST_AsText(ST_Force4D(ST_GeomFromText('POINT ZM (1 2 3 4)')));
+----
+POINT ZM(1 2 3 4)
+
+query T
+SELECT ST_AsText(ST_SwapOrdinates(ST_GeomFromText('POINT ZM (1 2 3 4)'), 'zm'));
+----
+POINT ZM(1 2 4 3)
+
+query T
+SELECT ST_AsText(ST_SwapOrdinates(ST_GeomFromText('POINT M (1 2 3)'), 'ym'));
+----
+POINT M(1 3 2)
+
+statement error Invalid ordinate name 'q'
+SELECT ST_AsText(ST_SwapOrdinates(ST_GeomFromText('POINT(1 2)'), 'xq'));
+
+# Bare NULL arguments are strict for every editor.
+
+query B
+SELECT ST_AddPoint(NULL, NULL) IS NULL;
+----
+true
+
+query B
+SELECT ST_RemovePoint(NULL, 0) IS NULL;
+----
+true
+
+query B
+SELECT ST_SetPoint(NULL, 0, NULL) IS NULL;
+----
+true
+
+query B
+SELECT ST_Reverse(NULL) IS NULL;
+----
+true
+
+query B
+SELECT ST_Scroll(NULL, NULL) IS NULL;
+----
+true
+
+query B
+SELECT ST_FlipCoordinates(NULL) IS NULL;
+----
+true
+
+query B
+SELECT ST_Force2D(NULL) IS NULL;
+----
+true
+
+query B
+SELECT ST_Force3D(NULL) IS NULL;
+----
+true
+
+query B
+SELECT ST_Force3DZ(NULL) IS NULL;
+----
+true
+
+query B
+SELECT ST_Force3DM(NULL) IS NULL;
+----
+true
+
+query B
+SELECT ST_Force4D(NULL) IS NULL;
+----
+true
+
+query B
+SELECT ST_SwapOrdinates(NULL, 'xy') IS NULL;
+----
+true
+
+query B
+SELECT ST_SwapOrdinates(NULL, 'xq') IS NULL;
+----
+true
+
+# NULL arguments win over operation validation, while a non-null geometry
+# still validates its ordinate specification.
+
+query B
+SELECT ST_SwapOrdinates(ST_GeomFromText('POINT(1 2)'), CAST(NULL AS VARCHAR)) IS NULL;
+----
+true
+
+statement error Invalid ordinate name 'q'
+SELECT ST_AsText(ST_SwapOrdinates(ST_GeomFromText('POINT(1 2)'), 'xq'));
+
+# Public IS NULL over a non-null WKT source keeps nullable output schemas.
+
+statement ok
+CREATE TABLE editor_input (wkt VARCHAR NOT NULL);
+
+statement ok
+INSERT INTO editor_input VALUES ('POINT(1 2)'), ('LINESTRING(0 0,10 0,5 5,0 0)');
+
+query B
+SELECT ST_AddPoint(ST_GeomFromText(wkt), ST_GeomFromText(wkt), CAST(NULL AS INT)) IS NULL
+FROM editor_input WHERE wkt = 'POINT(1 2)';
+----
+true
+
+query B
+SELECT ST_RemovePoint(ST_GeomFromText(wkt), CAST(NULL AS INT)) IS NULL
+FROM editor_input WHERE wkt = 'POINT(1 2)';
+----
+true
+
+query B
+SELECT ST_SetPoint(ST_GeomFromText(wkt), CAST(NULL AS INT), ST_GeomFromText(wkt)) IS NULL
+FROM editor_input WHERE wkt = 'POINT(1 2)';
+----
+true
+
+query B
+SELECT ST_Scroll(ST_GeomFromText(wkt), CAST(NULL AS VARCHAR)) IS NULL
+FROM editor_input WHERE wkt LIKE 'LINESTRING%';
+----
+true
+
+query B
+SELECT ST_Force3D(ST_GeomFromText(wkt), CAST(NULL AS DOUBLE)) IS NULL
+FROM editor_input WHERE wkt = 'POINT(1 2)';
+----
+true
+
+query B
+SELECT ST_Force3DZ(ST_GeomFromText(wkt), CAST(NULL AS DOUBLE)) IS NULL
+FROM editor_input WHERE wkt = 'POINT(1 2)';
+----
+true
+
+query B
+SELECT ST_Force3DM(ST_GeomFromText(wkt), CAST(NULL AS DOUBLE)) IS NULL
+FROM editor_input WHERE wkt = 'POINT(1 2)';
+----
+true
+
+query B
+SELECT ST_Force4D(ST_GeomFromText(wkt), CAST(NULL AS DOUBLE), CAST(0 AS DOUBLE)) IS NULL
+FROM editor_input WHERE wkt = 'POINT(1 2)';
+----
+true
+
+query B
+SELECT ST_Force4D(ST_GeomFromText(wkt), CAST(0 AS DOUBLE), CAST(NULL AS DOUBLE)) IS NULL
+FROM editor_input WHERE wkt = 'POINT(1 2)';
+----
+true
+
+query B
+SELECT ST_SwapOrdinates(ST_GeomFromText(wkt), CAST(NULL AS VARCHAR)) IS NULL
+FROM editor_input WHERE wkt = 'POINT(1 2)';
+----
+true
+
+query B
+SELECT ST_Force3D(ST_GeomFromText(wkt), CAST(9 AS DOUBLE)) IS NULL
+FROM editor_input WHERE wkt = 'POINT(1 2)';
+----
+false

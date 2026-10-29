@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "87013a399aa6d27d9d83b6bab77ff6d401c937a99fb4c6d907c3dba3c55abce8",
+  "postgis_sql_sha256": "e32b39eafb87c1fa9a6577b0159d32957fe6c903f2c7a946b1d25c30a9208730",
+  "datafusion_sql_sha256": "0bcd87114b853ecbd376055eec75b301dbe2bd826e326489f6af0cf5beb7c4f8",
+  "cases": {
+    "distance-0": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "int32"
+        },
+        {
+          "name": "cid",
+          "type": "int32"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "int32",
+            "value": 1
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 2
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 3
+          },
+          {
+            "type": "null"
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 4
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 5
+          },
+          {
+            "type": "int32",
+            "value": 2
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 6
+          },
+          {
+            "type": "int32",
+            "value": 3
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 7
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 8
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 9
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ]
+      ]
+    },
+    "distance-1-4": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "int32"
+        },
+        {
+          "name": "cid",
+          "type": "int32"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "int32",
+            "value": 1
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 2
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 3
+          },
+          {
+            "type": "null"
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 4
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 5
+          },
+          {
+            "type": "int32",
+            "value": 2
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 6
+          },
+          {
+            "type": "int32",
+            "value": 3
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 7
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 8
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 9
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ]
+      ]
+    },
+    "distance-1000": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "int32"
+        },
+        {
+          "name": "cid",
+          "type": "int32"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "int32",
+            "value": 1
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 2
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 3
+          },
+          {
+            "type": "null"
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 4
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 5
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 6
+          },
+          {
+            "type": "int32",
+            "value": 2
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 7
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 8
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ],
+        [
+          {
+            "type": "int32",
+            "value": 9
+          },
+          {
+            "type": "int32",
+            "value": 0
+          }
+        ]
+      ]
+    }
+  }
+}

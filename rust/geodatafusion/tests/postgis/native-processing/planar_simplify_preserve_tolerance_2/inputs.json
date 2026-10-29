@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "simplify-preserve-tolerance-2-line",
+      "function": "ST_SimplifyPreserveTopology",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1,2 0)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPreserveTopology.html"
+    },
+    {
+      "id": "simplify-preserve-tolerance-2-empty",
+      "function": "ST_SimplifyPreserveTopology",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING EMPTY",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPreserveTopology.html"
+    },
+    {
+      "id": "simplify-preserve-tolerance-2-z",
+      "function": "ST_SimplifyPreserveTopology",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z (0 0 1,1 1 2,2 0 3)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPreserveTopology.html"
+    },
+    {
+      "id": "simplify-preserve-tolerance-2-m",
+      "function": "ST_SimplifyPreserveTopology",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M (0 0 10,1 1 20,2 0 30)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPreserveTopology.html"
+    },
+    {
+      "id": "simplify-preserve-tolerance-2-zm",
+      "function": "ST_SimplifyPreserveTopology",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM (0 0 1 10,1 1 2 20,2 0 3 30)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPreserveTopology.html"
+    },
+    {
+      "id": "simplify-preserve-tolerance-2-multipolygon-zm",
+      "function": "ST_SimplifyPreserveTopology",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON ZM (((0 0 1 10,10 0.1 2 20,20 0 3 30,20 20 4 40,0 20 5 50,0 0 1 10)),((40 40 6 60,60 40 7 70,60 60 8 80,40 60 9 90,40 40 6 60)))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPreserveTopology.html"
+    },
+    {
+      "id": "simplify-preserve-tolerance-2-null",
+      "function": "ST_SimplifyPreserveTopology",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null,
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPreserveTopology.html"
+    }
+  ]
+}

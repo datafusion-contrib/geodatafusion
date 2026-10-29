@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "minimum-clearance-single-point",
+      "function": "ST_MinimumClearance",
+      "tags": ["scalar", "infinity"],
+      "arguments": [{"type": "text", "value": "POINT(1 1)"}],
+      "result_columns": [
+        {"name": "clearance", "type": "float64"},
+        {"name": "clearance_line", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MinimumClearance.html"
+    },
+    {
+      "id": "minimum-clearance-two-point-line",
+      "function": "ST_MinimumClearance",
+      "tags": ["scalar", "line"],
+      "arguments": [{"type": "text", "value": "LINESTRING(0 0,1 1)"}],
+      "result_columns": [
+        {"name": "clearance", "type": "float64"},
+        {"name": "clearance_line", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MinimumClearance.html"
+    },
+    {
+      "id": "minimum-clearance-collinear-line",
+      "function": "ST_MinimumClearance",
+      "tags": ["scalar", "line"],
+      "arguments": [{"type": "text", "value": "LINESTRING(0 0,1 1,2 2)"}],
+      "result_columns": [
+        {"name": "clearance", "type": "float64"},
+        {"name": "clearance_line", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MinimumClearance.html"
+    },
+    {
+      "id": "minimum-clearance-polygon",
+      "function": "ST_MinimumClearance",
+      "tags": ["scalar", "polygon"],
+      "arguments": [{"type": "text", "value": "POLYGON((0 0,4 0,4 4,0 4,0 0))"}],
+      "result_columns": [
+        {"name": "clearance", "type": "float64"},
+        {"name": "clearance_line", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MinimumClearance.html"
+    },
+    {
+      "id": "minimum-clearance-identical-multipoint",
+      "function": "ST_MinimumClearance",
+      "tags": ["scalar", "collection", "infinity"],
+      "arguments": [{"type": "text", "value": "MULTIPOINT((1 1),(1 1))"}],
+      "result_columns": [
+        {"name": "clearance", "type": "float64"},
+        {"name": "clearance_line", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MinimumClearance.html"
+    },
+    {
+      "id": "minimum-clearance-empty",
+      "function": "ST_MinimumClearance",
+      "tags": ["scalar", "empty", "infinity"],
+      "arguments": [{"type": "text", "value": "GEOMETRYCOLLECTION EMPTY"}],
+      "result_columns": [
+        {"name": "clearance", "type": "float64"},
+        {"name": "clearance_line", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MinimumClearance.html"
+    },
+    {
+      "id": "minimum-clearance-xyz-input-drops-z",
+      "function": "ST_MinimumClearance",
+      "tags": ["scalar", "xyz"],
+      "arguments": [{"type": "text", "value": "LINESTRING Z (0 0 1,1 1 2,2 2 3)"}],
+      "result_columns": [
+        {"name": "clearance", "type": "float64"},
+        {"name": "clearance_line", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MinimumClearance.html"
+    },
+    {
+      "id": "minimum-clearance-null",
+      "function": "ST_MinimumClearance",
+      "tags": ["scalar", "null"],
+      "arguments": [{"type": "text", "value": null}],
+      "result_columns": [
+        {"name": "clearance", "type": "float64"},
+        {"name": "clearance_line", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MinimumClearance.html"
+    },
+    {
+      "id": "minimum-clearance-xym-input-drops-m",
+      "function": "ST_MinimumClearance",
+      "tags": ["scalar", "xym"],
+      "arguments": [{"type": "text", "value": "LINESTRING M (0 0 1,1 1 2,2 2 3)"}],
+      "result_columns": [
+        {"name": "clearance", "type": "float64"},
+        {"name": "clearance_line", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MinimumClearance.html"
+    },
+    {
+      "id": "minimum-clearance-xyzm-input-drops-z-and-m",
+      "function": "ST_MinimumClearance",
+      "tags": ["scalar", "xyzm"],
+      "arguments": [{"type": "text", "value": "LINESTRING ZM (0 0 1 1,1 1 2 2,2 2 3 3)"}],
+      "result_columns": [
+        {"name": "clearance", "type": "float64"},
+        {"name": "clearance_line", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MinimumClearance.html"
+    }
+  ]
+}

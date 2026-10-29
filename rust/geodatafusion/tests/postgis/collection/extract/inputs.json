@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "extract-type-line-nested",
+      "function": "ST_CollectionExtract",
+      "tags": [
+        "collection",
+        "nested-multi",
+        "type-2"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(LINESTRING(0 0,1 1)),LINESTRING(2 2,3 3))",
+          "storage": "wkb"
+        },
+        {
+          "type": "float64",
+          "value": 2
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_CollectionExtract.html"
+    },
+    {
+      "id": "extract-type-no-match",
+      "function": "ST_CollectionExtract",
+      "tags": [
+        "empty-result",
+        "type-1"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(LINESTRING(0 0,1 1))",
+          "storage": "wkb"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_CollectionExtract.html"
+    },
+    {
+      "id": "extract-type-atomic-mismatch",
+      "function": "ST_CollectionExtract",
+      "tags": [
+        "atomic",
+        "empty-result",
+        "type-2"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM(1 2 3 4)",
+          "storage": "wkb"
+        },
+        {
+          "type": "float64",
+          "value": 2
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_CollectionExtract.html"
+    },
+    {
+      "id": "extract-type-atomic-match",
+      "function": "ST_CollectionExtract",
+      "tags": [
+        "atomic",
+        "type-1"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z(1 2 3)",
+          "storage": "wkb"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_CollectionExtract.html"
+    },
+    {
+      "id": "extract-type-empty-collection",
+      "function": "ST_CollectionExtract",
+      "tags": [
+        "empty",
+        "type-3"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION EMPTY",
+          "storage": "wkb"
+        },
+        {
+          "type": "float64",
+          "value": 3
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_CollectionExtract.html"
+    },
+    {
+      "id": "extract-type-multipoint-flatten",
+      "function": "ST_CollectionExtract",
+      "tags": [
+        "collection",
+        "multi",
+        "type-1"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(MULTIPOINT((0 0),(1 1)),POINT(2 2))",
+          "storage": "wkb"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_CollectionExtract.html"
+    }
+  ]
+}

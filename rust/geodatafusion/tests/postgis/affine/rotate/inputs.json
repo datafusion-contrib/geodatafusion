@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "rotate-pi2-xyzm-point",
+      "function": "ST_Rotate",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM (1 0 3 4)"
+        },
+        {
+          "type": "float64",
+          "value": 1.5707963267948966
+        },
+        {
+          "type": "float64",
+          "value": 10
+        },
+        {
+          "type": "float64",
+          "value": 20
+        },
+        {
+          "type": "text",
+          "value": "POINT(10 20)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "rotate_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotate_origin_xy_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotate_origin_point_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Rotate.html",
+      "tags": [
+        "xyzm",
+        "origin-xy",
+        "origin-point"
+      ]
+    },
+    {
+      "id": "rotate-pi2-xy-point",
+      "function": "ST_Rotate",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 0)"
+        },
+        {
+          "type": "float64",
+          "value": 1.5707963267948966
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "rotate_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotate_origin_xy_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotate_origin_point_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Rotate.html",
+      "tags": [
+        "2d",
+        "origin-xy",
+        "origin-point"
+      ]
+    },
+    {
+      "id": "rotate-pi-linestring-xyz",
+      "function": "ST_Rotate",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z (0 0 1, 1 1 2)"
+        },
+        {
+          "type": "float64",
+          "value": 3.141592653589793
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "text",
+          "value": "POINT ZM (1 1 2 3)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "rotate_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotate_origin_xy_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotate_origin_point_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Rotate.html",
+      "tags": [
+        "xyz",
+        "linestring",
+        "origin-point"
+      ]
+    },
+    {
+      "id": "rotate-null-origin-point",
+      "function": "ST_Rotate",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        },
+        {
+          "type": "float64",
+          "value": 1.5707963267948966
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "rotate_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotate_origin_xy_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotate_origin_point_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Rotate.html",
+      "tags": [
+        "null"
+      ]
+    },
+    {
+      "id": "rotate-xyzm-empty",
+      "function": "ST_Rotate",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 1.5707963267948966
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "rotate_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotate_origin_xy_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotate_origin_point_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Rotate.html",
+      "tags": [
+        "xyzm",
+        "empty"
+      ]
+    }
+  ]
+}

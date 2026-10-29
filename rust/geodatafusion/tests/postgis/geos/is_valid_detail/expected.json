@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "2e12fa0186ac2fdaca8877548db63c8f0cd0027c7408876f7972879d5c8a6c18",
+  "postgis_sql_sha256": "e2a45a11673ba29b302fa810d443bb92c2145878eb8df70de5f10f7dae820573",
+  "datafusion_sql_sha256": "d6016492d3ff9f175912045c7b8d37102c8e4e6b72e9521709ce9768a7b6415b",
+  "cases": {
+    "empty-point": {
+      "columns": [
+        {
+          "name": "valid",
+          "type": "boolean"
+        },
+        {
+          "name": "reason",
+          "type": "text"
+        },
+        {
+          "name": "location",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": true
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "invalid-bowtie": {
+      "columns": [
+        {
+          "name": "valid",
+          "type": "boolean"
+        },
+        {
+          "name": "reason",
+          "type": "text"
+        },
+        {
+          "name": "location",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          },
+          {
+            "type": "text",
+            "value": "Self-intersection"
+          },
+          {
+            "type": "ewkb",
+            "hex": "0101000000000000000000e03f000000000000e03f"
+          }
+        ]
+      ]
+    },
+    "invalid-bowtie-flags-one": {
+      "columns": [
+        {
+          "name": "valid",
+          "type": "boolean"
+        },
+        {
+          "name": "reason",
+          "type": "text"
+        },
+        {
+          "name": "location",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          },
+          {
+            "type": "text",
+            "value": "Self-intersection"
+          },
+          {
+            "type": "ewkb",
+            "hex": "0101000000000000000000e03f000000000000e03f"
+          }
+        ]
+      ]
+    },
+    "null-flags": {
+      "columns": [
+        {
+          "name": "valid",
+          "type": "boolean"
+        },
+        {
+          "name": "reason",
+          "type": "text"
+        },
+        {
+          "name": "location",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "null-geometry": {
+      "columns": [
+        {
+          "name": "valid",
+          "type": "boolean"
+        },
+        {
+          "name": "reason",
+          "type": "text"
+        },
+        {
+          "name": "location",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "valid-polygon": {
+      "columns": [
+        {
+          "name": "valid",
+          "type": "boolean"
+        },
+        {
+          "name": "reason",
+          "type": "text"
+        },
+        {
+          "name": "location",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": true
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "z-polygon": {
+      "columns": [
+        {
+          "name": "valid",
+          "type": "boolean"
+        },
+        {
+          "name": "reason",
+          "type": "text"
+        },
+        {
+          "name": "location",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": true
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "zm-polygon": {
+      "columns": [
+        {
+          "name": "valid",
+          "type": "boolean"
+        },
+        {
+          "name": "reason",
+          "type": "text"
+        },
+        {
+          "name": "location",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": true
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    }
+  }
+}

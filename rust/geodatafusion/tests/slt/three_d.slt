@@ -1,0 +1,392 @@
+# ST_3D distance, max distance, closest/longest/shortest lines, and 3D
+# intersection contracts, checked against the pinned PostGIS reference where
+# noted. Filled planar polygons use the mathematical surface contract:
+# points in the interior are distance 0 from the polygon plane and intersect
+# the polygon in 3D.
+
+query R
+SELECT ST_3DDistance(
+    ST_GeomFromText('POINT Z (0 0 0)'),
+    ST_GeomFromText('POINT Z (3 4 12)')
+);
+----
+13
+
+query R
+SELECT ST_3DDistance(
+    ST_GeomFromText('POINT Z (0 0 10)'),
+    ST_GeomFromText('LINESTRING Z (0 0 0, 10 0 0)')
+);
+----
+10
+
+query R
+SELECT ST_3DDistance(
+    ST_GeomFromText('POINT Z (2 0 1)'),
+    ST_GeomFromText('LINESTRING Z (0 0 0, 10 0 0)')
+);
+----
+1
+
+query R
+SELECT ST_3DDistance(
+    ST_GeomFromText('LINESTRING Z (0 0 0, 10 0 0)'),
+    ST_GeomFromText('LINESTRING Z (0 0 10, 10 0 10)')
+);
+----
+10
+
+query R
+SELECT ST_3DDistance(
+    ST_GeomFromText('POINT(2 0)'),
+    ST_GeomFromText('LINESTRING Z (0 0 0, 10 0 10)')
+);
+----
+0
+
+query R
+SELECT ST_3DDistance(
+    ST_GeomFromText('POINT Z (5 5 3)'),
+    ST_GeomFromText('POLYGON Z ((0 0 0, 10 0 0, 10 10 0, 0 10 0, 0 0 0))')
+);
+----
+3
+
+query R
+SELECT ST_3DDistance(
+    ST_GeomFromText('POINT Z (5 5 1)'),
+    ST_GeomFromText(
+        'POLYGON Z ((0 0 0, 10 0 0, 10 10 0, 0 10 0, 0 0 0),
+        (2 2 0, 2 8 0, 8 8 0, 8 2 0, 2 2 0))'
+    )
+);
+----
+3.162277660168
+
+query R
+SELECT ST_3DDistance(
+    ST_GeomFromText('MULTIPOINT Z (0 0 5, 10 0 5)'),
+    ST_GeomFromText('POINT Z (4 0 0)')
+);
+----
+6.403124237433
+
+query R
+SELECT ST_3DDistance(ST_GeomFromText(NULL), ST_GeomFromText('POINT Z (0 0 0)'));
+----
+NULL
+
+query R
+SELECT ST_3DDistance(ST_GeomFromText('POINT Z (0 0 0)'), ST_GeomFromText('LINESTRING EMPTY'));
+----
+NULL
+
+query R
+SELECT ST_3DMaxDistance(
+    ST_GeomFromText('LINESTRING Z (0 0 0, 10 0 0)'),
+    ST_GeomFromText('LINESTRING Z (5 -5 5, 5 5 5)')
+);
+----
+8.660254037844
+
+query R
+SELECT ST_3DMaxDistance(
+    ST_GeomFromText('LINESTRING Z (0 0 0, 10 0 10)'),
+    ST_GeomFromText('POINT(2 0)')
+);
+----
+8
+
+query R
+SELECT ST_3DMaxDistance(
+    ST_GeomFromText('POLYGON Z ((0 0 0, 10 0 0, 10 10 0, 0 10 0, 0 0 0))'),
+    ST_GeomFromText('POINT Z (12 5 3)')
+);
+----
+13.341664064126
+
+query T
+SELECT ST_AsText(ST_3DClosestPoint(
+    ST_GeomFromText('LINESTRING Z (0 0 0, 10 0 0)'),
+    ST_GeomFromText('POINT Z (2 0 1)')
+));
+----
+POINT Z(2 0 0)
+
+query T
+SELECT ST_AsText(ST_3DClosestPoint(
+    ST_GeomFromText('LINESTRING Z (0 0 0, 10 0 10)'),
+    ST_GeomFromText('POINT(2 0)')
+));
+----
+POINT Z(2 0 2)
+
+query T
+SELECT ST_AsText(ST_3DClosestPoint(
+    ST_GeomFromText('POINT(2 0)'),
+    ST_GeomFromText('LINESTRING Z (0 0 0, 10 0 10)')
+));
+----
+POINT Z(2 0 2)
+
+query T
+SELECT ST_AsText(ST_3DClosestPoint(
+    ST_GeomFromText('POLYGON Z ((0 0 0, 10 0 0, 10 10 0, 0 10 0, 0 0 0))'),
+    ST_GeomFromText('POINT Z (12 5 3)')
+));
+----
+POINT Z(10 5 0)
+
+query T
+SELECT ST_AsText(ST_3DClosestPoint(
+    ST_GeomFromText('LINESTRING EMPTY'),
+    ST_GeomFromText('POINT Z (0 0 1)')
+));
+----
+NULL
+
+query T
+SELECT ST_AsText(ST_3DShortestLine(
+    ST_GeomFromText('LINESTRING Z (0 0 0, 10 0 0)'),
+    ST_GeomFromText('LINESTRING Z (10 4 3, 0 4 3)')
+));
+----
+LINESTRING Z(0 0 0,0 4 3)
+
+query T
+SELECT ST_AsText(ST_3DShortestLine(
+    ST_GeomFromText('LINESTRING Z (0 0 0, 10 0 10)'),
+    ST_GeomFromText('POINT(2 0)')
+));
+----
+LINESTRING Z(2 0 2,2 0 2)
+
+query T
+SELECT ST_AsText(ST_3DShortestLine(
+    ST_GeomFromText('POINT(0 0)'),
+    ST_GeomFromText('POINT(3 4)')
+));
+----
+LINESTRING(0 0,3 4)
+
+query T
+SELECT ST_AsText(ST_3DLongestLine(
+    ST_GeomFromText('LINESTRING Z (0 0 0, 10 0 0)'),
+    ST_GeomFromText('LINESTRING Z (5 -5 5, 5 5 5)')
+));
+----
+LINESTRING Z(0 0 0,5 -5 5)
+
+query T
+SELECT ST_AsText(ST_3DLongestLine(
+    ST_GeomFromText('LINESTRING Z (0 0 0, 10 0 10)'),
+    ST_GeomFromText('POINT(2 0)')
+));
+----
+LINESTRING Z(10 0 10,2 0 0)
+
+query B
+SELECT ST_3DIntersects(
+    ST_GeomFromText('LINESTRING Z (5 5 -5, 5 5 5)'),
+    ST_GeomFromText('POLYGON Z ((0 0 0, 10 0 0, 10 10 0, 0 10 0, 0 0 0))')
+);
+----
+true
+
+query B
+SELECT ST_3DIntersects(
+    ST_GeomFromText('POINT Z (5 5 0)'),
+    ST_GeomFromText('POLYGON Z ((0 0 0, 10 0 0, 10 10 0, 0 10 0, 0 0 0))')
+);
+----
+true
+
+query B
+SELECT ST_3DIntersects(
+    ST_GeomFromText('LINESTRING Z (0 0 0, 5 0 0)'),
+    ST_GeomFromText('LINESTRING Z (5 0 5, 10 0 5)')
+);
+----
+false
+
+query B
+SELECT ST_3DIntersects(
+    ST_GeomFromText('LINESTRING Z (0 0 0, 5 0 0)'),
+    ST_GeomFromText('LINESTRING Z (5 0 0, 10 0 0)')
+);
+----
+true
+
+query B
+SELECT ST_3DIntersects(
+    ST_GeomFromText('POINT(5 0)'),
+    ST_GeomFromText('LINESTRING Z (0 0 0, 10 0 10)')
+);
+----
+true
+
+query B
+SELECT ST_3DIntersects(
+    ST_GeomFromText('POINT Z (0 0 0)'),
+    ST_GeomFromText('LINESTRING EMPTY')
+);
+----
+false
+
+query B
+SELECT ST_3DIntersects(
+    ST_GeomFromText('POINT Z (0 0 0)'),
+    ST_GeomFromText('POINT Z (0 0 0.0000000000001)')
+);
+----
+false
+
+query B
+SELECT ST_3DIntersects(
+    ST_GeomFromText('LINESTRING Z (0 0 0, 1 0 0)'),
+    ST_GeomFromText('POINT Z (0.5 0 0.0000000000001)')
+);
+----
+false
+
+query B
+SELECT ST_3DIntersects(
+    ST_GeomFromText('LINESTRING Z (0 0 0, 1 0 0)'),
+    ST_GeomFromText('POINT Z (0.5 0 0)')
+);
+----
+true
+
+query B
+SELECT ST_3DIntersects(
+    ST_GeomFromText('LINESTRING Z (0 0 0, 1 0 0)'),
+    ST_GeomFromText('POINT Z (0.3 0 0)')
+);
+----
+true
+
+query B
+SELECT ST_3DIntersects(
+    ST_GeomFromText('POINT Z (1000000000000 0 0)'),
+    ST_GeomFromText('POINT Z (1000000000000 0 0.0000000000001)')
+);
+----
+false
+
+query B
+SELECT ST_3DIntersects(
+    ST_GeomFromText('LINESTRING Z (1000000000000 0 0, 1000000000001 0 0)'),
+    ST_GeomFromText('POINT Z (1000000000000.5 0 0)')
+);
+----
+true
+
+query B
+SELECT ST_3DIntersects(
+    ST_GeomFromText('LINESTRING Z (1000000000000 0 0, 1000000000001 0 0)'),
+    ST_GeomFromText('POINT Z (1000000000000.5 0 0.0000000000001)')
+);
+----
+false
+
+query B
+SELECT ST_3DIntersects(ST_GeomFromText(NULL), ST_GeomFromText('POINT Z (0 0 0)'));
+----
+NULL
+
+query R
+SELECT ST_3DDistance(
+    ST_GeomFromText('POINT M (0 0 5)'),
+    ST_GeomFromText('POINT M (3 4 12)')
+);
+----
+5
+
+query T
+SELECT ST_AsText(ST_3DClosestPoint(
+    ST_GeomFromText('POINT ZM (0 0 5 9)'),
+    ST_GeomFromText('POINT ZM (3 4 12 7)')
+));
+----
+POINT Z(0 0 5)
+
+query R
+SELECT ST_3DDistance(
+    ST_GeomFromWKB(ST_AsBinary(ST_GeomFromText('POINT Z (0 0 0)'))),
+    ST_GeomFromText('POINT Z (3 4 12)')
+);
+----
+13
+
+query T
+SELECT ST_AsText(ST_3DClosestPoint(
+    ST_GeomFromText('MULTILINESTRING Z ((0 0 0, 10 0 0), (20 0 5, 20 0 5))'),
+    ST_GeomFromText('POINT Z (8 0 1)')
+));
+----
+POINT Z(8 0 0)
+
+query B
+SELECT ST_3DDistance(
+    ST_GeomFromText('LINESTRING Z (0 0 0, 10 0 0)'),
+    ST_GeomFromText('POINT Z (2 0 1)')
+) IS NULL;
+----
+false
+
+query IR
+SELECT id, ST_3DDistance(g, ST_GeomFromText('POINT Z (0 0 0)'))
+FROM (
+    SELECT 1 AS id, ST_GeomFromText('POINT Z (0 0 3)') AS g
+    UNION ALL
+    SELECT 2, ST_GeomFromText('POINT Z (0 4 3)')
+) AS t
+ORDER BY id;
+----
+1 3
+2 5
+
+query IR
+SELECT id, ST_3DDistance(g, ST_GeomFromText('POINT Z (0 0 0)'))
+FROM (
+    SELECT 1 AS id, ST_GeomFromText('POINT Z (0 0 3)') AS g
+    UNION ALL
+    SELECT 2, ST_GeomFromText('POINT Z (0 4 3)')
+) AS t
+ORDER BY id
+LIMIT 1 OFFSET 1;
+----
+2 5
+
+query IT
+SELECT id, ST_AsText(ST_3DShortestLine(g, ST_GeomFromText('POINT Z (0 4 3)')))
+FROM (
+    SELECT 1 AS id, ST_GeomFromText('POINT Z (0 0 3)') AS g
+    UNION ALL
+    SELECT 2, ST_GeomFromText('POINT Z (0 4 3)')
+) AS t
+ORDER BY id;
+----
+1 LINESTRING Z(0 0 3,0 4 3)
+2 LINESTRING Z(0 4 3,0 4 3)
+
+# Polyhedral surfaces and TIN are not representable as GeoArrow geometries, so
+# the text and binary input parsers reject them instead of feeding a wrong
+# shape to the 3D kernels.
+statement error Invalid type encountered
+SELECT ST_3DDistance(
+    ST_GeomFromText('POLYHEDRALSURFACE Z (((0 0 0,1 0 0,1 1 0,0 1 0,0 0 0)),((0 0 0,0 1 0,0 1 1,0 0 1,0 0 0)))'),
+    ST_GeomFromText('POINT Z (2 2 2)')
+);
+
+statement error Invalid type encountered
+SELECT ST_3DIntersects(
+    ST_GeomFromText('TIN Z (((0 0 0,1 0 0,0 1 0,0 0 0)),((1 0 0,1 1 0,0 1 0,1 0 0)))'),
+    ST_GeomFromText('POINT Z (2 2 2)')
+);
+
+statement error unknown WKB type code
+SELECT ST_3DMaxDistance(
+    ST_GeomFromWKB(X'010f0000800200000001030000800100000005000000000000000000000000000000000000000000000000000000000000000000f03f00000000000000000000000000000000000000000000f03f000000000000f03f00000000000000000000000000000000000000000000f03f0000000000000000000000000000000000000000000000000000000000000000010300008001000000050000000000000000000000000000000000000000000000000000000000000000000000000000000000f03f00000000000000000000000000000000000000000000f03f000000000000f03f00000000000000000000000000000000000000000000f03f000000000000000000000000000000000000000000000000'),
+    ST_GeomFromText('POINT Z (2 2 2)')
+);

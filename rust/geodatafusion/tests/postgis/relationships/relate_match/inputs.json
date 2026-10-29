@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "relate-match-wildcard",
+      "function": "ST_RelateMatch",
+      "arguments": [
+        {"type": "text", "value": "101010101"},
+        {"type": "text", "value": "T*T***T**"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_RelateMatch.html"
+    },
+    {
+      "id": "relate-match-false",
+      "function": "ST_RelateMatch",
+      "arguments": [
+        {"type": "text", "value": "101010101"},
+        {"type": "text", "value": "FF*FF****"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_RelateMatch.html"
+    },
+    {
+      "id": "relate-match-matrix-true",
+      "function": "ST_RelateMatch",
+      "arguments": [
+        {"type": "text", "value": "TTTTTTTTT"},
+        {"type": "text", "value": "T********"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_RelateMatch.html"
+    },
+    {
+      "id": "relate-match-matrix-t-is-not-dimension",
+      "function": "ST_RelateMatch",
+      "arguments": [
+        {"type": "text", "value": "TTTTTTTTT"},
+        {"type": "text", "value": "1********"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_RelateMatch.html"
+    },
+    {
+      "id": "relate-match-short-matrix-defaults-false",
+      "function": "ST_RelateMatch",
+      "arguments": [
+        {"type": "text", "value": "10101010"},
+        {"type": "text", "value": "T*T***T*F"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_RelateMatch.html"
+    },
+    {
+      "id": "relate-match-null",
+      "function": "ST_RelateMatch",
+      "arguments": [
+        {"type": "text", "value": null},
+        {"type": "text", "value": "T*T***T**"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_RelateMatch.html"
+    }
+  ]
+}

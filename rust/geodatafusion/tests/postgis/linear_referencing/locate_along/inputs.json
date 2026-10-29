@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "la-line-mid",
+      "function": "ST_LocateAlong",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M (0 0 0,10 0 10,20 0 20)"
+        },
+        {
+          "type": "float64",
+          "value": 10.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "points",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LocateAlong.html"
+    },
+    {
+      "id": "la-line-offset",
+      "function": "ST_LocateAlong",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M (0 0 0,10 0 10,20 0 20)"
+        },
+        {
+          "type": "float64",
+          "value": 10.0
+        },
+        {
+          "type": "float64",
+          "value": 1.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "points",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LocateAlong.html"
+    },
+    {
+      "id": "la-point",
+      "function": "ST_LocateAlong",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT M (1 2 3)"
+        },
+        {
+          "type": "float64",
+          "value": 3.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "points",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LocateAlong.html"
+    },
+    {
+      "id": "la-multipoint",
+      "function": "ST_LocateAlong",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT M ((1 2 3),(2 2 5))"
+        },
+        {
+          "type": "float64",
+          "value": 5.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "points",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LocateAlong.html"
+    },
+    {
+      "id": "la-empty",
+      "function": "ST_LocateAlong",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 1.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "points",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LocateAlong.html"
+    },
+    {
+      "id": "la-null-geometry",
+      "function": "ST_LocateAlong",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": 10.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "points",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LocateAlong.html"
+    },
+    {
+      "id": "la-null-measure",
+      "function": "ST_LocateAlong",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M (0 0 0,10 0 10,20 0 20)"
+        },
+        {
+          "type": "float64",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "points",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LocateAlong.html"
+    },
+    {
+      "id": "la-null-offset",
+      "function": "ST_LocateAlong",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M (0 0 0,10 0 10,20 0 20)"
+        },
+        {
+          "type": "float64",
+          "value": 10.0
+        },
+        {
+          "type": "float64",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "points",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LocateAlong.html"
+    }
+  ]
+}

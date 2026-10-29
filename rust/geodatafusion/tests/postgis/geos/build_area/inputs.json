@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "build-area-shell",
+      "function": "ST_BuildArea",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0,10 10,0 10,0 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_BuildArea.html"
+    },
+    {
+      "id": "build-area-hole",
+      "function": "ST_BuildArea",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(LINESTRING(0 0,10 0,10 10,0 10,0 0),LINESTRING(4 4,6 4,6 6,4 6,4 4))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_BuildArea.html"
+    },
+    {
+      "id": "build-area-non-areal",
+      "function": "ST_BuildArea",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_BuildArea.html"
+    },
+    {
+      "id": "build-area-point-empty",
+      "function": "ST_BuildArea",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_BuildArea.html"
+    },
+    {
+      "id": "build-area-collection-empty",
+      "function": "ST_BuildArea",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_BuildArea.html"
+    },
+    {
+      "id": "build-area-polygon",
+      "function": "ST_BuildArea",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,1 0,1 1,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_BuildArea.html"
+    },
+    {
+      "id": "build-area-z",
+      "function": "ST_BuildArea",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z (0 0 1,10 0 2,10 10 3,0 10 4,0 0 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_BuildArea.html"
+    },
+    {
+      "id": "build-area-zm",
+      "function": "ST_BuildArea",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM (0 0 1 2,10 0 2 3,10 10 3 4,0 10 4 5,0 0 1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_BuildArea.html"
+    },
+    {
+      "id": "build-area-null",
+      "function": "ST_BuildArea",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_BuildArea.html"
+    }
+  ]
+}

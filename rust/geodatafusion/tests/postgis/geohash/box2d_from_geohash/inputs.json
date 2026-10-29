@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "default-null-precision",
+      "function": "ST_Box2dFromGeoHash",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "ww8p1r4t8"
+        },
+        {
+          "type": "int64",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Box2dFromGeoHash.html",
+      "tags": [
+        "default",
+        "null"
+      ]
+    },
+    {
+      "id": "precision-4",
+      "function": "ST_Box2dFromGeoHash",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "ww8p1r4t8"
+        },
+        {
+          "type": "int64",
+          "value": 4
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Box2dFromGeoHash.html",
+      "tags": [
+        "precision"
+      ]
+    },
+    {
+      "id": "precision-0",
+      "function": "ST_Box2dFromGeoHash",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "ww8p1r4t8"
+        },
+        {
+          "type": "int64",
+          "value": 0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Box2dFromGeoHash.html",
+      "tags": [
+        "precision",
+        "empty"
+      ]
+    },
+    {
+      "id": "precision-negative",
+      "function": "ST_Box2dFromGeoHash",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "ww8p1r4t8"
+        },
+        {
+          "type": "int64",
+          "value": -5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Box2dFromGeoHash.html",
+      "tags": [
+        "precision",
+        "negative"
+      ]
+    },
+    {
+      "id": "precision-over-length",
+      "function": "ST_Box2dFromGeoHash",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "ww8p1r4t8"
+        },
+        {
+          "type": "int64",
+          "value": 100
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Box2dFromGeoHash.html",
+      "tags": [
+        "precision",
+        "clamp"
+      ]
+    },
+    {
+      "id": "uppercase",
+      "function": "ST_Box2dFromGeoHash",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "WW8P1R4T8"
+        },
+        {
+          "type": "int64",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Box2dFromGeoHash.html",
+      "tags": [
+        "case"
+      ]
+    },
+    {
+      "id": "empty",
+      "function": "ST_Box2dFromGeoHash",
+      "arguments": [
+        {
+          "type": "text",
+          "value": ""
+        },
+        {
+          "type": "int64",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Box2dFromGeoHash.html",
+      "tags": [
+        "empty"
+      ]
+    },
+    {
+      "id": "long-hash",
+      "function": "ST_Box2dFromGeoHash",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "c0w3hf1s70w3hf1s70w3"
+        },
+        {
+          "type": "int64",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Box2dFromGeoHash.html",
+      "tags": [
+        "long"
+      ]
+    },
+    {
+      "id": "null-input",
+      "function": "ST_Box2dFromGeoHash",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "int64",
+          "value": 4
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Box2dFromGeoHash.html",
+      "tags": [
+        "null"
+      ]
+    },
+    {
+      "id": "precision-one",
+      "function": "ST_Box2dFromGeoHash",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "ww8p1r4t8"
+        },
+        {
+          "type": "int64",
+          "value": 1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Box2dFromGeoHash.html",
+      "tags": [
+        "precision",
+        "boundary"
+      ]
+    },
+    {
+      "id": "precision-exact-length",
+      "function": "ST_Box2dFromGeoHash",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "ww8p1r4t8"
+        },
+        {
+          "type": "int64",
+          "value": 9
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Box2dFromGeoHash.html",
+      "tags": [
+        "precision",
+        "boundary"
+      ]
+    }
+  ]
+}

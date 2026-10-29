@@ -1,0 +1,64 @@
+# ST_Hexagon, ST_HexagonGrid, ST_Square, and ST_SquareGrid basics.
+
+query T
+SELECT ST_AsText(ST_Hexagon(1, 0, 0));
+----
+POLYGON((-1 0,-0.5 -0.8660254037844387,0.5 -0.8660254037844387,1 0,0.5 0.8660254037844387,-0.5 0.8660254037844387,-1 0))
+
+query T
+SELECT ST_AsEWKT(ST_Square(1, -1, 2, ST_PointFromText('POINT ZM(10 20 30 40)', 4326)));
+----
+SRID=4326;POLYGON((9 22,9 23,10 23,10 22,9 22))
+
+query B
+SELECT ST_Hexagon(1, NULL, 0) IS NULL;
+----
+true
+
+query B
+SELECT ST_Square(NULL, 0, 0) IS NULL;
+----
+true
+
+query IIT
+SELECT i, j, ST_AsText(geom)
+FROM st_squaregrid(1, ST_MakeEnvelope(-1, -1, 1, 1)) AS grid
+ORDER BY i, j;
+----
+-1 -1 POLYGON((-1 -1,-1 0,0 0,0 -1,-1 -1))
+-1 0 POLYGON((-1 0,-1 1,0 1,0 0,-1 0))
+-1 1 POLYGON((-1 1,-1 2,0 2,0 1,-1 1))
+0 -1 POLYGON((0 -1,0 0,1 0,1 -1,0 -1))
+0 0 POLYGON((0 0,0 1,1 1,1 0,0 0))
+0 1 POLYGON((0 1,0 2,1 2,1 1,0 1))
+1 -1 POLYGON((1 -1,1 0,2 0,2 -1,1 -1))
+1 0 POLYGON((1 0,1 1,2 1,2 0,1 0))
+1 1 POLYGON((1 1,1 2,2 2,2 1,1 1))
+
+query IIT
+SELECT i, j, ST_AsText(geom)
+FROM ST_HexagonGrid(1, ST_MakeEnvelope(0, 0, 0, 0)) AS grid
+ORDER BY i, j;
+----
+0 0 POLYGON((-1 0,-0.5 -0.8660254037844387,0.5 -0.8660254037844387,1 0,0.5 0.8660254037844387,-0.5 0.8660254037844387,-1 0))
+
+query I
+SELECT count(*) FROM st_hexagongrid(1, ST_GeomFromText('POLYGON EMPTY'));
+----
+0
+
+query I
+SELECT count(*) FROM st_squaregrid(0, ST_MakeEnvelope(-1, -1, 1, 1));
+----
+0
+
+query I
+SELECT count(*) FROM ST_SquareGrid(1, NULL);
+----
+0
+
+statement error origin argument is not a point
+SELECT ST_Hexagon(1, 0, 0, ST_GeomFromText('LINESTRING(0 0,1 1)'));
+
+statement error origin point is empty
+SELECT ST_Square(1, 0, 0, ST_GeomFromText('POINT EMPTY'));

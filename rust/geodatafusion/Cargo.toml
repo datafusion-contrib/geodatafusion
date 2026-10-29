@@ -17,36 +17,62 @@ rust-version = { workspace = true }
 # (with higher version targets implying lower version ones
 # in a chain.)
 geos-3_11 = ["geos/v3_11_0"]
+geos-3_12 = ["geos-3_11", "geos/v3_12_0"]
 
 [dependencies]
 arrow-arith = { workspace = true }
 arrow-array = { workspace = true }
 arrow-buffer = { workspace = true }
 arrow-schema = { workspace = true }
+async-trait = { workspace = true }
+base64 = "0.22"
+crs-definitions = { workspace = true }
 datafusion = { workspace = true }
+datafusion-functions-window-common = { workspace = true }
+flatbuffers = { workspace = true }
+flatgeobuf = { workspace = true }
+futures = { workspace = true }
 geo = { workspace = true }
 geo-traits = { workspace = true }
 geoarrow-array = { workspace = true }
 geoarrow-expr-geo = { workspace = true }
+geoarrow-flatgeobuf = { workspace = true }
 geoarrow-schema = { workspace = true }
+geographiclib-rs = { workspace = true }
 geohash = { workspace = true }
 geos = { workspace = true, optional = true }
+quick-xml = { workspace = true }
+robust = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 thiserror = { workspace = true }
+wkb = { workspace = true }
 wkt = { workspace = true }
 
 [dev-dependencies]
 approx = { workspace = true }
-datafusion = { workspace = true, features = ["sql"] }
+async-trait = { workspace = true }
+datafusion = { workspace = true, features = ["sql", "nested_expressions"] }
 geo-traits = { workspace = true }
 geoarrow-array = { workspace = true, features = ["test-data"] }
+geobuf-codec = { workspace = true }
 hex = "0.4"
 object_store = { workspace = true, features = ["http"] }
+proptest = { workspace = true }
 serde = { version = "1", features = ["derive"] }
 serde_json = { workspace = true }
 sha2 = "0.10"
+sqllogictest = { workspace = true }
+tempfile = { workspace = true }
 tokio = { workspace = true, features = ["macros", "fs", "rt-multi-thread"] }
 tokio-postgres = { version = "0.7", default-features = false, features = ["runtime"] }
+toml_edit = { workspace = true }
 wkb = { workspace = true }
+
+[[test]]
+name = "sqllogictests"
+path = "tests/sqllogictests.rs"
+harness = false
 
 [package.metadata.docs.rs]
 all-features = true

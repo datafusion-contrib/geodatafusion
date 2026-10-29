@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "centroid-k-2",
+      "function": "ST_ClusterKMeans",
+      "arguments": [
+        {
+          "type": "int32",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "id",
+          "type": "int32"
+        },
+        {
+          "name": "cid",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "cluster-ids-equivalent",
+        "canonical_columns": ["cid"]
+      },
+      "source": "https://postgis.net/docs/ST_ClusterKMeans.html"
+    }
+  ]
+}

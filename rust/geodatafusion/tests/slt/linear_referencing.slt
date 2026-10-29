@@ -1,0 +1,309 @@
+# Linear referencing SQL contracts.
+#
+# Expected values were reviewed against PostGIS 3.6.4 and the typed
+# differential baselines under tests/postgis/linear_referencing.
+
+query T
+SELECT ST_AsText(
+    ST_LineInterpolatePoint(ST_GeomFromText('LINESTRING(0 0,10 0,20 0)'), 0.25)
+);
+----
+POINT(5 0)
+
+query T
+SELECT ST_AsText(
+    ST_3DLineInterpolatePoint(
+        ST_GeomFromText('LINESTRING ZM (0 0 0 100,10 0 10 110,20 0 20 120)'),
+        0.25
+    )
+);
+----
+POINT ZM(5 0 5 105)
+
+query T
+SELECT ST_AsText(
+    ST_LineInterpolatePoints(ST_GeomFromText('LINESTRING(0 0,10 0)'), 0.5)
+);
+----
+MULTIPOINT((5 0),(10 0))
+
+query RR
+SELECT ST_LineLocatePoint(
+           ST_GeomFromText('LINESTRING M (0 0 0,10 0 10,20 0 20)'),
+           ST_GeomFromText('POINT(5 0)')
+       ),
+       ST_InterpolatePoint(
+           ST_GeomFromText('LINESTRING M (0 0 0,10 0 10,20 0 20)'),
+           ST_GeomFromText('POINT(5 0)')
+       );
+----
+0.25 5
+
+query T
+SELECT ST_AsText(
+    ST_LineSubstring(
+        ST_GeomFromText('LINESTRING ZM (0 0 0 0,10 0 10 10,20 0 20 20)'),
+        0.25,
+        0.75
+    )
+);
+----
+LINESTRING ZM(5 0 5 5,10 0 10 10,15 0 15 15)
+
+query T
+SELECT ST_AsText(
+    ST_LocateAlong(
+        ST_GeomFromText('LINESTRING M (0 0 0,10 0 10,20 0 20)'),
+        10
+    )
+);
+----
+MULTIPOINT M((10 0 10))
+
+query T
+SELECT ST_AsText(
+    ST_LocateAlong(
+        ST_GeomFromText('LINESTRING M (0 0 0,10 0 10,20 0 20)'),
+        10,
+        1
+    )
+);
+----
+MULTIPOINT M((10 1 10))
+
+query T
+SELECT ST_AsText(
+    ST_LocateBetween(
+        ST_GeomFromText('POLYGON M ((0 0 0,4 0 4,4 4 8,0 4 4,0 0 0))'),
+        2,
+        6
+    )
+);
+----
+MULTIPOLYGON M(((2 0 2,4 0 4,4 2 6,2 4 6,0 4 4,0 2 2,2 0 2)))
+
+query T
+SELECT ST_AsText(
+    ST_LocateBetween(
+        ST_GeomFromText(
+            'POLYGON M ((0 0 0,10 0 10,10 10 20,0 10 10,0 0 0),
+                        (2 2 3,4 2 5,4 4 7,2 4 5,2 2 3))'
+        ),
+        2,
+        8
+    )
+);
+----
+MULTIPOLYGON M(((2 0 2,8 0 8,0 8 8,0 2 2,2 0 2),(2 2 3,4 2 5,4 4 7,2 4 5,2 2 3)))
+
+query T
+SELECT ST_AsText(
+    ST_LocateBetween(
+        ST_GeomFromText(
+            'GEOMETRYCOLLECTION M (
+                POLYGON M ((0 0 0,4 0 4,4 4 8,0 4 4,0 0 0)),
+                LINESTRING M (0 0 0,4 0 4),
+                POINT M (2 2 5)
+            )'
+        ),
+        2,
+        5
+    )
+);
+----
+GEOMETRYCOLLECTION M(POLYGON M((2 0 2,4 0 4,4 1 5,1 4 5,0 4 4,0 2 2,2 0 2)),LINESTRING M(2 0 2,4 0 4),POINT M(2 2 5))
+
+query T
+SELECT ST_AsText(
+    ST_LocateBetweenElevations(
+        ST_GeomFromText('POLYGON Z ((0 0 0,4 0 4,4 4 8,0 4 4,0 0 0))'),
+        2,
+        6
+    )
+);
+----
+MULTIPOLYGON Z(((2 0 2,4 0 4,4 2 6,2 4 6,0 4 4,0 2 2,2 0 2)))
+
+query T
+SELECT ST_AsText(
+    ST_AddMeasure(
+        ST_GeomFromText('LINESTRING(0 0,10 0,20 0)'),
+        10,
+        20
+    )
+);
+----
+LINESTRING M(0 0 10,10 0 15,20 0 20)
+
+query B
+SELECT ST_LineInterpolatePoint(NULL, 0.5) IS NULL;
+----
+true
+
+query B
+SELECT ST_3DLineInterpolatePoint(NULL, 0.5) IS NULL;
+----
+true
+
+query B
+SELECT ST_LineInterpolatePoints(NULL, 0.5) IS NULL;
+----
+true
+
+query B
+SELECT ST_LineSubstring(NULL, 0.25, 0.75) IS NULL;
+----
+true
+
+query B
+SELECT ST_LocateAlong(NULL, 1) IS NULL;
+----
+true
+
+query B
+SELECT ST_LocateBetween(NULL, 1, 2) IS NULL;
+----
+true
+
+query B
+SELECT ST_LocateBetweenElevations(NULL, 1, 2) IS NULL;
+----
+true
+
+query B
+SELECT ST_AddMeasure(NULL, 1, 2) IS NULL;
+----
+true
+
+query B
+SELECT ST_LineLocatePoint(NULL, NULL) IS NULL;
+----
+true
+
+query B
+SELECT ST_InterpolatePoint(NULL, NULL) IS NULL;
+----
+true
+
+query B
+SELECT ST_LineInterpolatePoint(
+    ST_GeomFromText('LINESTRING(0 0,10 0)'),
+    NULL
+) IS NULL;
+----
+true
+
+query B
+SELECT ST_3DLineInterpolatePoint(
+    ST_GeomFromText('LINESTRING Z (0 0 0,10 0 10)'),
+    NULL
+) IS NULL;
+----
+true
+
+query B
+SELECT ST_LineInterpolatePoints(
+    ST_GeomFromText('LINESTRING(0 0,10 0)'),
+    NULL
+) IS NULL;
+----
+true
+
+query B
+SELECT ST_LineSubstring(
+    ST_GeomFromText('LINESTRING(0 0,10 0)'),
+    NULL,
+    0.5
+) IS NULL;
+----
+true
+
+query B
+SELECT ST_LocateAlong(
+    ST_GeomFromText('LINESTRING M (0 0 0,10 0 10)'),
+    NULL
+) IS NULL;
+----
+true
+
+query B
+SELECT ST_LocateBetween(
+    ST_GeomFromText('LINESTRING M (0 0 0,10 0 10)'),
+    NULL,
+    5
+) IS NULL;
+----
+true
+
+query B
+SELECT ST_LocateBetweenElevations(
+    ST_GeomFromText('LINESTRING Z (0 0 0,10 0 10)'),
+    NULL,
+    5
+) IS NULL;
+----
+true
+
+query B
+SELECT ST_AddMeasure(
+    ST_GeomFromText('LINESTRING(0 0,10 0)'),
+    NULL,
+    5
+) IS NULL;
+----
+true
+
+query B
+SELECT ST_LineLocatePoint(
+    ST_GeomFromText('LINESTRING(0 0,10 0)'),
+    NULL
+) IS NULL;
+----
+true
+
+query B
+SELECT ST_InterpolatePoint(
+    ST_GeomFromText('LINESTRING M (0 0 0,10 0 10)'),
+    NULL
+) IS NULL;
+----
+true
+
+query T
+SELECT ST_AsText(
+    ST_LineSubstring(ST_GeomFromText('LINESTRING Z (0 0 0,0 0 10)'), 0.2, 0.8)
+);
+----
+POINT Z(0 0 10)
+
+query T
+SELECT ST_AsText(
+    ST_LineSubstring(
+        ST_GeomFromText('LINESTRING Z (0 0 0,0 0 1,0 0 2)'),
+        0.2,
+        0.8
+    )
+);
+----
+LINESTRING Z(0 0 1,0 0 2)
+
+statement error line_interpolate_point: 2nd arg isn't within
+SELECT ST_LineInterpolatePoint(ST_GeomFromText('LINESTRING(0 0,10 0)'), 1.5);
+
+statement error 2nd arg must be smaller then 3rd arg
+SELECT ST_LineSubstring(ST_GeomFromText('LINESTRING(0 0,10 0)'), 0.75, 0.25);
+
+statement error Only linear geometries are supported
+SELECT ST_LocateBetween(
+    ST_GeomFromText('POLYGON M ((0 0 0,4 0 4,4 4 8,0 4 4,0 0 0))'),
+    4,
+    4
+);
+
+statement error unexpected type
+SELECT ST_LocateBetween(
+    ST_GeomFromText('POLYGON M ((0 0 0,4 0 4,4 4 8,0 4 4,0 0 0))'),
+    2,
+    6,
+    2
+);

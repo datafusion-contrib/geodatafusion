@@ -1,0 +1,187 @@
+# Circle function SQL contracts. Run only with geos-3_11 enabled.
+#
+# Numeric expectations were reviewed from the pinned PostGIS reference
+# (PostgreSQL 18.6 / PostGIS 3.6.4 / GEOS 3.14.1). Exact MIC, LEC, and
+# minimum-bounding-radius values are asserted only where GEOS 3.11 through
+# 3.14 return the same result. The right-triangle MIC case checks the
+# documented distance tolerance because GEOS 3.14's exact MIC path and older
+# approximate paths select different valid boundary witnesses. The
+# minimum-bounding-circle polygon contract uses reviewed shape measures
+# because circle trigonometry differs by at most two ULP across the local and
+# reference libm implementations.
+
+query RRR
+SELECT ST_X(circle.center), ST_Y(circle.center), circle.radius
+FROM (
+    SELECT ST_MaximumInscribedCircle(
+        ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0))')
+    ) AS circle
+);
+----
+5 5 5
+
+query BBBBBB
+SELECT ST_Within(circle.center, geom),
+       ST_Intersects(circle.nearest, ST_ExteriorRing(geom)),
+       abs(circle.radius - ST_Distance(circle.center, circle.nearest)) <= 1e-12,
+       abs(ST_X(circle.center) - 2.9289321881345245) <= 0.01,
+       abs(ST_Y(circle.center) - 2.9289321881345245) <= 0.01,
+       abs(circle.radius - 2.9289321881345245) <= 0.01
+FROM (
+    SELECT ST_MaximumInscribedCircle(
+        ST_GeomFromText('POLYGON((0 0,10 0,0 10,0 0))')
+    ) AS circle,
+    ST_GeomFromText('POLYGON((0 0,10 0,0 10,0 0))') AS geom
+);
+----
+true true true true true true
+
+query TTR
+SELECT ST_AsText(circle.center), ST_AsText(circle.nearest), circle.radius
+FROM (
+    SELECT ST_MaximumInscribedCircle(ST_GeomFromText('POLYGON EMPTY')) AS circle
+);
+----
+POINT EMPTY POINT EMPTY 0
+
+query RRRRR
+SELECT ST_X(circle.center),
+       ST_Y(circle.center),
+       ST_X(circle.nearest),
+       ST_Y(circle.nearest),
+       circle.radius
+FROM (
+    SELECT ST_MaximumInscribedCircle(ST_Point(3, 4)) AS circle
+);
+----
+3 4 3 4 0
+
+query RRR
+SELECT ST_X(circle.center), ST_Y(circle.center), circle.radius
+FROM (
+    SELECT ST_LargestEmptyCircle(
+        ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0))'),
+        0.1
+    ) AS circle
+);
+----
+5 5 5
+
+query RRRRR
+SELECT ST_X(circle.center),
+       ST_Y(circle.center),
+       ST_X(circle.nearest),
+       ST_Y(circle.nearest),
+       circle.radius
+FROM (
+    SELECT ST_LargestEmptyCircle(ST_Point(3, 4), 0.1) AS circle
+);
+----
+3 4 3 4 0
+
+query RRRRR
+SELECT ST_X(circle.center),
+       ST_Y(circle.center),
+       ST_X(circle.nearest),
+       ST_Y(circle.nearest),
+       circle.radius
+FROM (
+    SELECT ST_LargestEmptyCircle(
+        ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0))'),
+        0.1,
+        ST_GeomFromText('POLYGON((0 0,20 0,20 20,0 20,0 0))')
+    ) AS circle
+);
+----
+19.9609375 19.9609375 10 10 14.086892906451
+
+query RRR
+SELECT ST_X(bounds.center), ST_Y(bounds.center), bounds.radius
+FROM (
+    SELECT ST_MinimumBoundingRadius(
+        ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0))')
+    ) AS bounds
+);
+----
+5 5 7.071067811865
+
+query IR
+SELECT ST_NPoints(ST_MinimumBoundingCircle(
+           ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0))')
+       )) AS npoints,
+       ST_Area(ST_MinimumBoundingCircle(
+           ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0))')
+       )) AS area;
+----
+193 157.093652498991
+
+query T
+SELECT ST_AsText(ST_MinimumBoundingCircle(ST_Point(1, 2), 0));
+----
+POINT(1 2)
+
+query T
+SELECT ST_AsText(ST_MinimumBoundingCircle(ST_GeomFromText('POLYGON EMPTY')));
+----
+POINT EMPTY
+
+query II
+SELECT ST_NDims(circle.center),
+       ST_NDims(ST_MinimumBoundingCircle(
+           ST_GeomFromText('POLYGON ZM((0 0 7 8,10 0 7 8,10 10 7 8,0 10 7 8,0 0 7 8))')
+       ))
+FROM (
+    SELECT ST_MaximumInscribedCircle(
+        ST_GeomFromText('POLYGON Z((0 0 7,10 0 7,10 10 7,0 10 7,0 0 7))')
+    ) AS circle
+) AS values;
+----
+2 2
+
+query IR
+WITH input(id, wkt) AS (
+    VALUES
+        (1, 'POLYGON((0 0,10 0,10 10,0 10,0 0))'),
+        (2, 'POINT(3 4)')
+)
+SELECT id, circle.radius
+FROM (
+    SELECT id, ST_MaximumInscribedCircle(ST_GeomFromText(wkt)) AS circle
+    FROM input
+) AS values
+ORDER BY id;
+----
+1 5
+2 0
+
+query BBB
+SELECT ST_MaximumInscribedCircle(ST_GeomFromText('POLYGON EMPTY')) IS NULL,
+       ST_LargestEmptyCircle(ST_GeomFromText('POLYGON EMPTY')) IS NULL,
+       ST_MinimumBoundingCircle(ST_GeomFromText('POLYGON EMPTY')) IS NULL;
+----
+false false false
+
+query BBBB
+SELECT ST_MaximumInscribedCircle(NULL) IS NULL,
+       ST_LargestEmptyCircle(NULL) IS NULL,
+       ST_MinimumBoundingCircle(NULL) IS NULL,
+       ST_MinimumBoundingRadius(NULL) IS NULL;
+----
+true true true true
+
+query BB
+SELECT ST_LargestEmptyCircle(ST_Point(0, 0), NULL) IS NULL,
+       ST_LargestEmptyCircle(ST_Point(0, 0), 1, NULL) IS NULL;
+----
+true true
+
+query B
+SELECT ST_MinimumBoundingCircle(ST_Point(0, 0), NULL) IS NULL;
+----
+true
+
+statement error segments per quarter-circle
+SELECT ST_MinimumBoundingCircle(
+    ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0))'),
+    0
+);

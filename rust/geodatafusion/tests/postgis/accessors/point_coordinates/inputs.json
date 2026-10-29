@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "coordinates-point",
+      "function": "ST_X",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        },
+        {
+          "name": "z",
+          "type": "float64"
+        },
+        {
+          "name": "m",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_X.html"
+    },
+    {
+      "id": "coordinates-point-z",
+      "function": "ST_X",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z (1 2 3)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        },
+        {
+          "name": "z",
+          "type": "float64"
+        },
+        {
+          "name": "m",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_X.html"
+    },
+    {
+      "id": "coordinates-point-m",
+      "function": "ST_X",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT M (1 2 3)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        },
+        {
+          "name": "z",
+          "type": "float64"
+        },
+        {
+          "name": "m",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_X.html"
+    },
+    {
+      "id": "coordinates-point-zm",
+      "function": "ST_X",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM (1 2 3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        },
+        {
+          "name": "z",
+          "type": "float64"
+        },
+        {
+          "name": "m",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_X.html"
+    },
+    {
+      "id": "coordinates-point-empty",
+      "function": "ST_X",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        },
+        {
+          "name": "z",
+          "type": "float64"
+        },
+        {
+          "name": "m",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_X.html"
+    },
+    {
+      "id": "coordinates-point-m-empty",
+      "function": "ST_X",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT M EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        },
+        {
+          "name": "z",
+          "type": "float64"
+        },
+        {
+          "name": "m",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_X.html"
+    },
+    {
+      "id": "coordinates-point-zm-empty",
+      "function": "ST_X",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        },
+        {
+          "name": "z",
+          "type": "float64"
+        },
+        {
+          "name": "m",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_X.html"
+    },
+    {
+      "id": "coordinates-null",
+      "function": "ST_X",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "x",
+          "type": "float64"
+        },
+        {
+          "name": "y",
+          "type": "float64"
+        },
+        {
+          "name": "z",
+          "type": "float64"
+        },
+        {
+          "name": "m",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_X.html"
+    }
+  ]
+}

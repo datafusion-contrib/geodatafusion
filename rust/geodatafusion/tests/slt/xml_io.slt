@@ -1,0 +1,104 @@
+# GML/KML input and coordinate text output contracts.
+
+query T
+SELECT ST_AsEWKT(ST_GeomFromGML(
+    '<gml:Point xmlns:gml="http://www.opengis.net/gml/3.2"><gml:pos>30 10</gml:pos></gml:Point>'
+));
+----
+POINT(30 10)
+
+query T
+SELECT ST_AsEWKT(ST_GeomFromGML(
+    '<gml:Point xmlns:gml="http://www.opengis.net/gml/3.2" srsName="EPSG:4326"><gml:pos>30 10</gml:pos></gml:Point>'
+));
+----
+SRID=4326;POINT(30 10)
+
+query T
+SELECT ST_AsEWKT(ST_GMLToSQL(
+    '<gml:Point xmlns:gml="http://www.opengis.net/gml/3.2" srsName="urn:ogc:def:crs:EPSG::4326"><gml:pos>10 20</gml:pos></gml:Point>'
+));
+----
+SRID=4326;POINT(20 10)
+
+query T
+SELECT ST_AsText(ST_GeomFromGML(
+    '<gml:Point xmlns:gml="http://www.opengis.net/gml/3.2"><gml:pos srsDimension="4">1 2 3 4</gml:pos></gml:Point>'
+));
+----
+POINT ZM(1 2 3 4)
+
+query T
+SELECT ST_AsText(ST_GeomFromGML(
+    '<gml:Polygon xmlns:gml="http://www.opengis.net/gml/3.2"><gml:exterior><gml:LinearRing><gml:posList>0 0 0 10 10 10 10 0 0 0</gml:posList></gml:LinearRing></gml:exterior><gml:interior><gml:LinearRing><gml:posList>2 2 2 4 4 4 4 2 2 2</gml:posList></gml:LinearRing></gml:interior></gml:Polygon>'
+));
+----
+POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,2 4,4 4,4 2,2 2))
+
+query T
+SELECT ST_AsEWKT(ST_GeomFromGML(
+    '<gml:Point xmlns:gml="http://www.opengis.net/gml/3.2"/>'
+));
+----
+POINT EMPTY
+
+query T
+SELECT ST_AsEWKT(ST_GeomFromKML('<Point><coordinates>1,2</coordinates></Point>'));
+----
+SRID=4326;POINT(1 2)
+
+query T
+SELECT ST_AsGML(ST_GeomFromEWKT('SRID=4326;POLYGON((0 0,0 1,1 1,1 0,0 0))'));
+----
+<gml:Polygon srsName="EPSG:4326"><gml:outerBoundaryIs><gml:LinearRing><gml:coordinates>0,0 0,1 1,1 1,0 0,0</gml:coordinates></gml:LinearRing></gml:outerBoundaryIs></gml:Polygon>
+
+query T
+SELECT ST_AsGML(3, ST_GeomFromEWKT('SRID=4326;POINT(5.234234233242 6.34534534534)'), 5, 17);
+----
+<gml:Point srsName="urn:ogc:def:crs:EPSG::4326"><gml:pos srsDimension="2">6.34535 5.23423</gml:pos></gml:Point>
+
+query T
+SELECT ST_AsKML(ST_GeomFromEWKT('SRID=4326;LINESTRING Z(1 2 3,4 5 6)'));
+----
+<LineString><coordinates>1,2,3 4,5,6</coordinates></LineString>
+
+query T
+SELECT ST_AsLatLonText(ST_GeomFromText('POINT(-3.2342342 -2.32498)'));
+----
+2°19'29.928"S 3°14'3.243"W
+
+query B
+SELECT ST_GeomFromGML(NULL) IS NULL;
+----
+true
+
+query B
+SELECT ST_GeomFromKML(NULL) IS NULL;
+----
+true
+
+query B
+SELECT ST_AsGML(ST_GeomFromText(NULL)) IS NULL;
+----
+true
+
+query B
+SELECT ST_AsGML(ST_GeomFromEWKT('SRID=4326;POINT EMPTY')) IS NULL;
+----
+true
+
+query B
+SELECT ST_AsKML(ST_GeomFromEWKT('SRID=4326;POINT EMPTY')) IS NULL;
+----
+true
+
+query B
+SELECT ST_AsLatLonText(ST_GeomFromText(NULL)) IS NULL;
+----
+true
+
+statement error invalid GML representation
+SELECT ST_GeomFromGML('<gml:Point xmlns:gml="http://www.opengis.net/gml"><gml:pos>not-a-number</gml:pos></gml:Point>');
+
+statement error unknown spatial reference system
+SELECT ST_GeomFromGML('<gml:Point xmlns:gml="http://www.opengis.net/gml" srsName="EPSG:0"><gml:pos>1 2</gml:pos></gml:Point>');

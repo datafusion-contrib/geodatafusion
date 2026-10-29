@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "null-options-use-defaults",
+      "function": "ST_AsMVT",
+      "arguments": [
+        {"type": "int64", "value": 1},
+        {"type": "text", "value": "a"},
+        {"type": "text", "value": "POINT(1 2)"}
+      ],
+      "result_columns": [{"name": "tile", "type": "mvt"}],
+      "comparison": {"mode": "mvt-semantic"},
+      "source": "https://postgis.net/docs/ST_AsMVT.html"
+    }
+  ]
+}

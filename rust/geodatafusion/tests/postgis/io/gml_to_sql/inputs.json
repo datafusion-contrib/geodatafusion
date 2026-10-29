@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "gml-to-sql-point",
+      "function": "ST_GMLToSQL",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "<gml:Point xmlns:gml=\"http://www.opengis.net/gml/3.2\"><gml:pos>30 10</gml:pos></gml:Point>"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GMLToSQL.html",
+      "tags": ["alias"]
+    }
+  ]
+}

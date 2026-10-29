@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "rhr-polygon-with-hole",
+      "function": "ST_ForceRHR",
+      "tags": [
+        "polygon",
+        "hole"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,1 3,3 3,3 1,1 1))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForceRHR.html"
+    },
+    {
+      "id": "rhr-collection-recurses",
+      "function": "ST_ForceRHR",
+      "tags": [
+        "collection"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POLYGON((0 0,4 0,4 4,0 4,0 0)))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForceRHR.html"
+    },
+    {
+      "id": "rhr-already-rhr",
+      "function": "ST_ForceRHR",
+      "tags": [
+        "polygon"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,0 4,4 4,4 0,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForceRHR.html"
+    },
+    {
+      "id": "rhr-degenerate",
+      "function": "ST_ForceRHR",
+      "tags": [
+        "polygon",
+        "degenerate"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,1 1,2 2,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForceRHR.html"
+    },
+    {
+      "id": "rhr-point-unchanged",
+      "function": "ST_ForceRHR",
+      "tags": [
+        "point"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForceRHR.html"
+    }
+  ]
+}

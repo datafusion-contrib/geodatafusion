@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "non-null-field",
+      "function": "ST_Collect",
+      "arguments": [
+        {"type": "text", "value": "POINT(0 0)", "nullable": false}
+      ],
+      "result_columns": [
+        {"name": "geometry", "type": "ewkb"},
+        {"name": "is_null", "type": "boolean"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Collect.html"
+    },
+    {
+      "id": "nullable-null",
+      "function": "ST_Collect",
+      "arguments": [
+        {"type": "text", "value": null, "nullable": true}
+      ],
+      "result_columns": [
+        {"name": "geometry", "type": "ewkb"},
+        {"name": "is_null", "type": "boolean"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Collect.html"
+    }
+  ]
+}

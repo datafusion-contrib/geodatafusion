@@ -10,10 +10,10 @@ use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature, Volatility,
 };
 use geo::{PreparedGeometry, Relate};
-use geoarrow_array::array::from_arrow_array;
 use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
 use geoarrow_schema::error::GeoArrowResult;
 
+use crate::udf::native::geometry::geometry_array_from_arrow;
 use crate::error::GeoDataFusionResult;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -94,20 +94,20 @@ fn intersects_impl(
             intersects_impl(left_array, left_field, right_array, right_field)
         }
         (ColumnarValue::Array(left_arr), ColumnarValue::Array(right_arr)) => {
-            let left_arr = from_arrow_array(&left_arr, left_field)?;
-            let right_arr = from_arrow_array(&right_arr, right_field)?;
+            let left_arr = geometry_array_from_arrow(&left_arr, left_field)?;
+            let right_arr = geometry_array_from_arrow(&right_arr, right_field)?;
             let result = geoarrow_expr_geo::intersects(&left_arr, &right_arr)?;
             Ok(ColumnarValue::Array(Arc::new(result)))
         }
         (ColumnarValue::Scalar(left_scalar), ColumnarValue::Array(right_array)) => {
             let left_scalar_array = ColumnarValue::values_to_arrays(&[left_scalar.into()])?;
-            let left_geo_array = from_arrow_array(&left_scalar_array[0], left_field)?;
+            let left_geo_array = geometry_array_from_arrow(&left_scalar_array[0], left_field)?;
             let left_geo_scalar = to_geo_scalar(left_geo_array.as_ref())?
                 .expect("Null geometries not currently supported");
 
             let left_prepared_geometry = PreparedGeometry::from(left_geo_scalar);
 
-            let right_geo_array = from_arrow_array(&right_array, right_field)?;
+            let right_geo_array = geometry_array_from_arrow(&right_array, right_field)?;
             let result = intersects_prepared_geometry(&right_geo_array, &left_prepared_geometry)?;
             Ok(ColumnarValue::Array(Arc::new(result)))
         }

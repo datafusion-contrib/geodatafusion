@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "f7a624cbaa3a256ab9d3124d47c74767d3ad983524a8eaa5b4cc9a3fc0b0a521",
+  "postgis_sql_sha256": "0c148b7921c8adf13d2c3edacbb813f5adb130b8eac934aaa9326d2ced3638e8",
+  "datafusion_sql_sha256": "0c148b7921c8adf13d2c3edacbb813f5adb130b8eac934aaa9326d2ced3638e8",
+  "cases": {
+    "intersects-boundary-line": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": true
+          }
+        ]
+      ]
+    },
+    "intersects-collection": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": true
+          }
+        ]
+      ]
+    },
+    "intersects-crossing-line": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": true
+          }
+        ]
+      ]
+    },
+    "intersects-empty-empty": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          }
+        ]
+      ]
+    },
+    "intersects-empty-point": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          }
+        ]
+      ]
+    },
+    "intersects-interior-point": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": true
+          }
+        ]
+      ]
+    },
+    "intersects-m-point": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": true
+          }
+        ]
+      ]
+    },
+    "intersects-null": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "intersects-outside-point": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          }
+        ]
+      ]
+    },
+    "intersects-point-in-hole": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          }
+        ]
+      ]
+    },
+    "intersects-z-point": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": true
+          }
+        ]
+      ]
+    }
+  }
+}

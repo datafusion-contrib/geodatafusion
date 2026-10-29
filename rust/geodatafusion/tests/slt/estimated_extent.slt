@@ -1,0 +1,32 @@
+# Engine-native ST_EstimatedExtent scalar function.
+
+statement ok
+CREATE TABLE estimated_extent_plain AS
+SELECT 1 AS id, ST_GeomFromText('POINT(0 0)') AS geometry;
+
+query B
+SELECT ST_EstimatedExtent('estimated_extent_plain', 'geometry') IS NULL;
+----
+true
+
+query B
+SELECT ST_EstimatedExtent('public', 'estimated_extent_plain', 'geometry') IS NULL;
+----
+true
+
+query B
+SELECT ST_EstimatedExtent(NULL, 'geometry') IS NULL;
+----
+true
+
+statement error table `datafusion\.public\.missing` does not exist
+SELECT ST_EstimatedExtent('missing', 'geometry');
+
+statement error column `missing` does not exist in table `datafusion\.public\.estimated_extent_plain`
+SELECT ST_EstimatedExtent('estimated_extent_plain', 'missing');
+
+statement error column `id` must be a geometry in table `datafusion\.public\.estimated_extent_plain`
+SELECT ST_EstimatedExtent('estimated_extent_plain', 'id');
+
+statement error does not support zero arguments
+SELECT ST_EstimatedExtent();

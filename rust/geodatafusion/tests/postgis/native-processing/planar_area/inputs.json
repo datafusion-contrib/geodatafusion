@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "area-square",
+      "function": "ST_Area",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 4
+      },
+      "source": "https://postgis.net/docs/ST_Area.html"
+    },
+    {
+      "id": "area-hole",
+      "function": "ST_Area",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0),(2 2,2 8,8 8,8 2,2 2))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 4
+      },
+      "source": "https://postgis.net/docs/ST_Area.html"
+    },
+    {
+      "id": "area-multipolygon",
+      "function": "ST_Area",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,1 0,1 1,0 1,0 0)),((10 10,11 10,11 11,10 11,10 10)))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 4
+      },
+      "source": "https://postgis.net/docs/ST_Area.html"
+    },
+    {
+      "id": "area-collection",
+      "function": "ST_Area",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POLYGON((0 0,1 0,1 1,0 1,0 0)),LINESTRING(0 0,5 0))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 4
+      },
+      "source": "https://postgis.net/docs/ST_Area.html"
+    },
+    {
+      "id": "area-point",
+      "function": "ST_Area",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 4
+      },
+      "source": "https://postgis.net/docs/ST_Area.html"
+    },
+    {
+      "id": "area-empty-polygon",
+      "function": "ST_Area",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 4
+      },
+      "source": "https://postgis.net/docs/ST_Area.html"
+    },
+    {
+      "id": "area-z",
+      "function": "ST_Area",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z ((0 0 1,10 0 2,10 10 3,0 10 4,0 0 1))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 4
+      },
+      "source": "https://postgis.net/docs/ST_Area.html"
+    },
+    {
+      "id": "area-m",
+      "function": "ST_Area",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON M ((0 0 1,10 0 2,10 10 3,0 10 4,0 0 1))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 4
+      },
+      "source": "https://postgis.net/docs/ST_Area.html"
+    },
+    {
+      "id": "area-null",
+      "function": "ST_Area",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null,
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 4
+      },
+      "source": "https://postgis.net/docs/ST_Area.html"
+    }
+  ]
+}

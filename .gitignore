@@ -21,4 +21,6 @@ target/
 *.fgb
 *.arrow*
 *.parquet
+fuzz/artifacts/
+fuzz/corpus/
 .vscode

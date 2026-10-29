@@ -1,5 +1,6 @@
 use std::sync::{Arc, OnceLock};
 
+use arrow_array::UInt8Array;
 use arrow_array::builder::UInt8Builder;
 use arrow_schema::DataType;
 use datafusion::error::Result;
@@ -8,13 +9,11 @@ use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
 use geo_traits::GeometryTrait;
-use geoarrow_array::GeoArrowArrayAccessor;
-use geoarrow_array::array::from_arrow_array;
-use geoarrow_array::cast::AsGeoArrowArray;
-use geoarrow_schema::{Dimension, GeoArrowType};
+use geoarrow_array::{GeoArrowArrayAccessor, downcast_geoarrow_array};
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
+use crate::udf::native::geometry::geometry_array_from_arrow;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct CoordDim;
@@ -63,66 +62,26 @@ impl ScalarUDFImpl for CoordDim {
     }
 }
 
-fn dimension_size(dim: Dimension) -> u8 {
-    match dim {
-        Dimension::XY => 2,
-        Dimension::XYZ => 3,
-        Dimension::XYM => 3,
-        Dimension::XYZM => 4,
-    }
+fn coord_dim_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
+    let arrays = ColumnarValue::values_to_arrays(&args.args)?;
+    let geo_array = geometry_array_from_arrow(&arrays[0], &args.arg_fields[0])?;
+    let geo_ref = geo_array.as_ref();
+    let result = downcast_geoarrow_array!(geo_ref, coord_dim_array)?;
+    Ok(ColumnarValue::Array(Arc::new(result)))
 }
 
-fn coord_dim_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
-    let array = ColumnarValue::values_to_arrays(&args.args)?
-        .into_iter()
-        .next()
-        .unwrap();
-    let field = &args.arg_fields[0];
-    let geo_array = from_arrow_array(&array, field)?;
-
-    macro_rules! iter_geom {
-        ($cast_function:ident) => {{
-            let mut output_array = UInt8Builder::with_capacity(geo_array.len());
-            for geom in geo_array.$cast_function().iter() {
-                if let Some(geom) = geom {
-                    output_array.append_value(geom?.dim().size().try_into().unwrap());
-                } else {
-                    output_array.append_null();
-                }
-            }
-            Ok(ColumnarValue::Array(Arc::new(output_array.finish())))
-        }};
-        ($cast_function:ident, $param:ident) => {{
-            let mut output_array = UInt8Builder::with_capacity(geo_array.len());
-            for geom in geo_array.$cast_function::<$param>().iter() {
-                if let Some(geom) = geom {
-                    output_array.append_value(geom?.dim().size().try_into().unwrap());
-                } else {
-                    output_array.append_null();
-                }
-            }
-            Ok(ColumnarValue::Array(Arc::new(output_array.finish())))
-        }};
+fn coord_dim_array<'a>(
+    array: &'a impl GeoArrowArrayAccessor<'a>,
+) -> GeoDataFusionResult<UInt8Array> {
+    let mut builder = UInt8Builder::with_capacity(array.len());
+    for item in array.iter() {
+        if let Some(geometry) = item.transpose()? {
+            builder.append_value(geometry.dim().size() as u8);
+        } else {
+            builder.append_null();
+        }
     }
-
-    use GeoArrowType::*;
-    match geo_array.data_type() {
-        Point(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
-        LineString(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
-        Polygon(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
-        MultiPoint(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
-        MultiLineString(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
-        MultiPolygon(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
-        GeometryCollection(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
-        Rect(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
-        Geometry(_) => iter_geom!(as_geometry),
-        Wkb(_) => iter_geom!(as_wkb, i32),
-        LargeWkb(_) => iter_geom!(as_wkb, i64),
-        WkbView(_) => iter_geom!(as_wkb_view),
-        Wkt(_) => iter_geom!(as_wkt, i32),
-        LargeWkt(_) => iter_geom!(as_wkt, i64),
-        WktView(_) => iter_geom!(as_wkt_view),
-    }
+    Ok(builder.finish())
 }
 
 #[derive(Debug, Eq, PartialEq, Hash)]

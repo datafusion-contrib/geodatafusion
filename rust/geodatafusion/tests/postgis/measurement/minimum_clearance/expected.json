@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "fdc0ce64728796a8e2e9f2f1c99a28417b7f4c45b11e6e8e5bcc143d456942e1",
+  "postgis_sql_sha256": "6718375cbbadf3b24645977ceff362cc5d9725cd6b69a3b4623d968ccabf5261",
+  "datafusion_sql_sha256": "ed8b3ea1e800bdb88972a1212d71bd94bb29aec8277536161defe7e453912b94",
+  "cases": {
+    "minimum-clearance-collinear-line": {
+      "columns": [
+        {
+          "name": "clearance",
+          "type": "float64"
+        },
+        {
+          "name": "clearance_line",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "3ff6a09e667f3bcd"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01020000000200000000000000000000000000000000000000000000000000f03f000000000000f03f"
+          }
+        ]
+      ]
+    },
+    "minimum-clearance-empty": {
+      "columns": [
+        {
+          "name": "clearance",
+          "type": "float64"
+        },
+        {
+          "name": "clearance_line",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "7ff0000000000000"
+          },
+          {
+            "type": "ewkb",
+            "hex": "010200000000000000"
+          }
+        ]
+      ]
+    },
+    "minimum-clearance-identical-multipoint": {
+      "columns": [
+        {
+          "name": "clearance",
+          "type": "float64"
+        },
+        {
+          "name": "clearance_line",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "7ff0000000000000"
+          },
+          {
+            "type": "ewkb",
+            "hex": "010200000000000000"
+          }
+        ]
+      ]
+    },
+    "minimum-clearance-null": {
+      "columns": [
+        {
+          "name": "clearance",
+          "type": "float64"
+        },
+        {
+          "name": "clearance_line",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "minimum-clearance-polygon": {
+      "columns": [
+        {
+          "name": "clearance",
+          "type": "float64"
+        },
+        {
+          "name": "clearance_line",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "4010000000000000"
+          },
+          {
+            "type": "ewkb",
+            "hex": "0102000000020000000000000000000000000000000000000000000000000010400000000000000000"
+          }
+        ]
+      ]
+    },
+    "minimum-clearance-single-point": {
+      "columns": [
+        {
+          "name": "clearance",
+          "type": "float64"
+        },
+        {
+          "name": "clearance_line",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "7ff0000000000000"
+          },
+          {
+            "type": "ewkb",
+            "hex": "010200000000000000"
+          }
+        ]
+      ]
+    },
+    "minimum-clearance-two-point-line": {
+      "columns": [
+        {
+          "name": "clearance",
+          "type": "float64"
+        },
+        {
+          "name": "clearance_line",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "3ff6a09e667f3bcd"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01020000000200000000000000000000000000000000000000000000000000f03f000000000000f03f"
+          }
+        ]
+      ]
+    },
+    "minimum-clearance-xym-input-drops-m": {
+      "columns": [
+        {
+          "name": "clearance",
+          "type": "float64"
+        },
+        {
+          "name": "clearance_line",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "3ff6a09e667f3bcd"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01020000000200000000000000000000000000000000000000000000000000f03f000000000000f03f"
+          }
+        ]
+      ]
+    },
+    "minimum-clearance-xyz-input-drops-z": {
+      "columns": [
+        {
+          "name": "clearance",
+          "type": "float64"
+        },
+        {
+          "name": "clearance_line",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "3ff6a09e667f3bcd"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01020000000200000000000000000000000000000000000000000000000000f03f000000000000f03f"
+          }
+        ]
+      ]
+    },
+    "minimum-clearance-xyzm-input-drops-z-and-m": {
+      "columns": [
+        {
+          "name": "clearance",
+          "type": "float64"
+        },
+        {
+          "name": "clearance_line",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "3ff6a09e667f3bcd"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01020000000200000000000000000000000000000000000000000000000000f03f000000000000f03f"
+          }
+        ]
+      ]
+    }
+  }
+}

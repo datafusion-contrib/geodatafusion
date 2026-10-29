@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "lp-quarter",
+      "function": "ST_LineLocatePoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M (0 0 0,10 0 10,20 0 20)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(5 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "fraction",
+          "type": "float64"
+        },
+        {
+          "name": "measure",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 16
+      },
+      "source": "https://postgis.net/docs/ST_LineLocatePoint.html"
+    },
+    {
+      "id": "lp-half",
+      "function": "ST_LineLocatePoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M (0 0 0,10 0 10,20 0 20)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(10 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "fraction",
+          "type": "float64"
+        },
+        {
+          "name": "measure",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 16
+      },
+      "source": "https://postgis.net/docs/ST_LineLocatePoint.html"
+    },
+    {
+      "id": "lp-off-line",
+      "function": "ST_LineLocatePoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M (0 0 0,10 0 10,20 0 20)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(10 5)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "fraction",
+          "type": "float64"
+        },
+        {
+          "name": "measure",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 16
+      },
+      "source": "https://postgis.net/docs/ST_LineLocatePoint.html"
+    },
+    {
+      "id": "lp-null-geometry",
+      "function": "ST_LineLocatePoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": "POINT(10 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "fraction",
+          "type": "float64"
+        },
+        {
+          "name": "measure",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 16
+      },
+      "source": "https://postgis.net/docs/ST_LineLocatePoint.html"
+    },
+    {
+      "id": "lp-null-point",
+      "function": "ST_LineLocatePoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M (0 0 0,10 0 10,20 0 20)"
+        },
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "fraction",
+          "type": "float64"
+        },
+        {
+          "name": "measure",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 16
+      },
+      "source": "https://postgis.net/docs/ST_LineLocatePoint.html"
+    }
+  ]
+}

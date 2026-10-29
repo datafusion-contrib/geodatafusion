@@ -3,6 +3,7 @@ mod convex_hull;
 mod oriented_envelope;
 mod point_on_surface;
 mod simplify;
+mod util;
 
 pub use centroid::Centroid;
 pub use convex_hull::ConvexHull;

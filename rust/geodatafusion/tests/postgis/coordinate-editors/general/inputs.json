@@ -1,0 +1,546 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "point-xy",
+      "function": "ST_WrapX",
+      "tags": [
+        "point",
+        "xy"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(-10 5)"
+        },
+        {
+          "type": "int64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 360
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "quantize",
+          "type": "ewkb"
+        },
+        {
+          "name": "remove_repeated",
+          "type": "ewkb"
+        },
+        {
+          "name": "segmentize",
+          "type": "ewkb"
+        },
+        {
+          "name": "shift_longitude",
+          "type": "ewkb"
+        },
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    },
+    {
+      "id": "multipoint-dedup",
+      "function": "ST_RemoveRepeatedPoints",
+      "tags": [
+        "multipoint",
+        "dedup"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT(2 2,1 1,2 2)"
+        },
+        {
+          "type": "int64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 360
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "quantize",
+          "type": "ewkb"
+        },
+        {
+          "name": "remove_repeated",
+          "type": "ewkb"
+        },
+        {
+          "name": "segmentize",
+          "type": "ewkb"
+        },
+        {
+          "name": "shift_longitude",
+          "type": "ewkb"
+        },
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_RemoveRepeatedPoints.html"
+    },
+    {
+      "id": "polygon-fully-side",
+      "function": "ST_Segmentize",
+      "tags": [
+        "polygon",
+        "translated"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 4,0 4,0 0))"
+        },
+        {
+          "type": "int64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 5
+        },
+        {
+          "type": "float64",
+          "value": 100
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "quantize",
+          "type": "ewkb"
+        },
+        {
+          "name": "remove_repeated",
+          "type": "ewkb"
+        },
+        {
+          "name": "segmentize",
+          "type": "ewkb"
+        },
+        {
+          "name": "shift_longitude",
+          "type": "ewkb"
+        },
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Segmentize.html"
+    },
+    {
+      "id": "empty-point",
+      "function": "ST_ShiftLongitude",
+      "tags": [
+        "empty",
+        "point"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT EMPTY"
+        },
+        {
+          "type": "int64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 360
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "quantize",
+          "type": "ewkb"
+        },
+        {
+          "name": "remove_repeated",
+          "type": "ewkb"
+        },
+        {
+          "name": "segmentize",
+          "type": "ewkb"
+        },
+        {
+          "name": "shift_longitude",
+          "type": "ewkb"
+        },
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_ShiftLongitude.html"
+    },
+    {
+      "id": "empty-polygon",
+      "function": "ST_WrapX",
+      "tags": [
+        "empty",
+        "polygon"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        },
+        {
+          "type": "int64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 360
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "quantize",
+          "type": "ewkb"
+        },
+        {
+          "name": "remove_repeated",
+          "type": "ewkb"
+        },
+        {
+          "name": "segmentize",
+          "type": "ewkb"
+        },
+        {
+          "name": "shift_longitude",
+          "type": "ewkb"
+        },
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    },
+    {
+      "id": "null-geometry",
+      "function": "ST_QuantizeCoordinates",
+      "tags": [
+        "null",
+        "strict"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "int64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 360
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "quantize",
+          "type": "ewkb"
+        },
+        {
+          "name": "remove_repeated",
+          "type": "ewkb"
+        },
+        {
+          "name": "segmentize",
+          "type": "ewkb"
+        },
+        {
+          "name": "shift_longitude",
+          "type": "ewkb"
+        },
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_QuantizeCoordinates.html"
+    },
+    {
+      "id": "null-max-length",
+      "function": "ST_Segmentize",
+      "tags": [
+        "null",
+        "strict"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(-10 5)"
+        },
+        {
+          "type": "int64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 360
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "quantize",
+          "type": "ewkb"
+        },
+        {
+          "name": "remove_repeated",
+          "type": "ewkb"
+        },
+        {
+          "name": "segmentize",
+          "type": "ewkb"
+        },
+        {
+          "name": "shift_longitude",
+          "type": "ewkb"
+        },
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Segmentize.html"
+    },
+    {
+      "id": "null-amount",
+      "function": "ST_WrapX",
+      "tags": [
+        "null",
+        "strict"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(-10 5)"
+        },
+        {
+          "type": "int64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "quantize",
+          "type": "ewkb"
+        },
+        {
+          "name": "remove_repeated",
+          "type": "ewkb"
+        },
+        {
+          "name": "segmentize",
+          "type": "ewkb"
+        },
+        {
+          "name": "shift_longitude",
+          "type": "ewkb"
+        },
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    },
+    {
+      "id": "geometrycollection",
+      "function": "ST_WrapX",
+      "tags": [
+        "collection",
+        "split"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POINT(-10 0),LINESTRING(0 0,10 0))"
+        },
+        {
+          "type": "int64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 5
+        },
+        {
+          "type": "float64",
+          "value": 100
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "quantize",
+          "type": "ewkb"
+        },
+        {
+          "name": "remove_repeated",
+          "type": "ewkb"
+        },
+        {
+          "name": "segmentize",
+          "type": "ewkb"
+        },
+        {
+          "name": "shift_longitude",
+          "type": "ewkb"
+        },
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    }
+  ]
+}

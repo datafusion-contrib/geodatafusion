@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "rings-polygon-hole",
+      "function": "ST_ExteriorRing",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,2 1,2 2,1 2,1 1))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "exteriorring",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ExteriorRing.html"
+    },
+    {
+      "id": "rings-polygon-empty",
+      "function": "ST_ExteriorRing",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "exteriorring",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ExteriorRing.html"
+    },
+    {
+      "id": "rings-linestring",
+      "function": "ST_ExteriorRing",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1,2 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "exteriorring",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ExteriorRing.html"
+    },
+    {
+      "id": "rings-multipolygon",
+      "function": "ST_ExteriorRing",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,1 0,1 1,0 0)))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "exteriorring",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ExteriorRing.html"
+    },
+    {
+      "id": "rings-null",
+      "function": "ST_ExteriorRing",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "exteriorring",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ExteriorRing.html"
+    }
+  ]
+}

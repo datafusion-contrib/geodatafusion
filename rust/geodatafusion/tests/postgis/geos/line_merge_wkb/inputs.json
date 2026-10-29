@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "line-merge-gc-nested",
+      "function": "ST_LineMerge",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POLYGON((0 0,1 0,1 1,0 1,0 0))))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    }
+  ]
+}

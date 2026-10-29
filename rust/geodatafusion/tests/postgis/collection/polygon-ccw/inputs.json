@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "polygon-ccw-with-hole",
+      "function": "ST_ForcePolygonCCW",
+      "tags": [
+        "polygon",
+        "hole"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 1,3 3,1 3,1 1))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForcePolygonCCW.html"
+    },
+    {
+      "id": "polygon-ccw-multipolygon",
+      "function": "ST_ForcePolygonCCW",
+      "tags": [
+        "multipolygon"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,0 1,1 1,0 0)),((10 10,10 12,12 12,10 10)))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForcePolygonCCW.html"
+    },
+    {
+      "id": "polygon-ccw-already-ccw",
+      "function": "ST_ForcePolygonCCW",
+      "tags": [
+        "polygon"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 4,0 4,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForcePolygonCCW.html"
+    },
+    {
+      "id": "polygon-ccw-collection-unchanged",
+      "function": "ST_ForcePolygonCCW",
+      "tags": [
+        "collection"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POLYGON((0 0,0 4,4 4,4 0,0 0)))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForcePolygonCCW.html"
+    },
+    {
+      "id": "polygon-ccw-degenerate",
+      "function": "ST_ForcePolygonCCW",
+      "tags": [
+        "polygon",
+        "degenerate"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,1 1,2 2,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForcePolygonCCW.html"
+    },
+    {
+      "id": "polygon-ccw-point-unchanged",
+      "function": "ST_ForcePolygonCCW",
+      "tags": [
+        "point"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForcePolygonCCW.html"
+    },
+    {
+      "id": "polygon-ccw-empty",
+      "function": "ST_ForcePolygonCCW",
+      "tags": [
+        "empty",
+        "polygon"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForcePolygonCCW.html"
+    }
+  ]
+}

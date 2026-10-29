@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "is-valid-reason-valid-polygon",
+      "function": "ST_IsValidReason",
+      "arguments": [
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "text"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_IsValidReason.html"
+    },
+    {
+      "id": "is-valid-reason-ring-with-hole",
+      "function": "ST_IsValidReason",
+      "arguments": [
+        {"type": "text", "value": "POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,3 1,3 3,1 3,1 1))"}
+      ],
+      "result_columns": [{"name": "value", "type": "text"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_IsValidReason.html"
+    },
+    {
+      "id": "is-valid-reason-empty-polygon",
+      "function": "ST_IsValidReason",
+      "arguments": [
+        {"type": "text", "value": "POLYGON EMPTY"}
+      ],
+      "result_columns": [{"name": "value", "type": "text"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_IsValidReason.html"
+    },
+    {
+      "id": "is-valid-reason-empty-point",
+      "function": "ST_IsValidReason",
+      "arguments": [
+        {"type": "text", "value": "POINT EMPTY"}
+      ],
+      "result_columns": [{"name": "value", "type": "text"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_IsValidReason.html"
+    },
+    {
+      "id": "is-valid-reason-multipoint-empty-member",
+      "function": "ST_IsValidReason",
+      "arguments": [
+        {"type": "text", "value": "MULTIPOINT(EMPTY,1 1)"}
+      ],
+      "result_columns": [{"name": "value", "type": "text"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_IsValidReason.html"
+    },
+    {
+      "id": "is-valid-reason-null",
+      "function": "ST_IsValidReason",
+      "arguments": [
+        {"type": "text", "value": null}
+      ],
+      "result_columns": [{"name": "value", "type": "text"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_IsValidReason.html"
+    }
+  ]
+}

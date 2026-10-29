@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "dump-rings-polygon-hole",
+      "function": "ST_DumpRings",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,2 1,2 2,1 2,1 1))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "path",
+          "type": "int32_list"
+        },
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_DumpRings.html"
+    },
+    {
+      "id": "dump-rings-polygon",
+      "function": "ST_DumpRings",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,1 0,1 1,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "path",
+          "type": "int32_list"
+        },
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_DumpRings.html"
+    },
+    {
+      "id": "dump-rings-polygon-empty",
+      "function": "ST_DumpRings",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "path",
+          "type": "int32_list"
+        },
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_DumpRings.html"
+    },
+    {
+      "id": "dump-rings-null",
+      "function": "ST_DumpRings",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "path",
+          "type": "int32_list"
+        },
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_DumpRings.html"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "c26f93aa0776ecd3ac8f43ab40b0a4fa8f4f7199adc39661675d7e1347ae1e1b",
+  "postgis_sql_sha256": "9d9835d6ef1e8c5b4a1795f114e510539026f95adf5f303df8bd1d2bb9c00add",
+  "datafusion_sql_sha256": "c654811f141b677f727f9bd09cfe882b3e654972a5f2f3c2aada02fc74a89cab",
+  "cases": {
+    "empty-and-null-geometries": {
+      "columns": [
+        {
+          "name": "tile",
+          "type": "mvt"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "mvt",
+            "hex": "1a4e0a056c6179657212130801120200001801220901d5aa01b0b0d4b205120808031202000118021a046e616d65220d0a0b656d7074792d706f696e74220c0a0a656d7074792d6c696e652880207802"
+          }
+        ]
+      ]
+    },
+    "feature-id-boundaries": {
+      "columns": [
+        {
+          "name": "tile",
+          "type": "mvt"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "mvt",
+            "hex": "1a570a056c61796572120d08001202000018012203090202120b1202000118012203090404120b12020002180122030906061a046e616d6522060a047a65726f220a0a086e6567617469766522060a046e756c6c2880207802"
+          }
+        ]
+      ]
+    },
+    "mixed-geometry-types": {
+      "columns": [
+        {
+          "name": "tile",
+          "type": "mvt"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "mvt",
+            "hex": "1a590a056c61796572120d080112020000180122030902041210080212020001180222060900000a020212150803120200021803220b0900001a0002020000010f1a046e616d6522030a016122030a016222030a01632880207802"
+          }
+        ]
+      ]
+    }
+  }
+}

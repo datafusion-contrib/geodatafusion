@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "c91a24b43a8dbcae6b935c08013a7a5efe538584591dfc213ca08e939addd42c",
+  "postgis_sql_sha256": "70b2b0272e6c3243e48a5cb6a85defe36988962b44f82d4951c52092e3de96dd",
+  "datafusion_sql_sha256": "7d551cb9dd5ebdb4c007a059c4aeaf73c979a9e3198a6159c0b9e6c8545a4e6a",
+  "cases": {
+    "square-grid-xyzm-srid-negative-cell": {
+      "columns": [
+        {
+          "name": "i",
+          "type": "float64"
+        },
+        {
+          "name": "j",
+          "type": "float64"
+        },
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "bff0000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          },
+          {
+            "type": "ewkb",
+            "hex": "0103000020e61000000100000005000000000000000000e0bf0000000000000000000000000000e0bf000000000000e03f0000000000000000000000000000e03f00000000000000000000000000000000000000000000e0bf0000000000000000"
+          }
+        ]
+      ]
+    }
+  }
+}

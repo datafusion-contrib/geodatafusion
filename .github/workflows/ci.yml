@@ -27,6 +27,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libgeos-dev
+      - name: Check default production library
+        run: cargo check -p geodatafusion --lib --locked
       - name: Clippy
         run: cargo clippy --all-features --tests -- -D warnings
       - name: Check

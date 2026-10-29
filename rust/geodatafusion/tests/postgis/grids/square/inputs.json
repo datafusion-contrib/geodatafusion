@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "square-origin",
+      "function": "ST_Square",
+      "arguments": [
+        {"type": "float64", "value": 1.0},
+        {"type": "int32", "value": 0},
+        {"type": "int32", "value": 0},
+        {"type": "text", "value": "POINT(0 0)"}
+      ],
+      "result_columns": [{"name": "geom", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Square.html",
+      "tags": ["scalar", "origin"]
+    },
+    {
+      "id": "square-negative-cell",
+      "function": "ST_Square",
+      "arguments": [
+        {"type": "float64", "value": 2.0},
+        {"type": "int32", "value": -1},
+        {"type": "int32", "value": -2},
+        {"type": "text", "value": "POINT(0 0)"}
+      ],
+      "result_columns": [{"name": "geom", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Square.html",
+      "tags": ["scalar", "negative-cell"]
+    },
+    {
+      "id": "square-fractional-origin",
+      "function": "ST_Square",
+      "arguments": [
+        {"type": "float64", "value": 0.5},
+        {"type": "int32", "value": 3},
+        {"type": "int32", "value": -1},
+        {"type": "text", "value": "POINT(1.25 -2.5)"}
+      ],
+      "result_columns": [{"name": "geom", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Square.html",
+      "tags": ["scalar", "fractional"]
+    },
+    {
+      "id": "square-xyzm-origin",
+      "function": "ST_Square",
+      "arguments": [
+        {"type": "float64", "value": 1.0},
+        {"type": "int32", "value": -2},
+        {"type": "int32", "value": 3},
+        {"type": "text", "value": "POINT ZM(10 20 30 40)"}
+      ],
+      "result_columns": [{"name": "geom", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Square.html",
+      "tags": ["scalar", "xyzm"]
+    },
+    {
+      "id": "square-null-size",
+      "function": "ST_Square",
+      "arguments": [
+        {"type": "float64", "value": null},
+        {"type": "int32", "value": 0},
+        {"type": "int32", "value": 0},
+        {"type": "text", "value": "POINT(0 0)"}
+      ],
+      "result_columns": [{"name": "geom", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Square.html",
+      "tags": ["scalar", "null"]
+    },
+    {
+      "id": "square-null-origin",
+      "function": "ST_Square",
+      "arguments": [
+        {"type": "float64", "value": 1.0},
+        {"type": "int32", "value": 0},
+        {"type": "int32", "value": 0},
+        {"type": "text", "value": null}
+      ],
+      "result_columns": [{"name": "geom", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Square.html",
+      "tags": ["scalar", "null"]
+    }
+  ]
+}

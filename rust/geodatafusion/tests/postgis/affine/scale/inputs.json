@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "scale-numeric-xyz",
+      "function": "ST_Scale",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z (2 3 4)"
+        },
+        {
+          "type": "float64",
+          "value": 10
+        },
+        {
+          "type": "float64",
+          "value": 20
+        },
+        {
+          "type": "float64",
+          "value": 30
+        },
+        {
+          "type": "text",
+          "value": "POINT Z (10 20 30)"
+        },
+        {
+          "type": "text",
+          "value": "POINT Z (1 1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "scale_xy_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_xyz_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_factor_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_factor_origin_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Scale.html",
+      "tags": [
+        "xyz",
+        "factor-point",
+        "origin-point"
+      ]
+    },
+    {
+      "id": "scale-factor-xyzm",
+      "function": "ST_Scale",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM (2 3 4 5)"
+        },
+        {
+          "type": "float64",
+          "value": 10
+        },
+        {
+          "type": "float64",
+          "value": 20
+        },
+        {
+          "type": "float64",
+          "value": 30
+        },
+        {
+          "type": "text",
+          "value": "POINT ZM (10 20 30 40)"
+        },
+        {
+          "type": "text",
+          "value": "POINT ZM (1 1 1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "scale_xy_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_xyz_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_factor_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_factor_origin_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Scale.html",
+      "tags": [
+        "xyzm",
+        "factor-point",
+        "origin-point"
+      ]
+    },
+    {
+      "id": "scale-factor-xym",
+      "function": "ST_Scale",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT M (2 3 4)"
+        },
+        {
+          "type": "float64",
+          "value": 10
+        },
+        {
+          "type": "float64",
+          "value": 20
+        },
+        {
+          "type": "float64",
+          "value": 30
+        },
+        {
+          "type": "text",
+          "value": "POINT M (10 20 30)"
+        },
+        {
+          "type": "text",
+          "value": "POINT M (1 1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "scale_xy_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_xyz_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_factor_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_factor_origin_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Scale.html",
+      "tags": [
+        "xym",
+        "factor-point"
+      ]
+    },
+    {
+      "id": "scale-2d-polygon",
+      "function": "ST_Scale",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,0 2,2 2,2 0,0 0))"
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 4
+        },
+        {
+          "type": "text",
+          "value": "POINT(2 3)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "scale_xy_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_xyz_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_factor_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_factor_origin_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Scale.html",
+      "tags": [
+        "2d",
+        "polygon"
+      ]
+    },
+    {
+      "id": "scale-null-factor",
+      "function": "ST_Scale",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 4
+        },
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": "POINT(1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "scale_xy_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_xyz_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_factor_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_factor_origin_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Scale.html",
+      "tags": [
+        "null"
+      ]
+    },
+    {
+      "id": "scale-xyzm-empty",
+      "function": "ST_Scale",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 4
+        },
+        {
+          "type": "text",
+          "value": "POINT ZM (2 3 4 5)"
+        },
+        {
+          "type": "text",
+          "value": "POINT ZM (1 1 1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "scale_xy_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_xyz_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_factor_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "scale_factor_origin_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Scale.html",
+      "tags": [
+        "xyzm",
+        "empty"
+      ]
+    }
+  ]
+}

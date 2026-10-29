@@ -1,0 +1,438 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "orientation-ccw-shell",
+      "function": "ST_IsPolygonCCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-cw-shell",
+      "function": "ST_IsPolygonCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,0 10,10 10,10 0,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-ccw-shell-cw-hole",
+      "function": "ST_IsPolygonCCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0),(2 2,2 4,4 4,4 2,2 2))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-ccw-shell-ccw-hole",
+      "function": "ST_IsPolygonCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0),(2 2,4 2,4 4,2 4,2 2))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-cw-shell-ccw-hole",
+      "function": "ST_IsPolygonCCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,0 10,10 10,10 0,0 0),(2 2,4 2,4 4,2 4,2 2))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-polygon-empty",
+      "function": "ST_IsPolygonCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-multipolygon-ccw",
+      "function": "ST_IsPolygonCCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,1 0,1 1,0 1,0 0)),((2 2,3 2,3 3,2 3,2 2)))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-multipolygon-mixed",
+      "function": "ST_IsPolygonCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,1 0,1 1,0 1,0 0)),((2 2,2 3,3 3,3 2,2 2)))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-gc-poly-point",
+      "function": "ST_IsPolygonCCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POLYGON((0 0,1 0,1 1,0 1,0 0)),POINT(5 5))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-gc-poly-point-cw",
+      "function": "ST_IsPolygonCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POLYGON((0 0,0 1,1 1,1 0,0 0)),POINT(5 5))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-point",
+      "function": "ST_IsPolygonCCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-line",
+      "function": "ST_IsPolygonCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-point-empty",
+      "function": "ST_IsPolygonCCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-degenerate",
+      "function": "ST_IsPolygonCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,1 1,2 2,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-z-ccw",
+      "function": "ST_IsPolygonCCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z((0 0 1,1 0 2,1 1 3,0 1 4,0 0 1))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-m-ccw",
+      "function": "ST_IsPolygonCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON M((0 0 1,1 0 2,1 1 3,0 1 4,0 0 1))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-zm-ccw",
+      "function": "ST_IsPolygonCCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON ZM((0 0 1 9,1 0 2 8,1 1 3 7,0 1 4 6,0 0 1 9))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    },
+    {
+      "id": "orientation-null",
+      "function": "ST_IsPolygonCW",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ccw",
+          "type": "boolean"
+        },
+        {
+          "name": "cw",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_IsPolygonCCW.html"
+    }
+  ]
+}

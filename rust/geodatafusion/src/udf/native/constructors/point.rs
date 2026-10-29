@@ -16,9 +16,10 @@ use datafusion::scalar::ScalarValue;
 use geoarrow_array::GeoArrowArray;
 use geoarrow_array::array::{PointArray, SeparatedCoordBuffer};
 use geoarrow_array::builder::PointBuilder;
-use geoarrow_schema::{CoordType, Crs, Dimension, Metadata, PointType};
+use geoarrow_schema::{CoordType, Dimension, PointType};
 
 use crate::error::GeoDataFusionResult;
+use crate::udf::native::geometry::{metadata_for_srid, normalize_srid, resolve_srid_argument};
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Point {
@@ -67,26 +68,13 @@ impl ScalarUDFImpl for Point {
     }
 
     fn return_field_from_args(&self, args: ReturnFieldArgs) -> Result<Arc<Field>> {
-        let mut typ =
-            PointType::new(Dimension::XY, Default::default()).with_coord_type(self.coord_type);
-
-        if let Some(srid) = args.scalar_arguments.get(2) {
-            if let Some(ScalarValue::Int64(srid_val)) = srid {
-                let crs = Crs::from_authority_code(format!("EPSG:{}", srid_val.unwrap()));
-                typ = typ.with_metadata(Arc::new(Metadata::new(crs, None)));
-            } else {
-                return Err(DataFusionError::Internal(
-                    "ST_Point only supports SRID as a scalar integer".to_string(),
-                ));
-            }
-        };
-
-        Ok(typ.to_field("", true).into())
+        point_return_field(&args, Dimension::XY, 2, "ST_Point", self.coord_type)
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        let srid_null = resolve_srid_argument(&args, 2, "ST_Point")?.is_null();
         let arrays = ColumnarValue::values_to_arrays(&args.args[..2])?;
-        let point_arr = create_point_array(arrays, &args.return_field)?;
+        let point_arr = create_point_array(arrays, &args.return_field, srid_null)?;
         Ok(point_arr.into_array_ref().into())
     }
 
@@ -159,26 +147,13 @@ impl ScalarUDFImpl for PointZ {
     }
 
     fn return_field_from_args(&self, args: ReturnFieldArgs) -> Result<Arc<Field>> {
-        let mut typ =
-            PointType::new(Dimension::XYZ, Default::default()).with_coord_type(self.coord_type);
-
-        if let Some(srid) = args.scalar_arguments.get(3) {
-            if let Some(ScalarValue::Int64(srid_val)) = srid {
-                let crs = Crs::from_authority_code(format!("EPSG:{}", srid_val.unwrap()));
-                typ = typ.with_metadata(Arc::new(Metadata::new(crs, None)));
-            } else {
-                return Err(DataFusionError::Internal(
-                    "ST_Point only supports SRID as a scalar integer".to_string(),
-                ));
-            }
-        };
-
-        Ok(typ.to_field("", true).into())
+        point_return_field(&args, Dimension::XYZ, 3, "ST_PointZ", self.coord_type)
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        let srid_null = resolve_srid_argument(&args, 3, "ST_PointZ")?.is_null();
         let arrays = ColumnarValue::values_to_arrays(&args.args[..3])?;
-        let point_arr = create_point_array(arrays, &args.return_field)?;
+        let point_arr = create_point_array(arrays, &args.return_field, srid_null)?;
         Ok(point_arr.into_array_ref().into())
     }
 
@@ -252,26 +227,13 @@ impl ScalarUDFImpl for PointM {
     }
 
     fn return_field_from_args(&self, args: ReturnFieldArgs) -> Result<Arc<Field>> {
-        let mut typ =
-            PointType::new(Dimension::XYM, Default::default()).with_coord_type(self.coord_type);
-
-        if let Some(srid) = args.scalar_arguments.get(3) {
-            if let Some(ScalarValue::Int64(srid_val)) = srid {
-                let crs = Crs::from_authority_code(format!("EPSG:{}", srid_val.unwrap()));
-                typ = typ.with_metadata(Arc::new(Metadata::new(crs, None)));
-            } else {
-                return Err(DataFusionError::Internal(
-                    "ST_Point only supports SRID as a scalar integer".to_string(),
-                ));
-            }
-        };
-
-        Ok(typ.to_field("", true).into())
+        point_return_field(&args, Dimension::XYM, 3, "ST_PointM", self.coord_type)
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        let srid_null = resolve_srid_argument(&args, 3, "ST_PointM")?.is_null();
         let arrays = ColumnarValue::values_to_arrays(&args.args[..3])?;
-        let point_arr = create_point_array(arrays, &args.return_field)?;
+        let point_arr = create_point_array(arrays, &args.return_field, srid_null)?;
         Ok(point_arr.into_array_ref().into())
     }
 
@@ -347,26 +309,13 @@ impl ScalarUDFImpl for PointZM {
     }
 
     fn return_field_from_args(&self, args: ReturnFieldArgs) -> Result<Arc<Field>> {
-        let mut typ =
-            PointType::new(Dimension::XYZM, Default::default()).with_coord_type(self.coord_type);
-
-        if let Some(srid) = args.scalar_arguments.get(4) {
-            if let Some(ScalarValue::Int64(srid_val)) = srid {
-                let crs = Crs::from_authority_code(format!("EPSG:{}", srid_val.unwrap()));
-                typ = typ.with_metadata(Arc::new(Metadata::new(crs, None)));
-            } else {
-                return Err(DataFusionError::Internal(
-                    "ST_Point only supports SRID as a scalar integer".to_string(),
-                ));
-            }
-        };
-
-        Ok(typ.to_field("", true).into())
+        point_return_field(&args, Dimension::XYZM, 4, "ST_PointZM", self.coord_type)
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        let srid_null = resolve_srid_argument(&args, 4, "ST_PointZM")?.is_null();
         let arrays = ColumnarValue::values_to_arrays(&args.args[..4])?;
-        let point_arr = create_point_array(arrays, &args.return_field)?;
+        let point_arr = create_point_array(arrays, &args.return_field, srid_null)?;
         Ok(point_arr.into_array_ref().into())
     }
 
@@ -454,7 +403,7 @@ impl ScalarUDFImpl for MakePoint {
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
         let arrays = ColumnarValue::values_to_arrays(&args.args)?;
-        let point_arr = create_point_array(arrays, &args.return_field)?;
+        let point_arr = create_point_array(arrays, &args.return_field, false)?;
         Ok(point_arr.into_array_ref().into())
     }
 
@@ -524,7 +473,7 @@ impl ScalarUDFImpl for MakePointM {
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
         let arrays = ColumnarValue::values_to_arrays(&args.args)?;
-        let point_arr = create_point_array(arrays, &args.return_field)?;
+        let point_arr = create_point_array(arrays, &args.return_field, false)?;
         Ok(point_arr.into_array_ref().into())
     }
 
@@ -546,9 +495,31 @@ impl ScalarUDFImpl for MakePointM {
     }
 }
 
+fn point_return_field(
+    args: &ReturnFieldArgs,
+    dim: Dimension,
+    srid_index: usize,
+    function_name: &str,
+    coord_type: CoordType,
+) -> Result<Arc<Field>> {
+    let srid = match args.scalar_arguments.get(srid_index) {
+        None | Some(None) => None,
+        Some(Some(ScalarValue::Int64(Some(value)))) => Some(normalize_srid(*value)?),
+        Some(Some(ScalarValue::Int64(None))) => None,
+        Some(Some(other)) => {
+            return Err(DataFusionError::Plan(format!(
+                "{function_name} only supports SRID as a scalar integer, got {other}"
+            )));
+        }
+    };
+    let typ = PointType::new(dim, metadata_for_srid(srid.unwrap_or(0))).with_coord_type(coord_type);
+    Ok(typ.to_field("", true).into())
+}
+
 fn create_point_array(
     arrays: Vec<ArrayRef>,
     return_field: &Field,
+    srid_null: bool,
 ) -> GeoDataFusionResult<PointArray> {
     let x = arrays[0].as_primitive::<Float64Type>();
     let y = arrays[1].as_primitive::<Float64Type>();
@@ -556,6 +527,14 @@ fn create_point_array(
     let m = arrays.get(3).map(|arr| arr.as_primitive::<Float64Type>());
 
     let typ = return_field.extension_type::<PointType>();
+    if srid_null {
+        let mut builder = PointBuilder::with_capacity(typ, x.len());
+        for _ in 0..x.len() {
+            builder.push_null();
+        }
+        return Ok(builder.finish());
+    }
+
     let point_arr = match typ.coord_type() {
         CoordType::Interleaved => {
             let mut builder = PointBuilder::with_capacity(typ, x.len());
@@ -648,11 +627,12 @@ mod test {
     use std::sync::Arc;
 
     use approx::relative_eq;
-    use arrow_array::{RecordBatch, create_array};
+    use arrow_array::{Float64Array, Int64Array, RecordBatch, create_array};
     use arrow_schema::Schema;
     use datafusion::prelude::SessionContext;
     use geo_traits::{CoordTrait, PointTrait};
     use geoarrow_array::GeoArrowArrayAccessor;
+    use geoarrow_schema::Crs;
 
     use super::*;
 
@@ -753,5 +733,52 @@ mod test {
             point_type.metadata().crs(),
             &Crs::from_authority_code("EPSG:4326".to_string())
         );
+    }
+
+    fn broadcast_srid_args(srid: Vec<Option<i64>>) -> (Point, ScalarFunctionArgs, Arc<Field>) {
+        let udf = Point::new(CoordType::Separated);
+        let return_field = Arc::new(
+            PointType::new(Dimension::XY, metadata_for_srid(4326))
+                .with_coord_type(CoordType::Separated)
+                .to_field("geom", true),
+        );
+        let args = ScalarFunctionArgs {
+            args: vec![
+                ColumnarValue::Array(Arc::new(Float64Array::from(vec![0.0, 2.0]))),
+                ColumnarValue::Array(Arc::new(Float64Array::from(vec![1.0, 3.0]))),
+                ColumnarValue::Array(Arc::new(Int64Array::from(srid))),
+            ],
+            arg_fields: vec![
+                Arc::new(Field::new("x", DataType::Float64, true)),
+                Arc::new(Field::new("y", DataType::Float64, true)),
+                Arc::new(Field::new("srid", DataType::Int64, true)),
+            ],
+            number_rows: 2,
+            return_field: Arc::clone(&return_field),
+            config_options: Arc::new(datafusion::config::ConfigOptions::default()),
+        };
+        (udf, args, return_field)
+    }
+
+    #[test]
+    fn test_st_point_accepts_broadcast_srid_array() {
+        // The FFI boundary materializes scalar arguments as constant arrays.
+        let (udf, args, return_field) = broadcast_srid_args(vec![Some(4326), Some(4326)]);
+        let ColumnarValue::Array(array) = udf.invoke_with_args(args).unwrap() else {
+            panic!("expected an array result");
+        };
+        let points = PointArray::try_from((array.as_ref(), return_field.as_ref())).unwrap();
+
+        assert_eq!(points.len(), 2);
+        assert_eq!(points.value(0).unwrap().coord().unwrap().x_y(), (0.0, 1.0));
+        assert_eq!(points.value(1).unwrap().coord().unwrap().x_y(), (2.0, 3.0));
+    }
+
+    #[test]
+    fn test_st_point_rejects_per_row_srid_array() {
+        let (udf, args, _) = broadcast_srid_args(vec![Some(4326), Some(3857)]);
+        let err = udf.invoke_with_args(args).unwrap_err();
+
+        assert!(err.to_string().contains("scalar literal"));
     }
 }

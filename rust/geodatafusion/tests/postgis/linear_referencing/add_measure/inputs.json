@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "am-xy",
+      "function": "ST_AddMeasure",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0,20 0)"
+        },
+        {
+          "type": "float64",
+          "value": 10.0
+        },
+        {
+          "type": "float64",
+          "value": 20.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "result",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_AddMeasure.html"
+    },
+    {
+      "id": "am-zm",
+      "function": "ST_AddMeasure",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM (0 0 0 100,10 0 10 200)"
+        },
+        {
+          "type": "float64",
+          "value": 1.0
+        },
+        {
+          "type": "float64",
+          "value": 11.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "result",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_AddMeasure.html"
+    },
+    {
+      "id": "am-multiline",
+      "function": "ST_AddMeasure",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((0 0,10 0),(10 0,20 0))"
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 20.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "result",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_AddMeasure.html"
+    },
+    {
+      "id": "am-empty",
+      "function": "ST_AddMeasure",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 1.0
+        },
+        {
+          "type": "float64",
+          "value": 2.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "result",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_AddMeasure.html"
+    },
+    {
+      "id": "am-null-geometry",
+      "function": "ST_AddMeasure",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": 1.0
+        },
+        {
+          "type": "float64",
+          "value": 2.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "result",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_AddMeasure.html"
+    },
+    {
+      "id": "am-null-start",
+      "function": "ST_AddMeasure",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0,20 0)"
+        },
+        {
+          "type": "float64",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": 2.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "result",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_AddMeasure.html"
+    },
+    {
+      "id": "am-null-end",
+      "function": "ST_AddMeasure",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0,20 0)"
+        },
+        {
+          "type": "float64",
+          "value": 1.0
+        },
+        {
+          "type": "float64",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "result",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_AddMeasure.html"
+    }
+  ]
+}

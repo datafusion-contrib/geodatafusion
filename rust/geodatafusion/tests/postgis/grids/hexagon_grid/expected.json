@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "65bc2e4f4b08b432da733f7d633a0684009c852a9e80ae586de6ee9ed7e8c8bb",
+  "postgis_sql_sha256": "a2e4323a3ba3914c39e4789dc3431ba2a8b5b7c0c902531f3b3beea89dfa7a28",
+  "datafusion_sql_sha256": "c789db63beb1ba271e2df818992da88d65b064913bdb0cb7de3492a2ce7f5cc6",
+  "cases": {
+    "hexagon-grid-negative-bounds": {
+      "columns": [
+        {
+          "name": "i",
+          "type": "float64"
+        },
+        {
+          "name": "j",
+          "type": "float64"
+        },
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "bff0000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "bff0000000000000"
+          },
+          {
+            "type": "ewkb",
+            "hex": "0103000000010000000700000000000000000004c0ab4c58e87ab6ebbf00000000000000c0ab4c58e87ab6fbbf000000000000f0bfab4c58e87ab6fbbf000000000000e0bfab4c58e87ab6ebbf000000000000f0bf000000000000000000000000000000c0000000000000000000000000000004c0ab4c58e87ab6ebbf"
+          }
+        ],
+        [
+          {
+            "type": "float64",
+            "bits": "bff0000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          },
+          {
+            "type": "ewkb",
+            "hex": "0103000000010000000700000000000000000004c0ab4c58e87ab6eb3f00000000000000c00000000000000000000000000000f0bf0000000000000000000000000000e0bfab4c58e87ab6eb3f000000000000f0bfab4c58e87ab6fb3f00000000000000c0ab4c58e87ab6fb3f00000000000004c0ab4c58e87ab6eb3f"
+          }
+        ],
+        [
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "bff0000000000000"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01030000000100000007000000000000000000f0bfab4c58e87ab6fbbf000000000000e0bf8039422edcc804c0000000000000e03f8039422edcc804c0000000000000f03fab4c58e87ab6fbbf000000000000e03fab4c58e87ab6ebbf000000000000e0bfab4c58e87ab6ebbf000000000000f0bfab4c58e87ab6fbbf"
+          }
+        ],
+        [
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01030000000100000007000000000000000000f0bf0000000000000000000000000000e0bfab4c58e87ab6ebbf000000000000e03fab4c58e87ab6ebbf000000000000f03f0000000000000000000000000000e03fab4c58e87ab6eb3f000000000000e0bfab4c58e87ab6eb3f000000000000f0bf0000000000000000"
+          }
+        ],
+        [
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "3ff0000000000000"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01030000000100000007000000000000000000f0bfab4c58e87ab6fb3f000000000000e0bfab4c58e87ab6eb3f000000000000e03fab4c58e87ab6eb3f000000000000f03fab4c58e87ab6fb3f000000000000e03f8039422edcc80440000000000000e0bf8039422edcc80440000000000000f0bfab4c58e87ab6fb3f"
+          }
+        ],
+        [
+          {
+            "type": "float64",
+            "bits": "3ff0000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "bff0000000000000"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01030000000100000007000000000000000000e03fab4c58e87ab6ebbf000000000000f03fab4c58e87ab6fbbf0000000000000040ab4c58e87ab6fbbf0000000000000440ab4c58e87ab6ebbf00000000000000400000000000000000000000000000f03f0000000000000000000000000000e03fab4c58e87ab6ebbf"
+          }
+        ],
+        [
+          {
+            "type": "float64",
+            "bits": "3ff0000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01030000000100000007000000000000000000e03fab4c58e87ab6eb3f000000000000f03f0000000000000000000000000000004000000000000000000000000000000440ab4c58e87ab6eb3f0000000000000040ab4c58e87ab6fb3f000000000000f03fab4c58e87ab6fb3f000000000000e03fab4c58e87ab6eb3f"
+          }
+        ]
+      ]
+    }
+  }
+}

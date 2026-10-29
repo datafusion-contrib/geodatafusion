@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "rotate-axes-xyzm-point",
+      "function": "ST_RotateX",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM (1 2 3 4)"
+        },
+        {
+          "type": "float64",
+          "value": 1.5707963267948966
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "rotatex_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotatey_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotatez_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_RotateX.html",
+      "tags": [
+        "xyz",
+        "xyzm"
+      ]
+    },
+    {
+      "id": "rotate-axes-xy-point",
+      "function": "ST_RotateX",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        },
+        {
+          "type": "float64",
+          "value": 1.5707963267948966
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "rotatex_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotatey_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotatez_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_RotateX.html",
+      "tags": [
+        "2d"
+      ]
+    },
+    {
+      "id": "rotate-axes-xyz-linestring",
+      "function": "ST_RotateX",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z (0 0 1, 1 0 2)"
+        },
+        {
+          "type": "float64",
+          "value": 3.141592653589793
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "rotatex_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotatey_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotatez_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_RotateX.html",
+      "tags": [
+        "xyz",
+        "linestring"
+      ]
+    },
+    {
+      "id": "rotate-axes-null",
+      "function": "ST_RotateX",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": 1.5707963267948966
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "rotatex_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotatey_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotatez_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_RotateX.html",
+      "tags": [
+        "null"
+      ]
+    },
+    {
+      "id": "rotate-axes-empty",
+      "function": "ST_RotateX",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 1.5707963267948966
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "rotatex_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotatey_geom",
+          "type": "ewkb"
+        },
+        {
+          "name": "rotatez_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_RotateX.html",
+      "tags": [
+        "empty"
+      ]
+    }
+  ]
+}

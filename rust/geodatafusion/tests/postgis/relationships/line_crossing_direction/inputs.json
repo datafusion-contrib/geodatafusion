@@ -1,0 +1,696 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "crossing-no-cross",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(0 1,10 1)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-single-right",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,2 2)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(0 2,2 0)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-single-left",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 2,2 0)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,2 2)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-shared-start",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 -1)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-shared-end",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(1 -1,1 1)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-touch-endpoint",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(1 1,2 2)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-t-end-on-middle",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,2 0)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(1 0,1 1)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-t-start-from-middle",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(1 0,1 1)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,2 0)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-vertex-touch",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,2 2,4 0)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(2 2,2 4)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-multicross-end-left",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(2 -1,2 1,8 -1,8 1)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-multicross-end-right",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(2 1,2 -1,8 1,8 -1)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-multicross-same-first-left",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(2 -1,2 1,5 1,5 -1)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-multicross-same-first-right",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(2 1,2 -1,5 -1,5 1)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-collinear-overlap",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,2 0)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(1 0,3 0)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-same-line",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-zero-length-left",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,0 0)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-zero-length-right",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(1 1,1 1)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-empty-left",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING EMPTY",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-empty-right",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING EMPTY",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-z",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z(0 0 1,2 2 2)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING Z(0 2 3,2 0 4)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-m",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M(0 0 1,2 2 2)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING M(0 2 3,2 0 4)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-zm",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM(0 0 1 1,2 2 2 2)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING ZM(0 2 3 3,2 0 4 4)",
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    },
+    {
+      "id": "crossing-null-extra",
+      "function": "ST_LineCrossingDirection",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,2 2)",
+          "nullable": false
+        },
+        {
+          "type": "text",
+          "value": null,
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "text"
+        },
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineCrossingDirection.html"
+    }
+  ]
+}

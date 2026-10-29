@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "default-feature",
+      "function": "ST_AsGeoJSON",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "{\"type\":\"Point\",\"coordinates\":[1.2345,2.3456]}"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "feature",
+          "type": "text"
+        },
+        {
+          "name": "default_feature",
+          "type": "text"
+        },
+        {
+          "name": "pretty_feature",
+          "type": "text"
+        },
+        {
+          "name": "nullable_id_feature",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsGeoJSON.html"
+    },
+    {
+      "id": "xyz-feature",
+      "function": "ST_AsGeoJSON",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "{\"type\":\"Point\",\"coordinates\":[1.2345,2.3456,3.4567]}"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "feature",
+          "type": "text"
+        },
+        {
+          "name": "default_feature",
+          "type": "text"
+        },
+        {
+          "name": "pretty_feature",
+          "type": "text"
+        },
+        {
+          "name": "nullable_id_feature",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsGeoJSON.html"
+    },
+    {
+      "id": "line-feature",
+      "function": "ST_AsGeoJSON",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "{\"type\":\"LineString\",\"coordinates\":[[0,0],[1.23456789,2.34567891]]}"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "feature",
+          "type": "text"
+        },
+        {
+          "name": "default_feature",
+          "type": "text"
+        },
+        {
+          "name": "pretty_feature",
+          "type": "text"
+        },
+        {
+          "name": "nullable_id_feature",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsGeoJSON.html"
+    },
+    {
+      "id": "null-geometry-feature",
+      "function": "ST_AsGeoJSON",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "feature",
+          "type": "text"
+        },
+        {
+          "name": "default_feature",
+          "type": "text"
+        },
+        {
+          "name": "pretty_feature",
+          "type": "text"
+        },
+        {
+          "name": "nullable_id_feature",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsGeoJSON.html"
+    }
+  ]
+}

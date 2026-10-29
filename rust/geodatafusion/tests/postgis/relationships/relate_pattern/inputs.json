@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "relate-pattern-disjoint-true",
+      "function": "ST_Relate",
+      "arguments": [
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "POINT(1 1)"},
+        {"type": "text", "value": "FF*FF****"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Relate.html"
+    },
+    {
+      "id": "relate-pattern-disjoint-false",
+      "function": "ST_Relate",
+      "arguments": [
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "FF*FF****"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Relate.html"
+    },
+    {
+      "id": "relate-pattern-lowercase",
+      "function": "ST_Relate",
+      "arguments": [
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "POINT(1 1)"},
+        {"type": "text", "value": "ff*ff****"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Relate.html"
+    },
+    {
+      "id": "relate-pattern-truncates-after-nine",
+      "function": "ST_Relate",
+      "arguments": [
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "POINT(1 1)"},
+        {"type": "text", "value": "FF*FF****ignored"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Relate.html"
+    },
+    {
+      "id": "relate-pattern-null",
+      "function": "ST_Relate",
+      "arguments": [
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "POINT(1 1)"},
+        {"type": "text", "value": null}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Relate.html"
+    }
+  ]
+}

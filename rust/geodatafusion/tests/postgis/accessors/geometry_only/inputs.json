@@ -1,0 +1,402 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "geometry-only-point",
+      "function": "ST_Dimension",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "text"
+        },
+        {
+          "name": "iscollection",
+          "type": "boolean"
+        },
+        {
+          "name": "numgeometries",
+          "type": "text"
+        },
+        {
+          "name": "nrings",
+          "type": "text"
+        },
+        {
+          "name": "zmflag",
+          "type": "text"
+        },
+        {
+          "name": "hasz",
+          "type": "boolean"
+        },
+        {
+          "name": "hasm",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "geometry-only-linestring-z",
+      "function": "ST_Dimension",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z (0 0 0,1 1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "text"
+        },
+        {
+          "name": "iscollection",
+          "type": "boolean"
+        },
+        {
+          "name": "numgeometries",
+          "type": "text"
+        },
+        {
+          "name": "nrings",
+          "type": "text"
+        },
+        {
+          "name": "zmflag",
+          "type": "text"
+        },
+        {
+          "name": "hasz",
+          "type": "boolean"
+        },
+        {
+          "name": "hasm",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "geometry-only-polygon-hole",
+      "function": "ST_Dimension",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,2 1,2 2,1 2,1 1))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "text"
+        },
+        {
+          "name": "iscollection",
+          "type": "boolean"
+        },
+        {
+          "name": "numgeometries",
+          "type": "text"
+        },
+        {
+          "name": "nrings",
+          "type": "text"
+        },
+        {
+          "name": "zmflag",
+          "type": "text"
+        },
+        {
+          "name": "hasz",
+          "type": "boolean"
+        },
+        {
+          "name": "hasm",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "geometry-only-polygon-empty",
+      "function": "ST_Dimension",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "text"
+        },
+        {
+          "name": "iscollection",
+          "type": "boolean"
+        },
+        {
+          "name": "numgeometries",
+          "type": "text"
+        },
+        {
+          "name": "nrings",
+          "type": "text"
+        },
+        {
+          "name": "zmflag",
+          "type": "text"
+        },
+        {
+          "name": "hasz",
+          "type": "boolean"
+        },
+        {
+          "name": "hasm",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "geometry-only-multipoint",
+      "function": "ST_Dimension",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT((1 2),(3 4))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "text"
+        },
+        {
+          "name": "iscollection",
+          "type": "boolean"
+        },
+        {
+          "name": "numgeometries",
+          "type": "text"
+        },
+        {
+          "name": "nrings",
+          "type": "text"
+        },
+        {
+          "name": "zmflag",
+          "type": "text"
+        },
+        {
+          "name": "hasz",
+          "type": "boolean"
+        },
+        {
+          "name": "hasm",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "geometry-only-multilinestring-zm",
+      "function": "ST_Dimension",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING ZM((0 0 1 2,1 1 3 4),(2 2 5 6,3 3 7 8))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "text"
+        },
+        {
+          "name": "iscollection",
+          "type": "boolean"
+        },
+        {
+          "name": "numgeometries",
+          "type": "text"
+        },
+        {
+          "name": "nrings",
+          "type": "text"
+        },
+        {
+          "name": "zmflag",
+          "type": "text"
+        },
+        {
+          "name": "hasz",
+          "type": "boolean"
+        },
+        {
+          "name": "hasm",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "geometry-only-geometrycollection",
+      "function": "ST_Dimension",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POINT(1 2),LINESTRING(0 0,1 1))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "text"
+        },
+        {
+          "name": "iscollection",
+          "type": "boolean"
+        },
+        {
+          "name": "numgeometries",
+          "type": "text"
+        },
+        {
+          "name": "nrings",
+          "type": "text"
+        },
+        {
+          "name": "zmflag",
+          "type": "text"
+        },
+        {
+          "name": "hasz",
+          "type": "boolean"
+        },
+        {
+          "name": "hasm",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "geometry-only-geometrycollection-empty",
+      "function": "ST_Dimension",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "text"
+        },
+        {
+          "name": "iscollection",
+          "type": "boolean"
+        },
+        {
+          "name": "numgeometries",
+          "type": "text"
+        },
+        {
+          "name": "nrings",
+          "type": "text"
+        },
+        {
+          "name": "zmflag",
+          "type": "text"
+        },
+        {
+          "name": "hasz",
+          "type": "boolean"
+        },
+        {
+          "name": "hasm",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    },
+    {
+      "id": "geometry-only-null",
+      "function": "ST_Dimension",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "dimension",
+          "type": "text"
+        },
+        {
+          "name": "iscollection",
+          "type": "boolean"
+        },
+        {
+          "name": "numgeometries",
+          "type": "text"
+        },
+        {
+          "name": "nrings",
+          "type": "text"
+        },
+        {
+          "name": "zmflag",
+          "type": "text"
+        },
+        {
+          "name": "hasz",
+          "type": "boolean"
+        },
+        {
+          "name": "hasm",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Dimension.html"
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "oriented-envelope-point",
+      "function": "ST_OrientedEnvelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_OrientedEnvelope.html"
+    },
+    {
+      "id": "oriented-envelope-line",
+      "function": "ST_OrientedEnvelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,2 2)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_OrientedEnvelope.html"
+    },
+    {
+      "id": "oriented-envelope-square",
+      "function": "ST_OrientedEnvelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT((0 0),(0 2),(2 2),(2 0))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_OrientedEnvelope.html"
+    },
+    {
+      "id": "oriented-envelope-square-translated",
+      "function": "ST_OrientedEnvelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT((1000000000000 1000000000000),(1000000000000 1000000000002),(1000000000002 1000000000002),(1000000000002 1000000000000))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_OrientedEnvelope.html"
+    },
+    {
+      "id": "oriented-envelope-empty-line",
+      "function": "ST_OrientedEnvelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING EMPTY",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_OrientedEnvelope.html"
+    },
+    {
+      "id": "oriented-envelope-empty-polygon",
+      "function": "ST_OrientedEnvelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_OrientedEnvelope.html"
+    },
+    {
+      "id": "oriented-envelope-null",
+      "function": "ST_OrientedEnvelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null,
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_OrientedEnvelope.html"
+    }
+  ]
+}

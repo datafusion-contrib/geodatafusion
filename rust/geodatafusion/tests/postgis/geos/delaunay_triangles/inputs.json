@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "delaunay-triangle",
+      "function": "ST_DelaunayTriangles",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT(0 0,1 0,0 1)"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "polygons",
+          "type": "ewkb"
+        },
+        {
+          "name": "edges",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_DelaunayTriangles.html"
+    },
+    {
+      "id": "delaunay-four-points",
+      "function": "ST_DelaunayTriangles",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT(0 0,1 0,0 1,1 1)"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "polygons",
+          "type": "ewkb"
+        },
+        {
+          "name": "edges",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_DelaunayTriangles.html"
+    },
+    {
+      "id": "delaunay-linestring-vertices",
+      "function": "ST_DelaunayTriangles",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 0,0 1)"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "polygons",
+          "type": "ewkb"
+        },
+        {
+          "name": "edges",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_DelaunayTriangles.html"
+    },
+    {
+      "id": "delaunay-two-points",
+      "function": "ST_DelaunayTriangles",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT(0 0,1 0)"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "polygons",
+          "type": "ewkb"
+        },
+        {
+          "name": "edges",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_DelaunayTriangles.html"
+    },
+    {
+      "id": "delaunay-single-point",
+      "function": "ST_DelaunayTriangles",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "polygons",
+          "type": "ewkb"
+        },
+        {
+          "name": "edges",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_DelaunayTriangles.html"
+    },
+    {
+      "id": "delaunay-tolerance",
+      "function": "ST_DelaunayTriangles",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT(0 0,0.001 0,0 1)"
+        },
+        {
+          "type": "float64",
+          "value": 0.01
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "polygons",
+          "type": "ewkb"
+        },
+        {
+          "name": "edges",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_DelaunayTriangles.html"
+    },
+    {
+      "id": "delaunay-zm",
+      "function": "ST_DelaunayTriangles",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT ZM (0 0 5 50,1 0 6 60,0 1 7 70)"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "polygons",
+          "type": "ewkb"
+        },
+        {
+          "name": "edges",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_DelaunayTriangles.html"
+    },
+    {
+      "id": "delaunay-null",
+      "function": "ST_DelaunayTriangles",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": 0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "polygons",
+          "type": "ewkb"
+        },
+        {
+          "name": "edges",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_DelaunayTriangles.html"
+    }
+  ]
+}

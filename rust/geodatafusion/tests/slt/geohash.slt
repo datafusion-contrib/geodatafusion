@@ -1,0 +1,187 @@
+# GeoHash encode/decode contracts.
+
+# ST_GeoHash defaults to the PostGIS computed precision and honors maxchars.
+query T
+SELECT ST_GeoHash(ST_MakePoint(-126,48));
+----
+c0w3hf1s70w3hf1s70w3
+
+query T
+SELECT ST_GeoHash(ST_MakePoint(-126,48),12);
+----
+c0w3hf1s70w3
+
+query T
+SELECT ST_GeoHash(ST_MakePoint(-126,48),1);
+----
+c
+
+query T
+SELECT ST_GeoHash(ST_MakePoint(-126,48),0);
+----
+c0w3hf1s70w3hf1s70w3
+
+query T
+SELECT ST_GeoHash(ST_MakePoint(-126,48),-1);
+----
+c0w3hf1s70w3hf1s70w3
+
+query T
+SELECT ST_GeoHash(ST_MakePoint(-126,48),25);
+----
+c0w3hf1s70w3hf1s70w3hgzzz
+
+query T
+SELECT ST_GeoHash(ST_MakePoint(-126,48),NULL);
+----
+NULL
+
+query T
+SELECT ST_GeoHash(NULL);
+----
+NULL
+
+query T
+SELECT ST_GeoHash(ST_GeomFromText('POINT EMPTY'));
+----
+NULL
+
+# Non-point geometries use their bounding box; the precision is computed until
+# the box fits the GeoHash cell.
+query T
+SELECT ST_GeoHash(ST_GeomFromText('LINESTRING(1 2,3 4)'));
+----
+s0
+
+query T
+SELECT ST_GeoHash(ST_GeomFromText('MULTIPOINT((1 2),(3 4))'));
+----
+s0
+
+query T
+SELECT ST_GeoHash(ST_GeomFromText('POLYGON((0 0,0 1,1 1,0 0))'));
+----
+(empty)
+
+query T
+SELECT ST_GeoHash(ST_GeomFromText('GEOMETRYCOLLECTION(POINT(1 2))'));
+----
+s02equ04ven09qv80meq
+
+# Z, M, SRID, and untyped WKT inputs do not change the planar XY hash.
+query T
+SELECT ST_GeoHash(ST_GeomFromText('POINT ZM (-126 48 5 7)'));
+----
+c0w3hf1s70w3hf1s70w3
+
+query T
+SELECT ST_GeoHash(ST_GeomFromEWKT('SRID=3857;POINT(-126 48)'));
+----
+c0w3hf1s70w3hf1s70w3
+
+query T
+SELECT ST_GeoHash('POINT(-126 48)');
+----
+c0w3hf1s70w3hf1s70w3
+
+# ST_PointFromGeoHash precision, case, NULL, EMPTY, and long hashes.
+query T
+SELECT ST_AsEWKT(ST_PointFromGeoHash('ww8p1r4t8'));
+----
+POINT(112.55838632583618 37.83238649368286)
+
+query T
+SELECT ST_AsEWKT(ST_PointFromGeoHash('ww8p1r4t8',4));
+----
+POINT(112.67578125 37.880859375)
+
+query T
+SELECT ST_AsEWKT(ST_PointFromGeoHash('ww8p1r4t8',0));
+----
+POINT(0 0)
+
+query T
+SELECT ST_AsEWKT(ST_PointFromGeoHash('ww8p1r4t8',-5));
+----
+POINT(112.55838632583618 37.83238649368286)
+
+query T
+SELECT ST_AsEWKT(ST_PointFromGeoHash('ww8p1r4t8',100));
+----
+POINT(112.55838632583618 37.83238649368286)
+
+query T
+SELECT ST_AsEWKT(ST_PointFromGeoHash('ww8p1r4t8',NULL));
+----
+POINT(112.55838632583618 37.83238649368286)
+
+query T
+SELECT ST_AsEWKT(ST_PointFromGeoHash('WW8P1R4T8'));
+----
+POINT(112.55838632583618 37.83238649368286)
+
+query T
+SELECT ST_AsEWKT(ST_PointFromGeoHash(NULL));
+----
+NULL
+
+query T
+SELECT ST_AsEWKT(ST_PointFromGeoHash(''));
+----
+POINT(0 0)
+
+query T
+SELECT ST_AsEWKT(ST_PointFromGeoHash('c0w3hf1s70w3hf1s70w3'));
+----
+POINT(-126.00000000000003 48.00000000000007)
+
+# ST_Box2dFromGeoHash returns the same bounds as PostGIS.
+query T
+SELECT ST_AsEWKT(ST_Box2dFromGeoHash('ww8p1r4t8'));
+----
+POLYGON((112.55836486816406 37.83236503601074,112.55836486816406 37.83240795135498,112.5584077835083 37.83240795135498,112.5584077835083 37.83236503601074,112.55836486816406 37.83236503601074))
+
+query T
+SELECT ST_AsEWKT(ST_Box2dFromGeoHash('ww8p1r4t8',4));
+----
+POLYGON((112.5 37.79296875,112.5 37.96875,112.8515625 37.96875,112.8515625 37.79296875,112.5 37.79296875))
+
+query T
+SELECT ST_AsEWKT(ST_Box2dFromGeoHash('ww8p1r4t8',0));
+----
+POLYGON((-180 -90,-180 90,180 90,180 -90,-180 -90))
+
+query T
+SELECT ST_AsEWKT(ST_Box2dFromGeoHash('ww8p1r4t8',NULL));
+----
+POLYGON((112.55836486816406 37.83236503601074,112.55836486816406 37.83240795135498,112.5584077835083 37.83240795135498,112.5584077835083 37.83236503601074,112.55836486816406 37.83236503601074))
+
+query T
+SELECT ST_AsEWKT(ST_Box2dFromGeoHash('WW8P1R4T8'));
+----
+POLYGON((112.55836486816406 37.83236503601074,112.55836486816406 37.83240795135498,112.5584077835083 37.83240795135498,112.5584077835083 37.83236503601074,112.55836486816406 37.83236503601074))
+
+query T
+SELECT ST_AsEWKT(ST_Box2dFromGeoHash(NULL));
+----
+NULL
+
+query T
+SELECT ST_AsEWKT(ST_Box2dFromGeoHash(''));
+----
+POLYGON((-180 -90,-180 90,180 90,180 -90,-180 -90))
+
+query T
+SELECT ST_AsEWKT(ST_Box2dFromGeoHash('c0w3hf1s70w3hf1s70w3'));
+----
+POLYGON((-126.0000000000002 47.999999999999986,-126.0000000000002 48.00000000000015,-125.99999999999987 48.00000000000015,-125.99999999999987 47.999999999999986,-126.0000000000002 47.999999999999986))
+
+# Invalid characters and out-of-range coordinates fail at execution time.
+statement error decode_geohash_bbox: Invalid character 'a'
+SELECT ST_PointFromGeoHash('abc');
+
+statement error decode_geohash_bbox: Invalid character 'a'
+SELECT ST_Box2dFromGeoHash('abc');
+
+statement error Geohash requires inputs in decimal degrees
+SELECT ST_GeoHash(ST_MakePoint(190,0));

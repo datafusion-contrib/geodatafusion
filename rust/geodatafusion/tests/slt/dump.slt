@@ -1,0 +1,33 @@
+# ST_Dump list contracts and UNNEST integration.
+
+query T?
+SELECT ST_AsText(comp.geom), comp.path
+FROM (
+    SELECT unnest(ST_Dump(ST_GeomFromText('MULTIPOINT(0 0, 1 1)'))) AS comp
+) AS t;
+----
+POINT(0 0) [1]
+POINT(1 1) [2]
+
+query T?
+SELECT ST_AsText(comp.geom), comp.path
+FROM (
+    SELECT unnest(
+        ST_Dump(
+            ST_GeomFromText(
+                'GEOMETRYCOLLECTION(MULTIPOLYGON(((0 0,0 1,1 1,1 0,0 0)),((10 10,10 20,20 20,20 10,10 10))),POINT(5 5))'
+            )
+        )
+    ) AS comp
+) AS t;
+----
+POLYGON((0 0,0 1,1 1,1 0,0 0)) [1, 1]
+POLYGON((10 10,10 20,20 20,20 10,10 10)) [1, 2]
+POINT(5 5) [2]
+
+query T?
+SELECT ST_AsText(comp.geom), comp.path
+FROM (
+    SELECT unnest(ST_Dump(ST_GeomFromText('POINT EMPTY'))) AS comp
+) AS t;
+----

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "relate-matrix-disjoint-points",
+      "function": "ST_Relate",
+      "arguments": [
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "POINT(1 1)"}
+      ],
+      "result_columns": [{"name": "value", "type": "text"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Relate.html"
+    },
+    {
+      "id": "relate-matrix-equal-points",
+      "function": "ST_Relate",
+      "arguments": [
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "POINT(0 0)"}
+      ],
+      "result_columns": [{"name": "value", "type": "text"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Relate.html"
+    },
+    {
+      "id": "relate-matrix-polygon-point",
+      "function": "ST_Relate",
+      "arguments": [
+        {"type": "text", "value": "POLYGON((0 0,0 4,4 4,4 0,0 0))"},
+        {"type": "text", "value": "POINT(2 2)"}
+      ],
+      "result_columns": [{"name": "value", "type": "text"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Relate.html"
+    },
+    {
+      "id": "relate-matrix-collection-point",
+      "function": "ST_Relate",
+      "arguments": [
+        {"type": "text", "value": "GEOMETRYCOLLECTION(POINT(1 2))"},
+        {"type": "text", "value": "POINT(1 2)"}
+      ],
+      "result_columns": [{"name": "value", "type": "text"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Relate.html"
+    }
+  ]
+}

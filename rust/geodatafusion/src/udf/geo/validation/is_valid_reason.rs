@@ -1,15 +1,19 @@
 use std::sync::{Arc, OnceLock};
 
+use arrow_array::builder::StringViewBuilder;
 use arrow_schema::DataType;
 use datafusion::error::Result;
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
-use geoarrow_array::array::from_arrow_array;
+use geo::Validation;
+use geoarrow_array::GeoArrowArray;
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
+use crate::udf::geo::to_geo::to_geo_iter;
+use crate::udf::native::geometry::geometry_array_from_arrow;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct IsValidReason;
@@ -60,7 +64,16 @@ impl ScalarUDFImpl for IsValidReason {
 
 fn is_valid_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
-    let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
-    let result = geoarrow_expr_geo::validation::is_valid_reason(&geo_array)?;
-    Ok(ColumnarValue::Array(Arc::new(result)))
+    let geo_array = geometry_array_from_arrow(&arrays[0], &args.arg_fields[0])?;
+    let mut builder = StringViewBuilder::with_capacity(geo_array.len());
+    for item in to_geo_iter(&geo_array)? {
+        match item {
+            Some(geometry) => match geometry?.check_validation() {
+                Ok(()) => builder.append_value("Valid Geometry"),
+                Err(error) => builder.append_value(error.to_string()),
+            },
+            None => builder.append_null(),
+        }
+    }
+    Ok(ColumnarValue::Array(Arc::new(builder.finish())))
 }

@@ -1,0 +1,423 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "ee7f59af2881cf3575196b228f097e0aa3b27909f3496bc17a38b2510fa526fb",
+  "postgis_sql_sha256": "c2354ac54deed686439f3bcb4af042b0279c4dfed9f79ee894802bca268ca2aa",
+  "datafusion_sql_sha256": "c2354ac54deed686439f3bcb4af042b0279c4dfed9f79ee894802bca268ca2aa",
+  "cases": {
+    "ewkt-collection-measure": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "SRID=4326;GEOMETRYCOLLECTIONM(POINTM(1 2 3))"
+          },
+          {
+            "type": "text",
+            "value": "0107000060E6100000010000000101000040000000000000F03F00000000000000400000000000000840"
+          }
+        ]
+      ]
+    },
+    "ewkt-collection-multi-type": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "SRID=4326;GEOMETRYCOLLECTION(POINT(1 2),LINESTRING(0 0,1 1))"
+          },
+          {
+            "type": "text",
+            "value": "0107000020E6100000020000000101000000000000000000F03F000000000000004001020000000200000000000000000000000000000000000000000000000000F03F000000000000F03F"
+          }
+        ]
+      ]
+    },
+    "ewkt-collection-single-member": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "SRID=4326;GEOMETRYCOLLECTION(POINT(1 2))"
+          },
+          {
+            "type": "text",
+            "value": "0107000020E6100000010000000101000000000000000000F03F0000000000000040"
+          }
+        ]
+      ]
+    },
+    "ewkt-default-precision": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "POINT(0.333333333333333 1.234567890123457)"
+          },
+          {
+            "type": "text",
+            "value": "0101000000555555555555D53FFB598C42CAC0F33F"
+          }
+        ]
+      ]
+    },
+    "ewkt-multipolygon": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "SRID=4326;MULTIPOLYGON(((0 0,0 1,1 1,0 0)))"
+          },
+          {
+            "type": "text",
+            "value": "0106000020E61000000100000001030000000100000004000000000000000000000000000000000000000000000000000000000000000000F03F000000000000F03F000000000000F03F00000000000000000000000000000000"
+          }
+        ]
+      ]
+    },
+    "ewkt-null": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "ewkt-point-2d": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "POINT(1 2)"
+          },
+          {
+            "type": "text",
+            "value": "0101000000000000000000F03F0000000000000040"
+          }
+        ]
+      ]
+    },
+    "ewkt-point-empty-srid-4326": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "SRID=4326;POINT EMPTY"
+          },
+          {
+            "type": "text",
+            "value": "0101000020E6100000000000000000F87F000000000000F87F"
+          }
+        ]
+      ]
+    },
+    "ewkt-point-srid-4326": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "SRID=4326;POINT(1 2 3)"
+          },
+          {
+            "type": "text",
+            "value": "01010000A0E6100000000000000000F03F00000000000000400000000000000840"
+          }
+        ]
+      ]
+    },
+    "ewkt-point-srid-folded": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "SRID=999001;POINT(1 2)"
+          },
+          {
+            "type": "text",
+            "value": "0101000020593E0F00000000000000F03F0000000000000040"
+          }
+        ]
+      ]
+    },
+    "ewkt-point-srid-maximum": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "SRID=999280;POINT(1 2)"
+          },
+          {
+            "type": "text",
+            "value": "0101000020703F0F00000000000000F03F0000000000000040"
+          }
+        ]
+      ]
+    },
+    "ewkt-point-srid-negative": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "POINT(1 2)"
+          },
+          {
+            "type": "text",
+            "value": "0101000000000000000000F03F0000000000000040"
+          }
+        ]
+      ]
+    },
+    "ewkt-point-srid-zero": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "POINT(1 2)"
+          },
+          {
+            "type": "text",
+            "value": "0101000000000000000000F03F0000000000000040"
+          }
+        ]
+      ]
+    },
+    "ewkt-point-xym": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "POINTM(1 2 3)"
+          },
+          {
+            "type": "text",
+            "value": "0101000040000000000000F03F00000000000000400000000000000840"
+          }
+        ]
+      ]
+    },
+    "ewkt-point-xyz-implicit": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "POINT(1 2 3)"
+          },
+          {
+            "type": "text",
+            "value": "0101000080000000000000F03F00000000000000400000000000000840"
+          }
+        ]
+      ]
+    },
+    "ewkt-point-xyzm-implicit": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "POINT(1 2 3 4)"
+          },
+          {
+            "type": "text",
+            "value": "01010000C0000000000000F03F000000000000004000000000000008400000000000001040"
+          }
+        ]
+      ]
+    },
+    "ewkt-scientific-notation": {
+      "columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "POINT(1.23e-9 9.6e+16)"
+          },
+          {
+            "type": "text",
+            "value": "0101000000A8A6AAE29821153E0000A7DCF7507543"
+          }
+        ]
+      ]
+    }
+  }
+}

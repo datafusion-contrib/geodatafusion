@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "points",
+      "function": "ST_3DClosestPoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z (2 2 2)"
+        },
+        {
+          "type": "text",
+          "value": "POINT Z (8 5 6)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DClosestPoint.html"
+    },
+    {
+      "id": "line-point",
+      "function": "ST_3DClosestPoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z (0 0 0, 10 0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT Z (2 0 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DClosestPoint.html"
+    },
+    {
+      "id": "mixed-line-first",
+      "function": "ST_3DClosestPoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z (0 0 0, 10 0 10)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(2 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DClosestPoint.html"
+    },
+    {
+      "id": "mixed-point-first",
+      "function": "ST_3DClosestPoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(2 0)"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING Z (0 0 0, 10 0 10)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DClosestPoint.html"
+    },
+    {
+      "id": "polygon-point",
+      "function": "ST_3DClosestPoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z ((0 0 0, 10 0 0, 10 10 0, 0 10 0, 0 0 0))"
+        },
+        {
+          "type": "text",
+          "value": "POINT Z (12 5 3)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DClosestPoint.html"
+    },
+    {
+      "id": "polygon-interior",
+      "function": "ST_3DClosestPoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z ((0 0 0, 10 0 0, 10 10 0, 0 10 0, 0 0 0))"
+        },
+        {
+          "type": "text",
+          "value": "POINT Z (5 5 3)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DClosestPoint.html"
+    },
+    {
+      "id": "degenerate",
+      "function": "ST_3DClosestPoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z (1 1 1, 1 1 1)"
+        },
+        {
+          "type": "text",
+          "value": "POINT Z (0 0 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DClosestPoint.html"
+    },
+    {
+      "id": "xyzm",
+      "function": "ST_3DClosestPoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM (0 0 5 9)"
+        },
+        {
+          "type": "text",
+          "value": "POINT ZM (3 4 12 7)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DClosestPoint.html"
+    },
+    {
+      "id": "xym",
+      "function": "ST_3DClosestPoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT M (0 0 5)"
+        },
+        {
+          "type": "text",
+          "value": "POINT M (3 4 12)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DClosestPoint.html"
+    },
+    {
+      "id": "collection",
+      "function": "ST_3DClosestPoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING Z ((0 0 0, 10 0 0), (20 0 5, 20 0 5))"
+        },
+        {
+          "type": "text",
+          "value": "POINT Z (8 0 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DClosestPoint.html"
+    },
+    {
+      "id": "null",
+      "function": "ST_3DClosestPoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": "POINT Z (0 0 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DClosestPoint.html"
+    }
+  ]
+}

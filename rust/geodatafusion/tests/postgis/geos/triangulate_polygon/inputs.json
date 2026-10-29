@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "triangulate-concave",
+      "function": "ST_TriangulatePolygon",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 4,2 2,0 4,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_TriangulatePolygon.html"
+    },
+    {
+      "id": "triangulate-hole",
+      "function": "ST_TriangulatePolygon",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0),(2 2,2 4,4 4,4 2,2 2))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_TriangulatePolygon.html"
+    },
+    {
+      "id": "triangulate-multipolygon",
+      "function": "ST_TriangulatePolygon",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,1 0,1 1,0 0)),((2 0,3 0,3 1,2 0)))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_TriangulatePolygon.html"
+    },
+    {
+      "id": "triangulate-polygon-empty",
+      "function": "ST_TriangulatePolygon",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_TriangulatePolygon.html"
+    },
+    {
+      "id": "triangulate-point",
+      "function": "ST_TriangulatePolygon",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_TriangulatePolygon.html"
+    },
+    {
+      "id": "triangulate-z",
+      "function": "ST_TriangulatePolygon",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z ((0 0 1,4 0 2,4 4 3,2 2 4,0 4 5,0 0 1))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_TriangulatePolygon.html"
+    },
+    {
+      "id": "triangulate-zm",
+      "function": "ST_TriangulatePolygon",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON ZM ((0 0 1 2,4 0 2 3,4 4 3 4,2 2 4 5,0 4 5 6,0 0 1 2))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_TriangulatePolygon.html"
+    },
+    {
+      "id": "triangulate-null",
+      "function": "ST_TriangulatePolygon",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_TriangulatePolygon.html"
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "ips-xy-half",
+      "function": "ST_LineInterpolatePoints",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)"
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "points",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineInterpolatePoints.html"
+    },
+    {
+      "id": "ips-zm-half",
+      "function": "ST_LineInterpolatePoints",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM (0 0 0 100,10 0 10 110)"
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "points",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineInterpolatePoints.html"
+    },
+    {
+      "id": "ips-xy-end",
+      "function": "ST_LineInterpolatePoints",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)"
+        },
+        {
+          "type": "float64",
+          "value": 1.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "points",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineInterpolatePoints.html"
+    },
+    {
+      "id": "ips-empty",
+      "function": "ST_LineInterpolatePoints",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "points",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineInterpolatePoints.html"
+    },
+    {
+      "id": "ips-null-geometry",
+      "function": "ST_LineInterpolatePoints",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "points",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineInterpolatePoints.html"
+    },
+    {
+      "id": "ips-null-fraction",
+      "function": "ST_LineInterpolatePoints",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)"
+        },
+        {
+          "type": "float64",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "points",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineInterpolatePoints.html"
+    }
+  ]
+}

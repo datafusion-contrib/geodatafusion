@@ -1,0 +1,349 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "2cddb60e8ad7148cd00363853d18ef4a464399d946718f5da938a2ccae0c469f",
+  "postgis_sql_sha256": "07e8adaa29633f967edaa0476dd1a638f41d17c5b56dfb49b7dac574f9627bd7",
+  "datafusion_sql_sha256": "4f0c6ef0a38f9874b3aba7ca1128afd8b6c7b4ded25a36479def1b205dc55e39",
+  "cases": {
+    "lec-empty": {
+      "columns": [
+        {
+          "name": "center_x",
+          "type": "float64"
+        },
+        {
+          "name": "center_y",
+          "type": "float64"
+        },
+        {
+          "name": "nearest_x",
+          "type": "float64"
+        },
+        {
+          "name": "nearest_y",
+          "type": "float64"
+        },
+        {
+          "name": "radius",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          }
+        ]
+      ]
+    },
+    "lec-m": {
+      "columns": [
+        {
+          "name": "center_x",
+          "type": "float64"
+        },
+        {
+          "name": "center_y",
+          "type": "float64"
+        },
+        {
+          "name": "nearest_x",
+          "type": "float64"
+        },
+        {
+          "name": "nearest_y",
+          "type": "float64"
+        },
+        {
+          "name": "radius",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          }
+        ]
+      ]
+    },
+    "lec-square-negative-tolerance": {
+      "columns": [
+        {
+          "name": "center_x",
+          "type": "float64"
+        },
+        {
+          "name": "center_y",
+          "type": "float64"
+        },
+        {
+          "name": "nearest_x",
+          "type": "float64"
+        },
+        {
+          "name": "nearest_y",
+          "type": "float64"
+        },
+        {
+          "name": "radius",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          }
+        ]
+      ]
+    },
+    "lec-square-tolerance": {
+      "columns": [
+        {
+          "name": "center_x",
+          "type": "float64"
+        },
+        {
+          "name": "center_y",
+          "type": "float64"
+        },
+        {
+          "name": "nearest_x",
+          "type": "float64"
+        },
+        {
+          "name": "nearest_y",
+          "type": "float64"
+        },
+        {
+          "name": "radius",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          }
+        ]
+      ]
+    },
+    "lec-square-zero-tolerance": {
+      "columns": [
+        {
+          "name": "center_x",
+          "type": "float64"
+        },
+        {
+          "name": "center_y",
+          "type": "float64"
+        },
+        {
+          "name": "nearest_x",
+          "type": "float64"
+        },
+        {
+          "name": "nearest_y",
+          "type": "float64"
+        },
+        {
+          "name": "radius",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          }
+        ]
+      ]
+    },
+    "lec-z": {
+      "columns": [
+        {
+          "name": "center_x",
+          "type": "float64"
+        },
+        {
+          "name": "center_y",
+          "type": "float64"
+        },
+        {
+          "name": "nearest_x",
+          "type": "float64"
+        },
+        {
+          "name": "nearest_y",
+          "type": "float64"
+        },
+        {
+          "name": "radius",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          }
+        ]
+      ]
+    },
+    "lec-zm": {
+      "columns": [
+        {
+          "name": "center_x",
+          "type": "float64"
+        },
+        {
+          "name": "center_y",
+          "type": "float64"
+        },
+        {
+          "name": "nearest_x",
+          "type": "float64"
+        },
+        {
+          "name": "nearest_y",
+          "type": "float64"
+        },
+        {
+          "name": "radius",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "multi-point",
+      "function": "ST_Multi",
+      "tags": [
+        "atomic",
+        "point"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM(1 2 3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Multi.html"
+    },
+    {
+      "id": "multi-linestring",
+      "function": "ST_Multi",
+      "tags": [
+        "atomic",
+        "linestring"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Multi.html"
+    },
+    {
+      "id": "multi-polygon",
+      "function": "ST_Multi",
+      "tags": [
+        "atomic",
+        "polygon"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,1 0,1 1,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Multi.html"
+    },
+    {
+      "id": "multi-multipoint-unchanged",
+      "function": "ST_Multi",
+      "tags": [
+        "multi"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT((0 0),(1 1))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Multi.html"
+    },
+    {
+      "id": "multi-collection-unchanged",
+      "function": "ST_Multi",
+      "tags": [
+        "collection"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POINT(0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Multi.html"
+    },
+    {
+      "id": "multi-empty-point",
+      "function": "ST_Multi",
+      "tags": [
+        "empty",
+        "point"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Multi.html"
+    },
+    {
+      "id": "multi-empty-linestring",
+      "function": "ST_Multi",
+      "tags": [
+        "empty",
+        "linestring"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Multi.html"
+    },
+    {
+      "id": "multi-empty-polygon",
+      "function": "ST_Multi",
+      "tags": [
+        "empty",
+        "polygon"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Multi.html"
+    }
+  ]
+}

@@ -1,0 +1,762 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "typed-wkt-2d-srid-4326",
+      "function": "ST_PointFromText",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,0 2,2 2,0 0))"
+        },
+        {
+          "type": "text",
+          "value": "MULTIPOINT(0 0,1 1)"
+        },
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((0 0,1 1),(2 2,3 3))"
+        },
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,0 1,1 1,0 0)))"
+        },
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POINT(4 5))"
+        },
+        {
+          "type": "int64",
+          "value": 4326
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "line",
+          "type": "ewkb"
+        },
+        {
+          "name": "line_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "polygon",
+          "type": "ewkb"
+        },
+        {
+          "name": "polygon_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipoint",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipoint_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multilinestring",
+          "type": "ewkb"
+        },
+        {
+          "name": "multilinestring_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipolygon",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipolygon_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "collection",
+          "type": "ewkb"
+        },
+        {
+          "name": "collection_srid",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointFromText.html",
+      "tags": [
+        "typed-wkt",
+        "dimensions",
+        "empty",
+        "wrong-type",
+        "srid",
+        "null"
+      ]
+    },
+    {
+      "id": "typed-wkt-z-srid-0",
+      "function": "ST_PointFromText",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z (1 2 3)"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING Z (0 0 1,1 1 2)"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON Z ((0 0 1,0 1 2,1 1 3,0 0 1))"
+        },
+        {
+          "type": "text",
+          "value": "MULTIPOINT Z (0 0 1,1 1 2)"
+        },
+        {
+          "type": "text",
+          "value": "MULTILINESTRING Z ((0 0 1,1 1 2))"
+        },
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON Z (((0 0 1,0 1 2,1 1 3,0 0 1)))"
+        },
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION Z (POINT Z (9 8 7))"
+        },
+        {
+          "type": "int64",
+          "value": 0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "line",
+          "type": "ewkb"
+        },
+        {
+          "name": "line_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "polygon",
+          "type": "ewkb"
+        },
+        {
+          "name": "polygon_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipoint",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipoint_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multilinestring",
+          "type": "ewkb"
+        },
+        {
+          "name": "multilinestring_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipolygon",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipolygon_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "collection",
+          "type": "ewkb"
+        },
+        {
+          "name": "collection_srid",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointFromText.html",
+      "tags": [
+        "typed-wkt",
+        "dimensions",
+        "empty",
+        "wrong-type",
+        "srid",
+        "null"
+      ]
+    },
+    {
+      "id": "typed-wkt-zm-srid-1m",
+      "function": "ST_PointFromText",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM (1 2 3 4)"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING ZM (0 0 1 2,1 2 3 4)"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON ZM ((0 0 1 2,0 1 2 3,1 1 3 4,0 0 1 2))"
+        },
+        {
+          "type": "text",
+          "value": "MULTIPOINT ZM (0 0 1 2,1 1 3 4)"
+        },
+        {
+          "type": "text",
+          "value": "MULTILINESTRING ZM ((0 0 1 2,1 1 3 4))"
+        },
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON ZM (((0 0 1 2,0 1 2 3,1 1 3 4,0 0 1 2)))"
+        },
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION ZM (POINT ZM (1 2 3 4))"
+        },
+        {
+          "type": "int64",
+          "value": 1000000
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "line",
+          "type": "ewkb"
+        },
+        {
+          "name": "line_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "polygon",
+          "type": "ewkb"
+        },
+        {
+          "name": "polygon_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipoint",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipoint_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multilinestring",
+          "type": "ewkb"
+        },
+        {
+          "name": "multilinestring_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipolygon",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipolygon_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "collection",
+          "type": "ewkb"
+        },
+        {
+          "name": "collection_srid",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointFromText.html",
+      "tags": [
+        "typed-wkt",
+        "dimensions",
+        "empty",
+        "wrong-type",
+        "srid",
+        "null"
+      ]
+    },
+    {
+      "id": "typed-wkt-empty-srid-negative",
+      "function": "ST_PointFromText",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT EMPTY"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING EMPTY"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        },
+        {
+          "type": "text",
+          "value": "MULTIPOINT EMPTY"
+        },
+        {
+          "type": "text",
+          "value": "MULTILINESTRING EMPTY"
+        },
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON EMPTY"
+        },
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION EMPTY"
+        },
+        {
+          "type": "int64",
+          "value": -1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "line",
+          "type": "ewkb"
+        },
+        {
+          "name": "line_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "polygon",
+          "type": "ewkb"
+        },
+        {
+          "name": "polygon_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipoint",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipoint_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multilinestring",
+          "type": "ewkb"
+        },
+        {
+          "name": "multilinestring_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipolygon",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipolygon_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "collection",
+          "type": "ewkb"
+        },
+        {
+          "name": "collection_srid",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointFromText.html",
+      "tags": [
+        "typed-wkt",
+        "dimensions",
+        "empty",
+        "wrong-type",
+        "srid",
+        "null"
+      ]
+    },
+    {
+      "id": "typed-wkt-wrong-type-srid-4326",
+      "function": "ST_PointFromText",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "int64",
+          "value": 4326
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "line",
+          "type": "ewkb"
+        },
+        {
+          "name": "line_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "polygon",
+          "type": "ewkb"
+        },
+        {
+          "name": "polygon_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipoint",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipoint_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multilinestring",
+          "type": "ewkb"
+        },
+        {
+          "name": "multilinestring_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipolygon",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipolygon_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "collection",
+          "type": "ewkb"
+        },
+        {
+          "name": "collection_srid",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointFromText.html",
+      "tags": [
+        "typed-wkt",
+        "dimensions",
+        "empty",
+        "wrong-type",
+        "srid",
+        "null"
+      ]
+    },
+    {
+      "id": "typed-wkt-null-input-srid-i32-max",
+      "function": "ST_PointFromText",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "int64",
+          "value": 2147483647
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "line",
+          "type": "ewkb"
+        },
+        {
+          "name": "line_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "polygon",
+          "type": "ewkb"
+        },
+        {
+          "name": "polygon_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipoint",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipoint_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multilinestring",
+          "type": "ewkb"
+        },
+        {
+          "name": "multilinestring_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipolygon",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipolygon_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "collection",
+          "type": "ewkb"
+        },
+        {
+          "name": "collection_srid",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointFromText.html",
+      "tags": [
+        "typed-wkt",
+        "dimensions",
+        "empty",
+        "wrong-type",
+        "srid",
+        "null"
+      ]
+    },
+    {
+      "id": "typed-wkt-gc1-srid-i32-max",
+      "function": "ST_PointFromText",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,0 2,2 2,0 0))"
+        },
+        {
+          "type": "text",
+          "value": "MULTIPOINT(0 0,1 1)"
+        },
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((0 0,1 1),(2 2,3 3))"
+        },
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,0 1,1 1,0 0)))"
+        },
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POINT(4 5))"
+        },
+        {
+          "type": "int64",
+          "value": 2147483647
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "line",
+          "type": "ewkb"
+        },
+        {
+          "name": "line_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "polygon",
+          "type": "ewkb"
+        },
+        {
+          "name": "polygon_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipoint",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipoint_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multilinestring",
+          "type": "ewkb"
+        },
+        {
+          "name": "multilinestring_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipolygon",
+          "type": "ewkb"
+        },
+        {
+          "name": "multipolygon_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "collection",
+          "type": "ewkb"
+        },
+        {
+          "name": "collection_srid",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_PointFromText.html",
+      "tags": [
+        "typed-wkt",
+        "dimensions",
+        "empty",
+        "wrong-type",
+        "srid",
+        "null"
+      ]
+    }
+  ]
+}

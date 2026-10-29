@@ -10,6 +10,12 @@ use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 use pyo3::{intern, wrap_pymodule};
 
+// The table-function capsule carries a `tokio::runtime::Handle` inside
+// `datafusion-ffi`'s private data, which the host reads back with its own
+// tokio. Declaring tokio here pins the feature set (and therefore the Handle
+// layout) to the consumer's, so no code references it directly.
+use tokio as _;
+
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[pyfunction]
@@ -38,6 +44,7 @@ fn _rust(py: Python, m: &Bound<PyModule>) -> PyResult<()> {
     check_debug_build(py)?;
     m.add_wrapped(wrap_pyfunction!(___version))?;
     m.add_wrapped(wrap_pyfunction!(registration::_registration_exports))?;
+    m.add_class::<registration::PyTableFunctionExport>()?;
 
     let native_mod = wrap_pymodule!(udf::native::native)(py);
     m.add_submodule(native_mod.bind(py))?;

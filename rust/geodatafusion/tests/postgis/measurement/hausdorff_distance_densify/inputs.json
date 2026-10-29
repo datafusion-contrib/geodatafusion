@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "hausdorff-densify-documentation",
+      "function": "ST_HausdorffDistance",
+      "tags": ["scalar", "documentation", "densify"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING (130 0, 0 0, 0 150)"},
+        {"type": "text", "value": "LINESTRING (10 10, 10 150, 130 10)"},
+        {"type": "float64", "value": 0.5}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_HausdorffDistance.html"
+    },
+    {
+      "id": "hausdorff-densify-one",
+      "function": "ST_HausdorffDistance",
+      "tags": ["scalar", "densify"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING (130 0, 0 0, 0 150)"},
+        {"type": "text", "value": "LINESTRING (10 10, 10 150, 130 10)"},
+        {"type": "float64", "value": 1.0}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_HausdorffDistance.html"
+    },
+    {
+      "id": "hausdorff-densify-quarter",
+      "function": "ST_HausdorffDistance",
+      "tags": ["scalar", "densify"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING(0 0,100 0)"},
+        {"type": "text", "value": "LINESTRING(0 10,10 10)"},
+        {"type": "float64", "value": 0.25}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_HausdorffDistance.html"
+    },
+    {
+      "id": "hausdorff-densify-null-fraction",
+      "function": "ST_HausdorffDistance",
+      "tags": ["scalar", "densify", "null"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING(0 0,10 0)"},
+        {"type": "text", "value": "LINESTRING(0 1,10 1)"},
+        {"type": "float64", "value": null}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_HausdorffDistance.html"
+    },
+    {
+      "id": "hausdorff-densify-empty-returns-null",
+      "function": "ST_HausdorffDistance",
+      "tags": ["scalar", "densify", "empty"],
+      "arguments": [
+        {"type": "text", "value": "GEOMETRYCOLLECTION EMPTY"},
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "float64", "value": 0.5}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_HausdorffDistance.html"
+    },
+    {
+      "id": "hausdorff-densify-xym-input-drops-m",
+      "function": "ST_HausdorffDistance",
+      "tags": ["scalar", "xym", "densify"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING M (130 0 1,0 0 2,0 150 3)"},
+        {"type": "text", "value": "LINESTRING M (10 10 4,10 150 5,130 10 6)"},
+        {"type": "float64", "value": 0.5}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_HausdorffDistance.html"
+    },
+    {
+      "id": "hausdorff-densify-xyzm-input-drops-z-and-m",
+      "function": "ST_HausdorffDistance",
+      "tags": ["scalar", "xyzm", "densify"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING ZM (130 0 1 1,0 0 2 2,0 150 3 3)"},
+        {"type": "text", "value": "LINESTRING ZM (10 10 4 4,10 150 5 5,130 10 6 6)"},
+        {"type": "float64", "value": 0.5}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_HausdorffDistance.html"
+    }
+  ]
+}

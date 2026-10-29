@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "transscale-xyz-point",
+      "function": "ST_TransScale",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z (1 2 3)"
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "float64",
+          "value": 2
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "transscale_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_TransScale.html",
+      "tags": [
+        "xyz"
+      ]
+    },
+    {
+      "id": "transscale-xyzm-point",
+      "function": "ST_TransScale",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM (1 2 3 4)"
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 5
+        },
+        {
+          "type": "float64",
+          "value": 7
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "transscale_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_TransScale.html",
+      "tags": [
+        "xyzm"
+      ]
+    },
+    {
+      "id": "transscale-xym-point",
+      "function": "ST_TransScale",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT M (1 2 4)"
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 5
+        },
+        {
+          "type": "float64",
+          "value": 7
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "transscale_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_TransScale.html",
+      "tags": [
+        "xym"
+      ]
+    },
+    {
+      "id": "transscale-linestring-2d",
+      "function": "ST_TransScale",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)"
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 5
+        },
+        {
+          "type": "float64",
+          "value": 7
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "transscale_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_TransScale.html",
+      "tags": [
+        "2d",
+        "linestring"
+      ]
+    },
+    {
+      "id": "transscale-null",
+      "function": "ST_TransScale",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 5
+        },
+        {
+          "type": "float64",
+          "value": 7
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "transscale_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_TransScale.html",
+      "tags": [
+        "null"
+      ]
+    },
+    {
+      "id": "transscale-empty",
+      "function": "ST_TransScale",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 5
+        },
+        {
+          "type": "float64",
+          "value": 7
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "transscale_geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_TransScale.html",
+      "tags": [
+        "empty"
+      ]
+    }
+  ]
+}

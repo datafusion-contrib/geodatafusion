@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "kml-polygon",
+      "function": "ST_AsKML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;POLYGON((0 0,0 1,1 1,1 0,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "kml",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsKML.html",
+      "tags": ["polygon"]
+    },
+    {
+      "id": "kml-line-3d",
+      "function": "ST_AsKML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;LINESTRING Z(1 2 3,4 5 6)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "kml",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsKML.html",
+      "tags": ["3d"]
+    },
+    {
+      "id": "kml-multipoint",
+      "function": "ST_AsKML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;MULTIPOINT((1 2),(3 4))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "kml",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsKML.html",
+      "tags": ["multi"]
+    },
+    {
+      "id": "kml-xym-drops-m",
+      "function": "ST_AsKML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;POINTM(1 2 3)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "kml",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsKML.html",
+      "tags": ["xym"]
+    },
+    {
+      "id": "kml-xyzm-drops-m",
+      "function": "ST_AsKML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT ZM(1 2 3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "kml",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsKML.html",
+      "tags": ["xyzm"]
+    },
+    {
+      "id": "kml-empty-null",
+      "function": "ST_AsKML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "kml",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsKML.html",
+      "tags": ["empty", "null"]
+    }
+  ]
+}

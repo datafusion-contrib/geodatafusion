@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "61c4faa876521861070843e2e3fd8605ff519db9d039f649b279806617e8395a",
+  "postgis_sql_sha256": "dd26b71fb404ae0f2405b41c2f64a636f72cc82110015c3167cb58cad659742b",
+  "datafusion_sql_sha256": "aadaecc7ffd37155eaf4bd5d0ba09d0bccb97d7d9d783c9549cc13690898c3e0",
+  "cases": {
+    "generate-points-default-seed": {
+      "columns": [
+        {
+          "name": "geom_type",
+          "type": "text"
+        },
+        {
+          "name": "npoints",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "ST_MultiPoint"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          }
+        ]
+      ]
+    }
+  }
+}

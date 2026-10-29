@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "required_features": [
+    "geos-3_11"
+  ],
+  "cases": [
+    {
+      "id": "mbr-square",
+      "function": "ST_MinimumBoundingRadius",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "center_x",
+          "type": "float64"
+        },
+        {
+          "name": "center_y",
+          "type": "float64"
+        },
+        {
+          "name": "radius",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_MinimumBoundingRadius.html"
+    },
+    {
+      "id": "mbr-point",
+      "function": "ST_MinimumBoundingRadius",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "center_x",
+          "type": "float64"
+        },
+        {
+          "name": "center_y",
+          "type": "float64"
+        },
+        {
+          "name": "radius",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_MinimumBoundingRadius.html"
+    },
+    {
+      "id": "mbr-line",
+      "function": "ST_MinimumBoundingRadius",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "center_x",
+          "type": "float64"
+        },
+        {
+          "name": "center_y",
+          "type": "float64"
+        },
+        {
+          "name": "radius",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_MinimumBoundingRadius.html"
+    },
+    {
+      "id": "mbr-triangle",
+      "function": "ST_MinimumBoundingRadius",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,0 10,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "center_x",
+          "type": "float64"
+        },
+        {
+          "name": "center_y",
+          "type": "float64"
+        },
+        {
+          "name": "radius",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_MinimumBoundingRadius.html"
+    },
+    {
+      "id": "mbr-z",
+      "function": "ST_MinimumBoundingRadius",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z((0 0 7,10 0 7,10 10 7,0 10 7,0 0 7))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "center_x",
+          "type": "float64"
+        },
+        {
+          "name": "center_y",
+          "type": "float64"
+        },
+        {
+          "name": "radius",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_MinimumBoundingRadius.html"
+    },
+    {
+      "id": "mbr-m",
+      "function": "ST_MinimumBoundingRadius",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON M((0 0 8,10 0 8,10 10 8,0 10 8,0 0 8))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "center_x",
+          "type": "float64"
+        },
+        {
+          "name": "center_y",
+          "type": "float64"
+        },
+        {
+          "name": "radius",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_MinimumBoundingRadius.html"
+    },
+    {
+      "id": "mbr-zm",
+      "function": "ST_MinimumBoundingRadius",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON ZM((0 0 7 8,10 0 7 8,10 10 7 8,0 10 7 8,0 0 7 8))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "center_x",
+          "type": "float64"
+        },
+        {
+          "name": "center_y",
+          "type": "float64"
+        },
+        {
+          "name": "radius",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_MinimumBoundingRadius.html"
+    },
+    {
+      "id": "mbr-empty",
+      "function": "ST_MinimumBoundingRadius",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "center_x",
+          "type": "float64"
+        },
+        {
+          "name": "center_y",
+          "type": "float64"
+        },
+        {
+          "name": "radius",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_MinimumBoundingRadius.html"
+    }
+  ]
+}

@@ -1,0 +1,380 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "0d637149df1ac30a90718a18fa83a5e727ae815d6a6ed219d7b8af2967445d28",
+  "postgis_sql_sha256": "ae67c54805246abb98b0b82f9422e5beedc8105b091627389deb02eb4cf04e4f",
+  "datafusion_sql_sha256": "a259fc0dbda58a1624013ebed99234d989dcb3ac4e78b4190e9ed505f8247f2b",
+  "cases": {
+    "typed-wkb-line-srid-0": {
+      "columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "line",
+          "type": "ewkb"
+        },
+        {
+          "name": "line_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "linestring_alias",
+          "type": "ewkb"
+        },
+        {
+          "name": "linestring_alias_srid",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01020000000200000000000000000000000000000000000000000000000000f03f000000000000f03f"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01020000000200000000000000000000000000000000000000000000000000f03f000000000000f03f"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01020000000200000000000000000000000000000000000000000000000000f03f000000000000f03f"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01020000000200000000000000000000000000000000000000000000000000f03f000000000000f03f"
+          }
+        ]
+      ]
+    },
+    "typed-wkb-line-zm-srid-1m": {
+      "columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "line",
+          "type": "ewkb"
+        },
+        {
+          "name": "line_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "linestring_alias",
+          "type": "ewkb"
+        },
+        {
+          "name": "linestring_alias_srid",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01020000c00200000000000000000000000000000000000000000000000000f03f0000000000000040000000000000f03f000000000000004000000000000008400000000000001040"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01020000e0593e0f000200000000000000000000000000000000000000000000000000f03f0000000000000040000000000000f03f000000000000004000000000000008400000000000001040"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01020000c00200000000000000000000000000000000000000000000000000f03f0000000000000040000000000000f03f000000000000004000000000000008400000000000001040"
+          },
+          {
+            "type": "ewkb",
+            "hex": "01020000e0593e0f000200000000000000000000000000000000000000000000000000f03f0000000000000040000000000000f03f000000000000004000000000000008400000000000001040"
+          }
+        ]
+      ]
+    },
+    "typed-wkb-null-input": {
+      "columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "line",
+          "type": "ewkb"
+        },
+        {
+          "name": "line_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "linestring_alias",
+          "type": "ewkb"
+        },
+        {
+          "name": "linestring_alias_srid",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "typed-wkb-null-srid": {
+      "columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "line",
+          "type": "ewkb"
+        },
+        {
+          "name": "line_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "linestring_alias",
+          "type": "ewkb"
+        },
+        {
+          "name": "linestring_alias_srid",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "01010000000000000000003e400000000000002440"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "typed-wkb-point-empty-srid-i32-max": {
+      "columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "line",
+          "type": "ewkb"
+        },
+        {
+          "name": "line_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "linestring_alias",
+          "type": "ewkb"
+        },
+        {
+          "name": "linestring_alias_srid",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "0101000000000000000000f87f000000000000f87f"
+          },
+          {
+            "type": "ewkb",
+            "hex": "0101000020703f0f00000000000000f87f000000000000f87f"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "typed-wkb-point-srid-4326": {
+      "columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "line",
+          "type": "ewkb"
+        },
+        {
+          "name": "line_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "linestring_alias",
+          "type": "ewkb"
+        },
+        {
+          "name": "linestring_alias_srid",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "01010000000000000000003e400000000000002440"
+          },
+          {
+            "type": "ewkb",
+            "hex": "0101000020e61000000000000000003e400000000000002440"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "typed-wkb-polygon-wrong-type": {
+      "columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "line",
+          "type": "ewkb"
+        },
+        {
+          "name": "line_srid",
+          "type": "ewkb"
+        },
+        {
+          "name": "linestring_alias",
+          "type": "ewkb"
+        },
+        {
+          "name": "linestring_alias_srid",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    }
+  }
+}

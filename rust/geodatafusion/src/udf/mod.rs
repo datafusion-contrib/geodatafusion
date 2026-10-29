@@ -1,5 +1,9 @@
+pub(crate) mod aggregate_state;
+pub mod flatgeobuf;
 pub mod geo;
 pub mod geohash;
 #[cfg(feature = "geos-3_11")]
 pub mod geos;
 pub mod native;
+#[cfg(feature = "geos-3_11")]
+pub(crate) mod wkb_wkt;

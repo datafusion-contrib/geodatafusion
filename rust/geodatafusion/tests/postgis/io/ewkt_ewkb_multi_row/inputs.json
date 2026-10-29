@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "ewkt-ewkb-three-rows",
+      "function": "ST_GeomFromEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        },
+        {
+          "type": "text",
+          "value": "0101000000000000000000F03F0000000000000040"
+        },
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POINT(1 2))"
+        },
+        {
+          "type": "text",
+          "value": "0107000000010000000101000000000000000000F03F0000000000000040"
+        },
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        },
+        {
+          "name": "hexewkb",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromEWKT.html",
+      "tags": [
+        "multi-row",
+        "null-row",
+        "collection-single-member"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "559128d4e5a58a72fd3cf2b88458a575173d4f15d3fe7d971e6faaa5e3c6ca4f",
+  "postgis_sql_sha256": "16232aa9ecdaf99228fbe861a0109acb1566af2aa78fc38b28a9987ff9b8450a",
+  "datafusion_sql_sha256": "16232aa9ecdaf99228fbe861a0109acb1566af2aa78fc38b28a9987ff9b8450a",
+  "cases": {
+    "ordering-equals-collection-order": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          }
+        ]
+      ]
+    },
+    "ordering-equals-dimension-different": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          }
+        ]
+      ]
+    },
+    "ordering-equals-empty-same": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": true
+          }
+        ]
+      ]
+    },
+    "ordering-equals-empty-type-different": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          }
+        ]
+      ]
+    },
+    "ordering-equals-line-reversed": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          }
+        ]
+      ]
+    },
+    "ordering-equals-m-different": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          }
+        ]
+      ]
+    },
+    "ordering-equals-multi-order": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          }
+        ]
+      ]
+    },
+    "ordering-equals-null": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "ordering-equals-point-exact": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": true
+          }
+        ]
+      ]
+    },
+    "ordering-equals-ring-direction": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          }
+        ]
+      ]
+    },
+    "ordering-equals-ring-start": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          }
+        ]
+      ]
+    },
+    "ordering-equals-signed-zero": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          }
+        ]
+      ]
+    },
+    "ordering-equals-z-different": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "boolean",
+            "value": false
+          }
+        ]
+      ]
+    }
+  }
+}

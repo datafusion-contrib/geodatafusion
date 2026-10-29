@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "grid-half",
+      "function": "ST_Union",
+      "arguments": [
+        {"type": "text", "value": "POINT(0.4 0.4)"},
+        {"type": "text", "value": "POINT(0.1 0.1)"},
+        {"type": "float64", "value": 0.5}
+      ],
+      "result_columns": [
+        {"name": "geometry", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-normalized"},
+      "source": "https://postgis.net/docs/ST_Union.html"
+    },
+    {
+      "id": "negative-grid-disables-precision",
+      "function": "ST_Union",
+      "arguments": [
+        {"type": "text", "value": "POINT(0.4 0.4)"},
+        {"type": "text", "value": "POINT(0.1 0.1)"},
+        {"type": "float64", "value": -1}
+      ],
+      "result_columns": [
+        {"name": "geometry", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-normalized"},
+      "source": "https://postgis.net/docs/ST_Union.html"
+    },
+    {
+      "id": "null-grid",
+      "function": "ST_Union",
+      "arguments": [
+        {"type": "text", "value": "POINT(0.4 0.4)"},
+        {"type": "text", "value": "POINT(0.1 0.1)"},
+        {"type": "float64", "value": null}
+      ],
+      "result_columns": [
+        {"name": "geometry", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-normalized"},
+      "source": "https://postgis.net/docs/ST_Union.html"
+    },
+    {
+      "id": "null-geometry",
+      "function": "ST_Union",
+      "arguments": [
+        {"type": "text", "value": null},
+        {"type": "text", "value": "POINT(1 1)"},
+        {"type": "float64", "value": 0.5}
+      ],
+      "result_columns": [
+        {"name": "geometry", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-normalized"},
+      "source": "https://postgis.net/docs/ST_Union.html"
+    }
+  ]
+}

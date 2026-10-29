@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "indexed-multipoint-1",
+      "function": "ST_GeometryN",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT((1 2),(3 4))"
+        },
+        {
+          "type": "int64",
+          "value": 1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geometryn",
+          "type": "ewkb"
+        },
+        {
+          "name": "pointn",
+          "type": "ewkb"
+        },
+        {
+          "name": "interiorringn",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeometryN.html"
+    },
+    {
+      "id": "indexed-multipoint-3",
+      "function": "ST_GeometryN",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT((1 2),(3 4))"
+        },
+        {
+          "type": "int64",
+          "value": 3
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geometryn",
+          "type": "ewkb"
+        },
+        {
+          "name": "pointn",
+          "type": "ewkb"
+        },
+        {
+          "name": "interiorringn",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeometryN.html"
+    },
+    {
+      "id": "indexed-linestring-2",
+      "function": "ST_GeometryN",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1,2 0)"
+        },
+        {
+          "type": "int64",
+          "value": 2
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geometryn",
+          "type": "ewkb"
+        },
+        {
+          "name": "pointn",
+          "type": "ewkb"
+        },
+        {
+          "name": "interiorringn",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeometryN.html"
+    },
+    {
+      "id": "indexed-linestring-negative",
+      "function": "ST_GeometryN",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1,2 0)"
+        },
+        {
+          "type": "int64",
+          "value": -1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geometryn",
+          "type": "ewkb"
+        },
+        {
+          "name": "pointn",
+          "type": "ewkb"
+        },
+        {
+          "name": "interiorringn",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeometryN.html"
+    },
+    {
+      "id": "indexed-polygon-hole-1",
+      "function": "ST_GeometryN",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,2 1,2 2,1 2,1 1))"
+        },
+        {
+          "type": "int64",
+          "value": 1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geometryn",
+          "type": "ewkb"
+        },
+        {
+          "name": "pointn",
+          "type": "ewkb"
+        },
+        {
+          "name": "interiorringn",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeometryN.html"
+    },
+    {
+      "id": "indexed-polygon-hole-2",
+      "function": "ST_GeometryN",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,2 1,2 2,1 2,1 1))"
+        },
+        {
+          "type": "int64",
+          "value": 2
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geometryn",
+          "type": "ewkb"
+        },
+        {
+          "name": "pointn",
+          "type": "ewkb"
+        },
+        {
+          "name": "interiorringn",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeometryN.html"
+    },
+    {
+      "id": "indexed-geometrycollection-2",
+      "function": "ST_GeometryN",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POINT(1 2),LINESTRING(0 0,1 1))"
+        },
+        {
+          "type": "int64",
+          "value": 2
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geometryn",
+          "type": "ewkb"
+        },
+        {
+          "name": "pointn",
+          "type": "ewkb"
+        },
+        {
+          "name": "interiorringn",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeometryN.html"
+    },
+    {
+      "id": "indexed-null",
+      "function": "ST_GeometryN",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "int64",
+          "value": 1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geometryn",
+          "type": "ewkb"
+        },
+        {
+          "name": "pointn",
+          "type": "ewkb"
+        },
+        {
+          "name": "interiorringn",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeometryN.html"
+    }
+  ]
+}

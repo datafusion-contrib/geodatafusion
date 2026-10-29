@@ -1,4 +1,4 @@
-use std::sync::{Arc, LazyLock, OnceLock};
+use std::sync::{Arc, OnceLock};
 
 use arrow_array::builder::UInt32Builder;
 use arrow_array::{ArrayRef, UInt32Array};
@@ -9,12 +9,12 @@ use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
 use geo_traits::*;
-use geoarrow_array::array::from_arrow_array;
 use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
 use geoarrow_schema::error::GeoArrowResult;
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
+use crate::udf::native::geometry::geometry_array_from_arrow;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct NPoints;
@@ -32,7 +32,6 @@ impl Default for NPoints {
 }
 
 static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
-static ALIASES: LazyLock<Vec<String>> = LazyLock::new(|| vec!["st_numpoints".to_string()]);
 
 impl ScalarUDFImpl for NPoints {
     fn name(&self) -> &str {
@@ -41,10 +40,6 @@ impl ScalarUDFImpl for NPoints {
 
     fn signature(&self) -> &Signature {
         any_single_geometry_type_input()
-    }
-
-    fn aliases(&self) -> &[String] {
-        &ALIASES
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -68,9 +63,93 @@ impl ScalarUDFImpl for NPoints {
     }
 }
 
+/// Returns the number of points in a LineString.
+///
+/// This is intentionally separate from [`NPoints`]: PostGIS returns NULL for
+/// every non-LINESTRING input, including POLYGON and collections.
+#[derive(Debug, Eq, PartialEq, Hash)]
+pub struct NumPoints;
+
+impl NumPoints {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
+impl Default for NumPoints {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+static NUM_POINTS_DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
+
+impl ScalarUDFImpl for NumPoints {
+    fn name(&self) -> &str {
+        "st_numpoints"
+    }
+
+    fn signature(&self) -> &Signature {
+        any_single_geometry_type_input()
+    }
+
+    fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
+        Ok(DataType::UInt32)
+    }
+
+    fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        Ok(num_points_only_impl(args)?)
+    }
+
+    fn documentation(&self) -> Option<&Documentation> {
+        Some(NUM_POINTS_DOCUMENTATION.get_or_init(|| {
+            Documentation::builder(
+                DOC_SECTION_OTHER,
+                "Return the number of points in a LINESTRING. Returns NULL for other \
+                 geometry types.",
+                "ST_NumPoints(geometry)",
+            )
+            .with_argument("g1", "geometry")
+            .build()
+        }))
+    }
+}
+
+fn num_points_only_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
+    let arrays = ColumnarValue::values_to_arrays(&args.args)?;
+    let geo_array = geometry_array_from_arrow(&arrays[0], &args.arg_fields[0])?;
+    let result = Arc::new(num_points_only(&geo_array)?) as ArrayRef;
+    Ok(ColumnarValue::Array(result))
+}
+
+fn num_points_only(array: &dyn GeoArrowArray) -> GeoArrowResult<UInt32Array> {
+    downcast_geoarrow_array!(array, _num_points_only_impl)
+}
+
+fn _num_points_only_impl<'a>(
+    array: &'a impl GeoArrowArrayAccessor<'a>,
+) -> GeoArrowResult<UInt32Array> {
+    let mut builder = UInt32Builder::with_capacity(array.len());
+
+    for item in array.iter() {
+        if let Some(geom) = item {
+            match geom?.as_type() {
+                geo_traits::GeometryType::LineString(line_string) => {
+                    builder.append_value(line_string.num_coords() as u32);
+                }
+                _ => builder.append_null(),
+            }
+        } else {
+            builder.append_null();
+        }
+    }
+
+    Ok(builder.finish())
+}
+
 fn coord_dim_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
-    let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
+    let geo_array = geometry_array_from_arrow(&arrays[0], &args.arg_fields[0])?;
     let result = Arc::new(num_points(&geo_array)?) as ArrayRef;
     Ok(ColumnarValue::Array(result))
 }
@@ -105,10 +184,11 @@ fn num_coords_geometry(geom: &impl GeometryTrait) -> u32 {
         MultiLineString(geom) => num_coords_multi_line_string(geom),
         MultiPolygon(geom) => num_coords_multi_polygon(geom),
         GeometryCollection(geom) => num_coords_geometry_collection(geom),
-        // Check what postgis says for a Rect
+        // A PostGIS triangle stores the ring start point again to close the ring.
+        Triangle(_) => 4,
+        // GeoArrow stores a rectangle explicitly as four corners.
         Rect(_) => 4,
         Line(_) => 2,
-        Triangle(_) => 3,
     }
 }
 

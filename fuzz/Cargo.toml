@@ -1,0 +1,35 @@
+[package]
+name = "geodatafusion-fuzz"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[workspace]
+members = ["."]
+resolver = "2"
+
+[dependencies]
+arrow-array = "=59.3.0"
+arrow-schema = "=59.3.0"
+geodatafusion = { path = "../rust/geodatafusion" }
+datafusion = { version = "=55.1.0", default-features = false }
+geoarrow-array = "0.9"
+geoarrow-schema = "0.9"
+libfuzzer-sys = "0.4"
+
+[[bin]]
+name = "parse_wkt"
+path = "fuzz_targets/parse_wkt.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "parse_wkb"
+path = "fuzz_targets/parse_wkb.rs"
+test = false
+doc = false
+bench = false

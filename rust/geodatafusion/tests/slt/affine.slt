@@ -1,0 +1,282 @@
+# Affine transformation SQL contracts.
+#
+# Expected values were reviewed against PostGIS 3.6.4 and the raw-Arrow
+# differential baseline under tests/postgis/affine.
+
+query T
+SELECT ST_AsText(ST_Affine(ST_GeomFromText('POINT(2 3)'), 1,2,4,5,10,11));
+----
+POINT(18 34)
+
+query RRRR
+SELECT ST_X(g), ST_Y(g), ST_Z(g), ST_M(g)
+FROM (
+    SELECT ST_Affine(
+        ST_GeomFromText('POINT ZM (1 2 3 4)'),
+        2,3,4,5,6,7,8,9,10,11,12,13
+    ) AS g
+) AS q;
+----
+31 50 69 4
+
+query RRR
+SELECT ST_X(g), ST_Y(g), ST_Z(g)
+FROM (
+    SELECT ST_Affine(
+        ST_GeomFromText('POINT Z (2 3 4)'),
+        1,2,4,5,10,11
+    ) AS g
+) AS q;
+----
+18 34 4
+
+query B
+SELECT ST_IsEmpty(
+    ST_Affine(ST_GeomFromText('POINT ZM EMPTY'), 1,0,0,1,2,3)
+);
+----
+true
+
+query T
+SELECT ST_AsText(ST_Affine(ST_GeomFromText(NULL), 1,0,0,1,2,3));
+----
+NULL
+
+query RRRR
+SELECT ST_X(g), ST_Y(g), ST_Z(g), ST_M(g)
+FROM (
+    SELECT ST_Rotate(ST_GeomFromText('POINT ZM (1 0 3 4)'), pi()/2) AS g
+) AS q;
+----
+0 1 3 4
+
+query RR
+SELECT ST_X(g), ST_Y(g)
+FROM (
+    SELECT ST_Rotate(ST_GeomFromText('POINT(1 1)'), pi()/2, 10, 20) AS g
+) AS q;
+----
+29 11
+
+query RR
+SELECT ST_X(g), ST_Y(g)
+FROM (
+    SELECT ST_Rotate(
+        ST_GeomFromText('POINT(1 1)'),
+        pi()/2,
+        ST_GeomFromText('POINT(10 10)')
+    ) AS g
+) AS q;
+----
+19 1
+
+query T
+SELECT ST_AsText(
+    ST_Rotate(
+        ST_GeomFromText('POINT(1 2)'),
+        pi(),
+        ST_GeomFromText(NULL)
+    )
+);
+----
+NULL
+
+query B
+SELECT ST_IsEmpty(
+    ST_Rotate(ST_GeomFromText('POINT ZM EMPTY'), pi()/2)
+);
+----
+true
+
+query RRRR
+SELECT ST_X(g), ST_Y(g), ST_Z(g), ST_M(g)
+FROM (
+    SELECT ST_RotateX(ST_GeomFromText('POINT ZM (1 2 3 4)'), pi()/2) AS g
+) AS q;
+----
+1 -3 2 4
+
+query RRRR
+SELECT ST_X(g), ST_Y(g), ST_Z(g), ST_M(g)
+FROM (
+    SELECT ST_RotateY(ST_GeomFromText('POINT ZM (1 2 3 4)'), pi()/2) AS g
+) AS q;
+----
+3 2 -1 4
+
+query RRRR
+SELECT ST_X(g), ST_Y(g), ST_Z(g), ST_M(g)
+FROM (
+    SELECT ST_RotateZ(ST_GeomFromText('POINT ZM (1 2 3 4)'), pi()/2) AS g
+) AS q;
+----
+-2 1 3 4
+
+query RR
+SELECT ST_X(g), ST_Y(g)
+FROM (
+    SELECT ST_RotateX(ST_GeomFromText('POINT(1 2)'), pi()/2) AS g
+) AS q;
+----
+1 0
+
+query IRRRR
+SELECT id, ST_X(g), ST_Y(g), ST_Z(g), ST_M(g)
+FROM (
+    SELECT id, ST_Rotate(geom, angle) AS g
+    FROM (
+        SELECT 1 AS id, ST_GeomFromText('POINT ZM (1 0 3 4)') AS geom, pi()/2 AS angle
+        UNION ALL
+        SELECT 2, ST_GeomFromText('POINT ZM (0 1 5 6)'), 0.0
+    ) AS inputs
+) AS output
+ORDER BY id;
+----
+1 0 1 3 4
+2 0 1 5 6
+
+query RRRR
+SELECT ST_X(g), ST_Y(g), ST_Z(g), ST_M(g)
+FROM (
+    SELECT ST_Scale(ST_GeomFromText('POINT ZM (2 3 4 5)'), 10, 20) AS g
+) AS q;
+----
+20 60 4 5
+
+query RRRR
+SELECT ST_X(g), ST_Y(g), ST_Z(g), ST_M(g)
+FROM (
+    SELECT ST_Scale(ST_GeomFromText('POINT ZM (2 3 4 5)'), 10, 20, 30) AS g
+) AS q;
+----
+20 60 120 5
+
+query RRRR
+SELECT ST_X(g), ST_Y(g), ST_Z(g), ST_M(g)
+FROM (
+    SELECT ST_Scale(
+        ST_GeomFromText('POINT ZM (2 3 4 5)'),
+        ST_GeomFromText('POINT ZM (10 20 30 40)')
+    ) AS g
+) AS q;
+----
+20 60 120 200
+
+query RRRR
+SELECT ST_X(g), ST_Y(g), ST_Z(g), ST_M(g)
+FROM (
+    SELECT ST_Scale(
+        ST_GeomFromText('POINT ZM (2 3 4 5)'),
+        ST_GeomFromText('POINT ZM (10 20 30 40)'),
+        ST_GeomFromText('POINT ZM (1 1 1 1)')
+    ) AS g
+) AS q;
+----
+11 41 91 200
+
+query T
+SELECT ST_AsText(ST_Scale(
+    ST_GeomFromText('POLYGON((0 0,0 2,2 2,2 0,0 0))'),
+    2,
+    3
+));
+----
+POLYGON((0 0,0 6,4 6,4 0,0 0))
+
+query T
+SELECT ST_AsText(ST_Scale(
+    ST_GeomFromText('POINT(1 2)'),
+    ST_GeomFromText(NULL)
+));
+----
+NULL
+
+query B
+SELECT ST_IsEmpty(ST_Scale(
+    ST_GeomFromText('POINT ZM EMPTY'),
+    ST_GeomFromText('POINT ZM (2 3 4 5)')
+));
+----
+true
+
+query RRRR
+SELECT ST_X(g), ST_Y(g), ST_Z(g), ST_M(g)
+FROM (
+    SELECT ST_Translate(ST_GeomFromText('POINT ZM (1 2 3 4)'), 5, 12) AS g
+) AS q;
+----
+6 14 3 4
+
+query RRRR
+SELECT ST_X(g), ST_Y(g), ST_Z(g), ST_M(g)
+FROM (
+    SELECT ST_Translate(ST_GeomFromText('POINT ZM (1 2 3 4)'), 5, 12, 3) AS g
+) AS q;
+----
+6 14 6 4
+
+query RRR
+SELECT ST_X(g), ST_Y(g), ST_M(g)
+FROM (
+    SELECT ST_Translate(ST_GeomFromText('POINT M (1 2 4)'), 5, 12, 3) AS g
+) AS q;
+----
+6 14 4
+
+query T
+SELECT ST_AsText(ST_Translate(
+    ST_GeomFromText('LINESTRING(0 0,1 1)'),
+    1,
+    2
+));
+----
+LINESTRING(1 2,2 3)
+
+query IRRR
+SELECT id, ST_X(g), ST_Y(g), ST_Z(g)
+FROM (
+    SELECT id, ST_Translate(geom, dx, dy, dz) AS g
+    FROM (
+        SELECT 1 AS id, ST_GeomFromText('POINT Z (1 2 3)') AS geom, 5.0 AS dx, 12.0 AS dy, 3.0 AS dz
+        UNION ALL
+        SELECT 2, ST_GeomFromText('POINT Z (2 3 4)'), 5.0, 12.0, 3.0
+    ) AS inputs
+) AS output
+ORDER BY id;
+----
+1 6 14 6
+2 7 15 7
+
+query B
+SELECT ST_IsEmpty(ST_Translate(ST_GeomFromText('POINT ZM EMPTY'), 1, 2, 3));
+----
+true
+
+query RRRR
+SELECT ST_X(g), ST_Y(g), ST_Z(g), ST_M(g)
+FROM (
+    SELECT ST_TransScale(ST_GeomFromText('POINT ZM (1 2 3 4)'), 2, 3, 5, 7) AS g
+) AS q;
+----
+15 35 3 4
+
+query T
+SELECT ST_AsText(ST_TransScale(
+    ST_GeomFromText('LINESTRING(0 0,1 1)'),
+    2,
+    3,
+    5,
+    7
+));
+----
+LINESTRING(10 21,15 28)
+
+query T
+SELECT ST_AsText(ST_TransScale(ST_GeomFromText(NULL), 2, 3, 5, 7));
+----
+NULL
+
+query B
+SELECT ST_IsEmpty(ST_TransScale(ST_GeomFromText('POINT EMPTY'), 2, 3, 5, 7));
+----
+true

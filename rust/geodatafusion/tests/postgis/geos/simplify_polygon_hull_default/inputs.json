@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "outer-half-default",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 1,4 4,1 4,0 4,0 0))"
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    },
+    {
+      "id": "outer-one-default",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 1,4 4,1 4,0 4,0 0))"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    },
+    {
+      "id": "empty-polygon-default",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    },
+    {
+      "id": "null-geometry-default",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    }
+  ]
+}

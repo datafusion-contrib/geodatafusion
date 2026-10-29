@@ -1,0 +1,1 @@
+SELECT ST_GeometryType(m.geom) AS geom_type, ST_IsEmpty(m.geom) AS is_empty, ST_X(m.geom) AS x, ST_Y(m.geom) AS y, ST_Z(m.geom) AS z FROM (SELECT ST_GeometricMedian(ST_GeomFromText($1), $2, $3, $4) AS geom) m

@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "required_features": [
+    "geos-3_11"
+  ],
+  "cases": [
+    {
+      "id": "polygon-xy-split",
+      "function": "ST_WrapX",
+      "tags": [
+        "polygon",
+        "xy",
+        "split"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0))"
+        },
+        {
+          "type": "float64",
+          "value": 5
+        },
+        {
+          "type": "float64",
+          "value": 100
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    },
+    {
+      "id": "polygon-xy-hole-split",
+      "function": "ST_WrapX",
+      "tags": [
+        "polygon",
+        "xy",
+        "hole",
+        "split"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,20 0,20 20,0 20,0 0),(8 8,12 8,12 12,8 12,8 8))"
+        },
+        {
+          "type": "float64",
+          "value": 10
+        },
+        {
+          "type": "float64",
+          "value": 100
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    },
+    {
+      "id": "polygon-xy-notch-split",
+      "function": "ST_WrapX",
+      "tags": [
+        "polygon",
+        "xy",
+        "notch",
+        "split"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 6,9 6,9 4,0 4,0 0))"
+        },
+        {
+          "type": "float64",
+          "value": 5
+        },
+        {
+          "type": "float64",
+          "value": 100
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    },
+    {
+      "id": "polygon-z-notch-split",
+      "function": "ST_WrapX",
+      "tags": [
+        "polygon",
+        "z",
+        "notch",
+        "split"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z ((0 0 1,10 0 2,10 10 3,0 10 4,0 6 5,9 6 6,9 4 7,0 4 8,0 0 1))"
+        },
+        {
+          "type": "float64",
+          "value": 5
+        },
+        {
+          "type": "float64",
+          "value": 100
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    },
+    {
+      "id": "polygon-z-overlap",
+      "function": "ST_WrapX",
+      "tags": [
+        "polygon",
+        "z",
+        "overlap"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z ((-10 0 0,20 0 30,20 10 30,-10 10 0,-10 0 0))"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    },
+    {
+      "id": "polygon-z-hole-overlap",
+      "function": "ST_WrapX",
+      "tags": [
+        "polygon",
+        "z",
+        "hole",
+        "overlap"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z ((-10 0 0,20 0 2,20 20 4,-10 20 2,-10 0 0),(8 8 0.5,12 8 0.5,12 12 0.5,8 12 0.5,8 8 0.5))"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    },
+    {
+      "id": "polygon-z-hole-split",
+      "function": "ST_WrapX",
+      "tags": [
+        "polygon",
+        "z",
+        "hole",
+        "split"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z ((0 0 0,20 0 2,20 20 4,0 20 2,0 0 0),(8 8 0.5,12 8 0.5,12 12 0.5,8 12 0.5,8 8 0.5))"
+        },
+        {
+          "type": "float64",
+          "value": 10
+        },
+        {
+          "type": "float64",
+          "value": 100
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    },
+    {
+      "id": "polygon-zm-overlap",
+      "function": "ST_WrapX",
+      "tags": [
+        "polygon",
+        "zm",
+        "overlap"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON ZM ((-10 0 0 1,20 0 30 2,20 10 30 3,-10 10 0 4,-10 0 0 1))"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    },
+    {
+      "id": "polygon-zm-shift",
+      "function": "ST_WrapX",
+      "tags": [
+        "polygon",
+        "zm",
+        "translated"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON ZM ((0 0 1 5,10 0 2 6,10 10 3 7,0 10 4 8,0 0 1 5))"
+        },
+        {
+          "type": "float64",
+          "value": 20
+        },
+        {
+          "type": "float64",
+          "value": 5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    },
+    {
+      "id": "polygon-m-overlap",
+      "function": "ST_WrapX",
+      "tags": [
+        "polygon",
+        "m",
+        "overlap"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON M ((-10 0 1,20 0 2,20 10 3,-10 10 4,-10 0 1))"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    },
+    {
+      "id": "multipolygon-z-overlap",
+      "function": "ST_WrapX",
+      "tags": [
+        "multipolygon",
+        "z",
+        "overlap"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON Z (((-10 0 0,20 0 30,20 10 30,-10 10 0,-10 0 0)),((40 0 1,50 0 2,50 10 3,40 10 4,40 0 1)))"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    },
+    {
+      "id": "polygon-z-keep",
+      "function": "ST_WrapX",
+      "tags": [
+        "polygon",
+        "z",
+        "unchanged"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z ((10 0 1,20 0 2,20 10 3,10 10 4,10 0 1))"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "wrap_x",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_WrapX.html"
+    }
+  ]
+}

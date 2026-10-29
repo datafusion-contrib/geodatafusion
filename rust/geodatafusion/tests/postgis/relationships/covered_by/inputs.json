@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "covered-by-boundary-point",
+      "function": "ST_CoveredBy",
+      "arguments": [
+        {"type": "text", "value": "POINT(0 1)"},
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_CoveredBy.html"
+    },
+    {
+      "id": "covered-by-inner-polygon",
+      "function": "ST_CoveredBy",
+      "arguments": [
+        {"type": "text", "value": "POLYGON((0.5 0.5,1.5 0.5,1.5 1.5,0.5 1.5,0.5 0.5))"},
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_CoveredBy.html"
+    },
+    {
+      "id": "covered-by-touching-polygon",
+      "function": "ST_CoveredBy",
+      "arguments": [
+        {"type": "text", "value": "POLYGON((2 0,4 0,4 2,2 2,2 0))"},
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_CoveredBy.html"
+    },
+    {
+      "id": "covered-by-itself",
+      "function": "ST_CoveredBy",
+      "arguments": [
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"},
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_CoveredBy.html"
+    },
+    {
+      "id": "covered-by-z-point",
+      "function": "ST_CoveredBy",
+      "arguments": [
+        {"type": "text", "value": "POINT Z (1 1 5)"},
+        {"type": "text", "value": "POLYGON Z ((0 0 1,2 0 2,2 2 3,0 2 4,0 0 1))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_CoveredBy.html"
+    },
+    {
+      "id": "covered-by-null",
+      "function": "ST_CoveredBy",
+      "arguments": [
+        {"type": "text", "value": null},
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_CoveredBy.html"
+    }
+  ]
+}

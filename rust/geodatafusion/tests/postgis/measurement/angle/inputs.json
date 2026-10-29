@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "angle-four-point-east-north",
+      "function": "ST_Angle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 1)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Angle.html"
+    },
+    {
+      "id": "angle-four-point-north-east",
+      "function": "ST_Angle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(0 1)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(1 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Angle.html"
+    },
+    {
+      "id": "angle-four-point-opposite",
+      "function": "ST_Angle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(0 1)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 -1)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Angle.html"
+    },
+    {
+      "id": "angle-four-point-offset-second-vector",
+      "function": "ST_Angle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 1)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Angle.html"
+    },
+    {
+      "id": "angle-four-point-z-ignored",
+      "function": "ST_Angle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z (1 0 5)"
+        },
+        {
+          "type": "text",
+          "value": "POINT Z (0 0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT Z (0 1 7)"
+        },
+        {
+          "type": "text",
+          "value": "POINT Z (0 0 9)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Angle.html"
+    },
+    {
+      "id": "angle-four-point-degenerate",
+      "function": "ST_Angle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 1)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Angle.html"
+    },
+    {
+      "id": "angle-four-point-null",
+      "function": "ST_Angle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 1)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Angle.html"
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "required_features": [
+    "geos-3_11"
+  ],
+  "cases": [
+    {
+      "id": "mbc-empty-4326",
+      "function": "ST_MinimumBoundingCircle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;POLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_MinimumBoundingCircle.html"
+    },
+    {
+      "id": "mbc-point-4326",
+      "function": "ST_MinimumBoundingCircle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_MinimumBoundingCircle.html"
+    },
+    {
+      "id": "mbc-point-0",
+      "function": "ST_MinimumBoundingCircle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_MinimumBoundingCircle.html"
+    },
+    {
+      "id": "mbc-repeated-point-0",
+      "function": "ST_MinimumBoundingCircle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT((1 2),(1 2),(1 2))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_MinimumBoundingCircle.html"
+    }
+  ]
+}

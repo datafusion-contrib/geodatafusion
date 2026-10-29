@@ -1,0 +1,1 @@
+SELECT ST_GeometryType(ST_Letters($1::text)) AS geom_type, ST_IsEmpty(ST_Letters($1::text)) AS is_empty, ST_NDims(ST_Letters($1::text))::float8 AS ndims, (ST_NPoints(ST_Letters($1::text)) > 0) AS has_points

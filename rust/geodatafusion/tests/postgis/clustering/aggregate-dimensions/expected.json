@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "d27f536dd2a5f33ebad4c710ad9a560a9dc02f6fc4a0bccfa505a830d1d1d4cb",
+  "postgis_sql_sha256": "eb298c2f032924d5ca27c0b19daf04669c69e4370a44f8879f982cd3fea35a85",
+  "datafusion_sql_sha256": "319ffe80c91fe16bd94429cc045710a8d562e6fef5a953ad5d158ef9775dddaf",
+  "cases": {
+    "m-and-z-clusters": {
+      "columns": [
+        {
+          "name": "clusters",
+          "type": "hex_list"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "hex_list",
+            "values": [
+              "01d70700000200000001d107000000000000000000000000000000000000000000000000144001d10700009a9999999999b93f00000000000000000000000000001840",
+              "01ef0300000100000001eb03000001000000040000000000000080842e410000000000000000000000000000f03f0000000082842e41000000000000000000000000000000400000000082842e41000000000000f03f00000000000008400000000080842e410000000000000000000000000000f03f",
+              "01ef0300000200000001e90300000000000000408f400000000000000000000000000000144001e9030000cdcccccccc408f4000000000000000000000000000001840"
+            ]
+          }
+        ]
+      ]
+    },
+    "z-cluster": {
+      "columns": [
+        {
+          "name": "clusters",
+          "type": "hex_list"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "hex_list",
+            "values": [
+              "01d70700000200000001d107000000000000000000000000000000000000000000000000144001d10700009a9999999999b93f00000000000000000000000000001840",
+              "01ef0300000100000001eb03000001000000040000000000000080842e410000000000000000000000000000f03f0000000082842e41000000000000000000000000000000400000000082842e41000000000000f03f00000000000008400000000080842e410000000000000000000000000000f03f",
+              "01ef0300000200000001e90300000000000000408f400000000000000000000000000000144001e9030000cdcccccccc408f4000000000000000000000000000001840"
+            ]
+          }
+        ]
+      ]
+    }
+  }
+}

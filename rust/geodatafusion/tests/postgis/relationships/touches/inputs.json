@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "touches-shared-edge",
+      "function": "ST_Touches",
+      "arguments": [
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"},
+        {"type": "text", "value": "POLYGON((2 0,4 0,4 2,2 2,2 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Touches.html"
+    },
+    {
+      "id": "touches-shared-corner",
+      "function": "ST_Touches",
+      "arguments": [
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"},
+        {"type": "text", "value": "POLYGON((2 2,4 2,4 4,2 4,2 2))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Touches.html"
+    },
+    {
+      "id": "touches-overlapping-polygons",
+      "function": "ST_Touches",
+      "arguments": [
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"},
+        {"type": "text", "value": "POLYGON((1 1,3 1,3 3,1 3,1 1))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Touches.html"
+    },
+    {
+      "id": "touches-boundary-line",
+      "function": "ST_Touches",
+      "arguments": [
+        {"type": "text", "value": "LINESTRING(0 0,2 0)"},
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Touches.html"
+    },
+    {
+      "id": "touches-equal-points",
+      "function": "ST_Touches",
+      "arguments": [
+        {"type": "text", "value": "POINT(1 1)"},
+        {"type": "text", "value": "POINT(1 1)"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Touches.html"
+    },
+    {
+      "id": "touches-boundary-point",
+      "function": "ST_Touches",
+      "arguments": [
+        {"type": "text", "value": "POINT(0 1)"},
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Touches.html"
+    },
+    {
+      "id": "touches-crossing-line",
+      "function": "ST_Touches",
+      "arguments": [
+        {"type": "text", "value": "LINESTRING(-1 1,3 1)"},
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Touches.html"
+    },
+    {
+      "id": "touches-z-edge",
+      "function": "ST_Touches",
+      "arguments": [
+        {"type": "text", "value": "POLYGON Z ((0 0 5,2 0 5,2 2 5,0 2 5,0 0 5))"},
+        {"type": "text", "value": "POLYGON((2 0,4 0,4 2,2 2,2 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Touches.html"
+    }
+  ]
+}

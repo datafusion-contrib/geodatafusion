@@ -1,0 +1,465 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "7f85c6f5bb5e0383d41755f9de5b31bf12ec675c396c3e800c54364faff6257c",
+  "postgis_sql_sha256": "80dd0cf1d9d432fd47bf2917daad556322bfccf3ef73ecc3e0793cb73fa4ccdc",
+  "datafusion_sql_sha256": "d532b56d1beb62cf7f566ec095553a3b03441f66d6147216fe89e42b048108a9",
+  "cases": {
+    "mbc-line-8": {
+      "columns": [
+        {
+          "name": "npoints",
+          "type": "float64"
+        },
+        {
+          "name": "area",
+          "type": "float64"
+        },
+        {
+          "name": "perimeter",
+          "type": "float64"
+        },
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "4040800000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4053b2c285a73ba5"
+          },
+          {
+            "type": "float64",
+            "bits": "403f846a6f71f90c"
+          },
+          {
+            "type": "float64",
+            "bits": "bf98c6037a4fcd00"
+          },
+          {
+            "type": "float64",
+            "bits": "c01418c6037a4fcd"
+          },
+          {
+            "type": "float64",
+            "bits": "40240c6301bd27e6"
+          },
+          {
+            "type": "float64",
+            "bits": "401418c6037a4fcd"
+          }
+        ]
+      ]
+    },
+    "mbc-m-8": {
+      "columns": [
+        {
+          "name": "npoints",
+          "type": "float64"
+        },
+        {
+          "name": "area",
+          "type": "float64"
+        },
+        {
+          "name": "perimeter",
+          "type": "float64"
+        },
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "4040800000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4063b2c285a73ba6"
+          },
+          {
+            "type": "float64",
+            "bits": "4046493b438c7f06"
+          },
+          {
+            "type": "float64",
+            "bits": "c000d79dec982a8e"
+          },
+          {
+            "type": "float64",
+            "bits": "c000d79dec982a8e"
+          },
+          {
+            "type": "float64",
+            "bits": "402835e77b260aa4"
+          },
+          {
+            "type": "float64",
+            "bits": "402835e77b260aa4"
+          }
+        ]
+      ]
+    },
+    "mbc-square-1": {
+      "columns": [
+        {
+          "name": "npoints",
+          "type": "float64"
+        },
+        {
+          "name": "area",
+          "type": "float64"
+        },
+        {
+          "name": "perimeter",
+          "type": "float64"
+        },
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4069000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "404c48c6001f0ac0"
+          },
+          {
+            "type": "float64",
+            "bits": "c014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "c014000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "402e000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "402e000000000000"
+          }
+        ]
+      ]
+    },
+    "mbc-square-48": {
+      "columns": [
+        {
+          "name": "npoints",
+          "type": "float64"
+        },
+        {
+          "name": "area",
+          "type": "float64"
+        },
+        {
+          "name": "perimeter",
+          "type": "float64"
+        },
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "4068200000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4063a2ff33868b61"
+          },
+          {
+            "type": "float64",
+            "bits": "40463765d1cc800e"
+          },
+          {
+            "type": "float64",
+            "bits": "c000937c54c32118"
+          },
+          {
+            "type": "float64",
+            "bits": "c000937c54c32118"
+          },
+          {
+            "type": "float64",
+            "bits": "402824df1530c846"
+          },
+          {
+            "type": "float64",
+            "bits": "402824df1530c846"
+          }
+        ]
+      ]
+    },
+    "mbc-triangle-4": {
+      "columns": [
+        {
+          "name": "npoints",
+          "type": "float64"
+        },
+        {
+          "name": "area",
+          "type": "float64"
+        },
+        {
+          "name": "perimeter",
+          "type": "float64"
+        },
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "4031000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4063e42817428e8f"
+          },
+          {
+            "type": "float64",
+            "bits": "4046811e177d59c0"
+          },
+          {
+            "type": "float64",
+            "bits": "c001ad41d4e3fc5e"
+          },
+          {
+            "type": "float64",
+            "bits": "c001ad41d4e3fc5e"
+          },
+          {
+            "type": "float64",
+            "bits": "40286b507538ff18"
+          },
+          {
+            "type": "float64",
+            "bits": "40286b507538ff18"
+          }
+        ]
+      ]
+    },
+    "mbc-z-8": {
+      "columns": [
+        {
+          "name": "npoints",
+          "type": "float64"
+        },
+        {
+          "name": "area",
+          "type": "float64"
+        },
+        {
+          "name": "perimeter",
+          "type": "float64"
+        },
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "4040800000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4063b2c285a73ba6"
+          },
+          {
+            "type": "float64",
+            "bits": "4046493b438c7f06"
+          },
+          {
+            "type": "float64",
+            "bits": "c000d79dec982a8e"
+          },
+          {
+            "type": "float64",
+            "bits": "c000d79dec982a8e"
+          },
+          {
+            "type": "float64",
+            "bits": "402835e77b260aa4"
+          },
+          {
+            "type": "float64",
+            "bits": "402835e77b260aa4"
+          }
+        ]
+      ]
+    },
+    "mbc-zm-8": {
+      "columns": [
+        {
+          "name": "npoints",
+          "type": "float64"
+        },
+        {
+          "name": "area",
+          "type": "float64"
+        },
+        {
+          "name": "perimeter",
+          "type": "float64"
+        },
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "4040800000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4063b2c285a73ba6"
+          },
+          {
+            "type": "float64",
+            "bits": "4046493b438c7f06"
+          },
+          {
+            "type": "float64",
+            "bits": "c000d79dec982a8e"
+          },
+          {
+            "type": "float64",
+            "bits": "c000d79dec982a8e"
+          },
+          {
+            "type": "float64",
+            "bits": "402835e77b260aa4"
+          },
+          {
+            "type": "float64",
+            "bits": "402835e77b260aa4"
+          }
+        ]
+      ]
+    }
+  }
+}

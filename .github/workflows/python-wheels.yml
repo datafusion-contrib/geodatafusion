@@ -51,6 +51,13 @@ jobs:
           args: --release --out dist -i 3.10 -i pypy3.11 --manifest-path python/Cargo.toml
           sccache: "true"
           manylinux: ${{ matrix.platform.manylinux }}
+          # The extension talks to datafusion-python through datafusion-ffi
+          # capsules whose private data embeds `Option<tokio::runtime::Handle>`;
+          # its `None` encoding must match the host compiler, which is why the
+          # build is pinned instead of taking rustup's default here. The step
+          # runs from the repository root, so `python/rust-toolchain.toml` does
+          # not apply on its own.
+          rust-toolchain: "1.97.0"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v7
@@ -76,6 +83,8 @@ jobs:
           python-version: 3.x
 
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.97.0"
 
       - name: Build wheels - ${{ matrix.platform.target }}
         uses: PyO3/maturin-action@v1
@@ -83,6 +92,7 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: --release --out dist -i 3.10 -m python/Cargo.toml
           sccache: "true"
+          rust-toolchain: "1.97.0"
 
       - name: Install built wheel - ${{ matrix.platform.target }}
         run: |
@@ -109,12 +119,15 @@ jobs:
           architecture: ${{ matrix.target }}
 
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.97.0"
 
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
           args: --release --out dist -i 3.10 -m python/Cargo.toml
+          rust-toolchain: "1.97.0"
 
       - name: Install built wheel
         shell: bash

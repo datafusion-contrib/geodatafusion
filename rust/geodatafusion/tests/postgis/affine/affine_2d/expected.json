@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "fe59f8278929ae4de23d0636f5320d61db71329be84796ca04415aa86ce153cd",
+  "postgis_sql_sha256": "ada47e33e7dafa5dd7a07dce2c310c8209804f87089a2ee4ace0ef5beadf4d24",
+  "datafusion_sql_sha256": "1febc7b644fa810e38e29420f7300de39a62bfc42d3ff90c86736bcfb8b01c3e",
+  "cases": {
+    "affine-2d-null": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "affine-2d-polygon": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "01030000000100000005000000000000000000f03f000000000000f03f000000000000f03f0000000000001c4000000000000014400000000000001c400000000000001440000000000000f03f000000000000f03f000000000000f03f"
+          }
+        ]
+      ]
+    },
+    "affine-2d-xy-point": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010100000000000000000032400000000000004140"
+          }
+        ]
+      ]
+    },
+    "affine-2d-xyz-point": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "0101000080000000000000324000000000000041400000000000001040"
+          }
+        ]
+      ]
+    },
+    "affine-2d-xyzm-empty": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "01010000c0000000000000f87f000000000000f87f000000000000f87f000000000000f87f"
+          }
+        ]
+      ]
+    }
+  }
+}

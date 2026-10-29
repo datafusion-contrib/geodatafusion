@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "5fdfdb92a9f4a2f2c5f16081bc57181818983d688825a55d1f287b231e474e0c",
+  "postgis_sql_sha256": "1fc609ea890c068db67736ac18135e7562fdc5f848212da9d07e2dd528a5641b",
+  "datafusion_sql_sha256": "f7b70a8d939d728d7f8684fe909d85940c4bc8534e1ae77ee1bda9d7845ec3bc",
+  "cases": {
+    "summary-geometrycollection": {
+      "columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "GeometryCollection[] with 2 elements:\n  Point[]\n  LineString[] with 2 points"
+          }
+        ]
+      ]
+    },
+    "summary-geometrycollection-empty": {
+      "columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "GeometryCollection[] with 0 elements"
+          }
+        ]
+      ]
+    },
+    "summary-geometrycollection-nested": {
+      "columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "GeometryCollection[] with 2 elements:\n  GeometryCollection[] with 1 element:\n    Point[]\n  Point[]"
+          }
+        ]
+      ]
+    },
+    "summary-linestring": {
+      "columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "LineString[] with 2 points"
+          }
+        ]
+      ]
+    },
+    "summary-linestring-empty": {
+      "columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "LineString[] with 0 points"
+          }
+        ]
+      ]
+    },
+    "summary-multilinestring-zm": {
+      "columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "MultiLineString[ZM] with 2 elements:\n  LineString[ZM] with 2 points\n  LineString[ZM] with 2 points"
+          }
+        ]
+      ]
+    },
+    "summary-multipoint": {
+      "columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "MultiPoint[] with 2 elements:\n  Point[]\n  Point[]"
+          }
+        ]
+      ]
+    },
+    "summary-multipolygon": {
+      "columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "MultiPolygon[] with 2 elements:\n  Polygon[] with 1 ring:\n   ring 0 has 4 points\n  Polygon[] with 1 ring:\n   ring 0 has 4 points"
+          }
+        ]
+      ]
+    },
+    "summary-null": {
+      "columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "summary-point": {
+      "columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "Point[]"
+          }
+        ]
+      ]
+    },
+    "summary-point-m": {
+      "columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "Point[M]"
+          }
+        ]
+      ]
+    },
+    "summary-point-z": {
+      "columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "Point[Z]"
+          }
+        ]
+      ]
+    },
+    "summary-point-zm": {
+      "columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "Point[ZM]"
+          }
+        ]
+      ]
+    },
+    "summary-polygon-empty": {
+      "columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "Polygon[] with 0 rings"
+          }
+        ]
+      ]
+    },
+    "summary-polygon-hole": {
+      "columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "Polygon[] with 2 rings:\n   ring 0 has 5 points\n   ring 1 has 5 points"
+          }
+        ]
+      ]
+    }
+  }
+}

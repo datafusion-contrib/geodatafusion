@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "summary-srid-point",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;POINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-srid-multipoint",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=4326;MULTIPOINT((1 2),(3 4))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-srid-zero",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "SRID=0;POINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-srid-null",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    }
+  ]
+}

@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "envelope-point",
+      "function": "ST_Envelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Envelope.html",
+      "tags": [
+        "point"
+      ]
+    },
+    {
+      "id": "envelope-horizontal-line",
+      "function": "ST_Envelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 1,5 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Envelope.html",
+      "tags": [
+        "degenerate",
+        "line"
+      ]
+    },
+    {
+      "id": "envelope-vertical-line",
+      "function": "ST_Envelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(1 0,1 5)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Envelope.html",
+      "tags": [
+        "degenerate",
+        "line"
+      ]
+    },
+    {
+      "id": "envelope-polygon",
+      "function": "ST_Envelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,0 2,3 2,3 0,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Envelope.html",
+      "tags": [
+        "polygon"
+      ]
+    },
+    {
+      "id": "envelope-empty-point",
+      "function": "ST_Envelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Envelope.html",
+      "tags": [
+        "empty"
+      ]
+    },
+    {
+      "id": "envelope-empty-line",
+      "function": "ST_Envelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Envelope.html",
+      "tags": [
+        "empty"
+      ]
+    },
+    {
+      "id": "envelope-empty-polygon",
+      "function": "ST_Envelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Envelope.html",
+      "tags": [
+        "empty"
+      ]
+    },
+    {
+      "id": "envelope-line-3d",
+      "function": "ST_Envelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z (1 2 3, 4 5 7)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Envelope.html",
+      "tags": [
+        "dimensions"
+      ]
+    },
+    {
+      "id": "envelope-line-2d",
+      "function": "ST_Envelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 3)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Envelope.html",
+      "tags": [
+        "line"
+      ]
+    },
+    {
+      "id": "envelope-null",
+      "function": "ST_Envelope",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Envelope.html",
+      "tags": [
+        "null"
+      ]
+    }
+  ]
+}

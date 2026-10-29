@@ -13,7 +13,6 @@ use geo_traits::{
     GeometryCollectionTrait, GeometryTrait, MultiLineStringTrait, MultiPointTrait,
     MultiPolygonTrait,
 };
-use geoarrow_array::array::from_arrow_array;
 use geoarrow_array::builder::GeometryBuilder;
 use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
 use geoarrow_schema::{CoordType, GeometryType, Metadata};
@@ -21,6 +20,7 @@ use geoarrow_schema::{CoordType, GeometryType, Metadata};
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 use crate::udf::native::accessors::is_empty::is_geometry_topologically_empty;
+use crate::udf::native::geometry::geometry_array_from_arrow;
 
 /// Decomposes a geometry into its atomic components (POINT, LINESTRING, POLYGON).
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -87,15 +87,15 @@ impl ScalarUDFImpl for Dump {
     }
 }
 
-fn path_values_field() -> FieldRef {
+pub(super) fn path_values_field() -> FieldRef {
     Arc::new(Field::new("item", DataType::Int32, false))
 }
 
-fn path_field() -> Field {
+pub(super) fn path_field() -> Field {
     Field::new("path", DataType::List(path_values_field()), false)
 }
 
-fn item_field(geom_type: &GeometryType) -> FieldRef {
+pub(super) fn item_field(geom_type: &GeometryType) -> FieldRef {
     Arc::new(Field::new(
         "item",
         DataType::Struct(item_struct_fields(geom_type)),
@@ -103,12 +103,45 @@ fn item_field(geom_type: &GeometryType) -> FieldRef {
     ))
 }
 
-fn item_struct_fields(geom_type: &GeometryType) -> Fields {
+pub(super) fn item_struct_fields(geom_type: &GeometryType) -> Fields {
     Fields::from(vec![path_field(), geom_type.to_field("geom", true)])
 }
 
-fn output_field(geom_type: &GeometryType) -> FieldRef {
+pub(super) fn output_field(geom_type: &GeometryType) -> FieldRef {
     Arc::new(Field::new("", DataType::List(item_field(geom_type)), true))
+}
+
+pub(super) fn push_dump_item(
+    geom_builder: &mut GeometryBuilder,
+    path_builder: &mut ListBuilder<Int32Builder>,
+    path: &[i32],
+    geom: &impl GeometryTrait<T = f64>,
+) -> GeoDataFusionResult<()> {
+    geom_builder.push_geometry(Some(geom))?;
+    path_builder.append_value(path.iter().map(|&index| Some(index)));
+    Ok(())
+}
+
+pub(super) fn finish_dump_list(
+    geom_builder: GeometryBuilder,
+    mut path_builder: ListBuilder<Int32Builder>,
+    row_lengths: Vec<usize>,
+    mut row_validity: NullBufferBuilder,
+    geom_type: &GeometryType,
+) -> ListArray {
+    let path_array = path_builder.finish();
+    let geom_array = geom_builder.finish().into_array_ref();
+    let struct_array = StructArray::new(
+        item_struct_fields(geom_type),
+        vec![Arc::new(path_array) as ArrayRef, geom_array],
+        None,
+    );
+    ListArray::new(
+        item_field(geom_type),
+        OffsetBuffer::<i32>::from_lengths(row_lengths),
+        Arc::new(struct_array),
+        row_validity.finish(),
+    )
 }
 
 fn dump_impl(
@@ -119,7 +152,7 @@ fn dump_impl(
         .into_iter()
         .next()
         .expect("should have one input argument or else planning will fail");
-    let geo_array = from_arrow_array(&array, &args.arg_fields[0])?;
+    let geo_array = geometry_array_from_arrow(&array, &args.arg_fields[0])?;
     let geom_type =
         GeometryType::new(geo_array.data_type().metadata().clone()).with_coord_type(coord_type);
 
@@ -155,18 +188,12 @@ fn dump_array<'a>(
         row_lengths.push(path_builder.len() - start);
     }
 
-    let path_array = path_builder.finish();
-    let geom_array = geom_builder.finish().into_array_ref();
-    let struct_array = StructArray::new(
-        item_struct_fields(geom_type),
-        vec![Arc::new(path_array) as ArrayRef, geom_array],
-        None,
-    );
-    Ok(ListArray::new(
-        item_field(geom_type),
-        OffsetBuffer::<i32>::from_lengths(row_lengths),
-        Arc::new(struct_array),
-        row_validity.finish(),
+    Ok(finish_dump_list(
+        geom_builder,
+        path_builder,
+        row_lengths,
+        row_validity,
+        geom_type,
     ))
 }
 
@@ -249,7 +276,8 @@ mod test {
         let DataType::Struct(fields) = structs.data_type() else {
             panic!("ST_Dump must return a list of structs");
         };
-        let geo = from_arrow_array(structs.column(1).as_ref(), fields[1].as_ref()).unwrap();
+        let geo =
+            geometry_array_from_arrow(structs.column(1).as_ref(), fields[1].as_ref()).unwrap();
         let wkt_ref = to_wkt::<i32>(geo.as_ref()).unwrap().into_array_ref();
         let wkts = wkt_ref.as_string::<i32>();
 

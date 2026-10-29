@@ -1,0 +1,438 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "line-point",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(5 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "line-endpoint",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "line-off-point",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(5 5)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "line-multipoint",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)"
+        },
+        {
+          "type": "text",
+          "value": "MULTIPOINT(8 0,3 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "line-line",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(5 -5,5 5)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "line-line-touch",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(5 0,5 5)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "line-multiline",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)"
+        },
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((3 -5,3 5),(7 -5,7 5))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "line-polygon",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON((5 -5,6 -5,6 5,5 5,5 -5))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "polygon-line",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0))"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(5 -5,5 15)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "polygon-line-outside",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0))"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(20 20,30 30)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "multipolygon-line",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,10 0,10 10,0 10,0 0)),((20 0,30 0,30 10,20 10,20 0)))"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(5 -5,5 15)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "collection-lines",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(LINESTRING(0 0,10 0),LINESTRING(0 1,10 1))"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(5 -5,5 15)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "empty-line",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM EMPTY"
+        },
+        {
+          "type": "text",
+          "value": "POINT(1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "empty-polygon",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z EMPTY"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "zm-line-point",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM (0 0 0 0,10 0 10 10)"
+        },
+        {
+          "type": "text",
+          "value": "POINT(5 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "zm-line-line",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM (0 0 0 0,10 0 10 10)"
+        },
+        {
+          "type": "text",
+          "value": "LINESTRING(5 -5,5 5)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "null-geometry",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": "POINT(1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    },
+    {
+      "id": "null-blade",
+      "function": "ST_Split",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)"
+        },
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_Split.html"
+    }
+  ]
+}

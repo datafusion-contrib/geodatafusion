@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "offset-curve-basic",
+      "function": "ST_OffsetCurve",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0,10 10)"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "text",
+          "value": ""
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_OffsetCurve.html"
+    },
+    {
+      "id": "offset-curve-zero",
+      "function": "ST_OffsetCurve",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0,10 10)"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "text",
+          "value": ""
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_OffsetCurve.html"
+    },
+    {
+      "id": "offset-curve-multiline",
+      "function": "ST_OffsetCurve",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((0 0,10 0,10 10),(20 0,30 0,30 10))"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "text",
+          "value": ""
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_OffsetCurve.html"
+    },
+    {
+      "id": "offset-curve-collection",
+      "function": "ST_OffsetCurve",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(LINESTRING(0 0,10 0),LINESTRING(0 1,10 1))"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "text",
+          "value": ""
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_OffsetCurve.html"
+    },
+    {
+      "id": "offset-curve-bevel",
+      "function": "ST_OffsetCurve",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0,10 10)"
+        },
+        {
+          "type": "float64",
+          "value": -1
+        },
+        {
+          "type": "text",
+          "value": "join=bevel"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_OffsetCurve.html"
+    },
+    {
+      "id": "offset-curve-mitre",
+      "function": "ST_OffsetCurve",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0,10 10)"
+        },
+        {
+          "type": "float64",
+          "value": -1
+        },
+        {
+          "type": "text",
+          "value": "join=mitre"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_OffsetCurve.html"
+    },
+    {
+      "id": "offset-curve-line-empty",
+      "function": "ST_OffsetCurve",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "text",
+          "value": ""
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_OffsetCurve.html"
+    },
+    {
+      "id": "offset-curve-polygon-empty",
+      "function": "ST_OffsetCurve",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "text",
+          "value": ""
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_OffsetCurve.html"
+    },
+    {
+      "id": "offset-curve-z",
+      "function": "ST_OffsetCurve",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z (0 0 1,10 0 2,10 10 3)"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "text",
+          "value": ""
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_OffsetCurve.html"
+    },
+    {
+      "id": "offset-curve-zm-passthrough",
+      "function": "ST_OffsetCurve",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM (0 0 1 2,10 0 2 3,10 10 3 4)"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "text",
+          "value": ""
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_OffsetCurve.html"
+    },
+    {
+      "id": "offset-curve-zm",
+      "function": "ST_OffsetCurve",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM (0 0 1 2,10 0 2 3,10 10 3 4)"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "text",
+          "value": ""
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_OffsetCurve.html"
+    },
+    {
+      "id": "offset-curve-null",
+      "function": "ST_OffsetCurve",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "text",
+          "value": ""
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_OffsetCurve.html"
+    }
+  ]
+}

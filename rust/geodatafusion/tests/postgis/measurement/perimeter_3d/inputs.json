@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "perimeter-3d-polygon",
+      "function": "ST_3DPerimeter",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0, 3 0, 3 4, 0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DPerimeter.html"
+    },
+    {
+      "id": "perimeter-3d-polygon-z",
+      "function": "ST_3DPerimeter",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z ((0 0 0, 3 0 0, 3 4 12, 0 0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DPerimeter.html"
+    },
+    {
+      "id": "perimeter-3d-polygon-m",
+      "function": "ST_3DPerimeter",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON M ((0 0 0, 3 0 0, 3 4 12, 0 0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DPerimeter.html"
+    },
+    {
+      "id": "perimeter-3d-polygon-zm",
+      "function": "ST_3DPerimeter",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON ZM ((0 0 0 99, 3 0 0 99, 3 4 12 99, 0 0 0 99))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DPerimeter.html"
+    },
+    {
+      "id": "perimeter-3d-multipolygon-z",
+      "function": "ST_3DPerimeter",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON Z (((0 0 0, 3 0 0, 3 4 12, 0 0 0)), ((10 10 0, 10 10 5, 10 12 5, 10 10 0)))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DPerimeter.html"
+    },
+    {
+      "id": "perimeter-3d-geometry-collection",
+      "function": "ST_3DPerimeter",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION Z (POLYGON Z ((0 0 0, 3 0 0, 3 4 12, 0 0 0)), LINESTRING Z (0 0 0, 100 0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DPerimeter.html"
+    },
+    {
+      "id": "perimeter-3d-empty",
+      "function": "ST_3DPerimeter",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DPerimeter.html"
+    },
+    {
+      "id": "perimeter-3d-null",
+      "function": "ST_3DPerimeter",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_3DPerimeter.html"
+    }
+  ]
+}

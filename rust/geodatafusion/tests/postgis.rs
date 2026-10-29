@@ -7,6 +7,7 @@
 #[path = "support/oracle.rs"]
 mod oracle;
 
+use std::collections::BTreeSet;
 use std::path::PathBuf;
 
 use datafusion::prelude::SessionContext;
@@ -20,8 +21,27 @@ async fn reviewed_baselines_match_datafusion() -> TestResult {
     geodatafusion::register(&ctx);
 
     let mut total = Stats::default();
-    for &group_name in oracle::GROUPS {
-        let group = oracle::load_group(group_name, true)?;
+    let mut required_features = BTreeSet::new();
+    let mut has_unavailable_required_feature = false;
+    for group_name in oracle::discover_groups()? {
+        let group = oracle::load_group(&group_name, true)?;
+        if let Some(features) = &group.inputs.required_features {
+            required_features.extend(features.iter().cloned());
+        }
+        if !group.missing_features.is_empty() {
+            has_unavailable_required_feature = true;
+        }
+        if let Some(reason) = group.unavailable_reason() {
+            let stats = group.feature_skip_stats();
+            eprintln!(
+                "postgis oracle offline group={} feature-skip reason={} {}",
+                group.name,
+                reason,
+                stats.summary()
+            );
+            total.add(&stats);
+            continue;
+        }
         let stats = oracle::run_offline(&ctx, &group).await?;
         eprintln!(
             "postgis oracle offline group={} {}",
@@ -29,6 +49,9 @@ async fn reviewed_baselines_match_datafusion() -> TestResult {
             stats.summary()
         );
         total.add(&stats);
+    }
+    if !required_features.is_empty() && !has_unavailable_required_feature {
+        total.ensure_no_feature_skips("offline run with a complete feature configuration")?;
     }
     total.ensure_compared("offline DataFusion vs reviewed baselines")?;
     eprintln!("postgis oracle offline total {}", total.summary());
@@ -61,12 +84,32 @@ async fn live_postgis_matches_baseline_and_datafusion() -> TestResult {
 
     let mut baseline_total = Stats::default();
     let mut datafusion_total = Stats::default();
-    for &group_name in oracle::GROUPS {
+    let mut required_features = BTreeSet::new();
+    let mut has_unavailable_required_feature = false;
+    for group_name in oracle::discover_groups()? {
         let group = if write_dir.is_some() {
-            oracle::load_capture_group(group_name)?
+            oracle::load_capture_group(&group_name)?
         } else {
-            oracle::load_group(group_name, true)?
+            oracle::load_group(&group_name, true)?
         };
+        if let Some(features) = &group.inputs.required_features {
+            required_features.extend(features.iter().cloned());
+        }
+        if !group.missing_features.is_empty() {
+            has_unavailable_required_feature = true;
+        }
+        if let Some(reason) = group.unavailable_reason() {
+            let stats = group.feature_skip_stats();
+            eprintln!(
+                "postgis oracle live group={} feature-skip reason={} {}",
+                group.name,
+                reason,
+                stats.summary()
+            );
+            baseline_total.add(&stats);
+            datafusion_total.add(&stats);
+            continue;
+        }
         let (baseline_stats, datafusion_stats) =
             oracle::run_live(&ctx, &group, &client, &versions, write_dir.as_deref()).await?;
         eprintln!(
@@ -85,6 +128,12 @@ async fn live_postgis_matches_baseline_and_datafusion() -> TestResult {
 
     if write_dir.is_none() {
         baseline_total.ensure_compared("live PostGIS vs reviewed baselines")?;
+    }
+    if !required_features.is_empty() && !has_unavailable_required_feature {
+        baseline_total
+            .ensure_no_feature_skips("live baseline run with a complete feature configuration")?;
+        datafusion_total
+            .ensure_no_feature_skips("live DataFusion run with a complete feature configuration")?;
     }
     datafusion_total.ensure_compared("live DataFusion vs PostGIS")?;
     eprintln!(

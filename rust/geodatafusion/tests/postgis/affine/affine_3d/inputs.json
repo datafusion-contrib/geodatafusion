@@ -1,0 +1,365 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "affine-3d-xyzm-point",
+      "function": "ST_Affine",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM (1 2 3 4)"
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 4
+        },
+        {
+          "type": "float64",
+          "value": 5
+        },
+        {
+          "type": "float64",
+          "value": 6
+        },
+        {
+          "type": "float64",
+          "value": 7
+        },
+        {
+          "type": "float64",
+          "value": 8
+        },
+        {
+          "type": "float64",
+          "value": 9
+        },
+        {
+          "type": "float64",
+          "value": 10
+        },
+        {
+          "type": "float64",
+          "value": 11
+        },
+        {
+          "type": "float64",
+          "value": 12
+        },
+        {
+          "type": "float64",
+          "value": 13
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Affine.html",
+      "tags": [
+        "xyzm",
+        "point"
+      ]
+    },
+    {
+      "id": "affine-3d-xyz-point",
+      "function": "ST_Affine",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z (2 3 4)"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "float64",
+          "value": 5
+        },
+        {
+          "type": "float64",
+          "value": 6
+        },
+        {
+          "type": "float64",
+          "value": 7
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Affine.html",
+      "tags": [
+        "xyz",
+        "point"
+      ]
+    },
+    {
+      "id": "affine-3d-xy-point",
+      "function": "ST_Affine",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 3
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 5
+        },
+        {
+          "type": "float64",
+          "value": 6
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "float64",
+          "value": 11
+        },
+        {
+          "type": "float64",
+          "value": 12
+        },
+        {
+          "type": "float64",
+          "value": 13
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Affine.html",
+      "tags": [
+        "2d",
+        "point"
+      ]
+    },
+    {
+      "id": "affine-3d-xyzm-empty",
+      "function": "ST_Affine",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 3
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Affine.html",
+      "tags": [
+        "xyzm",
+        "empty"
+      ]
+    },
+    {
+      "id": "affine-3d-null",
+      "function": "ST_Affine",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "float64",
+          "value": 2
+        },
+        {
+          "type": "float64",
+          "value": 3
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_Affine.html",
+      "tags": [
+        "null"
+      ]
+    }
+  ]
+}

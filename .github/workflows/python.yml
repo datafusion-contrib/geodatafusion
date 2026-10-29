@@ -31,6 +31,11 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
+          # Matches datafusion-python 55.x, the supported FFI host. See
+          # python/DEVELOP.md: datafusion-ffi's private data embeds
+          # `Option<tokio::runtime::Handle>`, whose `None` encoding depends on
+          # the compiler version, so extension and host must agree.
+          toolchain: "1.97.0"
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
       - name: Fmt
@@ -59,6 +64,8 @@ jobs:
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.97.0"
 
       - uses: Swatinem/rust-cache@v2
 

@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "extrema-line-2d",
+      "function": "ST_XMin",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(1 2,3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_XMin.html",
+      "tags": [
+        "2d",
+        "z-zero"
+      ]
+    },
+    {
+      "id": "extrema-line-3d",
+      "function": "ST_YMin",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z (1 2 3,3 4 5)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_XMin.html",
+      "tags": [
+        "3d"
+      ]
+    },
+    {
+      "id": "extrema-line-m",
+      "function": "ST_ZMin",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M (1 2 9,3 4 7)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_XMin.html",
+      "tags": [
+        "m",
+        "z-zero"
+      ]
+    },
+    {
+      "id": "extrema-line-zm",
+      "function": "ST_XMax",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM (1 2 3 9,3 4 5 7)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_XMin.html",
+      "tags": [
+        "zm"
+      ]
+    },
+    {
+      "id": "extrema-empty-point",
+      "function": "ST_YMax",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_XMin.html",
+      "tags": [
+        "empty"
+      ]
+    },
+    {
+      "id": "extrema-null",
+      "function": "ST_ZMax",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_XMin.html",
+      "tags": [
+        "null"
+      ]
+    }
+  ]
+}

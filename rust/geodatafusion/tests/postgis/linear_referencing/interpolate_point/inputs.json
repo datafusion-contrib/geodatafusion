@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "ip-xy-mid",
+      "function": "ST_LineInterpolatePoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0,20 0)"
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_3d",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineInterpolatePoint.html"
+    },
+    {
+      "id": "ip-zm-quarter",
+      "function": "ST_LineInterpolatePoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM (0 0 0 100,10 0 10 110,20 0 20 120)"
+        },
+        {
+          "type": "float64",
+          "value": 0.25
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_3d",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineInterpolatePoint.html"
+    },
+    {
+      "id": "ip-zm-end",
+      "function": "ST_LineInterpolatePoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM (0 0 0 100,10 0 10 110,20 0 20 120)"
+        },
+        {
+          "type": "float64",
+          "value": 1.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_3d",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineInterpolatePoint.html"
+    },
+    {
+      "id": "ip-empty",
+      "function": "ST_LineInterpolatePoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_3d",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineInterpolatePoint.html"
+    },
+    {
+      "id": "ip-null-geometry",
+      "function": "ST_LineInterpolatePoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_3d",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineInterpolatePoint.html"
+    },
+    {
+      "id": "ip-null-fraction",
+      "function": "ST_LineInterpolatePoint",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0,20 0)"
+        },
+        {
+          "type": "float64",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "point",
+          "type": "ewkb"
+        },
+        {
+          "name": "point_3d",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineInterpolatePoint.html"
+    }
+  ]
+}

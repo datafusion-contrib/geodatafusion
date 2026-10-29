@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "native-metadata-point-2d",
+      "function": "ST_GeomFromEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromEWKT.html",
+      "tags": [
+        "native-metadata",
+        "geometry-output"
+      ]
+    },
+    {
+      "id": "native-metadata-point-xyz",
+      "function": "ST_GeomFromEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2 3)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromEWKT.html",
+      "tags": [
+        "native-metadata",
+        "geometry-output"
+      ]
+    },
+    {
+      "id": "native-metadata-point-xym",
+      "function": "ST_GeomFromEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINTM(1 2 3)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromEWKT.html",
+      "tags": [
+        "native-metadata",
+        "geometry-output"
+      ]
+    },
+    {
+      "id": "native-metadata-point-xyzm",
+      "function": "ST_GeomFromEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2 3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromEWKT.html",
+      "tags": [
+        "native-metadata",
+        "geometry-output"
+      ]
+    },
+    {
+      "id": "native-metadata-linestring",
+      "function": "ST_GeomFromEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromEWKT.html",
+      "tags": [
+        "native-metadata",
+        "geometry-output"
+      ]
+    },
+    {
+      "id": "native-metadata-polygon",
+      "function": "ST_GeomFromEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,0 1,1 1,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromEWKT.html",
+      "tags": [
+        "native-metadata",
+        "geometry-output"
+      ]
+    },
+    {
+      "id": "native-metadata-point-empty",
+      "function": "ST_GeomFromEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromEWKT.html",
+      "tags": [
+        "native-metadata",
+        "geometry-output"
+      ]
+    },
+    {
+      "id": "native-metadata-null",
+      "function": "ST_GeomFromEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromEWKT.html",
+      "tags": [
+        "native-metadata",
+        "geometry-output"
+      ]
+    }
+  ]
+}

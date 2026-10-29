@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "box2d-line-2d",
+      "function": "Box2D",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(1 2,3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/Box2D.html",
+      "tags": [
+        "line",
+        "2d"
+      ]
+    },
+    {
+      "id": "box2d-line-3d",
+      "function": "Box2D",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z (1 2 3,3 4 5)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/Box2D.html",
+      "tags": [
+        "line",
+        "3d"
+      ]
+    },
+    {
+      "id": "box2d-line-m",
+      "function": "Box2D",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M (1 2 9,3 4 7)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/Box2D.html",
+      "tags": [
+        "line",
+        "m"
+      ]
+    },
+    {
+      "id": "box2d-point-zm",
+      "function": "Box2D",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM (1 2 3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/Box2D.html",
+      "tags": [
+        "point",
+        "zm"
+      ]
+    },
+    {
+      "id": "box2d-empty-point",
+      "function": "Box2D",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/Box2D.html",
+      "tags": [
+        "empty"
+      ]
+    },
+    {
+      "id": "box2d-null",
+      "function": "Box2D",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/Box2D.html",
+      "tags": [
+        "null"
+      ]
+    }
+  ]
+}

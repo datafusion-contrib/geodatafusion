@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "summary-point",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-point-z",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z (1 2 3)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-point-m",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT M (1 2 3)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-point-zm",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM (1 2 3 4)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-linestring",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-linestring-empty",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING EMPTY",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-polygon-hole",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,2 1,2 2,1 2,1 1))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-polygon-empty",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-multipoint",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT((1 2),(3 4))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-multilinestring-zm",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING ZM((0 0 1 2,1 1 3 4),(2 2 5 6,3 3 7 8))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-multipolygon",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,1 0,1 1,0 0)),((2 2,3 2,3 3,2 2)))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-geometrycollection",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POINT(1 2),LINESTRING(0 0,1 1))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-geometrycollection-nested",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2)),POINT(3 4))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-geometrycollection-empty",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION EMPTY",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    },
+    {
+      "id": "summary-null",
+      "function": "ST_Summary",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null,
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "summary",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_Summary.html"
+    }
+  ]
+}

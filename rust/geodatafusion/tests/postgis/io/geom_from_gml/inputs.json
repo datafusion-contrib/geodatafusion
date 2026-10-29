@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "gml3-point-no-srs",
+      "function": "ST_GeomFromGML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "<gml:Point xmlns:gml=\"http://www.opengis.net/gml/3.2\"><gml:pos>30 10</gml:pos></gml:Point>"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromGML.html",
+      "tags": ["gml3", "point"]
+    },
+    {
+      "id": "gml3-point-srs-epsg",
+      "function": "ST_GeomFromGML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "<gml:Point xmlns:gml=\"http://www.opengis.net/gml/3.2\" srsName=\"EPSG:4326\"><gml:pos>30 10</gml:pos></gml:Point>"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromGML.html",
+      "tags": ["gml3", "point", "srs"]
+    },
+    {
+      "id": "gml3-point-urn-axis-order",
+      "function": "ST_GeomFromGML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "<gml:Point xmlns:gml=\"http://www.opengis.net/gml/3.2\" srsName=\"urn:ogc:def:crs:EPSG::4326\"><gml:pos>10 20</gml:pos></gml:Point>"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromGML.html",
+      "tags": ["gml3", "axis-order", "srs"]
+    },
+    {
+      "id": "gml2-line-3d",
+      "function": "ST_GeomFromGML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "<gml:LineString xmlns:gml=\"http://www.opengis.net/gml\"><gml:coordinates>0,0,1 1,1,2</gml:coordinates></gml:LineString>"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromGML.html",
+      "tags": ["gml2", "line", "3d"]
+    },
+    {
+      "id": "gml3-polygon-hole",
+      "function": "ST_GeomFromGML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "<gml:Polygon xmlns:gml=\"http://www.opengis.net/gml/3.2\"><gml:exterior><gml:LinearRing><gml:posList>0 0 0 10 10 10 10 0 0 0</gml:posList></gml:LinearRing></gml:exterior><gml:interior><gml:LinearRing><gml:posList>2 2 2 4 4 4 4 2 2 2</gml:posList></gml:LinearRing></gml:interior></gml:Polygon>"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromGML.html",
+      "tags": ["gml3", "polygon", "hole"]
+    },
+    {
+      "id": "gml3-mixed-collection",
+      "function": "ST_GeomFromGML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "<gml:MultiGeometry xmlns:gml=\"http://www.opengis.net/gml/3.2\"><gml:geometryMember><gml:Point><gml:pos>1 2</gml:pos></gml:Point></gml:geometryMember><gml:geometryMember><gml:LineString><gml:posList>0 0 1 1</gml:posList></gml:LineString></gml:geometryMember></gml:MultiGeometry>"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromGML.html",
+      "tags": ["gml3", "collection"]
+    },
+    {
+      "id": "gml3-empty-point",
+      "function": "ST_GeomFromGML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "<gml:Point xmlns:gml=\"http://www.opengis.net/gml/3.2\"/>"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromGML.html",
+      "tags": ["gml3", "empty"]
+    },
+    {
+      "id": "gml3-point-urn-4978-geocentric",
+      "function": "ST_GeomFromGML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "<gml:Point xmlns:gml=\"http://www.opengis.net/gml/3.2\" srsName=\"urn:ogc:def:crs:EPSG::4978\"><gml:pos srsDimension=\"3\">1 2 3</gml:pos></gml:Point>"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://epsg.io/4978",
+      "tags": ["gml3", "axis-order", "geocentric"]
+    },
+    {
+      "id": "gml3-point-urn-4979-geographic-3d",
+      "function": "ST_GeomFromGML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "<gml:Point xmlns:gml=\"http://www.opengis.net/gml/3.2\" srsName=\"urn:ogc:def:crs:EPSG::4979\"><gml:pos srsDimension=\"3\">1 2 3</gml:pos></gml:Point>"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://epsg.io/4979",
+      "tags": ["gml3", "axis-order", "geographic-3d"]
+    },
+    {
+      "id": "gml-null",
+      "function": "ST_GeomFromGML",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_GeomFromGML.html",
+      "tags": ["null"]
+    }
+  ]
+}

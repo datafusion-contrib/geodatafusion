@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "make-box3d-corners",
+      "function": "ST_3DMakeBox",
+      "arguments": [
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 10.0
+        },
+        {
+          "type": "float64",
+          "value": 10.0
+        },
+        {
+          "type": "float64",
+          "value": 20.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_3DMakeBox.html",
+      "tags": [
+        "basic"
+      ]
+    },
+    {
+      "id": "make-box3d-swapped",
+      "function": "ST_3DMakeBox",
+      "arguments": [
+        {
+          "type": "float64",
+          "value": 10.0
+        },
+        {
+          "type": "float64",
+          "value": 10.0
+        },
+        {
+          "type": "float64",
+          "value": 20.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_3DMakeBox.html",
+      "tags": [
+        "normalization"
+      ]
+    },
+    {
+      "id": "make-box3d-flat-z",
+      "function": "ST_3DMakeBox",
+      "arguments": [
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 5.0
+        },
+        {
+          "type": "float64",
+          "value": 10.0
+        },
+        {
+          "type": "float64",
+          "value": 10.0
+        },
+        {
+          "type": "float64",
+          "value": 5.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_3DMakeBox.html",
+      "tags": [
+        "flat-z"
+      ]
+    },
+    {
+      "id": "make-box3d-negative",
+      "function": "ST_3DMakeBox",
+      "arguments": [
+        {
+          "type": "float64",
+          "value": -5.0
+        },
+        {
+          "type": "float64",
+          "value": -6.0
+        },
+        {
+          "type": "float64",
+          "value": -7.0
+        },
+        {
+          "type": "float64",
+          "value": 2.0
+        },
+        {
+          "type": "float64",
+          "value": 3.0
+        },
+        {
+          "type": "float64",
+          "value": 4.0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_3DMakeBox.html",
+      "tags": [
+        "negative"
+      ]
+    },
+    {
+      "id": "make-box3d-null-point",
+      "function": "ST_3DMakeBox",
+      "arguments": [
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": 0.0
+        },
+        {
+          "type": "float64",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_3DMakeBox.html",
+      "tags": [
+        "null"
+      ]
+    }
+  ]
+}

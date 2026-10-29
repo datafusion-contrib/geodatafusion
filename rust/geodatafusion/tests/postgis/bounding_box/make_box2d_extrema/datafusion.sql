@@ -1,0 +1,1 @@
+SELECT ST_XMin(ST_MakeBox2D(ST_Point($1, $2), ST_Point($3, $4))) AS xmin, ST_YMin(ST_MakeBox2D(ST_Point($1, $2), ST_Point($3, $4))) AS ymin, ST_XMax(ST_MakeBox2D(ST_Point($1, $2), ST_Point($3, $4))) AS xmax, ST_YMax(ST_MakeBox2D(ST_Point($1, $2), ST_Point($3, $4))) AS ymax

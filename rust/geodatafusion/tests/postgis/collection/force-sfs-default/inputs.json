@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "force-sfs-default-point",
+      "function": "ST_ForceSFS",
+      "tags": [
+        "point",
+        "dimensions"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM(1 2 3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForceSFS.html"
+    },
+    {
+      "id": "force-sfs-default-collection",
+      "function": "ST_ForceSFS",
+      "tags": [
+        "collection"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION Z(POINT Z(0 0 1),LINESTRING Z(1 1 1,2 2 2))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForceSFS.html"
+    },
+    {
+      "id": "force-sfs-default-polygon",
+      "function": "ST_ForceSFS",
+      "tags": [
+        "polygon"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,1 0,1 1,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForceSFS.html"
+    },
+    {
+      "id": "force-sfs-default-empty",
+      "function": "ST_ForceSFS",
+      "tags": [
+        "empty",
+        "collection"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ForceSFS.html"
+    }
+  ]
+}

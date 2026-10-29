@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "outer-zero",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 1,4 4,1 4,0 4,0 0))"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "boolean",
+          "value": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    },
+    {
+      "id": "outer-half",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 1,4 4,1 4,0 4,0 0))"
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        },
+        {
+          "type": "boolean",
+          "value": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    },
+    {
+      "id": "outer-one",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 1,4 4,1 4,0 4,0 0))"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        },
+        {
+          "type": "boolean",
+          "value": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    },
+    {
+      "id": "outer-clamped-high",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 1,4 4,1 4,0 4,0 0))"
+        },
+        {
+          "type": "float64",
+          "value": 1.5
+        },
+        {
+          "type": "boolean",
+          "value": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    },
+    {
+      "id": "outer-clamped-low",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 1,4 4,1 4,0 4,0 0))"
+        },
+        {
+          "type": "float64",
+          "value": -0.5
+        },
+        {
+          "type": "boolean",
+          "value": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    },
+    {
+      "id": "inner-half",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 1,4 4,1 4,0 4,0 0))"
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    },
+    {
+      "id": "empty-z-polygon",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        },
+        {
+          "type": "boolean",
+          "value": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    },
+    {
+      "id": "z-polygon",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z ((0 0 1,4 0 2,4 1 3,4 4 4,1 4 5,0 4 6,0 0 1))"
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        },
+        {
+          "type": "boolean",
+          "value": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    },
+    {
+      "id": "zm-polygon",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON ZM ((0 0 1 9,4 0 2 9,4 1 3 9,4 4 4 9,1 4 5 9,0 4 6 9,0 0 1 9))"
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        },
+        {
+          "type": "boolean",
+          "value": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    },
+    {
+      "id": "null-geometry",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        },
+        {
+          "type": "boolean",
+          "value": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    },
+    {
+      "id": "null-fraction",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 1,4 4,1 4,0 4,0 0))"
+        },
+        {
+          "type": "float64",
+          "value": null
+        },
+        {
+          "type": "boolean",
+          "value": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    },
+    {
+      "id": "null-outer",
+      "function": "ST_SimplifyPolygonHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 1,4 4,1 4,0 4,0 0))"
+        },
+        {
+          "type": "float64",
+          "value": 0.5
+        },
+        {
+          "type": "boolean",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_SimplifyPolygonHull.html"
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "centroid-point",
+      "function": "ST_Centroid",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-coordinate-ulp",
+        "max_ulps": 4
+      },
+      "source": "https://postgis.net/docs/ST_Centroid.html"
+    },
+    {
+      "id": "centroid-line",
+      "function": "ST_Centroid",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,10 0)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-coordinate-ulp",
+        "max_ulps": 4
+      },
+      "source": "https://postgis.net/docs/ST_Centroid.html"
+    },
+    {
+      "id": "centroid-hole",
+      "function": "ST_Centroid",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,1 9,9 9,9 1,1 1))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-coordinate-ulp",
+        "max_ulps": 4
+      },
+      "source": "https://postgis.net/docs/ST_Centroid.html"
+    },
+    {
+      "id": "centroid-collection",
+      "function": "ST_Centroid",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POINT(0 0),LINESTRING(0 0,2 2))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-coordinate-ulp",
+        "max_ulps": 4
+      },
+      "source": "https://postgis.net/docs/ST_Centroid.html"
+    },
+    {
+      "id": "centroid-z-line",
+      "function": "ST_Centroid",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z (0 0 1,2 2 3)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-coordinate-ulp",
+        "max_ulps": 4
+      },
+      "source": "https://postgis.net/docs/ST_Centroid.html"
+    },
+    {
+      "id": "centroid-null",
+      "function": "ST_Centroid",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null,
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-coordinate-ulp",
+        "max_ulps": 4
+      },
+      "source": "https://postgis.net/docs/ST_Centroid.html"
+    }
+  ]
+}

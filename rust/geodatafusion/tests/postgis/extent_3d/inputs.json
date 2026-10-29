@@ -1,0 +1,374 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "extent-3d-two-xyz",
+      "function": "ST_3DExtent",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z(1 2 3)"
+        },
+        {
+          "type": "text",
+          "value": "POINT Z(-3 4 5)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_3DExtent.html",
+      "tags": ["aggregate", "xyz"]
+    },
+    {
+      "id": "extent-3d-mixed-2d-and-xyz",
+      "function": "ST_3DExtent",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        },
+        {
+          "type": "text",
+          "value": "POINT Z(3 4 5)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_3DExtent.html",
+      "tags": ["aggregate", "mixed-dimension"]
+    },
+    {
+      "id": "extent-3d-xym-ignores-m",
+      "function": "ST_3DExtent",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT M(1 2 99)"
+        },
+        {
+          "type": "text",
+          "value": "POINT M(3 4 5)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_3DExtent.html",
+      "tags": ["aggregate", "xym"]
+    },
+    {
+      "id": "extent-3d-xyzm-uses-z",
+      "function": "ST_3DExtent",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM(1 2 3 99)"
+        },
+        {
+          "type": "text",
+          "value": "POINT ZM(3 4 5 6)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_3DExtent.html",
+      "tags": ["aggregate", "xyzm"]
+    },
+    {
+      "id": "extent-3d-empty-and-point",
+      "function": "ST_3DExtent",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT EMPTY"
+        },
+        {
+          "type": "text",
+          "value": "POINT Z(3 4 5)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_3DExtent.html",
+      "tags": ["aggregate", "empty"]
+    },
+    {
+      "id": "extent-3d-all-empty",
+      "function": "ST_3DExtent",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT EMPTY"
+        },
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_3DExtent.html",
+      "tags": ["aggregate", "empty"]
+    },
+    {
+      "id": "extent-3d-fractional-xyz",
+      "function": "ST_3DExtent",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z(1.5 -2.25 0.5,4.75 3.5 -1.25)"
+        },
+        {
+          "type": "text",
+          "value": "POINT Z(0 0 0)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_3DExtent.html",
+      "tags": ["aggregate", "fractional"]
+    },
+    {
+      "id": "extent-3d-mixed-xym-and-xyz",
+      "function": "ST_3DExtent",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT M(10 20 100)"
+        },
+        {
+          "type": "text",
+          "value": "POINT Z(-5 -6 -7)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_3DExtent.html",
+      "tags": ["aggregate", "xym", "xyz"]
+    }
+  ]
+}

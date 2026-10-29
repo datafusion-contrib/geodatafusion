@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "ewkt-precision-two",
+      "function": "ST_AsEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1.123456789 2.987654321 3.555555555)"
+        },
+        {
+          "type": "text",
+          "value": "2"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsEWKT.html",
+      "tags": [
+        "precision-overload"
+      ]
+    },
+    {
+      "id": "ewkt-precision-zero-half-even",
+      "function": "ST_AsEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1.5 2.5)"
+        },
+        {
+          "type": "text",
+          "value": "0"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsEWKT.html",
+      "tags": [
+        "precision-overload"
+      ]
+    },
+    {
+      "id": "ewkt-precision-negative",
+      "function": "ST_AsEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1.5 2.5)"
+        },
+        {
+          "type": "text",
+          "value": "-3"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsEWKT.html",
+      "tags": [
+        "precision-overload"
+      ]
+    },
+    {
+      "id": "ewkt-precision-hundred",
+      "function": "ST_AsEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1.2345678901234567e-7 0)"
+        },
+        {
+          "type": "text",
+          "value": "100"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsEWKT.html",
+      "tags": [
+        "precision-overload"
+      ]
+    },
+    {
+      "id": "ewkt-precision-shortest-digits",
+      "function": "ST_AsEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(0.15 0.35)"
+        },
+        {
+          "type": "text",
+          "value": "1"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsEWKT.html",
+      "tags": [
+        "precision-overload"
+      ]
+    },
+    {
+      "id": "ewkt-precision-scientific-overflow",
+      "function": "ST_AsEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(9.6e+16 9.6e-9)"
+        },
+        {
+          "type": "text",
+          "value": "0"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsEWKT.html",
+      "tags": [
+        "precision-overload"
+      ]
+    },
+    {
+      "id": "ewkt-precision-null",
+      "function": "ST_AsEWKT",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        },
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ewkt",
+          "type": "text"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_AsEWKT.html",
+      "tags": [
+        "precision-overload"
+      ]
+    }
+  ]
+}

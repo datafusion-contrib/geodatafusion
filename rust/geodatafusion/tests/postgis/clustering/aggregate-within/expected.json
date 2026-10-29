@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "b6f09a5153b45e0e605ab883dce9357a224caa1413471366067bd25c5da190b7",
+  "postgis_sql_sha256": "2365b1552d14f0bcfb566c392645333ff65a0283bade0ca9b796b409cbe4d0ff",
+  "datafusion_sql_sha256": "f8902937dad04b374f09eb1c5ff62d4a708fa0391548eba78275810dbd043ee2",
+  "cases": {
+    "distance-0-1": {
+      "columns": [
+        {
+          "name": "clusters",
+          "type": "hex_list"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "hex_list",
+            "values": [
+              "010700000001000000010100000000000000000000000000000000000000",
+              "010700000001000000010100000000000000000024400000000000000000",
+              "010700000001000000010100000000000000000025400000000000000000",
+              "0107000000010000000101000000000000000000e03f0000000000000000",
+              "010700000001000000010300000000000000"
+            ]
+          }
+        ]
+      ]
+    },
+    "distance-0-6": {
+      "columns": [
+        {
+          "name": "clusters",
+          "type": "hex_list"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "hex_list",
+            "values": [
+              "010700000001000000010300000000000000",
+              "0107000000020000000101000000000000000000000000000000000000000101000000000000000000e03f0000000000000000",
+              "010700000002000000010100000000000000000024400000000000000000010100000000000000000025400000000000000000"
+            ]
+          }
+        ]
+      ]
+    },
+    "distance-1000": {
+      "columns": [
+        {
+          "name": "clusters",
+          "type": "hex_list"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "hex_list",
+            "values": [
+              "010700000001000000010300000000000000",
+              "0107000000040000000101000000000000000000000000000000000000000101000000000000000000e03f0000000000000000010100000000000000000024400000000000000000010100000000000000000025400000000000000000"
+            ]
+          }
+        ]
+      ]
+    }
+  }
+}

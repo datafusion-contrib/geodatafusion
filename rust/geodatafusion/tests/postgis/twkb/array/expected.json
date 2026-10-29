@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "edeb1b71b4095f28bf2fbc1b18d839c77159ed412fbb852201364602a3715da6",
+  "postgis_sql_sha256": "7295a69c8635efbf1e3691df2f3df34fe58c5d3348963ec49bf205f19075a638",
+  "datafusion_sql_sha256": "1d58d0bc3352549d86b08315d6423561c01c326244762d17c5ab71f5d78e50a2",
+  "cases": {
+    "twkb-array-flags": {
+      "columns": [
+        {
+          "name": "twkb",
+          "type": "bytea"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "bytea",
+            "hex": "c4072180897a8092f4018092f4018092f40102142880897a8092f4018092f4018092f401"
+          }
+        ]
+      ]
+    },
+    "twkb-array-mixed": {
+      "columns": [
+        {
+          "name": "twkb",
+          "type": "bytea"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "bytea",
+            "hex": "c704020e10c10080897a8092f401c20002000080897a80897a"
+          }
+        ]
+      ]
+    },
+    "twkb-array-points": {
+      "columns": [
+        {
+          "name": "twkb",
+          "type": "bytea"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "bytea",
+            "hex": "c40402142880897a8092f4018092f4018092f401"
+          }
+        ]
+      ]
+    }
+  }
+}

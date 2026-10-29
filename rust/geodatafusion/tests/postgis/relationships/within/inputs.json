@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "within-interior-point",
+      "function": "ST_Within",
+      "arguments": [
+        {"type": "text", "value": "POINT(1 1)"},
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Within.html"
+    },
+    {
+      "id": "within-boundary-point",
+      "function": "ST_Within",
+      "arguments": [
+        {"type": "text", "value": "POINT(0 1)"},
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Within.html"
+    },
+    {
+      "id": "within-itself",
+      "function": "ST_Within",
+      "arguments": [
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"},
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Within.html"
+    },
+    {
+      "id": "within-touching-polygon",
+      "function": "ST_Within",
+      "arguments": [
+        {"type": "text", "value": "POLYGON((2 0,4 0,4 2,2 2,2 0))"},
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Within.html"
+    },
+    {
+      "id": "within-inner-polygon",
+      "function": "ST_Within",
+      "arguments": [
+        {"type": "text", "value": "POLYGON((0.5 0.5,1.5 0.5,1.5 1.5,0.5 1.5,0.5 0.5))"},
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Within.html"
+    },
+    {
+      "id": "within-empty-point",
+      "function": "ST_Within",
+      "arguments": [
+        {"type": "text", "value": "POINT EMPTY"},
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Within.html"
+    },
+    {
+      "id": "within-collection-point",
+      "function": "ST_Within",
+      "arguments": [
+        {"type": "text", "value": "GEOMETRYCOLLECTION(POINT(1 1))"},
+        {"type": "text", "value": "POLYGON((0 0,2 0,2 2,0 2,0 0))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Within.html"
+    },
+    {
+      "id": "within-z-point",
+      "function": "ST_Within",
+      "arguments": [
+        {"type": "text", "value": "POINT Z (1 1 5)"},
+        {"type": "text", "value": "POLYGON Z ((0 0 1,2 0 2,2 2 3,0 2 4,0 0 1))"}
+      ],
+      "result_columns": [{"name": "value", "type": "boolean"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Within.html"
+    }
+  ]
+}

@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "7d76620c73fd5a24c57c7132332ce26180feaf81c78f89a95459eb34fdaca187",
+  "postgis_sql_sha256": "2a8b88d61a0bee0c47eef0d63e17219b5131a46e5061be159739834003dc2ee9",
+  "datafusion_sql_sha256": "91a44d670db5ea7febdd76efea57e8373458b3ab074260ccb0572eb96de860fd",
+  "cases": {
+    "letters-default-a": {
+      "columns": [
+        {
+          "name": "geom_type",
+          "type": "text"
+        },
+        {
+          "name": "is_empty",
+          "type": "boolean"
+        },
+        {
+          "name": "ndims",
+          "type": "float64"
+        },
+        {
+          "name": "has_points",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "ST_MultiPolygon"
+          },
+          {
+            "type": "boolean",
+            "value": false
+          },
+          {
+            "type": "float64",
+            "bits": "4000000000000000"
+          },
+          {
+            "type": "boolean",
+            "value": true
+          }
+        ]
+      ]
+    },
+    "letters-default-empty": {
+      "columns": [
+        {
+          "name": "geom_type",
+          "type": "text"
+        },
+        {
+          "name": "is_empty",
+          "type": "boolean"
+        },
+        {
+          "name": "ndims",
+          "type": "float64"
+        },
+        {
+          "name": "has_points",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "letters-default-mixed": {
+      "columns": [
+        {
+          "name": "geom_type",
+          "type": "text"
+        },
+        {
+          "name": "is_empty",
+          "type": "boolean"
+        },
+        {
+          "name": "ndims",
+          "type": "float64"
+        },
+        {
+          "name": "has_points",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "text",
+            "value": "ST_MultiPolygon"
+          },
+          {
+            "type": "boolean",
+            "value": false
+          },
+          {
+            "type": "float64",
+            "bits": "4000000000000000"
+          },
+          {
+            "type": "boolean",
+            "value": true
+          }
+        ]
+      ]
+    },
+    "letters-default-space": {
+      "columns": [
+        {
+          "name": "geom_type",
+          "type": "text"
+        },
+        {
+          "name": "is_empty",
+          "type": "boolean"
+        },
+        {
+          "name": "ndims",
+          "type": "float64"
+        },
+        {
+          "name": "has_points",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "letters-default-unknown": {
+      "columns": [
+        {
+          "name": "geom_type",
+          "type": "text"
+        },
+        {
+          "name": "is_empty",
+          "type": "boolean"
+        },
+        {
+          "name": "ndims",
+          "type": "float64"
+        },
+        {
+          "name": "has_points",
+          "type": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    }
+  }
+}

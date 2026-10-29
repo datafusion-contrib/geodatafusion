@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "06638b7779001d031eec9d1d0b174a53a64cefa1ddef9f2e5c720a2a44cfd132",
+  "postgis_sql_sha256": "27bc49b9f121a43db4643bdc481fa66f96a8511ce6f7fa0284a18ef79b859fa7",
+  "datafusion_sql_sha256": "27bc49b9f121a43db4643bdc481fa66f96a8511ce6f7fa0284a18ef79b859fa7",
+  "cases": {
+    "bowtie": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010600000002000000010300000001000000040000000000000000000000000000000000f03f000000000000e03f000000000000e03f000000000000000000000000000000000000000000000000000000000000f03f01030000000100000004000000000000000000f03f0000000000000000000000000000e03f000000000000e03f000000000000f03f000000000000f03f000000000000f03f0000000000000000"
+          }
+        ]
+      ]
+    },
+    "empty-z-polygon": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "010300000000000000"
+          }
+        ]
+      ]
+    },
+    "null-geometry": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "valid-polygon": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "0103000000010000000500000000000000000000000000000000000000000000000000f03f0000000000000000000000000000f03f000000000000f03f0000000000000000000000000000f03f00000000000000000000000000000000"
+          }
+        ]
+      ]
+    },
+    "zm-polygon": {
+      "columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "ewkb",
+            "hex": "0103000080010000000500000000000000000000000000000000000000000000000000f03f000000000000f03f00000000000000000000000000000040000000000000f03f000000000000f03f00000000000008400000000000000000000000000000f03f000000000000104000000000000000000000000000000000000000000000f03f"
+          }
+        ]
+      ]
+    }
+  }
+}

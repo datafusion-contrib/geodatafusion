@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "59b1f8dce39adbcc00a08d65cd12ed4f148cbdf2f3b66a5bcf87505cdf4e9b46",
+  "postgis_sql_sha256": "75dd884676780be2467b101c1f1f4ce6bf420ffd889bf25873e5e039d614ad60",
+  "datafusion_sql_sha256": "ee1e140f0019ae77c20129ecf706dc3cad92e77ccef1fc535581eea913c116b5",
+  "cases": {
+    "spheroid-3d-ignores-z": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "40fb2d77da4a0c31"
+          }
+        ]
+      ]
+    },
+    "spheroid-antimeridian": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "410b2d77da4a0c31"
+          }
+        ]
+      ]
+    },
+    "spheroid-empty": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "bff0000000000000"
+          }
+        ]
+      ]
+    },
+    "spheroid-line-inside-polygon": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          }
+        ]
+      ]
+    },
+    "spheroid-line-minimum": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "40f326be8b84d017"
+          }
+        ]
+      ]
+    },
+    "spheroid-near-antipode": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "417313c5b756878a"
+          }
+        ]
+      ]
+    },
+    "spheroid-null": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "spheroid-one-degree": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "40fb2d77da4a0c31"
+          }
+        ]
+      ]
+    },
+    "spheroid-point-polygon": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "410b2d77da4a0c31"
+          }
+        ]
+      ]
+    },
+    "spheroid-pole-crossing": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "40ced9f477a1e26d"
+          }
+        ]
+      ]
+    },
+    "spheroid-polygon-polygon": {
+      "columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "410b2c6a5e67f717"
+          }
+        ]
+      ]
+    }
+  }
+}

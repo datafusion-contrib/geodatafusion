@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "required_features": [
+    "geos-3_11"
+  ],
+  "cases": [
+    {
+      "id": "circle-input-null",
+      "function": "ST_MaximumInscribedCircle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null,
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "mic_null",
+          "type": "boolean"
+        },
+        {
+          "name": "lec_null",
+          "type": "boolean"
+        },
+        {
+          "name": "mbc_null",
+          "type": "boolean"
+        },
+        {
+          "name": "mbr_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_MaximumInscribedCircle.html"
+    },
+    {
+      "id": "circle-input-non-nullable-square",
+      "function": "ST_MaximumInscribedCircle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0))",
+          "nullable": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "mic_null",
+          "type": "boolean"
+        },
+        {
+          "name": "lec_null",
+          "type": "boolean"
+        },
+        {
+          "name": "mbc_null",
+          "type": "boolean"
+        },
+        {
+          "name": "mbr_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_MaximumInscribedCircle.html"
+    },
+    {
+      "id": "circle-input-non-nullable-empty",
+      "function": "ST_MaximumInscribedCircle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY",
+          "nullable": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "mic_null",
+          "type": "boolean"
+        },
+        {
+          "name": "lec_null",
+          "type": "boolean"
+        },
+        {
+          "name": "mbc_null",
+          "type": "boolean"
+        },
+        {
+          "name": "mbr_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_MaximumInscribedCircle.html"
+    }
+  ]
+}

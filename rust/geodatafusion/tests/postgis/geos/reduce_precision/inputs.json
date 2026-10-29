@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "reduce-precision-point",
+      "function": "ST_ReducePrecision",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1.2345 2.3456)"
+        },
+        {
+          "type": "float64",
+          "value": 0.1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-coordinate-ulp",
+        "max_ulps": 2
+      },
+      "source": "https://postgis.net/docs/ST_ReducePrecision.html"
+    },
+    {
+      "id": "reduce-precision-unit-grid",
+      "function": "ST_ReducePrecision",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1.5 2.5)"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ReducePrecision.html"
+    },
+    {
+      "id": "reduce-precision-zero",
+      "function": "ST_ReducePrecision",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1.2345 2.3456)"
+        },
+        {
+          "type": "float64",
+          "value": 0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ReducePrecision.html"
+    },
+    {
+      "id": "reduce-precision-negative",
+      "function": "ST_ReducePrecision",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1.2345 2.3456)"
+        },
+        {
+          "type": "float64",
+          "value": -1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ReducePrecision.html"
+    },
+    {
+      "id": "reduce-precision-line",
+      "function": "ST_ReducePrecision",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0.1 0.1,0.14 0.14,1.1 1.1)"
+        },
+        {
+          "type": "float64",
+          "value": 0.1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ReducePrecision.html"
+    },
+    {
+      "id": "reduce-precision-collapse",
+      "function": "ST_ReducePrecision",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0.1 0.1,0.14 0.1,0.14 0.14,0.1 0.14,0.1 0.1))"
+        },
+        {
+          "type": "float64",
+          "value": 1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ReducePrecision.html"
+    },
+    {
+      "id": "reduce-precision-point-empty",
+      "function": "ST_ReducePrecision",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 0.1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ReducePrecision.html"
+    },
+    {
+      "id": "reduce-precision-line-empty",
+      "function": "ST_ReducePrecision",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 0.1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ReducePrecision.html"
+    },
+    {
+      "id": "reduce-precision-collection",
+      "function": "ST_ReducePrecision",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POINT(1.2345 2.3456),LINESTRING(0.1 0.1,1.1 1.1))"
+        },
+        {
+          "type": "float64",
+          "value": 0.1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-coordinate-ulp",
+        "max_ulps": 2
+      },
+      "source": "https://postgis.net/docs/ST_ReducePrecision.html"
+    },
+    {
+      "id": "reduce-precision-multipoint",
+      "function": "ST_ReducePrecision",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT((1.2345 2.3456),(4.5678 5.6789))"
+        },
+        {
+          "type": "float64",
+          "value": 0.1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-coordinate-ulp",
+        "max_ulps": 2
+      },
+      "source": "https://postgis.net/docs/ST_ReducePrecision.html"
+    },
+    {
+      "id": "reduce-precision-z",
+      "function": "ST_ReducePrecision",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT Z (1.2345 2.3456 3.4567)"
+        },
+        {
+          "type": "float64",
+          "value": 0.1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-coordinate-ulp",
+        "max_ulps": 2
+      },
+      "source": "https://postgis.net/docs/ST_ReducePrecision.html"
+    },
+    {
+      "id": "reduce-precision-zm",
+      "function": "ST_ReducePrecision",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM (1.2345 2.3456 3.4567 4.5678)"
+        },
+        {
+          "type": "float64",
+          "value": 0.1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-coordinate-ulp",
+        "max_ulps": 2
+      },
+      "source": "https://postgis.net/docs/ST_ReducePrecision.html"
+    },
+    {
+      "id": "reduce-precision-zm-empty",
+      "function": "ST_ReducePrecision",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT ZM EMPTY"
+        },
+        {
+          "type": "float64",
+          "value": 0.1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ReducePrecision.html"
+    },
+    {
+      "id": "reduce-precision-null",
+      "function": "ST_ReducePrecision",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null
+        },
+        {
+          "type": "float64",
+          "value": 0.1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ReducePrecision.html"
+    }
+  ]
+}

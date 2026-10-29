@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "grid-input-field-xy",
+      "function": "ST_Square",
+      "arguments": [
+        {"type": "text", "value": "POINT(1 2)", "nullable": false},
+        {"type": "float64", "value": 1.0, "nullable": true}
+      ],
+      "result_columns": [
+        {"name": "hex_geom", "type": "ewkb"},
+        {"name": "square_geom", "type": "ewkb"},
+        {"name": "hex_is_null", "type": "boolean"},
+        {"name": "square_is_null", "type": "boolean"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Square.html",
+      "tags": ["arrow-input-nullability", "is-null", "xy"]
+    },
+    {
+      "id": "grid-input-field-xyz",
+      "function": "ST_Square",
+      "arguments": [
+        {"type": "text", "value": "POINT Z(1 2 3)", "nullable": false},
+        {"type": "float64", "value": 0.5, "nullable": true}
+      ],
+      "result_columns": [
+        {"name": "hex_geom", "type": "ewkb"},
+        {"name": "square_geom", "type": "ewkb"},
+        {"name": "hex_is_null", "type": "boolean"},
+        {"name": "square_is_null", "type": "boolean"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Square.html",
+      "tags": ["arrow-input-nullability", "is-null", "xyz"]
+    },
+    {
+      "id": "grid-input-field-xym-null-size",
+      "function": "ST_Square",
+      "arguments": [
+        {"type": "text", "value": "POINT M(1 2 3)", "nullable": false},
+        {"type": "float64", "value": null, "nullable": true}
+      ],
+      "result_columns": [
+        {"name": "hex_geom", "type": "ewkb"},
+        {"name": "square_geom", "type": "ewkb"},
+        {"name": "hex_is_null", "type": "boolean"},
+        {"name": "square_is_null", "type": "boolean"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Square.html",
+      "tags": ["arrow-input-nullability", "is-null", "xym"]
+    },
+    {
+      "id": "grid-input-field-xyzm",
+      "function": "ST_Square",
+      "arguments": [
+        {"type": "text", "value": "POINT ZM(1 2 3 4)", "nullable": false},
+        {"type": "float64", "value": 1.0, "nullable": true}
+      ],
+      "result_columns": [
+        {"name": "hex_geom", "type": "ewkb"},
+        {"name": "square_geom", "type": "ewkb"},
+        {"name": "hex_is_null", "type": "boolean"},
+        {"name": "square_is_null", "type": "boolean"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Square.html",
+      "tags": ["arrow-input-nullability", "is-null", "xyzm"]
+    }
+  ]
+}

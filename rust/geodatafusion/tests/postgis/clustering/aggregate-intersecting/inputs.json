@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "intersecting-sets",
+      "function": "ST_ClusterIntersecting",
+      "arguments": [
+        {
+          "type": "float64",
+          "value": 0
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "clusters",
+          "type": "hex_list"
+        }
+      ],
+      "comparison": {
+        "mode": "hex-set-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ClusterIntersecting.html"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "relate-boundary-rule-1",
+      "function": "ST_Relate",
+      "arguments": [
+        {"type": "text", "value": "MULTILINESTRING((0 0,1 1),(1 1,2 2))"},
+        {"type": "text", "value": "POINT(1 1)"},
+        {"type": "int64", "value": 1}
+      ],
+      "result_columns": [{"name": "value", "type": "text"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Relate.html"
+    },
+    {
+      "id": "relate-boundary-rule-2",
+      "function": "ST_Relate",
+      "arguments": [
+        {"type": "text", "value": "MULTILINESTRING((0 0,1 1),(1 1,2 2))"},
+        {"type": "text", "value": "POINT(1 1)"},
+        {"type": "int64", "value": 2}
+      ],
+      "result_columns": [{"name": "value", "type": "text"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Relate.html"
+    },
+    {
+      "id": "relate-boundary-rule-3",
+      "function": "ST_Relate",
+      "arguments": [
+        {"type": "text", "value": "MULTILINESTRING((0 0,1 1),(1 1,2 2))"},
+        {"type": "text", "value": "POINT(1 1)"},
+        {"type": "int64", "value": 3}
+      ],
+      "result_columns": [{"name": "value", "type": "text"}],
+      "comparison": {"mode": "exact"},
+      "runtime_error": {
+        "geos_before": "3.13",
+        "contains": "requires GEOS >= 3.13"
+      },
+      "source": "https://postgis.net/docs/ST_Relate.html"
+    },
+    {
+      "id": "relate-boundary-rule-4",
+      "function": "ST_Relate",
+      "arguments": [
+        {"type": "text", "value": "MULTILINESTRING((0 0,1 1),(1 1,2 2))"},
+        {"type": "text", "value": "POINT(1 1)"},
+        {"type": "int64", "value": 4}
+      ],
+      "result_columns": [{"name": "value", "type": "text"}],
+      "comparison": {"mode": "exact"},
+      "runtime_error": {
+        "geos_before": "3.13",
+        "contains": "requires GEOS >= 3.13"
+      },
+      "source": "https://postgis.net/docs/ST_Relate.html"
+    },
+    {
+      "id": "relate-boundary-null",
+      "function": "ST_Relate",
+      "arguments": [
+        {"type": "text", "value": "MULTILINESTRING((0 0,1 1),(1 1,2 2))"},
+        {"type": "text", "value": "POINT(1 1)"},
+        {"type": "int64", "value": null}
+      ],
+      "result_columns": [{"name": "value", "type": "text"}],
+      "comparison": {"mode": "exact"},
+      "source": "https://postgis.net/docs/ST_Relate.html"
+    }
+  ]
+}

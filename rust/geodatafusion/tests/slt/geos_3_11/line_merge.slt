@@ -1,0 +1,61 @@
+# GEOS-backed ST_LineMerge contracts. Run only when geos-3_11 is enabled.
+
+query T
+SELECT ST_AsText(ST_LineMerge(ST_GeomFromText('MULTILINESTRING((10 160, 60 120), (120 140, 60 120), (120 140, 180 120))')));
+----
+LINESTRING(10 160,60 120,120 140,180 120)
+
+query T
+SELECT ST_AsText(ST_LineMerge(ST_GeomFromText('POINT(0 0)')));
+----
+GEOMETRYCOLLECTION EMPTY
+
+query T
+SELECT ST_AsText(ST_LineMerge(
+    ST_GeomFromText('MULTILINESTRING((60 30, 10 70), (120 50, 60 30), (120 50, 180 30))'),
+    TRUE
+));
+----
+MULTILINESTRING((120 50,60 30,10 70),(120 50,180 30))
+
+query T
+SELECT ST_AsText(ST_LineMerge(
+    ST_GeomFromText('MULTILINESTRING((60 30, 10 70), (120 50, 60 30), (120 50, 180 30))'),
+    FALSE
+));
+----
+LINESTRING(180 30,120 50,60 30,10 70)
+
+# Polygonal members of a GeometryCollection are boundaryized before merging;
+# GEOS 3.11 would otherwise drop their rings.
+query T
+SELECT ST_AsText(ST_LineMerge(ST_GeomFromText(
+    'GEOMETRYCOLLECTION(POLYGON((0 0,1 0,1 1,0 1,0 0)))'
+)));
+----
+LINESTRING(0 0,1 0,1 1,0 1,0 0)
+
+query T
+SELECT ST_AsText(ST_LineMerge(ST_GeomFromText(
+    'GEOMETRYCOLLECTION(LINESTRING(1 0,2 0),POLYGON((0 0,1 0,1 1,0 1,0 0)))'
+)));
+----
+MULTILINESTRING((1 0,2 0),(0 0,1 0,1 1,0 1,0 0))
+
+query T
+SELECT ST_AsText(ST_LineMerge(ST_GeomFromText(
+    'GEOMETRYCOLLECTION(POLYGON((0 0,10 0,10 10,0 10,0 0),(4 4,4 6,6 6,6 4,4 4)))'
+)));
+----
+MULTILINESTRING((0 0,10 0,10 10,0 10,0 0),(4 4,4 6,6 6,6 4,4 4))
+
+# A GeometryCollection nested inside another one cannot be built as a native
+# GeoArrow value, so the native WKT constructors reject it (see
+# collection_editors.slt for the same boundary). The recursive ST_LineMerge
+# contract for that input is covered with a real typed WKB field by
+# test_st_linemerge_nested_geometry_collection_from_typed_wkb and by the
+# geos/line_merge_nested oracle group.
+statement error nested GeometryCollection is not supported
+SELECT ST_AsText(ST_LineMerge(ST_GeomFromText(
+    'GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POLYGON((0 0,1 0,1 1,0 1,0 0))))'
+)));

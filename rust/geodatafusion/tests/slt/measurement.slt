@@ -1,0 +1,215 @@
+# Native length, perimeter, azimuth, and angle SQL contracts.
+#
+# Expected values were reviewed against PostGIS 3.6.4 and the typed
+# differential baselines under tests/postgis/measurement.
+
+# ST_Length keeps PostGIS polygon semantics: areal components do not
+# contribute length, including inside a geometry collection.
+query R
+SELECT ST_Length(ST_GeomFromText('POLYGON((0 0, 3 0, 3 4, 0 0))'));
+----
+0
+
+query R
+SELECT ST_Length(
+    ST_GeomFromText(
+        'GEOMETRYCOLLECTION(POLYGON((0 0, 1 0, 1 1, 0 0)), LINESTRING(0 0, 3 4))'
+    )
+);
+----
+5
+
+query R
+SELECT ST_Length2D(ST_GeomFromText('LINESTRING Z (0 0 0, 3 4 12)'));
+----
+5
+
+query R
+SELECT ST_3DLength(ST_GeomFromText('LINESTRING Z (0 0 0, 3 4 12)'));
+----
+13
+
+query R
+SELECT ST_3DLength(ST_GeomFromText('LINESTRING M (0 0 0, 3 4 12)'));
+----
+5
+
+statement error nested GeometryCollection is not supported
+SELECT ST_3DLength(
+    ST_GeomFromText(
+        'GEOMETRYCOLLECTION Z (
+            LINESTRING Z (0 0 0, 3 4 12),
+            GEOMETRYCOLLECTION Z (LINESTRING Z (0 0 0, 0 0 5))
+        )'
+    )
+);
+
+query R
+SELECT ST_3DLength(ST_GeomFromText('POLYGON Z ((0 0 0, 3 0 0, 3 4 12, 0 0 0))'));
+----
+0
+
+query R
+SELECT ST_Perimeter(ST_GeomFromText('POLYGON((0 0, 3 0, 3 4, 0 0))'));
+----
+12
+
+query R
+SELECT ST_Perimeter(
+    ST_GeomFromText(
+        'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0), (1 1, 1 2, 2 2, 2 1, 1 1))'
+    )
+);
+----
+44
+
+query R
+SELECT ST_Perimeter2D(
+    ST_GeomFromText('POLYGON Z ((0 0 0, 3 0 0, 3 4 12, 0 0 0))')
+);
+----
+12
+
+query R
+SELECT ST_3DPerimeter(
+    ST_GeomFromText('POLYGON Z ((0 0 0, 3 0 0, 3 4 12, 0 0 0))')
+);
+----
+28.649110640674
+
+query R
+SELECT ST_3DPerimeter(
+    ST_GeomFromText('POLYGON M ((0 0 5, 3 0 5, 3 4 9, 0 0 5))')
+);
+----
+12
+
+query R
+SELECT ST_Azimuth(ST_Point(0, 0), ST_Point(1, -1));
+----
+2.356194490192
+
+query R
+SELECT ST_Azimuth(ST_Point(0, 0), ST_Point(0, 0));
+----
+NULL
+
+query R
+SELECT ST_Azimuth(
+    ST_GeomFromText('POINT Z (0 0 0)'),
+    ST_GeomFromText('POINT Z (1 0 99)')
+);
+----
+1.570796326795
+
+query R
+SELECT ST_Angle(ST_Point(1, 0), ST_Point(0, 0), ST_Point(0, 1));
+----
+4.712388980385
+
+query R
+SELECT ST_Angle(
+    ST_Point(1, 0),
+    ST_Point(0, 0),
+    ST_Point(0, 1),
+    ST_Point(1, 1)
+);
+----
+3.14159265359
+
+query R
+SELECT ST_Angle(
+    ST_GeomFromText('LINESTRING(0 0, 0 10, 10 0)'),
+    ST_GeomFromText('LINESTRING(0 0, 0 1)')
+);
+----
+4.712388980385
+
+query R
+SELECT ST_Angle(
+    ST_GeomFromText('MULTILINESTRING((0 0, 1 0))'),
+    ST_GeomFromText('LINESTRING(0 0, 0 1)')
+);
+----
+NULL
+
+query R
+SELECT ST_Angle(
+    ST_Point(1, 0),
+    ST_Point(0, 0),
+    ST_Point(0, 1),
+    ST_GeomFromText('POINT EMPTY')
+);
+----
+4.712388980385
+
+query R
+SELECT ST_3DLength(ST_GeomFromText(NULL));
+----
+NULL
+
+query R
+SELECT ST_Length(NULL);
+----
+NULL
+
+query R
+SELECT ST_Length2D(NULL);
+----
+NULL
+
+query R
+SELECT ST_3DLength(NULL);
+----
+NULL
+
+query R
+SELECT ST_Perimeter(NULL);
+----
+NULL
+
+query R
+SELECT ST_Perimeter2D(NULL);
+----
+NULL
+
+query R
+SELECT ST_3DPerimeter(NULL);
+----
+NULL
+
+query R
+SELECT ST_Azimuth(NULL, ST_Point(0, 0));
+----
+NULL
+
+query R
+SELECT ST_Angle(NULL, ST_Point(0, 0), ST_Point(0, 1));
+----
+NULL
+
+query R
+SELECT ST_Perimeter(ST_GeomFromText('GEOMETRYCOLLECTION EMPTY'));
+----
+0
+
+query R
+SELECT ST_3DLength(ST_GeomFromText(x))
+FROM (
+    SELECT 'LINESTRING(0 0, 3 4)' AS x
+    UNION ALL
+    SELECT 'LINESTRING Z (0 0 0, 3 4 12)'
+) AS t
+ORDER BY x;
+----
+13
+5
+
+statement error Argument must be POINT geometries
+SELECT ST_Angle(ST_GeomFromText('LINESTRING(0 0, 1 1)'), ST_Point(0, 0), ST_Point(0, 1));
+
+statement error Empty geometry
+SELECT ST_Angle(ST_GeomFromText('POINT EMPTY'), ST_Point(0, 0), ST_Point(0, 1));
+
+statement error Argument must be POINT geometries
+SELECT ST_Azimuth(ST_GeomFromText('LINESTRING(0 0, 1 1)'), ST_Point(0, 0));

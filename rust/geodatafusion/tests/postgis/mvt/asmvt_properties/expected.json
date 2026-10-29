@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "8908790937fd1fbb15b718690aa1c3b30802c941b0733c033771478c2c088a76",
+  "postgis_sql_sha256": "73f41f03dc09423c60b64b7409a8102b54c4f194b161a5701a190115cd9cbecf",
+  "datafusion_sql_sha256": "1f84004890c5463b7a167c011352d482f65c1839688aacbb0f50c60345a44a97",
+  "cases": {
+    "negative-integer-property": {
+      "columns": [
+        {
+          "name": "tile",
+          "type": "mvt"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "mvt",
+            "hex": "1a550a056c617965721213080712080000010102020303180122030902041a0269381a0266381a04666c61671a056c6162656c22023005220919000000000000f83f22023801220a0a086e656761746976652880207802"
+          }
+        ]
+      ]
+    },
+    "null-properties": {
+      "columns": [
+        {
+          "name": "tile",
+          "type": "mvt"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "mvt",
+            "hex": "1a2c0a056c6179657212090807180122030902041a0269381a0266381a04666c61671a056c6162656c2880207802"
+          }
+        ]
+      ]
+    },
+    "typed-properties": {
+      "columns": [
+        {
+          "name": "tile",
+          "type": "mvt"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "mvt",
+            "hex": "1a520a056c617965721213080712080000010102020303180122030902041a0269381a0266381a04666c61671a056c6162656c22022803220919000000000000f83f2202380122070a056c6162656c2880207802"
+          }
+        ]
+      ]
+    }
+  }
+}

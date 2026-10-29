@@ -21,9 +21,13 @@ ctx = SessionContext()
 register_all(ctx)
 ```
 
-`register_all` registers the scalar and aggregate functions included in the
-compiled Rust crate. The Python package currently does not enable GEOS-backed
-functions, and it does not export window or table functions.
+`register_all` registers every function the compiled Rust crate exposes:
+scalar, aggregate, window, and table functions. Published wheels are built with
+only `pyo3/extension-module`, so the 55 GEOS-backed UDFs that need the
+`geos-3_11`/`geos-3_12` Cargo features are not part of them; build the
+extension with `--features geos-3_12` where GEOS 3.12 or newer is installed to
+include those. [DEVELOP.md](DEVELOP.md) records the measurements and the
+compiler pin the wheel ABI depends on.
 
 Then you can use the UDFs in SQL queries:
 

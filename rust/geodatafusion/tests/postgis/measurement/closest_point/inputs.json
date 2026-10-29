@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "closest-point-to-linestring-interior",
+      "function": "ST_ClosestPoint",
+      "tags": ["scalar", "line"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING(0 0,10 0)"},
+        {"type": "text", "value": "POINT(3 4)"}
+      ],
+      "result_columns": [{"name": "value", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_ClosestPoint.html"
+    },
+    {
+      "id": "closest-point-crossing-lines",
+      "function": "ST_ClosestPoint",
+      "tags": ["scalar", "intersection"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING(0 0,10 10)"},
+        {"type": "text", "value": "LINESTRING(0 10,10 0)"}
+      ],
+      "result_columns": [{"name": "value", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_ClosestPoint.html"
+    },
+    {
+      "id": "closest-point-polygon-interior",
+      "function": "ST_ClosestPoint",
+      "tags": ["scalar", "polygon"],
+      "arguments": [
+        {"type": "text", "value": "POLYGON((0 0,10 0,10 10,0 10,0 0))"},
+        {"type": "text", "value": "POINT(5 5)"}
+      ],
+      "result_columns": [{"name": "value", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_ClosestPoint.html"
+    },
+    {
+      "id": "closest-point-multilinestring",
+      "function": "ST_ClosestPoint",
+      "tags": ["scalar", "collection"],
+      "arguments": [
+        {"type": "text", "value": "MULTILINESTRING((0 0,1 0),(2 0,3 0))"},
+        {"type": "text", "value": "POINT(2 1)"}
+      ],
+      "result_columns": [{"name": "value", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_ClosestPoint.html"
+    },
+    {
+      "id": "closest-point-multipolygon",
+      "function": "ST_ClosestPoint",
+      "tags": ["scalar", "collection"],
+      "arguments": [
+        {"type": "text", "value": "MULTIPOLYGON(((0 0,1 0,1 1,0 1,0 0)),((5 5,6 5,6 6,5 6,5 5)))"},
+        {"type": "text", "value": "POINT(6 6)"}
+      ],
+      "result_columns": [{"name": "value", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_ClosestPoint.html"
+    },
+    {
+      "id": "closest-point-single-member-collection",
+      "function": "ST_ClosestPoint",
+      "tags": ["scalar", "collection"],
+      "arguments": [
+        {"type": "text", "value": "GEOMETRYCOLLECTION(POINT(0 0))"},
+        {"type": "text", "value": "POINT(3 4)"}
+      ],
+      "result_columns": [{"name": "value", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_ClosestPoint.html"
+    },
+    {
+      "id": "closest-point-xyz-input-drops-z",
+      "function": "ST_ClosestPoint",
+      "tags": ["scalar", "xyz"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING Z (0 0 1,10 0 2)"},
+        {"type": "text", "value": "POINT Z (3 4 9)"}
+      ],
+      "result_columns": [{"name": "value", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_ClosestPoint.html"
+    },
+    {
+      "id": "closest-point-empty-returns-null",
+      "function": "ST_ClosestPoint",
+      "tags": ["scalar", "empty"],
+      "arguments": [
+        {"type": "text", "value": "GEOMETRYCOLLECTION EMPTY"},
+        {"type": "text", "value": "POINT(0 0)"}
+      ],
+      "result_columns": [{"name": "value", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_ClosestPoint.html"
+    },
+    {
+      "id": "closest-point-null-returns-null",
+      "function": "ST_ClosestPoint",
+      "tags": ["scalar", "null"],
+      "arguments": [
+        {"type": "text", "value": null},
+        {"type": "text", "value": "POINT(0 0)"}
+      ],
+      "result_columns": [{"name": "value", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_ClosestPoint.html"
+    },
+    {
+      "id": "closest-point-xym-input-drops-m",
+      "function": "ST_ClosestPoint",
+      "tags": ["scalar", "xym"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING M (0 0 1,10 0 2)"},
+        {"type": "text", "value": "POINT M (3 4 9)"}
+      ],
+      "result_columns": [{"name": "value", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_ClosestPoint.html"
+    },
+    {
+      "id": "closest-point-xyzm-input-drops-z-and-m",
+      "function": "ST_ClosestPoint",
+      "tags": ["scalar", "xyzm"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING ZM (0 0 1 1,10 0 2 2)"},
+        {"type": "text", "value": "POINT ZM (3 4 9 9)"}
+      ],
+      "result_columns": [{"name": "value", "type": "ewkb"}],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_ClosestPoint.html"
+    }
+  ]
+}

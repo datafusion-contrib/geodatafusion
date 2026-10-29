@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "7f3551d4ce312bc5b09a7c9b43adb245502c276e422cf56ad1b3a2628c0c0fba",
+  "postgis_sql_sha256": "048da586a8c963eb9d250f4d4f8875c544995330f8803b1a42ffb7e887626d46",
+  "datafusion_sql_sha256": "40971ab3e5e3161068e9026cce62b8e6d7ba18c0e4fefe792c9593d7c2042399",
+  "cases": {
+    "geobuf-empty-point": {
+      "columns": [
+        {
+          "name": "geobuf",
+          "type": "bytea"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "bytea",
+            "hex": "0a046e616d650a016e0a086e756c6c61626c65180022200a1e0a0208006a070a05656d7074796a0218006a030a01787206000001010202"
+          }
+        ]
+      ]
+    },
+    "geobuf-multipolygon": {
+      "columns": [
+        {
+          "name": "geobuf",
+          "type": "bytea"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "bytea",
+            "hex": "0a046e616d650a016e0a086e756c6c61626c65180022320a300a1b0805120502010401041a10000000060600000514140004040000036a070a056d756c74696a021802720400000101"
+          }
+        ]
+      ]
+    },
+    "geobuf-negative-int": {
+      "columns": [
+        {
+          "name": "geobuf",
+          "type": "bytea"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "bytea",
+            "hex": "0a046e616d650a016e0a086e756c6c61626c65180022290a270a0608001a0206086a060a04626574616a02200c6a090a0770726573656e747206000001010202"
+          }
+        ]
+      ]
+    },
+    "geobuf-null-geometry": {
+      "columns": [
+        {
+          "name": "geobuf",
+          "type": "bytea"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "bytea",
+            "hex": "0a046e616d650a016e0a086e756c6c61626c6518002200"
+          }
+        ]
+      ]
+    },
+    "geobuf-properties-and-null": {
+      "columns": [
+        {
+          "name": "geobuf",
+          "type": "bytea"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "bytea",
+            "hex": "0a046e616d650a016e0a086e756c6c61626c651801221d0a1b0a0608001a021e326a070a05616c7068616a021807720400000101"
+          }
+        ]
+      ]
+    }
+  }
+}

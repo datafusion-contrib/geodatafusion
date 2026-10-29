@@ -1,5 +1,6 @@
 {
   "schema_version": 1,
+  "required_features": [],
   "cases": [
     {
       "id": "extent-two-points",

@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "length-line",
+      "function": "ST_LengthSpheroid",
+      "arguments": [
+        {"type": "text", "value": "LINESTRING(0 0, 0 1)"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 32},
+      "source": "https://postgis.net/docs/ST_LengthSpheroid.html",
+      "tags": ["line"]
+    },
+    {
+      "id": "length-multiline",
+      "function": "ST_LengthSpheroid",
+      "arguments": [
+        {"type": "text", "value": "MULTILINESTRING((0 0, 1 0), (0 0, 0 1))"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 64},
+      "source": "https://postgis.net/docs/ST_LengthSpheroid.html",
+      "tags": ["multiline"]
+    },
+    {
+      "id": "length-polygon-perimeter",
+      "function": "ST_LengthSpheroid",
+      "arguments": [
+        {"type": "text", "value": "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 64},
+      "source": "https://postgis.net/docs/ST_LengthSpheroid.html",
+      "tags": ["polygon", "perimeter"]
+    },
+    {
+      "id": "length-polygon-hole",
+      "function": "ST_LengthSpheroid",
+      "arguments": [
+        {"type": "text", "value": "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0), (2 2, 4 2, 4 4, 2 4, 2 2))"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 64},
+      "source": "https://postgis.net/docs/ST_LengthSpheroid.html",
+      "tags": ["polygon", "hole"]
+    },
+    {
+      "id": "length-collection",
+      "function": "ST_LengthSpheroid",
+      "arguments": [
+        {"type": "text", "value": "GEOMETRYCOLLECTION(LINESTRING(0 0, 1 0), POINT(0 1))"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 32},
+      "source": "https://postgis.net/docs/ST_LengthSpheroid.html",
+      "tags": ["collection"]
+    },
+    {
+      "id": "length-3d",
+      "function": "ST_LengthSpheroid",
+      "arguments": [
+        {"type": "text", "value": "LINESTRING Z(0 0 0, 0 1 1000)"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 32},
+      "source": "https://postgis.net/docs/ST_LengthSpheroid.html",
+      "tags": ["3d"]
+    },
+    {
+      "id": "length-m-ignored",
+      "function": "ST_LengthSpheroid",
+      "arguments": [
+        {"type": "text", "value": "LINESTRING M(0 0 0, 0 1 1000)"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 32},
+      "source": "https://postgis.net/docs/ST_LengthSpheroid.html",
+      "tags": ["m"]
+    },
+    {
+      "id": "length-empty",
+      "function": "ST_LengthSpheroid",
+      "arguments": [
+        {"type": "text", "value": "LINESTRING EMPTY"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_LengthSpheroid.html",
+      "tags": ["empty"]
+    },
+    {
+      "id": "length-null",
+      "function": "ST_LengthSpheroid",
+      "arguments": [
+        {"type": "text", "value": null},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_LengthSpheroid.html",
+      "tags": ["null"]
+    }
+  ]
+}

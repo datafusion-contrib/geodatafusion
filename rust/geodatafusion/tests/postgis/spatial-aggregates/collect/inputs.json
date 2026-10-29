@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "points",
+      "function": "ST_Collect",
+      "arguments": [
+        {"type": "text", "value": "POINT(1 1)"},
+        {"type": "text", "value": "POINT(0 0)"}
+      ],
+      "result_columns": [
+        {"name": "geometry", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Collect.html"
+    },
+    {
+      "id": "mixed-types",
+      "function": "ST_Collect",
+      "arguments": [
+        {"type": "text", "value": "LINESTRING(0 0,1 1)"},
+        {"type": "text", "value": "POINT(2 2)"}
+      ],
+      "result_columns": [
+        {"name": "geometry", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Collect.html"
+    },
+    {
+      "id": "single-member",
+      "function": "ST_Collect",
+      "arguments": [
+        {"type": "text", "value": "POINT(1 1)"},
+        {"type": "text", "value": null}
+      ],
+      "result_columns": [
+        {"name": "geometry", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Collect.html"
+    },
+    {
+      "id": "empty-member",
+      "function": "ST_Collect",
+      "arguments": [
+        {"type": "text", "value": "POINT EMPTY"},
+        {"type": "text", "value": "POINT(1 1)"}
+      ],
+      "result_columns": [
+        {"name": "geometry", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Collect.html"
+    },
+    {
+      "id": "only-empty",
+      "function": "ST_Collect",
+      "arguments": [
+        {"type": "text", "value": "POINT EMPTY"},
+        {"type": "text", "value": null}
+      ],
+      "result_columns": [
+        {"name": "geometry", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Collect.html"
+    },
+    {
+      "id": "xyzm",
+      "function": "ST_Collect",
+      "arguments": [
+        {"type": "text", "value": "POINT ZM(1 1 2 3)"},
+        {"type": "text", "value": "POINT ZM(0 0 1 2)"}
+      ],
+      "result_columns": [
+        {"name": "geometry", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Collect.html"
+    }
+  ]
+}

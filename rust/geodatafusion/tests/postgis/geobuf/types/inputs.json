@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "geobuf-bool-and-float",
+      "function": "ST_AsGeobuf",
+      "arguments": [
+        { "type": "text", "value": "POINT(5.5 6.5)", "nullable": false },
+        { "type": "text", "value": "typed", "nullable": false },
+        { "type": "int64", "value": 3, "nullable": false },
+        { "type": "boolean", "value": true, "nullable": false },
+        { "type": "float64", "value": 1.25, "nullable": false },
+        { "type": "text", "value": null, "nullable": true }
+      ],
+      "result_columns": [
+        { "name": "geobuf", "type": "bytea" }
+      ],
+      "comparison": { "mode": "geobuf-semantic" },
+      "source": "https://postgis.net/docs/ST_AsGeobuf.html",
+      "tags": ["aggregate", "properties", "boolean", "float"]
+    },
+    {
+      "id": "geobuf-null-int-property",
+      "function": "ST_AsGeobuf",
+      "arguments": [
+        { "type": "text", "value": "POINT(7 8)", "nullable": false },
+        { "type": "text", "value": "null-int", "nullable": false },
+        { "type": "int64", "value": null, "nullable": true },
+        { "type": "boolean", "value": false, "nullable": false },
+        { "type": "float64", "value": -2.5, "nullable": false },
+        { "type": "text", "value": "present", "nullable": false }
+      ],
+      "result_columns": [
+        { "name": "geobuf", "type": "bytea" }
+      ],
+      "comparison": { "mode": "geobuf-semantic" },
+      "source": "https://postgis.net/docs/ST_AsGeobuf.html",
+      "tags": ["aggregate", "properties", "null"]
+    }
+  ]
+}

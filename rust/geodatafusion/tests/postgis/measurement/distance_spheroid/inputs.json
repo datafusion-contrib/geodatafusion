@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "spheroid-one-degree",
+      "function": "ST_DistanceSpheroid",
+      "arguments": [
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "POINT(1 0)"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 32},
+      "source": "https://postgis.net/docs/ST_DistanceSpheroid.html",
+      "tags": ["scalar", "documentation"]
+    },
+    {
+      "id": "spheroid-antimeridian",
+      "function": "ST_DistanceSpheroid",
+      "arguments": [
+        {"type": "text", "value": "POINT(179 0)"},
+        {"type": "text", "value": "POINT(-179 0)"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 32},
+      "source": "https://postgis.net/docs/ST_DistanceSpheroid.html",
+      "tags": ["antimeridian"]
+    },
+    {
+      "id": "spheroid-near-antipode",
+      "function": "ST_DistanceSpheroid",
+      "arguments": [
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "POINT(179.999999 0)"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 64},
+      "source": "https://postgis.net/docs/ST_DistanceSpheroid.html",
+      "tags": ["antipode", "robustness"]
+    },
+    {
+      "id": "spheroid-pole-crossing",
+      "function": "ST_DistanceSpheroid",
+      "arguments": [
+        {"type": "text", "value": "POINT(0 89.9)"},
+        {"type": "text", "value": "POINT(90 89.9)"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 32},
+      "source": "https://postgis.net/docs/ST_DistanceSpheroid.html",
+      "tags": ["pole"]
+    },
+    {
+      "id": "spheroid-line-minimum",
+      "function": "ST_DistanceSpheroid",
+      "arguments": [
+        {"type": "text", "value": "LINESTRING(0 0, 1 1)"},
+        {"type": "text", "value": "LINESTRING(1 0, 2 1)"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 64},
+      "source": "https://postgis.net/docs/ST_DistanceSpheroid.html",
+      "tags": ["line", "minimum-distance"]
+    },
+    {
+      "id": "spheroid-3d-ignores-z",
+      "function": "ST_DistanceSpheroid",
+      "arguments": [
+        {"type": "text", "value": "POINT Z(0 0 100)"},
+        {"type": "text", "value": "POINT Z(1 0 -5)"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 32},
+      "source": "https://postgis.net/docs/ST_DistanceSpheroid.html",
+      "tags": ["3d"]
+    },
+    {
+      "id": "spheroid-point-polygon",
+      "function": "ST_DistanceSpheroid",
+      "arguments": [
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "POLYGON((2 -1,2 1,3 1,3 -1,2 -1))"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 32},
+      "source": "https://postgis.net/docs/ST_DistanceSpheroid.html",
+      "tags": ["polygon", "minimum-distance"]
+    },
+    {
+      "id": "spheroid-line-inside-polygon",
+      "function": "ST_DistanceSpheroid",
+      "arguments": [
+        {"type": "text", "value": "LINESTRING(2.2 0,2.8 0)"},
+        {"type": "text", "value": "POLYGON((2 -1,2 1,3 1,3 -1,2 -1))"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 32},
+      "source": "https://postgis.net/docs/ST_DistanceSpheroid.html",
+      "tags": ["line", "polygon", "containment"]
+    },
+    {
+      "id": "spheroid-polygon-polygon",
+      "function": "ST_DistanceSpheroid",
+      "arguments": [
+        {"type": "text", "value": "POLYGON((2 -1,2 1,3 1,3 -1,2 -1))"},
+        {"type": "text", "value": "POLYGON((5 -1,5 1,6 1,6 -1,5 -1))"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 32},
+      "source": "https://postgis.net/docs/ST_DistanceSpheroid.html",
+      "tags": ["polygon", "minimum-distance"]
+    },
+    {
+      "id": "spheroid-empty",
+      "function": "ST_DistanceSpheroid",
+      "arguments": [
+        {"type": "text", "value": "POINT EMPTY"},
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_DistanceSpheroid.html",
+      "tags": ["empty"]
+    },
+    {
+      "id": "spheroid-null",
+      "function": "ST_DistanceSpheroid",
+      "arguments": [
+        {"type": "text", "value": null},
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "text", "value": "SPHEROID[\"WGS 84\",6378137,298.257223563]"}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_DistanceSpheroid.html",
+      "tags": ["null"]
+    }
+  ]
+}

@@ -1,0 +1,411 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "remove-irrelevant-multiline-cartesian",
+      "function": "ST_RemoveIrrelevantPointsForView",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((0 0,10 0,20 0,30 0),(0 15,5 15,10 15,15 15,20 15,25 15,30 15,40 15),(13 13,15 15,17 17))",
+          "nullable": false
+        },
+        {
+          "type": "float64",
+          "value": 12.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 12.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 18.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 18.0,
+          "nullable": true
+        },
+        {
+          "type": "boolean",
+          "value": true,
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_RemoveIrrelevantPointsForView.html",
+      "tags": [
+        "native",
+        "multilinestring",
+        "cartesian"
+      ]
+    },
+    {
+      "id": "remove-irrelevant-polygon-cartesian",
+      "function": "ST_RemoveIrrelevantPointsForView",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 30,15 30,30 30,30 0,0 0,0 30))",
+          "nullable": false
+        },
+        {
+          "type": "float64",
+          "value": 12.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 12.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 18.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 18.0,
+          "nullable": true
+        },
+        {
+          "type": "boolean",
+          "value": true,
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_RemoveIrrelevantPointsForView.html",
+      "tags": [
+        "native",
+        "polygon",
+        "cartesian"
+      ]
+    },
+    {
+      "id": "remove-irrelevant-polygon-geographic",
+      "function": "ST_RemoveIrrelevantPointsForView",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 30,15 30,30 30,30 0,0 0,0 30))",
+          "nullable": false
+        },
+        {
+          "type": "float64",
+          "value": 12.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 12.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 18.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 18.0,
+          "nullable": true
+        },
+        {
+          "type": "boolean",
+          "value": false,
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_RemoveIrrelevantPointsForView.html",
+      "tags": [
+        "native",
+        "polygon",
+        "geographic"
+      ]
+    },
+    {
+      "id": "remove-irrelevant-covered-linestring",
+      "function": "ST_RemoveIrrelevantPointsForView",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,1 1,2 0)",
+          "nullable": false
+        },
+        {
+          "type": "float64",
+          "value": -10.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": -10.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 10.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 10.0,
+          "nullable": true
+        },
+        {
+          "type": "boolean",
+          "value": true,
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_RemoveIrrelevantPointsForView.html",
+      "tags": [
+        "native",
+        "linestring",
+        "covered"
+      ]
+    },
+    {
+      "id": "remove-irrelevant-unsupported-point",
+      "function": "ST_RemoveIrrelevantPointsForView",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(50 50)",
+          "nullable": false
+        },
+        {
+          "type": "float64",
+          "value": 0.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 0.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 10.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 10.0,
+          "nullable": true
+        },
+        {
+          "type": "boolean",
+          "value": true,
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_RemoveIrrelevantPointsForView.html",
+      "tags": [
+        "native",
+        "unsupported-input"
+      ]
+    },
+    {
+      "id": "remove-irrelevant-empty",
+      "function": "ST_RemoveIrrelevantPointsForView",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING EMPTY",
+          "nullable": false
+        },
+        {
+          "type": "float64",
+          "value": 0.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 0.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 10.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 10.0,
+          "nullable": true
+        },
+        {
+          "type": "boolean",
+          "value": true,
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_RemoveIrrelevantPointsForView.html",
+      "tags": [
+        "native",
+        "empty"
+      ]
+    },
+    {
+      "id": "remove-irrelevant-null-hint",
+      "function": "ST_RemoveIrrelevantPointsForView",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 30,15 30,30 30,30 0,0 0,0 30))",
+          "nullable": false
+        },
+        {
+          "type": "float64",
+          "value": 12.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 12.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 18.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 18.0,
+          "nullable": true
+        },
+        {
+          "type": "boolean",
+          "value": null,
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_RemoveIrrelevantPointsForView.html",
+      "tags": [
+        "native",
+        "null-argument",
+        "arrow-input-nullability"
+      ]
+    },
+    {
+      "id": "remove-irrelevant-xyzm",
+      "function": "ST_RemoveIrrelevantPointsForView",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING ZM(0 0 1 2,5 5 1 2,10 10 1 2)",
+          "nullable": false
+        },
+        {
+          "type": "float64",
+          "value": 4.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 4.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 6.0,
+          "nullable": true
+        },
+        {
+          "type": "float64",
+          "value": 6.0,
+          "nullable": true
+        },
+        {
+          "type": "boolean",
+          "value": false,
+          "nullable": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_RemoveIrrelevantPointsForView.html",
+      "tags": [
+        "native",
+        "xyzm"
+      ]
+    }
+  ]
+}

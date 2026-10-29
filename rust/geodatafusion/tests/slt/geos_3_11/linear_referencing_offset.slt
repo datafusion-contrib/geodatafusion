@@ -1,0 +1,15 @@
+# ST_LocateBetween line offsets require the optional geos-3_11 feature.
+#
+# Expected value reviewed against PostGIS 3.6.4.
+
+query T
+SELECT ST_AsText(
+    ST_LocateBetween(
+        ST_GeomFromText('LINESTRING M (0 0 0,10 0 10,10 10 20)'),
+        2,
+        18,
+        2
+    )
+);
+----
+MULTILINESTRING((2 2,8 2,8 8))

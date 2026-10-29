@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "convex-hull-tiny-triangle",
+      "function": "ST_ConvexHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT((0 0),(0.00000001 0),(0 0.00000001))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_ConvexHull.html"
+    },
+    {
+      "id": "convex-hull-tiny-triangle-translated",
+      "function": "ST_ConvexHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT((1000000 1000000),(1000000.000001 1000000),(1000000 1000000.000001))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_ConvexHull.html"
+    },
+    {
+      "id": "convex-hull-triangle-translated",
+      "function": "ST_ConvexHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT((1000000000000 1000000000000),(1000000000010 1000000000000),(1000000000000 1000000000010))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_ConvexHull.html"
+    },
+    {
+      "id": "convex-hull-line",
+      "function": "ST_ConvexHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT((0 0),(2 2))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_ConvexHull.html"
+    },
+    {
+      "id": "convex-hull-point",
+      "function": "ST_ConvexHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_ConvexHull.html"
+    },
+    {
+      "id": "convex-hull-square",
+      "function": "ST_ConvexHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT((0 0),(0 1),(1 1),(1 0))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_ConvexHull.html"
+    },
+    {
+      "id": "convex-hull-empty-line",
+      "function": "ST_ConvexHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING EMPTY",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_ConvexHull.html"
+    },
+    {
+      "id": "convex-hull-empty-polygon",
+      "function": "ST_ConvexHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_ConvexHull.html"
+    },
+    {
+      "id": "convex-hull-z",
+      "function": "ST_ConvexHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT Z ((0 0 1),(4 0 2),(0 4 3))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_ConvexHull.html"
+    },
+    {
+      "id": "convex-hull-m",
+      "function": "ST_ConvexHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT M ((0 0 10),(4 0 20),(0 4 30))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_ConvexHull.html"
+    },
+    {
+      "id": "convex-hull-zm",
+      "function": "ST_ConvexHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOINT ZM ((0 0 1 10),(4 0 2 20),(0 4 3 30))",
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_ConvexHull.html"
+    },
+    {
+      "id": "convex-hull-null",
+      "function": "ST_ConvexHull",
+      "arguments": [
+        {
+          "type": "text",
+          "value": null,
+          "storage": "wkb"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "geom",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-normalized"
+      },
+      "source": "https://postgis.net/docs/ST_ConvexHull.html"
+    }
+  ]
+}

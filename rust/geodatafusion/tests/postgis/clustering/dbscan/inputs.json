@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "required_features": [],
+  "cases": [
+    {
+      "id": "eps-08-minpoints-1",
+      "function": "ST_ClusterDBSCAN",
+      "arguments": [
+        {
+          "type": "float64",
+          "value": 0.8
+        },
+        {
+          "type": "int32",
+          "value": 1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "id",
+          "type": "int32"
+        },
+        {
+          "name": "cid",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "cluster-ids-equivalent",
+        "canonical_columns": ["cid"]
+      },
+      "source": "https://postgis.net/docs/ST_ClusterDBSCAN.html"
+    },
+    {
+      "id": "eps-08-minpoints-2",
+      "function": "ST_ClusterDBSCAN",
+      "arguments": [
+        {
+          "type": "float64",
+          "value": 0.8
+        },
+        {
+          "type": "int32",
+          "value": 2
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "id",
+          "type": "int32"
+        },
+        {
+          "name": "cid",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "cluster-ids-equivalent",
+        "canonical_columns": ["cid"]
+      },
+      "source": "https://postgis.net/docs/ST_ClusterDBSCAN.html"
+    },
+    {
+      "id": "eps-08-minpoints-4",
+      "function": "ST_ClusterDBSCAN",
+      "arguments": [
+        {
+          "type": "float64",
+          "value": 0.8
+        },
+        {
+          "type": "int32",
+          "value": 4
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "id",
+          "type": "int32"
+        },
+        {
+          "name": "cid",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "cluster-ids-equivalent",
+        "canonical_columns": ["cid"]
+      },
+      "source": "https://postgis.net/docs/ST_ClusterDBSCAN.html"
+    },
+    {
+      "id": "eps-06-minpoints-3",
+      "function": "ST_ClusterDBSCAN",
+      "arguments": [
+        {
+          "type": "float64",
+          "value": 0.6
+        },
+        {
+          "type": "int32",
+          "value": 3
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "id",
+          "type": "int32"
+        },
+        {
+          "name": "cid",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "cluster-ids-equivalent",
+        "canonical_columns": ["cid"]
+      },
+      "source": "https://postgis.net/docs/ST_ClusterDBSCAN.html"
+    },
+    {
+      "id": "eps-zero-minpoints-1",
+      "function": "ST_ClusterDBSCAN",
+      "arguments": [
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "int32",
+          "value": 1
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "id",
+          "type": "int32"
+        },
+        {
+          "name": "cid",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "cluster-ids-equivalent",
+        "canonical_columns": ["cid"]
+      },
+      "source": "https://postgis.net/docs/ST_ClusterDBSCAN.html"
+    },
+    {
+      "id": "eps-zero-minpoints-2",
+      "function": "ST_ClusterDBSCAN",
+      "arguments": [
+        {
+          "type": "float64",
+          "value": 0
+        },
+        {
+          "type": "int32",
+          "value": 2
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "id",
+          "type": "int32"
+        },
+        {
+          "name": "cid",
+          "type": "int32"
+        }
+      ],
+      "comparison": {
+        "mode": "cluster-ids-equivalent",
+        "canonical_columns": ["cid"]
+      },
+      "source": "https://postgis.net/docs/ST_ClusterDBSCAN.html"
+    }
+  ]
+}

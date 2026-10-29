@@ -1,0 +1,152 @@
+# Planar measurement contracts from the pinned PostGIS reference.
+
+query T
+SELECT ST_AsText(ST_ClosestPoint(
+    ST_GeomFromText('LINESTRING(0 0,10 0)'),
+    ST_GeomFromText('POINT(3 4)')
+));
+----
+POINT(3 0)
+
+query T
+SELECT ST_AsText(ST_ClosestPoint('LINESTRING(0 0,10 0)', 'POINT(3 4)'));
+----
+POINT(3 0)
+
+query T
+SELECT ST_AsText(ST_ShortestLine(
+    ST_GeomFromText('LINESTRING(0 0,10 0)'),
+    ST_GeomFromText('POINT(3 4)')
+));
+----
+LINESTRING(3 0,3 4)
+
+query T
+SELECT ST_AsText(ST_LongestLine(
+    ST_GeomFromText('POLYGON((0 0,10 0,0 1,0 0))'),
+    ST_GeomFromText('POLYGON((0 0,10 0,0 1,0 0))')
+));
+----
+LINESTRING(0 1,10 0)
+
+query R
+SELECT ST_MaxDistance(
+    ST_GeomFromText('LINESTRING(0 0,5 0)'),
+    ST_GeomFromText('POINT(0 10)')
+);
+----
+11.180339887499
+
+query R
+SELECT ST_HausdorffDistance(
+    ST_GeomFromText('LINESTRING (130 0, 0 0, 0 150)'),
+    ST_GeomFromText('LINESTRING (10 10, 10 150, 130 10)')
+);
+----
+14.142135623731
+
+query R
+SELECT ST_HausdorffDistance(
+    ST_GeomFromText('LINESTRING (130 0, 0 0, 0 150)'),
+    ST_GeomFromText('LINESTRING (10 10, 10 150, 130 10)'),
+    0.5
+);
+----
+70
+
+query R
+SELECT ST_FrechetDistance(
+    ST_GeomFromText('LINESTRING (0 0, 100 0)'),
+    ST_GeomFromText('LINESTRING (0 0, 50 50, 100 0)')
+);
+----
+70.710678118655
+
+query R
+SELECT ST_FrechetDistance(
+    ST_GeomFromText('LINESTRING (0 0, 100 0)'),
+    ST_GeomFromText('LINESTRING (0 0, 50 50, 100 0)'),
+    0.5
+);
+----
+50
+
+query R
+SELECT ST_MinimumClearance(ST_GeomFromText('LINESTRING(0 0,1 1,2 2)'));
+----
+1.414213562373
+
+query R
+SELECT ST_MinimumClearance(ST_GeomFromText('POINT(1 1)'));
+----
+Infinity
+
+query T
+SELECT ST_AsText(ST_MinimumClearanceLine(ST_GeomFromText('LINESTRING(0 0,1 1,2 2)')));
+----
+LINESTRING(0 0,1 1)
+
+query T
+SELECT ST_AsText(ST_MinimumClearanceLine(ST_GeomFromText('POINT(1 1)')));
+----
+LINESTRING EMPTY
+
+query BBBBBB
+SELECT ST_ClosestPoint(ST_GeomFromText('GEOMETRYCOLLECTION EMPTY'), ST_GeomFromText('POINT(0 0)')) IS NULL,
+       ST_ShortestLine(ST_GeomFromText('POINT(0 0)'), ST_GeomFromText('POINT EMPTY')) IS NULL,
+       ST_LongestLine(ST_GeomFromText('GEOMETRYCOLLECTION EMPTY'), ST_GeomFromText('POINT(0 0)')) IS NULL,
+       ST_MaxDistance(ST_GeomFromText('GEOMETRYCOLLECTION EMPTY'), ST_GeomFromText('POINT(0 0)')) IS NULL,
+       ST_HausdorffDistance(ST_GeomFromText('GEOMETRYCOLLECTION EMPTY'), ST_GeomFromText('POINT(0 0)')) IS NULL,
+       ST_FrechetDistance(ST_GeomFromText('GEOMETRYCOLLECTION EMPTY'), ST_GeomFromText('POINT(0 0)')) IS NULL;
+----
+true true true true true true
+
+query T
+SELECT ST_AsText(ST_ClosestPoint(
+    ST_GeomFromText('GEOMETRYCOLLECTION(POINT(1 2))'),
+    ST_GeomFromText('POINT(3 4)')
+));
+----
+POINT(1 2)
+
+query T
+SELECT ST_AsText(ST_ClosestPoint(
+    ST_GeomFromText('LINESTRING Z (0 0 1,10 0 2)'),
+    ST_GeomFromText('POINT Z (3 4 9)')
+));
+----
+POINT(3 0)
+
+query T
+SELECT ST_AsText(ST_ClosestPoint(
+    ST_GeomFromText('LINESTRING M (0 0 1,10 0 2)'),
+    ST_GeomFromText('POINT M (3 4 9)')
+));
+----
+POINT(3 0)
+
+query T
+SELECT ST_AsText(ST_LongestLine(
+    ST_GeomFromText('LINESTRING ZM (0 0 1 1,10 0 2 2)'),
+    ST_GeomFromText('POINT ZM (3 4 9 9)')
+));
+----
+LINESTRING(10 0,3 4)
+
+query R
+SELECT ST_MaxDistance(left_geom, right_geom)
+FROM (
+    SELECT ST_GeomFromText('POINT(0 0)') AS left_geom,
+           ST_GeomFromText('POINT(3 4)') AS right_geom
+    UNION ALL
+    SELECT ST_GeomFromText('POINT(1 1)'),
+           ST_GeomFromText('POINT(4 5)')
+    UNION ALL
+    SELECT ST_GeomFromText('POINT(2 2)'),
+           ST_GeomFromText('POINT(5 6)')
+) AS rows
+ORDER BY left_geom;
+----
+5
+5
+5

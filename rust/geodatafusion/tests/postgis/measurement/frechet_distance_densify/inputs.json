@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "frechet-densify-documentation",
+      "function": "ST_FrechetDistance",
+      "tags": ["scalar", "documentation", "densify"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING (0 0, 100 0)"},
+        {"type": "text", "value": "LINESTRING (0 0, 50 50, 100 0)"},
+        {"type": "float64", "value": 0.5}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_FrechetDistance.html"
+    },
+    {
+      "id": "frechet-densify-one",
+      "function": "ST_FrechetDistance",
+      "tags": ["scalar", "densify"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING (0 0, 100 0)"},
+        {"type": "text", "value": "LINESTRING (0 0, 50 50, 100 0)"},
+        {"type": "float64", "value": 1.0}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_FrechetDistance.html"
+    },
+    {
+      "id": "frechet-densify-small",
+      "function": "ST_FrechetDistance",
+      "tags": ["scalar", "densify"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING (0 0, 100 0)"},
+        {"type": "text", "value": "LINESTRING (0 0, 50 50, 100 0)"},
+        {"type": "float64", "value": 0.1}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_FrechetDistance.html"
+    },
+    {
+      "id": "frechet-densify-zero-disables-densification",
+      "function": "ST_FrechetDistance",
+      "tags": ["scalar", "densify"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING (0 0, 100 0)"},
+        {"type": "text", "value": "LINESTRING (0 0, 50 50, 100 0)"},
+        {"type": "float64", "value": 0.0}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_FrechetDistance.html"
+    },
+    {
+      "id": "frechet-densify-negative-disables-densification",
+      "function": "ST_FrechetDistance",
+      "tags": ["scalar", "densify"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING (0 0, 100 0)"},
+        {"type": "text", "value": "LINESTRING (0 0, 50 50, 100 0)"},
+        {"type": "float64", "value": -2.0}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_FrechetDistance.html"
+    },
+    {
+      "id": "frechet-densify-null-fraction",
+      "function": "ST_FrechetDistance",
+      "tags": ["scalar", "densify", "null"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING (0 0, 100 0)"},
+        {"type": "text", "value": "LINESTRING (0 0, 50 50, 100 0)"},
+        {"type": "float64", "value": null}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_FrechetDistance.html"
+    },
+    {
+      "id": "frechet-densify-empty-returns-null",
+      "function": "ST_FrechetDistance",
+      "tags": ["scalar", "densify", "empty"],
+      "arguments": [
+        {"type": "text", "value": "GEOMETRYCOLLECTION EMPTY"},
+        {"type": "text", "value": "POINT(0 0)"},
+        {"type": "float64", "value": 0.5}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_FrechetDistance.html"
+    },
+    {
+      "id": "frechet-densify-xym-input-drops-m",
+      "function": "ST_FrechetDistance",
+      "tags": ["scalar", "xym", "densify"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING M (0 0 1,100 0 2)"},
+        {"type": "text", "value": "LINESTRING M (0 0 3,50 50 4,100 0 5)"},
+        {"type": "float64", "value": 0.5}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_FrechetDistance.html"
+    },
+    {
+      "id": "frechet-densify-xyzm-input-drops-z-and-m",
+      "function": "ST_FrechetDistance",
+      "tags": ["scalar", "xyzm", "densify"],
+      "arguments": [
+        {"type": "text", "value": "LINESTRING ZM (0 0 1 1,100 0 2 2)"},
+        {"type": "text", "value": "LINESTRING ZM (0 0 3 3,50 50 4 4,100 0 5 5)"},
+        {"type": "float64", "value": 0.5}
+      ],
+      "result_columns": [{"name": "value", "type": "float64"}],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_FrechetDistance.html"
+    }
+  ]
+}

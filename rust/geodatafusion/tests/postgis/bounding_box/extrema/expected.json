@@ -1,0 +1,341 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "image": "postgis/postgis:18-3.6@sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "image_digest": "sha256:4a43e3c3e5d55b9208240fc71db543b79c638766280c625a425bd0a2390989c4",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "postgresql_version_num": 180006,
+    "postgis_version": "3.6.4",
+    "postgis_full_version": "POSTGIS=\"3.6.4 94d984b\" [EXTENSION] PGSQL=\"180\" GEOS=\"3.14.1-CAPI-1.20.5\" (compiled against GEOS 3.13.1) PROJ=\"9.8.1 NETWORK_ENABLED=OFF URL_ENDPOINT=https://cdn.proj.org USER_WRITABLE_DIRECTORY=/var/lib/postgresql/.local/share/proj DATABASE_PATH=/usr/share/proj/proj.db\" (compiled against PROJ 9.6.0) LIBXML=\"2.9.14\" LIBJSON=\"0.18\" LIBPROTOBUF=\"1.5.1\" WAGYU=\"0.5.0 (Internal)\" TOPOLOGY",
+    "geos_version": "3.14.1-CAPI-1.20.5"
+  },
+  "inputs_sha256": "643ce9beee9f38598b9413222066362afddb6f24a69fa9561d605bf9f7586e99",
+  "postgis_sql_sha256": "9d49b626a51c06c37d1ce65bfd51ef96df49f5dbc32ee263324860a2f06a89a3",
+  "datafusion_sql_sha256": "a13893b103c6fe43fda18c42c539dadffd0cbd9222ceff364705e42cf8af2e30",
+  "cases": {
+    "extrema-line-2d": {
+      "columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "3ff0000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4000000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4008000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4010000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          }
+        ]
+      ]
+    },
+    "extrema-line-3d": {
+      "columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "3ff0000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4000000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4008000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4008000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4010000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          }
+        ]
+      ]
+    },
+    "extrema-line-m": {
+      "columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "3ff0000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4000000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4008000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4010000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "0000000000000000"
+          }
+        ]
+      ]
+    },
+    "extrema-line-zm": {
+      "columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "float64",
+            "bits": "3ff0000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4000000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4008000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4008000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4010000000000000"
+          },
+          {
+            "type": "float64",
+            "bits": "4014000000000000"
+          }
+        ]
+      ]
+    },
+    "extrema-empty-point": {
+      "columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    },
+    "extrema-null": {
+      "columns": [
+        {
+          "name": "xmin",
+          "type": "float64"
+        },
+        {
+          "name": "ymin",
+          "type": "float64"
+        },
+        {
+          "name": "zmin",
+          "type": "float64"
+        },
+        {
+          "name": "xmax",
+          "type": "float64"
+        },
+        {
+          "name": "ymax",
+          "type": "float64"
+        },
+        {
+          "name": "zmax",
+          "type": "float64"
+        }
+      ],
+      "rows": [
+        [
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      ]
+    }
+  }
+}

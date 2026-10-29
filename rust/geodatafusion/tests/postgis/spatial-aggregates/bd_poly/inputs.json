@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "required_features": ["geos-3_11"],
+  "cases": [
+    {
+      "id": "single-ring",
+      "function": "ST_BdPolyFromText",
+      "arguments": [
+        {"type": "text", "value": "MULTILINESTRING((0 0,1 0,1 1,0 1,0 0))"},
+        {"type": "int64", "value": 4326}
+      ],
+      "result_columns": [
+        {"name": "poly", "type": "ewkb"},
+        {"name": "mpoly", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-normalized"},
+      "source": "https://postgis.net/docs/ST_BdPolyFromText.html"
+    },
+    {
+      "id": "empty",
+      "function": "ST_BdPolyFromText",
+      "arguments": [
+        {"type": "text", "value": "MULTILINESTRING EMPTY"},
+        {"type": "int64", "value": 4326}
+      ],
+      "result_columns": [
+        {"name": "poly", "type": "ewkb"},
+        {"name": "mpoly", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-normalized"},
+      "source": "https://postgis.net/docs/ST_BdPolyFromText.html"
+    },
+    {
+      "id": "open-line",
+      "function": "ST_BdPolyFromText",
+      "arguments": [
+        {"type": "text", "value": "MULTILINESTRING((0 0,1 0,1 1))"},
+        {"type": "int64", "value": 4326}
+      ],
+      "result_columns": [
+        {"name": "poly", "type": "ewkb"},
+        {"name": "mpoly", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-normalized"},
+      "source": "https://postgis.net/docs/ST_BdPolyFromText.html"
+    },
+    {
+      "id": "polygon-with-hole",
+      "function": "ST_BdPolyFromText",
+      "arguments": [
+        {"type": "text", "value": "MULTILINESTRING((0 0,4 0,4 4,0 4,0 0),(1 1,1 2,2 2,2 1,1 1))"},
+        {"type": "int64", "value": 4326}
+      ],
+      "result_columns": [
+        {"name": "poly", "type": "ewkb"},
+        {"name": "mpoly", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-normalized"},
+      "source": "https://postgis.net/docs/ST_BdPolyFromText.html"
+    },
+    {
+      "id": "xyzm",
+      "function": "ST_BdPolyFromText",
+      "arguments": [
+        {"type": "text", "value": "MULTILINESTRING ZM((0 0 1 2,1 0 2 3,1 1 3 4,0 1 4 5,0 0 1 2))"},
+        {"type": "int64", "value": 4326}
+      ],
+      "result_columns": [
+        {"name": "poly", "type": "ewkb"},
+        {"name": "mpoly", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-normalized"},
+      "source": "https://postgis.net/docs/ST_BdPolyFromText.html"
+    },
+    {
+      "id": "srid-zero",
+      "function": "ST_BdPolyFromText",
+      "arguments": [
+        {"type": "text", "value": "MULTILINESTRING((0 0,1 0,1 1,0 1,0 0))"},
+        {"type": "int64", "value": 0}
+      ],
+      "result_columns": [
+        {"name": "poly", "type": "ewkb"},
+        {"name": "mpoly", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-normalized"},
+      "source": "https://postgis.net/docs/ST_BdPolyFromText.html"
+    }
+  ]
+}

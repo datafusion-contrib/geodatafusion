@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "required_features": [
+    "geos-3_11"
+  ],
+  "cases": [
+    {
+      "id": "lec-null-tolerance",
+      "function": "ST_LargestEmptyCircle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0))",
+          "nullable": false
+        },
+        {
+          "type": "float64",
+          "value": null
+        },
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,20 0,20 20,0 20,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LargestEmptyCircle.html"
+    },
+    {
+      "id": "lec-null-boundary",
+      "function": "ST_LargestEmptyCircle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0))",
+          "nullable": false
+        },
+        {
+          "type": "float64",
+          "value": 0.1
+        },
+        {
+          "type": "text",
+          "value": null
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LargestEmptyCircle.html"
+    },
+    {
+      "id": "lec-empty-boundary",
+      "function": "ST_LargestEmptyCircle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0))",
+          "nullable": false
+        },
+        {
+          "type": "float64",
+          "value": 0.1
+        },
+        {
+          "type": "text",
+          "value": "POINT EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LargestEmptyCircle.html"
+    },
+    {
+      "id": "lec-polygon-boundary",
+      "function": "ST_LargestEmptyCircle",
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0))",
+          "nullable": false
+        },
+        {
+          "type": "float64",
+          "value": 0.1
+        },
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,20 0,20 20,0 20,0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "is_null",
+          "type": "boolean"
+        }
+      ],
+      "comparison": {
+        "mode": "exact"
+      },
+      "source": "https://postgis.net/docs/ST_LargestEmptyCircle.html"
+    }
+  ]
+}
