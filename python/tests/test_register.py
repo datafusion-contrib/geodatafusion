@@ -149,6 +149,87 @@ def test_st_dump_null_and_empty():
     assert result.to_pylist() == [{"null_dump": None, "empty_dump": []}]
 
 
+def test_st_point_n_register_all():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    result = ctx.sql(
+        """
+        SELECT
+            ST_PointN(ST_GeomFromText(wkt), n) AS point,
+            ST_AsText(ST_PointN(ST_GeomFromText(wkt), n)) AS indexed,
+            ST_AsText(ST_PointN(ST_GeomFromText(wkt), 1)) AS broadcast
+        FROM (
+            VALUES
+                ('LINESTRING ZM (0 0 1 2,1 1 3 4,2 2 5 6)', 1),
+                ('LINESTRING ZM (0 0 1 2,1 1 3 4,2 2 5 6)', -1),
+                ('LINESTRING ZM (0 0 1 2,1 1 3 4,2 2 5 6)', 0),
+                ('MULTILINESTRING((0 0,1 1))', 1),
+                ('LINESTRING ZM EMPTY', 1),
+                (NULL, 1)
+        ) AS inputs(wkt, n)
+        """
+    ).to_arrow_table()
+
+    point_field = result.schema.field("point")
+    assert point_field.metadata.get(b"ARROW:extension:name") == b"geoarrow.geometry"
+    rows = result.to_pylist()
+    assert rows[0]["point"] is not None
+    assert rows[1]["point"] is not None
+    assert rows[2]["point"] is None
+    assert rows[3]["point"] is None
+    assert rows[4]["point"] is None
+    assert rows[5]["point"] is None
+    assert [row["indexed"] for row in rows] == [
+        "POINT ZM(0 0 1 2)",
+        "POINT ZM(2 2 5 6)",
+        None,
+        None,
+        None,
+        None,
+    ]
+    assert [row["broadcast"] for row in rows] == [
+        "POINT ZM(0 0 1 2)",
+        "POINT ZM(0 0 1 2)",
+        "POINT ZM(0 0 1 2)",
+        None,
+        None,
+        None,
+    ]
+
+    result = ctx.sql(
+        """
+        SELECT
+            ST_PointN(NULL, 1) AS null_geometry,
+            ST_PointN(
+                ST_GeomFromText('LINESTRING(0 0,1 1)'),
+                NULL
+            ) AS null_index
+        """
+    ).to_arrow_table()
+    assert (
+        result.schema.field("null_geometry").metadata.get(b"ARROW:extension:name")
+        == b"geoarrow.geometry"
+    )
+    assert (
+        result.schema.field("null_index").metadata.get(b"ARROW:extension:name")
+        == b"geoarrow.geometry"
+    )
+    assert result.to_pylist() == [{"null_geometry": None, "null_index": None}]
+
+    result = ctx.sql(
+        """
+        SELECT ST_PointN(value, n) AS point
+        FROM (VALUES (NULL, 1), (NULL, -1)) AS inputs(value, n)
+        """
+    ).to_arrow_table()
+    assert (
+        result.schema.field("point").metadata.get(b"ARROW:extension:name")
+        == b"geoarrow.geometry"
+    )
+    assert result.to_pylist() == [{"point": None}, {"point": None}]
+
+
 def test_st_isempty_and_extent():
     ctx = SessionContext()
     register_all(ctx)

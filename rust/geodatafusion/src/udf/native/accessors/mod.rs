@@ -13,7 +13,7 @@ pub use dump::Dump;
 pub use geometry_type::{GeometryType, ST_GeometryType};
 pub use is_closed::IsClosed;
 pub use is_empty::IsEmpty;
-pub use line_string::{EndPoint, StartPoint};
+pub use line_string::{EndPoint, PointN, StartPoint};
 pub use npoints::NPoints;
 pub use num_interior_rings::NumInteriorRings;
 pub use point::{M, X, Y, Z};
@@ -27,6 +27,7 @@ pub fn register(session_context: &datafusion::prelude::SessionContext) {
     session_context.register_udf(IsEmpty.into());
     session_context.register_udf(Dump::default().into());
     session_context.register_udf(EndPoint::default().into());
+    session_context.register_udf(PointN::default().into());
     session_context.register_udf(StartPoint::default().into());
     session_context.register_udf(NPoints.into());
     session_context.register_udf(NumInteriorRings.into());
