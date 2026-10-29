@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "area-polygon-with-hole",
+      "function": "ST_Area",
+      "tags": ["scalar", "polygon"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,3 1,3 3,1 3,1 1))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Area.html"
+    },
+    {
+      "id": "area-multipolygon",
+      "function": "ST_Area",
+      "tags": ["scalar", "multipolygon"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,2 0,2 2,0 2,0 0)),((10 10,13 10,13 12,10 12,10 10)))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Area.html"
+    },
+    {
+      "id": "area-linestring-zero",
+      "function": "ST_Area",
+      "tags": ["scalar", "type-boundary"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Area.html"
+    },
+    {
+      "id": "area-polygon-empty",
+      "function": "ST_Area",
+      "tags": ["scalar", "empty"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Area.html"
+    },
+    {
+      "id": "area-null",
+      "function": "ST_Area",
+      "tags": ["scalar", "null"],
+      "arguments": [
+        {
+          "type": "null_text"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Area.html"
+    }
+  ]
+}

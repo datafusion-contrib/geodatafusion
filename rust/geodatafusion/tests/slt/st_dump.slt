@@ -6,3 +6,11 @@ FROM (
 ----
 POINT(0 0)
 POINT(1 1)
+
+query T
+SELECT CAST(comp.path AS VARCHAR)
+FROM (
+  SELECT unnest(ST_Dump(ST_GeomFromText('GEOMETRYCOLLECTION(POINT(1 2))'))) AS comp
+);
+----
+[1]
