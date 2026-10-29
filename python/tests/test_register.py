@@ -317,3 +317,44 @@ def test_register_all_st_hasz_scalar_and_array():
     ).to_arrow_table()
     assert array.schema.field("has_z").type == pa.bool_()
     assert array.column("has_z").to_pylist() == [False, True, False, True]
+
+
+def test_register_all_st_hasm_scalar_and_array():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    scalar = ctx.sql(
+        """
+        SELECT
+            ST_HasM(ST_GeomFromText('POINT(1 2)')) AS xy,
+            ST_HasM(ST_GeomFromText('POINT Z(1 2 3)')) AS xyz,
+            ST_HasM(ST_GeomFromText('POINT M(1 2 4)')) AS xym,
+            ST_HasM(ST_GeomFromText('POINT ZM(1 2 3 4)')) AS xyzm,
+            ST_HasM(ST_GeomFromText(NULL)) AS null_value,
+            ST_HasM(NULL) AS raw_null
+        """
+    ).to_arrow_table()
+    assert scalar.schema.field("xy").type == pa.bool_()
+    assert scalar.to_pylist() == [
+        {
+            "xy": False,
+            "xyz": False,
+            "xym": True,
+            "xyzm": True,
+            "null_value": None,
+            "raw_null": None,
+        }
+    ]
+
+    array = ctx.sql(
+        """
+        SELECT ST_HasM(ST_GeomFromText(g)) AS has_m
+        FROM (
+            VALUES (0, 'POINT(1 2)'), (1, 'POINT Z(1 2 3)'),
+                   (2, 'POINT M(1 2 4)'), (3, 'POINT ZM(1 2 3 4)')
+        ) AS t(id, g)
+        ORDER BY id
+        """
+    ).to_arrow_table()
+    assert array.schema.field("has_m").type == pa.bool_()
+    assert array.column("has_m").to_pylist() == [False, False, True, True]
