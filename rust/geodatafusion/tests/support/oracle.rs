@@ -47,6 +47,7 @@ pub const GROUPS: &[&str] = &[
     "extent",
     "linefrommultipoint",
     "makeenvelope",
+    "nrings",
     "zmflag",
 ];
 
