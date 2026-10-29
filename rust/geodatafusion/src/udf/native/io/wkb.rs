@@ -11,13 +11,16 @@ use geoarrow_array::GeoArrowArray;
 use geoarrow_array::array::{
     GenericWkbArrayType, LargeWkbArray, WkbArray, WkbViewArray, from_arrow_array,
 };
-use geoarrow_array::cast::{from_wkb, to_wkb};
-use geoarrow_schema::error::GeoArrowResult;
+use geoarrow_array::builder::GeometryCollectionBuilder;
+use geoarrow_array::cast::from_wkb;
+use geoarrow_schema::error::{GeoArrowError, GeoArrowResult};
 use geoarrow_schema::{CoordType, GeoArrowType, GeometryType, Metadata, WkbType};
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::{GeoDataFusionError, GeoDataFusionResult};
-use crate::udf::native::io::geometry::GeometryArrayBuilder;
+use crate::udf::native::io::geometry::{
+    GeometryArrayBuilder, array_to_wkb, push_geometry_collection_preserving_nesting,
+};
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct AsBinary;
@@ -66,7 +69,8 @@ impl ScalarUDFImpl for AsBinary {
         let array = &ColumnarValue::values_to_arrays(&args.args)?[0];
         let field = &args.arg_fields[0];
         let geo_array = from_arrow_array(&array, field).map_err(GeoDataFusionError::GeoArrow)?;
-        let wkb_arr = to_wkb::<i32>(geo_array.as_ref()).map_err(GeoDataFusionError::GeoArrow)?;
+        let wkb_arr = array_to_wkb(geo_array.as_ref(), field.as_ref())
+            .map_err(GeoDataFusionError::GeoArrow)?;
         Ok(ColumnarValue::Array(wkb_arr.into_array_ref()))
     }
 
@@ -134,16 +138,38 @@ fn from_wkb_preserving_collections<'a, A: GenericWkbArrayType<'a>>(
     array: &'a A,
     to_type: GeoArrowType,
 ) -> GeoArrowResult<Arc<dyn GeoArrowArray>> {
-    let GeoArrowType::Geometry(typ) = to_type else {
-        return from_wkb(array, to_type);
-    };
-
-    let mut builder = GeometryArrayBuilder::new(typ);
-    for geometry in array.iter() {
-        let geometry = geometry.transpose()?;
-        builder.push_geometry(geometry.as_ref())?;
+    match to_type {
+        GeoArrowType::Geometry(typ) => {
+            let mut builder = GeometryArrayBuilder::new(typ);
+            for geometry in array.iter() {
+                let geometry = geometry.transpose()?;
+                builder.push_geometry(geometry.as_ref())?;
+            }
+            Ok(Arc::new(builder.finish()))
+        }
+        GeoArrowType::GeometryCollection(typ) => {
+            let mut builder = GeometryCollectionBuilder::new(typ);
+            for geometry in array.iter() {
+                if let Some(geometry) = geometry.transpose()? {
+                    let geo_traits::GeometryType::GeometryCollection(gc) =
+                        geo_traits::GeometryTrait::as_type(&geometry)
+                    else {
+                        return Err(GeoArrowError::IncorrectGeometryType(
+                            "Expected GeometryCollection".to_string(),
+                        ));
+                    };
+                    push_geometry_collection_preserving_nesting(&mut builder, Some(gc))?;
+                } else {
+                    push_geometry_collection_preserving_nesting(
+                        &mut builder,
+                        None::<&wkt::types::GeometryCollection<f64>>,
+                    )?;
+                }
+            }
+            Ok(Arc::new(builder.finish()))
+        }
+        _ => from_wkb(array, to_type),
     }
-    Ok(Arc::new(builder.finish()))
 }
 
 impl Default for GeomFromWKB {

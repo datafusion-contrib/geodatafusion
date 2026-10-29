@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "force-dimensions-box-reproducer",
+      "function": "ST_Force3DM",
+      "tags": ["editor", "box2d", "box3d", "polyhedralsurface"],
+      "arguments": [
+        {"type": "float64", "value": 0.0},
+        {"type": "float64", "value": 1.0},
+        {"type": "float64", "value": 2.0},
+        {"type": "float64", "value": 3.0},
+        {"type": "float64", "value": 4.0},
+        {"type": "float64", "value": 5.0},
+        {"type": "float64", "value": 9.0},
+        {"type": "float64", "value": 8.0}
+      ],
+      "result_columns": [
+        {"name": "box2d_force_2d", "type": "ewkb"},
+        {"name": "box2d_force_3d_default", "type": "ewkb"},
+        {"name": "box2d_force_3d_custom", "type": "ewkb"},
+        {"name": "box2d_force_3dz_default", "type": "ewkb"},
+        {"name": "box2d_force_3dz_custom", "type": "ewkb"},
+        {"name": "box2d_force_3dm_default", "type": "ewkb"},
+        {"name": "box2d_force_3dm_custom", "type": "ewkb"},
+        {"name": "box2d_force_4d_default", "type": "ewkb"},
+        {"name": "box2d_force_4d_custom", "type": "ewkb"},
+        {"name": "box3d_force_2d", "type": "ewkb"},
+        {"name": "box3d_force_3d_default", "type": "ewkb"},
+        {"name": "box3d_force_3d_custom", "type": "ewkb"},
+        {"name": "box3d_force_3dz_default", "type": "ewkb"},
+        {"name": "box3d_force_3dz_custom", "type": "ewkb"},
+        {"name": "box3d_force_3dm_default", "type": "ewkb"},
+        {"name": "box3d_force_3dm_custom", "type": "ewkb"},
+        {"name": "box3d_force_4d_default", "type": "ewkb"},
+        {"name": "box3d_force_4d_custom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_3DMakeBox.html"
+    },
+    {
+      "id": "force-dimensions-box-negative-coords",
+      "function": "ST_Force4D",
+      "tags": ["editor", "box2d", "box3d", "polyhedralsurface", "negative"],
+      "arguments": [
+        {"type": "float64", "value": -2.5},
+        {"type": "float64", "value": -1.0},
+        {"type": "float64", "value": -3.5},
+        {"type": "float64", "value": 4.5},
+        {"type": "float64", "value": 6.0},
+        {"type": "float64", "value": 7.5},
+        {"type": "float64", "value": 10.5},
+        {"type": "float64", "value": 12.25}
+      ],
+      "result_columns": [
+        {"name": "box2d_force_2d", "type": "ewkb"},
+        {"name": "box2d_force_3d_default", "type": "ewkb"},
+        {"name": "box2d_force_3d_custom", "type": "ewkb"},
+        {"name": "box2d_force_3dz_default", "type": "ewkb"},
+        {"name": "box2d_force_3dz_custom", "type": "ewkb"},
+        {"name": "box2d_force_3dm_default", "type": "ewkb"},
+        {"name": "box2d_force_3dm_custom", "type": "ewkb"},
+        {"name": "box2d_force_4d_default", "type": "ewkb"},
+        {"name": "box2d_force_4d_custom", "type": "ewkb"},
+        {"name": "box3d_force_2d", "type": "ewkb"},
+        {"name": "box3d_force_3d_default", "type": "ewkb"},
+        {"name": "box3d_force_3d_custom", "type": "ewkb"},
+        {"name": "box3d_force_3dz_default", "type": "ewkb"},
+        {"name": "box3d_force_3dz_custom", "type": "ewkb"},
+        {"name": "box3d_force_3dm_default", "type": "ewkb"},
+        {"name": "box3d_force_3dm_custom", "type": "ewkb"},
+        {"name": "box3d_force_4d_default", "type": "ewkb"},
+        {"name": "box3d_force_4d_custom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Force4D.html"
+    }
+  ]
+}

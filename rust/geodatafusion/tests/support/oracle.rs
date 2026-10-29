@@ -13,14 +13,18 @@ use arrow_array::types::Int32Type;
 use arrow_array::{
     Array, ArrayRef, BinaryArray, BooleanArray, Float64Array, Int16Array, Int32Array,
 };
+use datafusion::config::ConfigOptions;
+use datafusion::logical_expr::{ColumnarValue, ReturnFieldArgs, ScalarFunctionArgs, ScalarUDFImpl};
 use datafusion::prelude::SessionContext;
 use datafusion::scalar::ScalarValue;
 use geo_traits::{
-    CoordTrait, GeometryTrait, GeometryType, LineStringTrait, PointTrait, PolygonTrait,
+    CoordTrait, GeometryCollectionTrait, GeometryTrait, GeometryType, LineStringTrait,
+    MultiLineStringTrait, MultiPointTrait, MultiPolygonTrait, PointTrait, PolygonTrait,
 };
 use geoarrow_array::GeoArrowArray;
 use geoarrow_array::array::from_arrow_array;
 use geoarrow_array::cast::to_wkb;
+use geodatafusion::udf::native::io::AsBinary;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use tokio_postgres::types::ToSql;
@@ -49,6 +53,7 @@ pub const GROUPS: &[&str] = &[
     "dump",
     "extent",
     "force_dimensions",
+    "force_dimensions_box",
     "is_collection",
     "linefrommultipoint",
     "makeenvelope",
@@ -871,8 +876,7 @@ fn datafusion_column_values(
                 .collect())
         }
         ColumnType::Ewkb => {
-            let geometry_array = from_arrow_array(array.as_ref(), field)?;
-            let values = geometry_values(geometry_array.as_ref())?;
+            let values = geometry_values(array, field)?;
             Ok(values
                 .into_iter()
                 .map(|value| match value {
@@ -884,9 +888,37 @@ fn datafusion_column_values(
     }
 }
 
-fn geometry_values(array: &dyn GeoArrowArray) -> Result<Vec<Option<Vec<u8>>>> {
-    let wkb = to_wkb::<i32>(array)?;
-    let wkb = wkb.into_array_ref();
+fn geometry_values(array: &ArrayRef, field: &arrow_schema::Field) -> Result<Vec<Option<Vec<u8>>>> {
+    let geometry_array = from_arrow_array(array.as_ref(), field)?;
+    let wkb = if field
+        .metadata()
+        .get("geodatafusion:geometry_subtype")
+        .is_some()
+        || matches!(
+            geometry_array.data_type(),
+            geoarrow_schema::GeoArrowType::Geometry(_)
+                | geoarrow_schema::GeoArrowType::GeometryCollection(_)
+        ) {
+        let field_arc = std::sync::Arc::new(field.clone());
+        let return_field = AsBinary::new().return_field_from_args(ReturnFieldArgs {
+            arg_fields: std::slice::from_ref(&field_arc),
+            scalar_arguments: &[None],
+        })?;
+        let result = AsBinary::new().invoke_with_args(ScalarFunctionArgs {
+            args: vec![ColumnarValue::Array(array.clone())],
+            arg_fields: vec![field_arc],
+            number_rows: array.len(),
+            return_field,
+            config_options: std::sync::Arc::new(ConfigOptions::default()),
+        })?;
+        match result {
+            ColumnarValue::Array(arr) => arr,
+            ColumnarValue::Scalar(scalar) => scalar.to_array_of_size(array.len())?,
+        }
+    } else {
+        let wkb_arr: &dyn GeoArrowArray = geometry_array.as_ref();
+        to_wkb::<i32>(wkb_arr)?.into_array_ref()
+    };
     let wkb = wkb
         .as_any()
         .downcast_ref::<BinaryArray>()
@@ -1127,11 +1159,36 @@ enum GeometryKind {
     Point(Option<Vec<u64>>),
     LineString(Vec<Vec<u64>>),
     Polygon(Vec<Vec<Vec<u64>>>),
+    MultiPoint(Vec<Option<Vec<u64>>>),
+    MultiLineString(Vec<Vec<Vec<u64>>>),
+    MultiPolygon(Vec<Vec<Vec<Vec<u64>>>>),
+    PolyhedralSurface(Vec<Vec<Vec<Vec<u64>>>>),
+    GeometryCollection(Vec<GeometryValue>),
 }
 
 fn decode_ewkb_hex(hex: &str) -> Result<GeometryValue> {
     let bytes = hex::decode(hex)?;
     let srid = read_ewkb_srid(&bytes)?;
+    if is_top_level_polyhedral_surface(&bytes)? {
+        let mut patched = bytes.clone();
+        rewrite_top_level_polyhedral_surface_to_multipolygon(&mut patched)?;
+        let parsed = wkb::reader::Wkb::try_new(&patched)?;
+        if parsed.buf().len() != patched.len() {
+            return fail(format!(
+                "EWKB has {} trailing bytes",
+                patched.len() - parsed.buf().len()
+            ));
+        }
+        let dimensions = parsed.dim();
+        let GeometryType::MultiPolygon(multi_polygon) = parsed.as_type() else {
+            return fail("expected MultiPolygon payload for PolyhedralSurface".to_string());
+        };
+        return Ok(GeometryValue {
+            kind: GeometryKind::PolyhedralSurface(multi_polygon_bits(&multi_polygon)?),
+            dimensions,
+            srid,
+        });
+    }
     let parsed = wkb::reader::Wkb::try_new(&bytes)?;
     if parsed.buf().len() != bytes.len() {
         return fail(format!(
@@ -1139,6 +1196,13 @@ fn decode_ewkb_hex(hex: &str) -> Result<GeometryValue> {
             bytes.len() - parsed.buf().len()
         ));
     }
+    geometry_value_from_wkb(&parsed, srid)
+}
+
+fn geometry_value_from_wkb(
+    parsed: &wkb::reader::Wkb<'_>,
+    srid: Option<i32>,
+) -> Result<GeometryValue> {
     let dimensions = parsed.dim();
     let kind = match parsed.as_type() {
         GeometryType::Point(point) => {
@@ -1148,6 +1212,22 @@ fn decode_ewkb_hex(hex: &str) -> Result<GeometryValue> {
             GeometryKind::LineString(line_string_bits(&line_string)?)
         }
         GeometryType::Polygon(polygon) => GeometryKind::Polygon(polygon_bits(&polygon)?),
+        GeometryType::MultiPoint(multi_point) => {
+            GeometryKind::MultiPoint(multi_point_bits(&multi_point))
+        }
+        GeometryType::MultiLineString(multi_line_string) => {
+            GeometryKind::MultiLineString(multi_line_string_bits(&multi_line_string)?)
+        }
+        GeometryType::MultiPolygon(multi_polygon) => {
+            GeometryKind::MultiPolygon(multi_polygon_bits(&multi_polygon)?)
+        }
+        GeometryType::GeometryCollection(collection) => {
+            let mut children = Vec::with_capacity(collection.num_geometries());
+            for child in collection.geometries() {
+                children.push(geometry_value_from_wkb(child, None)?);
+            }
+            GeometryKind::GeometryCollection(children)
+        }
         _ => {
             return fail(format!(
                 "geometry-exact comparison does not support {:?}",
@@ -1161,6 +1241,44 @@ fn decode_ewkb_hex(hex: &str) -> Result<GeometryValue> {
         dimensions,
         srid,
     })
+}
+
+fn is_top_level_polyhedral_surface(bytes: &[u8]) -> Result<bool> {
+    let byte_order = *bytes
+        .first()
+        .ok_or_else(|| "empty EWKB buffer".to_string())?;
+    let little_endian = match byte_order {
+        0 => false,
+        1 => true,
+        value => return fail(format!("invalid EWKB byte order {value}")),
+    };
+    let raw_type = bytes
+        .get(1..5)
+        .ok_or_else(|| "truncated EWKB header".to_string())?;
+    let raw_type = if little_endian {
+        u32::from_le_bytes(raw_type.try_into()?)
+    } else {
+        u32::from_be_bytes(raw_type.try_into()?)
+    };
+    let base_type = (raw_type & 0x1fff_ffff) % 1000;
+    Ok(base_type == 15)
+}
+
+fn rewrite_top_level_polyhedral_surface_to_multipolygon(bytes: &mut [u8]) -> Result<()> {
+    let little_endian = bytes[0] == 1;
+    let raw_type = if little_endian {
+        u32::from_le_bytes(bytes[1..5].try_into()?)
+    } else {
+        u32::from_be_bytes(bytes[1..5].try_into()?)
+    };
+    let patched_type = raw_type - 9;
+    let encoded = if little_endian {
+        patched_type.to_le_bytes()
+    } else {
+        patched_type.to_be_bytes()
+    };
+    bytes[1..5].copy_from_slice(&encoded);
+    Ok(())
 }
 
 fn read_ewkb_srid(bytes: &[u8]) -> Result<Option<i32>> {
@@ -1221,6 +1339,33 @@ fn polygon_bits<P: PolygonTrait<T = f64>>(polygon: &P) -> Result<Vec<Vec<Vec<u64
         rings.push(line_string_bits(&interior)?);
     }
     Ok(rings)
+}
+
+fn multi_point_bits<M: MultiPointTrait<T = f64>>(multi_point: &M) -> Vec<Option<Vec<u64>>> {
+    multi_point
+        .points()
+        .map(|point| point.coord().map(|coord| coord_bits(&coord)))
+        .collect()
+}
+
+fn multi_line_string_bits<M: MultiLineStringTrait<T = f64>>(
+    multi_line_string: &M,
+) -> Result<Vec<Vec<Vec<u64>>>> {
+    let mut line_strings = Vec::with_capacity(multi_line_string.num_line_strings());
+    for line_string in multi_line_string.line_strings() {
+        line_strings.push(line_string_bits(&line_string)?);
+    }
+    Ok(line_strings)
+}
+
+fn multi_polygon_bits<M: MultiPolygonTrait<T = f64>>(
+    multi_polygon: &M,
+) -> Result<Vec<Vec<Vec<Vec<u64>>>>> {
+    let mut polygons = Vec::with_capacity(multi_polygon.num_polygons());
+    for polygon in multi_polygon.polygons() {
+        polygons.push(polygon_bits(&polygon)?);
+    }
+    Ok(polygons)
 }
 
 fn fail<T>(message: impl Into<String>) -> Result<T> {
@@ -1375,5 +1520,43 @@ mod tests {
         };
         assert!(values_match(&expected, &actual, &Comparison::FloatUlp { max_ulps: 1 }).unwrap());
         assert!(!values_match(&expected, &actual, &Comparison::FloatUlp { max_ulps: 0 }).unwrap());
+    }
+
+    #[test]
+    fn geometry_exact_distinguishes_polyhedral_surface_and_nested_collections() {
+        // Empty MultiPolygon (type 6) vs empty PolyhedralSurface (type 15)
+        let multipolygon_empty = TypedValue::Ewkb {
+            hex: "010600000000000000".to_string(),
+        };
+        let polyhedralsurface_empty = TypedValue::Ewkb {
+            hex: "010f00000000000000".to_string(),
+        };
+        assert!(
+            !values_match(
+                &multipolygon_empty,
+                &polyhedralsurface_empty,
+                &Comparison::GeometryExact,
+            )
+            .unwrap()
+        );
+        assert!(
+            values_match(
+                &polyhedralsurface_empty,
+                &polyhedralsurface_empty,
+                &Comparison::GeometryExact,
+            )
+            .unwrap()
+        );
+
+        // GEOMETRYCOLLECTION(POINT(1 2)) vs GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2)))
+        let flat_gc = TypedValue::Ewkb {
+            hex: "0107000000010000000101000000000000000000f03f0000000000000040".to_string(),
+        };
+        let nested_gc = TypedValue::Ewkb {
+            hex: "0107000000010000000107000000010000000101000000000000000000f03f0000000000000040"
+                .to_string(),
+        };
+        assert!(!values_match(&flat_gc, &nested_gc, &Comparison::GeometryExact).unwrap());
+        assert!(values_match(&nested_gc, &nested_gc, &Comparison::GeometryExact).unwrap());
     }
 }

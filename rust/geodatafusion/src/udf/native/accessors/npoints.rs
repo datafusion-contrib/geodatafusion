@@ -15,6 +15,7 @@ use geoarrow_schema::error::GeoArrowResult;
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
+use crate::udf::native::io::geometry::is_nested_gc_sentinel_point;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct NPoints;
@@ -94,7 +95,7 @@ fn _num_points_impl<'a>(array: &'a impl GeoArrowArrayAccessor<'a>) -> GeoArrowRe
 }
 
 #[inline]
-fn num_coords_geometry(geom: &impl GeometryTrait) -> u32 {
+fn num_coords_geometry(geom: &impl GeometryTrait<T = f64>) -> u32 {
     use geo_traits::GeometryType::*;
 
     match geom.as_type() {
@@ -113,8 +114,14 @@ fn num_coords_geometry(geom: &impl GeometryTrait) -> u32 {
 }
 
 #[inline]
-fn num_coords_point(geom: &impl PointTrait) -> u32 {
-    if geom.coord().is_some() { 1 } else { 0 }
+fn num_coords_point(geom: &impl PointTrait<T = f64>) -> u32 {
+    if is_nested_gc_sentinel_point(geom).is_some() {
+        0
+    } else if geom.coord().is_some() {
+        1
+    } else {
+        0
+    }
 }
 
 #[inline]
@@ -134,7 +141,7 @@ fn num_coords_polygon(geom: &impl PolygonTrait) -> u32 {
 }
 
 #[inline]
-fn num_coords_multi_point(geom: &impl MultiPointTrait) -> u32 {
+fn num_coords_multi_point(geom: &impl MultiPointTrait<T = f64>) -> u32 {
     geom.points()
         .fold(0, |acc, point| acc + num_coords_point(&point))
 }
@@ -153,7 +160,7 @@ fn num_coords_multi_polygon(geom: &impl MultiPolygonTrait) -> u32 {
 }
 
 #[inline]
-fn num_coords_geometry_collection(geom: &impl GeometryCollectionTrait) -> u32 {
+fn num_coords_geometry_collection(geom: &impl GeometryCollectionTrait<T = f64>) -> u32 {
     geom.geometries()
         .fold(0, |acc, g| acc + num_coords_geometry(&g))
 }

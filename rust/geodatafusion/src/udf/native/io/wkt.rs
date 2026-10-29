@@ -11,13 +11,16 @@ use geoarrow_array::GeoArrowArray;
 use geoarrow_array::array::{
     GenericWktArrayType, LargeWktArray, WktArray, WktViewArray, from_arrow_array,
 };
-use geoarrow_array::cast::{from_wkt, to_wkt};
-use geoarrow_schema::error::GeoArrowResult;
+use geoarrow_array::builder::GeometryCollectionBuilder;
+use geoarrow_array::cast::from_wkt;
+use geoarrow_schema::error::{GeoArrowError, GeoArrowResult};
 use geoarrow_schema::{CoordType, GeoArrowType, GeometryType, Metadata, WktType};
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
-use crate::udf::native::io::geometry::GeometryArrayBuilder;
+use crate::udf::native::io::geometry::{
+    GeometryArrayBuilder, array_to_wkt, push_geometry_collection_preserving_nesting,
+};
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct AsText;
@@ -31,7 +34,7 @@ impl AsText {
         let array = &ColumnarValue::values_to_arrays(&args.args)?[0];
         let field = &args.arg_fields[0];
         let geo_array = from_arrow_array(&array, field.as_ref())?;
-        let wkt_arr = to_wkt::<i32>(geo_array.as_ref())?;
+        let wkt_arr = array_to_wkt(geo_array.as_ref(), field.as_ref())?;
         Ok(ColumnarValue::Array(wkt_arr.into_array_ref()))
     }
 }
@@ -135,16 +138,38 @@ fn from_wkt_preserving_collections(
     array: &impl GenericWktArrayType,
     to_type: GeoArrowType,
 ) -> GeoArrowResult<Arc<dyn GeoArrowArray>> {
-    let GeoArrowType::Geometry(typ) = to_type else {
-        return from_wkt(array, to_type);
-    };
-
-    let mut builder = GeometryArrayBuilder::new(typ);
-    for geometry in array.iter() {
-        let geometry = geometry.transpose()?;
-        builder.push_geometry(geometry.as_ref())?;
+    match to_type {
+        GeoArrowType::Geometry(typ) => {
+            let mut builder = GeometryArrayBuilder::new(typ);
+            for geometry in array.iter() {
+                let geometry = geometry.transpose()?;
+                builder.push_geometry(geometry.as_ref())?;
+            }
+            Ok(Arc::new(builder.finish()))
+        }
+        GeoArrowType::GeometryCollection(typ) => {
+            let mut builder = GeometryCollectionBuilder::new(typ);
+            for geometry in array.iter() {
+                if let Some(geometry) = geometry.transpose()? {
+                    let geo_traits::GeometryType::GeometryCollection(gc) =
+                        geo_traits::GeometryTrait::as_type(&geometry)
+                    else {
+                        return Err(GeoArrowError::IncorrectGeometryType(
+                            "Expected GeometryCollection".to_string(),
+                        ));
+                    };
+                    push_geometry_collection_preserving_nesting(&mut builder, Some(gc))?;
+                } else {
+                    push_geometry_collection_preserving_nesting(
+                        &mut builder,
+                        None::<&wkt::types::GeometryCollection<f64>>,
+                    )?;
+                }
+            }
+            Ok(Arc::new(builder.finish()))
+        }
+        _ => from_wkt(array, to_type),
     }
-    Ok(Arc::new(builder.finish()))
 }
 
 impl Default for GeomFromText {

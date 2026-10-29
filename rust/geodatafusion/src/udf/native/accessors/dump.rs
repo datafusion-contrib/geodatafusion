@@ -21,6 +21,7 @@ use geoarrow_schema::{CoordType, GeometryType, Metadata};
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 use crate::udf::native::accessors::is_empty::is_geometry_topologically_empty;
+use crate::udf::native::io::geometry::decode_geometry_collection;
 
 /// Decomposes a geometry into its atomic components (POINT, LINESTRING, POLYGON).
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -193,7 +194,16 @@ fn dump_geometry(
             dump_multi_children(g.polygons(), geom_builder, path_builder, path_stack)?
         }
         GeometryCollection(g) => {
-            dump_multi_children(g.geometries(), geom_builder, path_builder, path_stack)?
+            if let Some(decoded) = decode_geometry_collection(g) {
+                dump_multi_children(
+                    decoded.geometries().iter(),
+                    geom_builder,
+                    path_builder,
+                    path_stack,
+                )?
+            } else {
+                dump_multi_children(g.geometries(), geom_builder, path_builder, path_stack)?
+            }
         }
     }
     Ok(())

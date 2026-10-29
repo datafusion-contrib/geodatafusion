@@ -163,6 +163,98 @@
       "source": "https://postgis.net/docs/ST_Force4D.html"
     },
     {
+      "id": "force-dimensions-collection-single",
+      "function": "ST_Force4D",
+      "tags": ["editor", "geometrycollection", "single"],
+      "arguments": [
+        {"type": "text", "value": "GEOMETRYCOLLECTION(POINT(1 2))"},
+        {"type": "float64", "value": 3.0},
+        {"type": "float64", "value": 4.0}
+      ],
+      "result_columns": [
+        {"name": "force_2d", "type": "ewkb"},
+        {"name": "force_3d_default", "type": "ewkb"},
+        {"name": "force_3d_custom", "type": "ewkb"},
+        {"name": "force_3dz_default", "type": "ewkb"},
+        {"name": "force_3dz_custom", "type": "ewkb"},
+        {"name": "force_3dm_default", "type": "ewkb"},
+        {"name": "force_3dm_custom", "type": "ewkb"},
+        {"name": "force_4d_default", "type": "ewkb"},
+        {"name": "force_4d_custom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Force4D.html"
+    },
+    {
+      "id": "force-dimensions-collection-nested-single",
+      "function": "ST_Force4D",
+      "tags": ["editor", "geometrycollection", "nested", "single"],
+      "arguments": [
+        {"type": "text", "value": "GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2)))"},
+        {"type": "float64", "value": 3.0},
+        {"type": "float64", "value": 4.0}
+      ],
+      "result_columns": [
+        {"name": "force_2d", "type": "ewkb"},
+        {"name": "force_3d_default", "type": "ewkb"},
+        {"name": "force_3d_custom", "type": "ewkb"},
+        {"name": "force_3dz_default", "type": "ewkb"},
+        {"name": "force_3dz_custom", "type": "ewkb"},
+        {"name": "force_3dm_default", "type": "ewkb"},
+        {"name": "force_3dm_custom", "type": "ewkb"},
+        {"name": "force_4d_default", "type": "ewkb"},
+        {"name": "force_4d_custom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Force4D.html"
+    },
+    {
+      "id": "force-dimensions-collection-nested-multi",
+      "function": "ST_Force4D",
+      "tags": ["editor", "geometrycollection", "nested", "multi"],
+      "arguments": [
+        {"type": "text", "value": "GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2), LINESTRING(0 0, 3 4)), POINT(5 6))"},
+        {"type": "float64", "value": 3.0},
+        {"type": "float64", "value": 4.0}
+      ],
+      "result_columns": [
+        {"name": "force_2d", "type": "ewkb"},
+        {"name": "force_3d_default", "type": "ewkb"},
+        {"name": "force_3d_custom", "type": "ewkb"},
+        {"name": "force_3dz_default", "type": "ewkb"},
+        {"name": "force_3dz_custom", "type": "ewkb"},
+        {"name": "force_3dm_default", "type": "ewkb"},
+        {"name": "force_3dm_custom", "type": "ewkb"},
+        {"name": "force_4d_default", "type": "ewkb"},
+        {"name": "force_4d_custom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Force4D.html"
+    },
+    {
+      "id": "force-dimensions-collection-nested-empty",
+      "function": "ST_Force4D",
+      "tags": ["editor", "geometrycollection", "nested", "empty"],
+      "arguments": [
+        {"type": "text", "value": "GEOMETRYCOLLECTION(GEOMETRYCOLLECTION EMPTY, POINT(1 2))"},
+        {"type": "float64", "value": 3.0},
+        {"type": "float64", "value": 4.0}
+      ],
+      "result_columns": [
+        {"name": "force_2d", "type": "ewkb"},
+        {"name": "force_3d_default", "type": "ewkb"},
+        {"name": "force_3d_custom", "type": "ewkb"},
+        {"name": "force_3dz_default", "type": "ewkb"},
+        {"name": "force_3dz_custom", "type": "ewkb"},
+        {"name": "force_3dm_default", "type": "ewkb"},
+        {"name": "force_3dm_custom", "type": "ewkb"},
+        {"name": "force_4d_default", "type": "ewkb"},
+        {"name": "force_4d_custom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_Force4D.html"
+    },
+    {
       "id": "force-dimensions-null",
       "function": "ST_Force2D",
       "tags": ["editor", "null"],

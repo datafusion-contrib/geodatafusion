@@ -21,6 +21,7 @@ use geoarrow_schema::error::GeoArrowResult;
 use crate::data_types::any_geometry_type;
 use crate::error::GeoDataFusionResult;
 use crate::udf::native::accessors::is_empty::is_geometry_topologically_empty;
+use crate::udf::native::io::geometry::decode_geometry_collection;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct NumGeometries;
@@ -123,7 +124,9 @@ fn immediate_geometry_count(geometry: &impl GeometryTrait<T = f64>) -> u32 {
             multi_polygon.num_polygons() as u32
         }
         geo_traits::GeometryType::GeometryCollection(collection) => {
-            collection.num_geometries() as u32
+            decode_geometry_collection(collection)
+                .map_or_else(|| collection.num_geometries(), |d| d.num_geometries())
+                as u32
         }
         _ => 1,
     }

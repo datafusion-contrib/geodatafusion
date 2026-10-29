@@ -34,7 +34,10 @@ use wkt::types::{
 
 use crate::data_types::any_geometry_type;
 use crate::error::GeoDataFusionResult;
-use crate::udf::native::io::geometry::GeometryArrayBuilder;
+use crate::udf::native::io::geometry::{
+    GeometryArrayBuilder, decode_geometry_collection, is_polyhedral_surface_field,
+    push_geometry_collection_preserving_nesting, with_polyhedral_surface_metadata,
+};
 
 /// Alias for [`Force3DZ`], matching PostGIS `ST_Force3D`.
 pub type Force3D = Force3DZ;
@@ -321,8 +324,14 @@ fn force_return_field(
         return Ok(Arc::new(output_type.to_field("", true)));
     }
 
-    let input_type = GeoArrowType::from_arrow_field(args.arg_fields[0].as_ref())?;
+    let input_field = args.arg_fields[0].as_ref();
+    let input_type = GeoArrowType::from_arrow_field(input_field)?;
     let nullable = args.arg_fields.iter().any(|field| field.is_nullable());
+    let is_polyhedral_surface = is_polyhedral_surface_field(input_field)
+        || matches!(
+            &input_type,
+            GeoArrowType::Rect(t) if matches!(t.dimension(), Dimension::XYZ | Dimension::XYZM)
+        );
 
     let output_type = match input_type {
         GeoArrowType::Point(t) => GeoArrowType::Point(
@@ -331,14 +340,19 @@ fn force_return_field(
         GeoArrowType::LineString(t) => GeoArrowType::LineString(
             LineStringType::new(target_dim, t.metadata().clone()).with_coord_type(coord_type),
         ),
-        // Convert Box/Rect inputs to Polygon in the target dimension, matching PostGIS
-        // `box2d::geometry` conversion and avoiding 3D/4D Rect serialization limits.
         GeoArrowType::Polygon(t) => GeoArrowType::Polygon(
             PolygonType::new(target_dim, t.metadata().clone()).with_coord_type(coord_type),
         ),
-        GeoArrowType::Rect(t) => GeoArrowType::Polygon(
-            PolygonType::new(target_dim, t.metadata().clone()).with_coord_type(coord_type),
-        ),
+        // Convert 2D Box/Rect inputs to Polygon (`box2d::geometry`) and 3D Box/Rect inputs
+        // to a 6-face PolyhedralSurface (`box3d::geometry`, backed by MultiPolygon).
+        GeoArrowType::Rect(t) => match t.dimension() {
+            Dimension::XY | Dimension::XYM => GeoArrowType::Polygon(
+                PolygonType::new(target_dim, t.metadata().clone()).with_coord_type(coord_type),
+            ),
+            Dimension::XYZ | Dimension::XYZM => GeoArrowType::MultiPolygon(
+                MultiPolygonType::new(target_dim, t.metadata().clone()).with_coord_type(coord_type),
+            ),
+        },
         GeoArrowType::MultiPoint(t) => GeoArrowType::MultiPoint(
             MultiPointType::new(target_dim, t.metadata().clone()).with_coord_type(coord_type),
         ),
@@ -367,7 +381,11 @@ fn force_return_field(
         }
     };
 
-    Ok(Arc::new(output_type.to_field("", nullable)))
+    let mut field = output_type.to_field("", nullable);
+    if is_polyhedral_surface {
+        field = with_polyhedral_surface_metadata(field);
+    }
+    Ok(Arc::new(field))
 }
 
 #[derive(Clone)]
@@ -579,13 +597,20 @@ fn force_array_impl<'a>(
                     m_defaults.value(row),
                 ) {
                     (Some(geom), Some(z_def), Some(m_def)) => {
-                        let geo_traits::GeometryType::MultiPolygon(mpoly) = geom.as_type() else {
-                            return Err(DataFusionError::Internal(
-                                "Expected MultiPolygon geometry".to_string(),
-                            )
-                            .into());
+                        let forced = match geom.as_type() {
+                            geo_traits::GeometryType::MultiPolygon(mpoly) => {
+                                force_multi_polygon(mpoly, wkt_dim, z_def, m_def)
+                            }
+                            geo_traits::GeometryType::Rect(rect) => {
+                                force_rect_3d_as_multi_polygon(rect, wkt_dim, z_def, m_def)
+                            }
+                            _ => {
+                                return Err(DataFusionError::Internal(
+                                    "Expected MultiPolygon or 3D Rect geometry".to_string(),
+                                )
+                                .into());
+                            }
                         };
-                        let forced = force_multi_polygon(mpoly, wkt_dim, z_def, m_def);
                         builder.push_multi_polygon(Some(&forced))?;
                     }
                     _ => builder.push_multi_polygon(None::<&MultiPolygon<f64>>)?,
@@ -610,9 +635,12 @@ fn force_array_impl<'a>(
                             .into());
                         };
                         let forced = force_geometry_collection(gc, wkt_dim, z_def, m_def);
-                        builder.push_geometry_collection(Some(&forced))?;
+                        push_geometry_collection_preserving_nesting(&mut builder, Some(&forced))?;
                     }
-                    _ => builder.push_geometry_collection(None::<&GeometryCollection<f64>>)?,
+                    _ => push_geometry_collection_preserving_nesting(
+                        &mut builder,
+                        None::<&GeometryCollection<f64>>,
+                    )?,
                 }
             }
             Ok(Arc::new(builder.finish()))
@@ -775,6 +803,72 @@ fn force_rect_as_polygon(
     Polygon::new(vec![ring], target_dim)
 }
 
+fn force_rect_3d_as_multi_polygon(
+    rect: &impl RectTrait<T = f64>,
+    target_dim: WktDimension,
+    z_default: f64,
+    m_default: f64,
+) -> MultiPolygon<f64> {
+    let min = force_coord(&rect.min(), target_dim, z_default, m_default);
+    let max = force_coord(&rect.max(), target_dim, z_default, m_default);
+    let m = min.m;
+    let v = |x: f64, y: f64, z: Option<f64>| Coord { x, y, z, m };
+    let face = |coords: [Coord<f64>; 5]| {
+        Polygon::new(
+            vec![LineString::new(coords.to_vec(), target_dim)],
+            target_dim,
+        )
+    };
+
+    // Matches PostGIS `BOX3D_to_LWGEOM` face order and ring orientation:
+    // bottom (zmin), top (zmax), left (xmin), right (xmax), front (ymin), back (ymax).
+    let faces = vec![
+        face([
+            v(min.x, min.y, min.z),
+            v(min.x, max.y, min.z),
+            v(max.x, max.y, min.z),
+            v(max.x, min.y, min.z),
+            v(min.x, min.y, min.z),
+        ]),
+        face([
+            v(min.x, min.y, max.z),
+            v(max.x, min.y, max.z),
+            v(max.x, max.y, max.z),
+            v(min.x, max.y, max.z),
+            v(min.x, min.y, max.z),
+        ]),
+        face([
+            v(min.x, min.y, min.z),
+            v(min.x, min.y, max.z),
+            v(min.x, max.y, max.z),
+            v(min.x, max.y, min.z),
+            v(min.x, min.y, min.z),
+        ]),
+        face([
+            v(max.x, min.y, min.z),
+            v(max.x, max.y, min.z),
+            v(max.x, max.y, max.z),
+            v(max.x, min.y, max.z),
+            v(max.x, min.y, min.z),
+        ]),
+        face([
+            v(min.x, min.y, min.z),
+            v(max.x, min.y, min.z),
+            v(max.x, min.y, max.z),
+            v(min.x, min.y, max.z),
+            v(min.x, min.y, min.z),
+        ]),
+        face([
+            v(min.x, max.y, min.z),
+            v(min.x, max.y, max.z),
+            v(max.x, max.y, max.z),
+            v(max.x, max.y, min.z),
+            v(min.x, max.y, min.z),
+        ]),
+    ];
+    MultiPolygon::new(faces, target_dim)
+}
+
 fn force_multi_point(
     multi_point: &impl MultiPointTrait<T = f64>,
     target_dim: WktDimension,
@@ -820,6 +914,14 @@ fn force_geometry_collection(
     z_default: f64,
     m_default: f64,
 ) -> GeometryCollection<f64> {
+    if let Some(decoded) = decode_geometry_collection(collection) {
+        let geometries = decoded
+            .geometries()
+            .iter()
+            .map(|geom| force_geometry(geom, target_dim, z_default, m_default))
+            .collect();
+        return GeometryCollection::new(geometries, target_dim);
+    }
     let geometries = collection
         .geometries()
         .map(|geom| force_geometry(&geom, target_dim, z_default, m_default))
@@ -855,9 +957,14 @@ fn force_geometry(
         geo_traits::GeometryType::GeometryCollection(gc) => Wkt::GeometryCollection(
             force_geometry_collection(gc, target_dim, z_default, m_default),
         ),
-        geo_traits::GeometryType::Rect(rect) => Wkt::Polygon(force_rect_as_polygon(
-            rect, target_dim, z_default, m_default,
-        )),
+        geo_traits::GeometryType::Rect(rect) => match rect.dim() {
+            Dimensions::Xyz | Dimensions::Xyzm => Wkt::MultiPolygon(
+                force_rect_3d_as_multi_polygon(rect, target_dim, z_default, m_default),
+            ),
+            _ => Wkt::Polygon(force_rect_as_polygon(
+                rect, target_dim, z_default, m_default,
+            )),
+        },
         geo_traits::GeometryType::Line(line) => {
             let start = force_coord(&line.start(), target_dim, z_default, m_default);
             let end = force_coord(&line.end(), target_dim, z_default, m_default);
