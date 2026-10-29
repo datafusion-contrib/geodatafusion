@@ -38,7 +38,7 @@ SELECT ST_MakeEnvelope(0, 1, 10, 6, CAST(NULL AS BIGINT)) IS NULL;
 ----
 true
 
-query BB
+query B
 SELECT
   ST_MakeEnvelope(xmin, ymin, xmax, ymax, srid) IS NULL
 FROM (
