@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "linefrommultipoint-xy-order",
+      "function": "ST_LineFromMultiPoint",
+      "tags": ["constructor", "linestring"],
+      "arguments": [
+        {"type": "text", "value": "MULTIPOINT((1 2),(3 4),(5 6))"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_LineFromMultiPoint.html"
+    },
+    {
+      "id": "linefrommultipoint-xyz",
+      "function": "ST_LineFromMultiPoint",
+      "tags": ["constructor", "xyz"],
+      "arguments": [
+        {"type": "text", "value": "MULTIPOINT Z((1 2 3),(4 5 6))"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_LineFromMultiPoint.html"
+    },
+    {
+      "id": "linefrommultipoint-xym",
+      "function": "ST_LineFromMultiPoint",
+      "tags": ["constructor", "xym"],
+      "arguments": [
+        {"type": "text", "value": "MULTIPOINT M((1 2 3),(4 5 6))"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_LineFromMultiPoint.html"
+    },
+    {
+      "id": "linefrommultipoint-xyzm",
+      "function": "ST_LineFromMultiPoint",
+      "tags": ["constructor", "xyzm"],
+      "arguments": [
+        {"type": "text", "value": "MULTIPOINT ZM((1 2 3 4),(5 6 7 8))"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_LineFromMultiPoint.html"
+    },
+    {
+      "id": "linefrommultipoint-empty-m",
+      "function": "ST_LineFromMultiPoint",
+      "tags": ["constructor", "empty"],
+      "arguments": [
+        {"type": "text", "value": "MULTIPOINT M EMPTY"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_LineFromMultiPoint.html"
+    },
+    {
+      "id": "linefrommultipoint-single",
+      "function": "ST_LineFromMultiPoint",
+      "tags": ["constructor", "single"],
+      "arguments": [
+        {"type": "text", "value": "MULTIPOINT((1 2))"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_LineFromMultiPoint.html"
+    },
+    {
+      "id": "linefrommultipoint-null",
+      "function": "ST_LineFromMultiPoint",
+      "tags": ["constructor", "null"],
+      "arguments": [
+        {"type": "null_text"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_LineFromMultiPoint.html"
+    }
+  ]
+}

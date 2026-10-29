@@ -1,0 +1,1 @@
+SELECT ST_InteriorRingN(ST_GeomFromText($1), CAST(CAST($2 AS VARCHAR) AS INTEGER)) AS ring

@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "exterior-ring-polygon-hole",
+      "function": "ST_ExteriorRing",
+      "tags": ["polygon", "interior-ring"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,1 2,2 2,2 1,1 1))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ExteriorRing.html"
+    },
+    {
+      "id": "exterior-ring-polygon-z",
+      "function": "ST_ExteriorRing",
+      "tags": ["polygon", "xyz"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z ((0 0 10,4 0 11,4 4 12,0 4 13,0 0 10))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ExteriorRing.html"
+    },
+    {
+      "id": "exterior-ring-polygon-m",
+      "function": "ST_ExteriorRing",
+      "tags": ["polygon", "xym"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON M ((0 0 20,4 0 21,4 4 22,0 4 23,0 0 20))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ExteriorRing.html"
+    },
+    {
+      "id": "exterior-ring-polygon-zm",
+      "function": "ST_ExteriorRing",
+      "tags": ["polygon", "xyzm"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON ZM ((0 0 10 20,4 0 11 21,4 4 12 22,0 4 13 23,0 0 10 20))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ExteriorRing.html"
+    },
+    {
+      "id": "exterior-ring-polygon-empty-zm",
+      "function": "ST_ExteriorRing",
+      "tags": ["polygon", "empty", "xyzm"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON ZM EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ExteriorRing.html"
+    },
+    {
+      "id": "exterior-ring-multipolygon-null",
+      "function": "ST_ExteriorRing",
+      "tags": ["multipolygon", "null"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,1 0,1 1,0 0)))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ExteriorRing.html"
+    },
+    {
+      "id": "exterior-ring-collection-null",
+      "function": "ST_ExteriorRing",
+      "tags": ["collection", "null"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(POLYGON((0 0,1 0,1 1,0 0)))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ExteriorRing.html"
+    },
+    {
+      "id": "exterior-ring-null-input",
+      "function": "ST_ExteriorRing",
+      "tags": ["null"],
+      "arguments": [
+        {
+          "type": "null_text"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "ring",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_ExteriorRing.html"
+    }
+  ]
+}
