@@ -12,3 +12,18 @@ query T
 SELECT ST_AsText(ST_WKTToSQL('POINT(5 6)'));
 ----
 POINT(5 6)
+
+query TT
+SELECT ST_GeometryType(ST_GeomFromText(wkt)), ST_AsText(ST_GeomFromText(wkt))
+FROM (
+  VALUES
+    ('POINT(1 2)'),
+    ('GEOMETRYCOLLECTION(POINT(3 4))'),
+    (NULL),
+    ('POINT EMPTY')
+) AS geometries(wkt);
+----
+ST_Point POINT(1 2)
+ST_GeometryCollection GEOMETRYCOLLECTION(POINT(3 4))
+NULL NULL
+ST_Point POINT EMPTY

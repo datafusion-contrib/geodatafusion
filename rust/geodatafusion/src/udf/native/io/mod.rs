@@ -1,5 +1,6 @@
 //! Geometry Input and Output
 
+mod geometry;
 mod wkb;
 mod wkt;
 
