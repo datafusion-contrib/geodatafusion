@@ -1,0 +1,39 @@
+query T
+SELECT ST_AsText(ST_InteriorRingN(
+  ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 1),(8 8,9 8,9 9,8 8))'),
+  1
+));
+----
+LINESTRING(1 1,2 1,2 2,1 1)
+
+query T
+SELECT ST_AsText(ST_InteriorRingN(
+  ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 1),(8 8,9 8,9 9,8 8))'),
+  2
+));
+----
+LINESTRING(8 8,9 8,9 9,8 8)
+
+query TTTTT
+SELECT
+  ST_AsText(ST_InteriorRingN(ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 1))'), 0)),
+  ST_AsText(ST_InteriorRingN(ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 1))'), -1)),
+  ST_AsText(ST_InteriorRingN(ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 1))'), 2)),
+  ST_AsText(ST_InteriorRingN(ST_GeomFromText('POLYGON EMPTY'), 1)),
+  ST_AsText(ST_InteriorRingN(ST_GeomFromText('MULTIPOLYGON(((0 0,1 0,1 1,0 0)))'), 1))
+;
+----
+NULL NULL NULL NULL NULL
+
+query TT
+SELECT
+  ST_AsText(ST_InteriorRingN(ST_GeomFromText(NULL), 1)),
+  ST_AsText(ST_InteriorRingN(ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0),(1 1,2 1,2 2,1 1))'), NULL))
+;
+----
+NULL NULL
+
+query T
+SELECT ST_AsText(ST_InteriorRingN(NULL, 1));
+----
+NULL
