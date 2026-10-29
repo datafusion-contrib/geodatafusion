@@ -69,7 +69,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_MemSize          |             | Returns the amount of memory space a geometry takes.                                                    |
 | ST_NDims            | ✅          | Returns the coordinate dimension of a geometry.                                                         |
 | ST_NPoints          | ✅          | Returns the number of points (vertices) in a geometry.                                                  |
-| ST_NRings           |             | Returns the number of rings in a polygonal geometry.                                                    |
+| ST_NRings           | ✅          | Returns the number of rings in a polygonal geometry.                                                    |
 | ST_NumGeometries    |             | Returns the number of elements in a geometry collection.                                                |
 | ST_NumInteriorRings | ✅          | Returns the number of interior rings (holes) of a Polygon.                                              |
 | ST_NumInteriorRing  | ✅          | Returns the number of interior rings (holes) of a Polygon. Aias for ST_NumInteriorRings                 |

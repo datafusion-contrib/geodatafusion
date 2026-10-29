@@ -40,6 +40,7 @@ pub const GROUPS: &[&str] = &[
     "measurement/length",
     "dump",
     "extent",
+    "nrings",
 ];
 
 #[derive(Debug, Deserialize)]
