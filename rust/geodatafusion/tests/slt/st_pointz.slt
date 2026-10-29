@@ -2,3 +2,8 @@ query T
 SELECT ST_AsText(ST_PointZ(1, 2, 3));
 ----
 POINT Z(1 2 3)
+
+query T
+SELECT ST_PointZ(1, 2, 3, CAST(NULL AS BIGINT)) IS NULL;
+----
+true

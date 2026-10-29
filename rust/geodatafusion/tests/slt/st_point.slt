@@ -15,5 +15,27 @@ SELECT ST_AsText(ST_Point(CAST(NULL AS DOUBLE), 0));
 ----
 NULL
 
+query T
+SELECT ST_Point(1, 2, CAST(NULL AS BIGINT)) IS NULL;
+----
+true
+
+query BBBB
+SELECT
+  ST_Point(x, y, CAST(NULL AS BIGINT)) IS NULL,
+  ST_PointZ(x, y, z, CAST(NULL AS BIGINT)) IS NULL,
+  ST_PointM(x, y, m, CAST(NULL AS BIGINT)) IS NULL,
+  ST_PointZM(x, y, z, m, CAST(NULL AS BIGINT)) IS NULL
+FROM (
+  VALUES (1.0, 2.0, 3.0, 4.0), (5.0, 6.0, 7.0, 8.0)
+) AS points(x, y, z, m);
+----
+true true true true
+true true true true
+
+statement error
+SELECT ST_Point(x, y, srid)
+FROM (VALUES (1.0, 2.0, 4326)) AS points(x, y, srid);
+
 statement error
 SELECT ST_Point('not-a-number', 0);
