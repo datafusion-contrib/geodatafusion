@@ -1,0 +1,67 @@
+query T
+SELECT ST_AsText(ST_MakeEnvelope(0, 1, 10, 6));
+----
+POLYGON((0 1,0 6,10 6,10 1,0 1))
+
+query T
+SELECT ST_AsText(ST_MakeEnvelope(10, 6, 0, 1));
+----
+POLYGON((10 6,10 1,0 1,0 6,10 6))
+
+query T
+SELECT ST_AsText(ST_MakeEnvelope(2, 3, 2, 3));
+----
+POLYGON((2 3,2 3,2 3,2 3,2 3))
+
+query TT
+SELECT
+  ST_AsText(ST_MakeEnvelope(xmin, ymin, xmax, ymax)),
+  ST_AsText(ST_MakeEnvelope(xmin, 0.0, xmax, 5.0))
+FROM (
+  VALUES (1.0, 2.0, 3.0, 4.0), (5.0, 6.0, 7.0, 8.0)
+) AS envelopes(xmin, ymin, xmax, ymax);
+----
+POLYGON((1 2,1 4,3 4,3 2,1 2)) POLYGON((1 0,1 5,3 5,3 0,1 0))
+POLYGON((5 6,5 8,7 8,7 6,5 6)) POLYGON((5 0,5 5,7 5,7 0,5 0))
+
+query T
+SELECT ST_AsText(ST_MakeEnvelope(xmin, ymin, xmax, ymax))
+FROM (
+  VALUES (0.0, 1.0, 10.0, 6.0), (0.0, NULL, 10.0, 6.0)
+) AS envelopes(xmin, ymin, xmax, ymax);
+----
+POLYGON((0 1,0 6,10 6,10 1,0 1))
+NULL
+
+query B
+SELECT ST_MakeEnvelope(0, 1, 10, 6, CAST(NULL AS BIGINT)) IS NULL;
+----
+true
+
+query B
+SELECT
+  ST_MakeEnvelope(xmin, ymin, xmax, ymax, srid) IS NULL
+FROM (
+  VALUES
+    (0.0, 1.0, 10.0, 6.0, CAST(NULL AS BIGINT)),
+    (0.0, 1.0, 10.0, 6.0, CAST(NULL AS BIGINT))
+) AS envelopes(xmin, ymin, xmax, ymax, srid);
+----
+true
+true
+
+statement error
+SELECT ST_MakeEnvelope(xmin, ymin, xmax, ymax, srid)
+FROM (
+  VALUES
+    (0.0, 1.0, 10.0, 6.0, CAST(4326 AS BIGINT)),
+    (0.0, 1.0, 10.0, 6.0, CAST(3857 AS BIGINT))
+) AS envelopes(xmin, ymin, xmax, ymax, srid);
+
+statement error
+SELECT ST_MakeEnvelope(xmin, ymin, xmax, ymax, srid)
+FROM (
+  VALUES
+    (0.0, 1.0, 10.0, 6.0, CAST(4326 AS BIGINT)),
+    (0.0, 1.0, 10.0, 6.0, CAST(NULL AS BIGINT))
+) AS envelopes(xmin, ymin, xmax, ymax, srid);

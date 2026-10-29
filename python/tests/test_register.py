@@ -212,6 +212,66 @@ def test_st_interior_ring_n_register_all():
     assert result.to_pylist() == [{"null_geometry": None, "null_index": None}]
 
 
+def test_st_exterior_ring_register_all():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    result = ctx.sql(
+        """
+        SELECT
+            ST_ExteriorRing(ST_GeomFromText(wkt)) AS ring,
+            ST_AsText(ST_ExteriorRing(ST_GeomFromText(wkt))) AS exterior
+        FROM (
+            VALUES
+                ('POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,1 2,2 2,2 1,1 1))'),
+                ('POLYGON EMPTY'),
+                ('MULTIPOLYGON(((0 0,1 0,1 1,0 0)))'),
+                (NULL)
+        ) AS inputs(wkt)
+        """
+    ).to_arrow_table()
+
+    ring_field = result.schema.field("ring")
+    assert ring_field.metadata.get(b"ARROW:extension:name") == b"geoarrow.geometry"
+    assert result.to_pylist() == [
+        {
+            "ring": [
+                {"x": 0.0, "y": 0.0},
+                {"x": 4.0, "y": 0.0},
+                {"x": 4.0, "y": 4.0},
+                {"x": 0.0, "y": 4.0},
+                {"x": 0.0, "y": 0.0},
+            ],
+            "exterior": "LINESTRING(0 0,4 0,4 4,0 4,0 0)",
+        },
+        {"ring": [], "exterior": "LINESTRING EMPTY"},
+        {"ring": None, "exterior": None},
+        {"ring": None, "exterior": None},
+    ]
+
+
+def test_st_exterior_ring_register_all_untyped_null():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    result = ctx.sql("SELECT ST_ExteriorRing(NULL) AS value").to_arrow_table()
+
+    value_field = result.schema.field("value")
+    assert value_field.metadata.get(b"ARROW:extension:name") == b"geoarrow.geometry"
+    assert result.to_pylist() == [{"value": None}]
+
+    result = ctx.sql(
+        """
+        SELECT ST_ExteriorRing(value) AS value
+        FROM (VALUES (NULL), (NULL)) AS inputs(value)
+        """
+    ).to_arrow_table()
+
+    value_field = result.schema.field("value")
+    assert value_field.metadata.get(b"ARROW:extension:name") == b"geoarrow.geometry"
+    assert result.to_pylist() == [{"value": None}, {"value": None}]
+
+
 def test_st_isempty_and_extent():
     ctx = SessionContext()
     register_all(ctx)
@@ -279,3 +339,85 @@ def test_st_dwithin_registered():
     assert result.column("outside")[0].as_py() is False
     assert result.column("empty")[0].as_py() is False
     assert result.column("null_wins_invalid_radius")[0].as_py() is None
+
+
+def test_register_all_st_hasz_scalar_and_array():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    scalar = ctx.sql(
+        """
+        SELECT
+            ST_HasZ(ST_GeomFromText('POINT(1 2)')) AS xy,
+            ST_HasZ(ST_GeomFromText('POINT Z(1 2 3)')) AS xyz,
+            ST_HasZ(ST_GeomFromText('POINT M(1 2 4)')) AS xym,
+            ST_HasZ(ST_GeomFromText('POINT ZM(1 2 3 4)')) AS xyzm,
+            ST_HasZ(ST_GeomFromText(NULL)) AS null_value,
+            ST_HasZ(NULL) AS raw_null
+        """
+    ).to_arrow_table()
+    assert scalar.schema.field("xy").type == pa.bool_()
+    assert scalar.to_pylist() == [
+        {
+            "xy": False,
+            "xyz": True,
+            "xym": False,
+            "xyzm": True,
+            "null_value": None,
+            "raw_null": None,
+        }
+    ]
+
+    array = ctx.sql(
+        """
+        SELECT ST_HasZ(ST_GeomFromText(g)) AS has_z
+        FROM (
+            VALUES (0, 'POINT(1 2)'), (1, 'POINT Z(1 2 3)'),
+                   (2, 'POINT M(1 2 4)'), (3, 'POINT ZM(1 2 3 4)')
+        ) AS t(id, g)
+        ORDER BY id
+        """
+    ).to_arrow_table()
+    assert array.schema.field("has_z").type == pa.bool_()
+    assert array.column("has_z").to_pylist() == [False, True, False, True]
+
+
+def test_register_all_st_hasm_scalar_and_array():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    scalar = ctx.sql(
+        """
+        SELECT
+            ST_HasM(ST_GeomFromText('POINT(1 2)')) AS xy,
+            ST_HasM(ST_GeomFromText('POINT Z(1 2 3)')) AS xyz,
+            ST_HasM(ST_GeomFromText('POINT M(1 2 4)')) AS xym,
+            ST_HasM(ST_GeomFromText('POINT ZM(1 2 3 4)')) AS xyzm,
+            ST_HasM(ST_GeomFromText(NULL)) AS null_value,
+            ST_HasM(NULL) AS raw_null
+        """
+    ).to_arrow_table()
+    assert scalar.schema.field("xy").type == pa.bool_()
+    assert scalar.to_pylist() == [
+        {
+            "xy": False,
+            "xyz": False,
+            "xym": True,
+            "xyzm": True,
+            "null_value": None,
+            "raw_null": None,
+        }
+    ]
+
+    array = ctx.sql(
+        """
+        SELECT ST_HasM(ST_GeomFromText(g)) AS has_m
+        FROM (
+            VALUES (0, 'POINT(1 2)'), (1, 'POINT Z(1 2 3)'),
+                   (2, 'POINT M(1 2 4)'), (3, 'POINT ZM(1 2 3 4)')
+        ) AS t(id, g)
+        ORDER BY id
+        """
+    ).to_arrow_table()
+    assert array.schema.field("has_m").type == pa.bool_()
+    assert array.column("has_m").to_pylist() == [False, False, True, True]
