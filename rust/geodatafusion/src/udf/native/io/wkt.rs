@@ -8,12 +8,16 @@ use datafusion::logical_expr::{
     Volatility,
 };
 use geoarrow_array::GeoArrowArray;
-use geoarrow_array::array::{LargeWktArray, WktArray, WktViewArray, from_arrow_array};
+use geoarrow_array::array::{
+    GenericWktArrayType, LargeWktArray, WktArray, WktViewArray, from_arrow_array,
+};
 use geoarrow_array::cast::{from_wkt, to_wkt};
+use geoarrow_schema::error::GeoArrowResult;
 use geoarrow_schema::{CoordType, GeoArrowType, GeometryType, Metadata, WktType};
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
+use crate::udf::native::io::geometry::GeometryArrayBuilder;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct AsText;
@@ -108,15 +112,15 @@ impl GeomFromText {
         let field = &args.arg_fields[0];
         let to_type = GeoArrowType::from_arrow_field(args.return_field.as_ref())?;
         let geom_arr = match field.data_type() {
-            DataType::Utf8 => from_wkt(
+            DataType::Utf8 => from_wkt_preserving_collections(
                 &WktArray::try_from((array.as_ref(), field.as_ref()))?,
                 to_type,
             ),
-            DataType::LargeUtf8 => from_wkt(
+            DataType::LargeUtf8 => from_wkt_preserving_collections(
                 &LargeWktArray::try_from((array.as_ref(), field.as_ref()))?,
                 to_type,
             ),
-            DataType::Utf8View => from_wkt(
+            DataType::Utf8View => from_wkt_preserving_collections(
                 &WktViewArray::try_from((array.as_ref(), field.as_ref()))?,
                 to_type,
             ),
@@ -125,6 +129,22 @@ impl GeomFromText {
 
         Ok(ColumnarValue::Array(geom_arr.to_array_ref()))
     }
+}
+
+fn from_wkt_preserving_collections(
+    array: &impl GenericWktArrayType,
+    to_type: GeoArrowType,
+) -> GeoArrowResult<Arc<dyn GeoArrowArray>> {
+    let GeoArrowType::Geometry(typ) = to_type else {
+        return from_wkt(array, to_type);
+    };
+
+    let mut builder = GeometryArrayBuilder::new(typ);
+    for geometry in array.iter() {
+        let geometry = geometry.transpose()?;
+        builder.push_geometry(geometry.as_ref())?;
+    }
+    Ok(Arc::new(builder.finish()))
 }
 
 impl Default for GeomFromText {

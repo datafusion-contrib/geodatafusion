@@ -53,7 +53,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_DumpSegments     |             | Returns a set of geometry_dump rows for the segments in a geometry.                                     |
 | ST_DumpRings        |             | Returns a set of geometry_dump rows for the exterior and interior rings of a Polygon.                   |
 | ST_EndPoint         | ✅          | Returns the last point of a LineString or CircularLineString.                                           |
-| ST_Envelope         | ✅          | Returns a geometry representing the bounding box of a geometry.                                         |
+| ST_Envelope         |             | Returns a geometry representing the bounding box of a geometry.                                         |
 | ST_ExteriorRing     |             | Returns a LineString representing the exterior ring of a Polygon.                                       |
 | ST_GeometryN        |             | Return an element of a geometry collection.                                                             |
 | ST_GeometryType     | ✅          | Returns the SQL-MM type of a geometry as text.                                                          |
@@ -292,13 +292,13 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_BuildArea                |             | Creates a polygonal geometry formed by the linework of a geometry.                                |
 | ST_Centroid                 | ✅          | Returns the geometric center of a geometry.                                                       |
 | ST_ChaikinSmoothing         |             | Returns a smoothed version of a geometry, using the Chaikin algorithm                             |
-| ST_ConcaveHull              | ✅          | Computes a possibly concave geometry that contains all input geometry vertices                    |
+| ST_ConcaveHull              |             | Computes a possibly concave geometry that contains all input geometry vertices                    |
 | ST_ConvexHull               | ✅          | Computes the convex hull of a geometry.                                                           |
 | ST_DelaunayTriangles        |             | Returns the Delaunay triangulation of the vertices of a geometry.                                 |
 | ST_FilterByM                |             | Removes vertices based on their M value                                                           |
 | ST_GeneratePoints           |             | Generates a multipoint of random points contained in a Polygon or MultiPolygon.                   |
 | ST_GeometricMedian          |             | Returns the geometric median of a MultiPoint.                                                     |
-| ST_LineMerge                | ✅          | Return the lines formed by sewing together a MultiLineString.                                     |
+| ST_LineMerge                | ✅          | Return the lines formed by sewing together a MultiLineString. Requires the `geos-3_11` feature.   |
 | ST_MaximumInscribedCircle   |             | Computes the largest circle contained within a geometry.                                          |
 | ST_LargestEmptyCircle       |             | Computes the largest circle not overlapping a geometry.                                           |
 | ST_MinimumBoundingCircle    |             | Returns the smallest circle polygon that contains a geometry.                                     |
@@ -357,7 +357,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | Box2D              | ✅          | Returns a BOX2D representing the 2D extent of a geometry.                |
 | Box3D              | ✅          | Returns a BOX3D representing the 3D extent of a geometry.                |
 | ST_EstimatedExtent |             | Returns the estimated extent of a spatial table.                         |
-| ST_Expand          | ✅          | Returns a bounding box expanded from another bounding box or a geometry. |
+| ST_Expand          |             | Returns a bounding box expanded from another bounding box or a geometry. |
 | ST_Extent          | ✅          | Aggregate function that returns the bounding box of geometries.          |
 | ST_3DExtent        |             | Aggregate function that returns the 3D bounding box of geometries.       |
 | ST_MakeBox2D       | ✅          | Creates a BOX2D defined by two 2D point geometries.                      |
