@@ -1,0 +1,69 @@
+query I
+SELECT ST_NumGeometries(ST_GeomFromText(wkt))
+FROM (
+  VALUES
+    ('POINT EMPTY'),
+    ('POINT(1 2)'),
+    ('LINESTRING EMPTY'),
+    ('POLYGON((0 0,0 5,5 5,0 0))'),
+    ('MULTIPOINT EMPTY'),
+    ('GEOMETRYCOLLECTION(POINT EMPTY)'),
+    ('GEOMETRYCOLLECTION(POINT EMPTY,POINT(1 2))'),
+    ('GEOMETRYCOLLECTION(POLYGON EMPTY,LINESTRING EMPTY)'),
+    ('GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2)))'),
+    ('GEOMETRYCOLLECTION(MULTIPOINT((1 2),(3 4)))')
+) AS geometries(wkt);
+----
+0
+1
+0
+1
+0
+0
+2
+0
+1
+1
+
+query I
+SELECT ST_NumGeometries(
+  ST_GeomFromWKB(
+    X'0104000000020000000101000000000000000000f87f000000000000f87f010100000000000000000000000000000000000000'
+  )
+);
+----
+2
+
+query I
+SELECT ST_NumGeometries(
+  ST_GeomFromWKB(
+    ST_AsBinary(ST_GeomFromText(
+      'GEOMETRYCOLLECTION(POINT EMPTY,POINT(1 2))'
+    ))
+  )
+);
+----
+2
+
+query I
+SELECT ST_NumGeometries(ST_GeomFromText(wkt))
+FROM (
+  VALUES
+    ('MULTIPOINT((1 2),(3 4))'),
+    (NULL)
+) AS geometries(wkt);
+----
+2
+NULL
+
+query I
+SELECT ST_NumGeometries(NULL);
+----
+NULL
+
+query I
+SELECT ST_NumGeometries(geom)
+FROM (VALUES (NULL), (NULL)) AS geometries(geom);
+----
+NULL
+NULL

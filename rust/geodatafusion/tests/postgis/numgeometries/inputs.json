@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "numgeometries-point-empty",
+      "function": "ST_NumGeometries",
+      "tags": ["atomic", "empty"],
+      "arguments": [
+        {"type": "text", "value": "POINT EMPTY"}
+      ],
+      "result_columns": [
+        {"name": "value", "type": "float64"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_NumGeometries.html"
+    },
+    {
+      "id": "numgeometries-point",
+      "function": "ST_NumGeometries",
+      "tags": ["atomic"],
+      "arguments": [
+        {"type": "text", "value": "POINT(1 2)"}
+      ],
+      "result_columns": [
+        {"name": "value", "type": "float64"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_NumGeometries.html"
+    },
+    {
+      "id": "numgeometries-collection-empty",
+      "function": "ST_NumGeometries",
+      "tags": ["geometrycollection", "topologically-empty"],
+      "arguments": [
+        {"type": "text", "value": "GEOMETRYCOLLECTION(POINT EMPTY)"}
+      ],
+      "result_columns": [
+        {"name": "value", "type": "float64"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_NumGeometries.html"
+    },
+    {
+      "id": "numgeometries-collection-includes-empty",
+      "function": "ST_NumGeometries",
+      "tags": ["geometrycollection", "empty-member"],
+      "arguments": [
+        {"type": "text", "value": "GEOMETRYCOLLECTION(POINT EMPTY,POINT(1 2))"}
+      ],
+      "result_columns": [
+        {"name": "value", "type": "float64"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_NumGeometries.html"
+    },
+    {
+      "id": "numgeometries-nested-collection",
+      "function": "ST_NumGeometries",
+      "tags": ["geometrycollection", "nested"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2)))"
+        }
+      ],
+      "result_columns": [
+        {"name": "value", "type": "float64"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_NumGeometries.html"
+    },
+    {
+      "id": "numgeometries-null",
+      "function": "ST_NumGeometries",
+      "tags": ["null"],
+      "arguments": [
+        {"type": "null_text"}
+      ],
+      "result_columns": [
+        {"name": "value", "type": "float64"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_NumGeometries.html"
+    }
+  ]
+}
