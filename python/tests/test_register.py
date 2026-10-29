@@ -276,3 +276,44 @@ def test_st_dwithin_registered():
     assert result.column("outside")[0].as_py() is False
     assert result.column("empty")[0].as_py() is False
     assert result.column("null_wins_invalid_radius")[0].as_py() is None
+
+
+def test_register_all_st_hasz_scalar_and_array():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    scalar = ctx.sql(
+        """
+        SELECT
+            ST_HasZ(ST_GeomFromText('POINT(1 2)')) AS xy,
+            ST_HasZ(ST_GeomFromText('POINT Z(1 2 3)')) AS xyz,
+            ST_HasZ(ST_GeomFromText('POINT M(1 2 4)')) AS xym,
+            ST_HasZ(ST_GeomFromText('POINT ZM(1 2 3 4)')) AS xyzm,
+            ST_HasZ(ST_GeomFromText(NULL)) AS null_value,
+            ST_HasZ(NULL) AS raw_null
+        """
+    ).to_arrow_table()
+    assert scalar.schema.field("xy").type == pa.bool_()
+    assert scalar.to_pylist() == [
+        {
+            "xy": False,
+            "xyz": True,
+            "xym": False,
+            "xyzm": True,
+            "null_value": None,
+            "raw_null": None,
+        }
+    ]
+
+    array = ctx.sql(
+        """
+        SELECT ST_HasZ(ST_GeomFromText(g)) AS has_z
+        FROM (
+            VALUES (0, 'POINT(1 2)'), (1, 'POINT Z(1 2 3)'),
+                   (2, 'POINT M(1 2 4)'), (3, 'POINT ZM(1 2 3 4)')
+        ) AS t(id, g)
+        ORDER BY id
+        """
+    ).to_arrow_table()
+    assert array.schema.field("has_z").type == pa.bool_()
+    assert array.column("has_z").to_pylist() == [False, True, False, True]
