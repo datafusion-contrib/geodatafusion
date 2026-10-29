@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "makeenvelope-standard",
+      "function": "ST_MakeEnvelope",
+      "tags": ["constructor", "polygon"],
+      "arguments": [
+        {"type": "text", "value": "0"},
+        {"type": "text", "value": "1"},
+        {"type": "text", "value": "10"},
+        {"type": "text", "value": "6"},
+        {"type": "text", "value": "0"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeEnvelope.html"
+    },
+    {
+      "id": "makeenvelope-reversed",
+      "function": "ST_MakeEnvelope",
+      "tags": ["constructor", "reversed"],
+      "arguments": [
+        {"type": "text", "value": "10"},
+        {"type": "text", "value": "6"},
+        {"type": "text", "value": "0"},
+        {"type": "text", "value": "1"},
+        {"type": "text", "value": "0"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeEnvelope.html"
+    },
+    {
+      "id": "makeenvelope-point-degenerate",
+      "function": "ST_MakeEnvelope",
+      "tags": ["constructor", "degenerate"],
+      "arguments": [
+        {"type": "text", "value": "2"},
+        {"type": "text", "value": "3"},
+        {"type": "text", "value": "2"},
+        {"type": "text", "value": "3"},
+        {"type": "text", "value": "0"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeEnvelope.html"
+    },
+    {
+      "id": "makeenvelope-nan-coordinate",
+      "function": "ST_MakeEnvelope",
+      "tags": ["constructor", "non-finite"],
+      "arguments": [
+        {"type": "text", "value": "NaN"},
+        {"type": "text", "value": "0"},
+        {"type": "text", "value": "1"},
+        {"type": "text", "value": "1"},
+        {"type": "text", "value": "0"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeEnvelope.html"
+    },
+    {
+      "id": "makeenvelope-null-coordinate",
+      "function": "ST_MakeEnvelope",
+      "tags": ["constructor", "null"],
+      "arguments": [
+        {"type": "null_text"},
+        {"type": "text", "value": "1"},
+        {"type": "text", "value": "10"},
+        {"type": "text", "value": "6"},
+        {"type": "text", "value": "0"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeEnvelope.html"
+    },
+    {
+      "id": "makeenvelope-null-srid",
+      "function": "ST_MakeEnvelope",
+      "tags": ["constructor", "null"],
+      "arguments": [
+        {"type": "text", "value": "0"},
+        {"type": "text", "value": "1"},
+        {"type": "text", "value": "10"},
+        {"type": "text", "value": "6"},
+        {"type": "null_text"}
+      ],
+      "result_columns": [
+        {"name": "geom", "type": "ewkb"}
+      ],
+      "comparison": {"mode": "geometry-exact"},
+      "source": "https://postgis.net/docs/ST_MakeEnvelope.html"
+    }
+  ]
+}
