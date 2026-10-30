@@ -10,11 +10,11 @@ This is a Rust workspace with multiple crates:
     - Internally, each _provider_ of functions is organized in submodules:
         - `native/` - Operations that are natively implemented, without the use of other dependencies like `geo`
         - `geo/` - Operations implemented using the `geo` crate
-        - `geos/` - Operations implemented using the `geos` crate (bindings to the native GEOS library), gated behind the optional `geos` feature
+        - `geos/` - Operations implemented using the `geos` crate (bindings to the native GEOS library), gated behind optional versioned GEOS features such as `geos-3_11`
         - `geohash/` - GeoHash encoding/decoding, using the `geohash` crate
 - `rust/geodatafusion-flatgeobuf` - FlatGeobuf format support
 - `rust/geodatafusion-geoparquet` - GeoParquet format support
-- `rust/geodatafusion-geojson` - GeoJSON format support
+- `rust/geodatafusion-geojson` - GeoJSON Lines (`.geojsonl`) format support
 - `python/` - Python bindings (separate workspace)
 
 ## Prerequisites
@@ -127,10 +127,11 @@ Functions are organized by category in `rust/geodatafusion/src/udf/`:
 
 - `native/constructors/` - Geometry constructors (ST_MakePoint, etc.)
 - `native/accessors/` - Geometry accessors (ST_X, ST_Y, etc.)
+- `native/editors/` - Geometry editors (ST_Force2D, ST_Force3D, etc.)
 - `native/io/` - Input/output (WKT, WKB)
 - `native/bounding_box/` - Bounding box functions
 - `geo/measurement/` - Measurement functions (ST_Area, ST_Distance)
-- `geo/processing/` - Processing functions (ST_Buffer, ST_Simplify)
+- `geo/processing/` - Processing functions (ST_Centroid, ST_Simplify, etc.)
 - `geo/relationships/` - Spatial relationships (ST_Intersects, etc.)
 - `geo/validation/` - Validation functions (ST_IsValid)
 - `geos/processing/` - GEOS-backed processing functions (ST_LineMerge)
@@ -152,7 +153,7 @@ add a direct dependency on the `geos` crate to your project,
 and enable the `static` feature like so:
 
 ```toml
-geos = { version = "11.1.1", features = ["static"] }
+geos = { version = "11.1", features = ["static"] }
 ```
 
 If you're using cargo workspaces, make sure that

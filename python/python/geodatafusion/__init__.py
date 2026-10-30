@@ -24,17 +24,21 @@ def _register_exports(ctx: SessionContext, group: str) -> None:
         ctx.register_udaf(udaf(capsule))
 
 
-def register_all_geo(ctx: SessionContext):
+def register_all_geo(ctx: SessionContext) -> None:
+    """Register all `geo`-backed spatial UDFs on the given SessionContext."""
     _register_exports(ctx, "geo")
 
 
-def register_all_geohash(ctx: SessionContext):
+def register_all_geohash(ctx: SessionContext) -> None:
+    """Register all GeoHash UDFs on the given SessionContext."""
     _register_exports(ctx, "geohash")
 
 
-def register_all_native(ctx: SessionContext):
+def register_all_native(ctx: SessionContext) -> None:
+    """Register all native spatial UDFs and UDAFs on the given SessionContext."""
     _register_exports(ctx, "native")
 
 
-def register_all(ctx: SessionContext):
+def register_all(ctx: SessionContext) -> None:
+    """Register all spatial UDFs and UDAFs defined in geodatafusion on the given SessionContext."""
     _register_exports(ctx, "all")

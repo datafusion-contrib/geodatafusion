@@ -214,7 +214,7 @@ impl ScalarUDFImpl for GeomFromText {
                 "Constructs a geometry object from the OGC Well-Known text representation.",
                 "ST_GeomFromText(text)",
             )
-            .with_argument("g1", "geometry")
+            .with_argument("text", "WKT text")
             .build()
         }))
     }

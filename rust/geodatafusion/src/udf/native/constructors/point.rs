@@ -166,15 +166,15 @@ impl ScalarUDFImpl for PointZ {
         Some(POINT_Z_DOC.get_or_init(|| {
             Documentation::builder(
                 DOC_SECTION_OTHER,
-                "Returns an Point with the given X, Y and Z coordinate values, and optionally an SRID number.",
-                "ST_Point(-71.104, 42.315) or ST_Point(-71.104, 42.315, 4326)",
+                "Returns a Point with the given X, Y and Z coordinate values, and optionally an SRID number.",
+                "ST_PointZ(-71.104, 42.315, 3.4) or ST_PointZ(-71.104, 42.315, 3.4, 4326)",
             )
             .with_argument("x", "x value")
             .with_argument("y", "y value")
             .with_argument("z", "z value")
             .with_argument("srid", "integer SRID value")
             .with_related_udf("st_makepoint")
-            .with_related_udf("st_pointz")
+            .with_related_udf("st_point")
             .build()
         }))
     }
@@ -249,7 +249,7 @@ impl ScalarUDFImpl for PointM {
         Some(POINT_M_DOC.get_or_init(|| {
             Documentation::builder(
                 DOC_SECTION_OTHER,
-                "Returns an Point with the given X, Y and M coordinate values, and optionally an SRID number.",
+                "Returns a Point with the given X, Y and M coordinate values, and optionally an SRID number.",
                 "ST_PointM(-71.104, 42.315, 3.4) or ST_PointM(-71.104, 42.315, 3.4, 4326)",
             )
             .with_argument("x", "x value")
@@ -257,7 +257,7 @@ impl ScalarUDFImpl for PointM {
             .with_argument("m", "m value")
             .with_argument("srid", "integer SRID value")
             .with_related_udf("st_makepoint")
-            .with_related_udf("st_pointz")
+            .with_related_udf("st_point")
             .build()
         }))
     }
@@ -334,8 +334,8 @@ impl ScalarUDFImpl for PointZM {
         Some(POINT_ZM_DOC.get_or_init(|| {
             Documentation::builder(
                 DOC_SECTION_OTHER,
-                "Returns an Point with the given X, Y, Z and M coordinate values, and optionally an SRID number.",
-                "ST_Point(-71.104, 42.315) or ST_Point(-71.104, 42.315, 4326)",
+                "Returns a Point with the given X, Y, Z and M coordinate values, and optionally an SRID number.",
+                "ST_PointZM(-71.104, 42.315, 3.4, 4.5) or ST_PointZM(-71.104, 42.315, 3.4, 4.5, 4326)",
             )
             .with_argument("x", "x value")
             .with_argument("y", "y value")
@@ -343,7 +343,7 @@ impl ScalarUDFImpl for PointZM {
             .with_argument("m", "m value")
             .with_argument("srid", "integer SRID value")
             .with_related_udf("st_makepoint")
-            .with_related_udf("st_pointz")
+            .with_related_udf("st_point")
             .build()
         }))
     }
@@ -431,7 +431,7 @@ impl ScalarUDFImpl for MakePoint {
             .with_argument("m", "m value")
             .with_related_udf("st_point")
             .with_related_udf("st_pointz")
-            .with_related_udf("ST_MakePointM")
+            .with_related_udf("st_makepointm")
             .build()
         }))
     }
@@ -500,7 +500,7 @@ impl ScalarUDFImpl for MakePointM {
             .with_argument("m", "m value")
             .with_related_udf("st_point")
             .with_related_udf("st_pointz")
-            .with_related_udf("ST_MakePoint")
+            .with_related_udf("st_makepoint")
             .build()
         }))
     }

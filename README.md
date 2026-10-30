@@ -12,6 +12,17 @@ datafusion = "55.0"
 geodatafusion = "0.6"
 ```
 
+## Usage
+
+Register all spatial functions on a DataFusion `SessionContext`:
+
+```rust
+use datafusion::prelude::SessionContext;
+
+let ctx = SessionContext::new();
+geodatafusion::register(&ctx);
+```
+
 ## Functions supported
 
 Functions are explicitly modeled after the [PostGIS API](https://postgis.net/docs/reference.html). We strive to match the PostGIS API as much as possible.
@@ -72,7 +83,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_NRings           | ✅          | Returns the number of rings in a polygonal geometry.                                                    |
 | ST_NumGeometries    | ✅          | Returns the number of elements in a geometry collection.                                                |
 | ST_NumInteriorRings | ✅          | Returns the number of interior rings (holes) of a Polygon.                                              |
-| ST_NumInteriorRing  | ✅          | Returns the number of interior rings (holes) of a Polygon. Aias for ST_NumInteriorRings                 |
+| ST_NumInteriorRing  | ✅          | Returns the number of interior rings (holes) of a Polygon. Alias for ST_NumInteriorRings                |
 | ST_NumPoints        | ✅          | Returns the number of points in a LineString or CircularString.                                         |
 | ST_PointN           | ✅          | Returns the Nth point in the first LineString or circular LineString in a geometry.                     |
 | ST_Points           |             | Returns a MultiPoint containing the coordinates of a geometry.                                          |
@@ -156,7 +167,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | Name                 | Implemented | Description                                                                                                                                   |
 | -------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | ST_GeomFromEWKB      |             | Return a specified ST_Geometry value from Extended Well-Known Binary representation (EWKB).                                                   |
-| ST_GeomFromWKB       | ✅          | Creates a geometry instance from a Well-Known Binary geometry representation (WKB) and optional SRID.                                         |
+| ST_GeomFromWKB       | ✅          | Creates a geometry instance from a Well-Known Binary geometry representation (WKB).                                                           |
 | ST_LineFromWKB       |             | Makes a LINESTRING from WKB with the given SRID                                                                                               |
 | ST_LinestringFromWKB |             | Makes a geometry from WKB with the given SRID.                                                                                                |
 | ST_PointFromWKB      |             | Makes a geometry from WKB with the given SRID                                                                                                 |

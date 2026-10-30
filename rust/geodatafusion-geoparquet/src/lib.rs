@@ -1,4 +1,4 @@
-// #![doc = include_str!("../README.md")]
+#![doc = include_str!("../README.md")]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 // #![warn(missing_docs)]
@@ -9,6 +9,8 @@
 
 pub mod file_format;
 pub mod source;
+
+pub use file_format::{GeoParquetFormat, GeoParquetFormatFactory};
 
 #[cfg(test)]
 mod tests {
