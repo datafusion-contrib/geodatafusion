@@ -1,6 +1,7 @@
 //! Geometry processing and simplification UDFs implemented with [`geo`](https://docs.rs/geo).
 
 mod centroid;
+mod concave_hull;
 mod convex_hull;
 mod line_merge;
 mod oriented_envelope;
@@ -8,6 +9,7 @@ mod point_on_surface;
 mod simplify;
 
 pub use centroid::Centroid;
+pub use concave_hull::ConcaveHull;
 pub use convex_hull::ConvexHull;
 pub use line_merge::LineMerge;
 pub use oriented_envelope::OrientedEnvelope;
@@ -17,6 +19,7 @@ pub use simplify::{Simplify, SimplifyPreserveTopology, SimplifyVW};
 /// Register all `geo` processing UDFs into the given [`SessionContext`](datafusion::prelude::SessionContext).
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
     session_context.register_udf(Centroid::default().into());
+    session_context.register_udf(ConcaveHull::default().into());
     session_context.register_udf(ConvexHull::default().into());
     session_context.register_udf(LineMerge::default().into());
     session_context.register_udf(OrientedEnvelope::default().into());

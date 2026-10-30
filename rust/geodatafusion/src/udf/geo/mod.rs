@@ -2,7 +2,7 @@
 
 /// 2D Cartesian measurement UDFs (`ST_Area`, `ST_Distance`, `ST_DWithin`, `ST_Length`).
 pub mod measurement;
-/// Geometry processing and simplification UDFs (`ST_Centroid`, `ST_ConvexHull`, `ST_OrientedEnvelope`, `ST_PointOnSurface`, `ST_Simplify*`).
+/// Geometry processing and simplification UDFs (`ST_Centroid`, `ST_ConcaveHull`, `ST_ConvexHull`, `ST_OrientedEnvelope`, `ST_PointOnSurface`, `ST_Simplify*`).
 pub mod processing;
 /// DE-9IM topological relationship predicate UDFs (`ST_Contains`, `ST_Intersects`, `ST_Within`, etc.).
 pub mod relationships;

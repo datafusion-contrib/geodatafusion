@@ -23,6 +23,7 @@ geoarrow-array = { workspace = true }
 geoarrow-expr-geo = { workspace = true }
 geoarrow-schema = { workspace = true }
 geohash = { workspace = true }
+robust = { workspace = true }
 thiserror = { workspace = true }
 wkb = { workspace = true }
 wkt = { workspace = true }

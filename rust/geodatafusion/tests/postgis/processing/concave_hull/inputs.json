@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "concavehull-ratio-one",
+      "function": "ST_ConcaveHull",
+      "tags": ["processing", "convex", "ratio-one"],
+      "arguments": [
+        {"type": "text", "value": "MULTIPOINT((0 0),(3 0),(1 2),(0 4))"},
+        {"type": "float64", "value": 1.0},
+        {"type": "boolean", "value": false},
+        {"type": "text", "value": "ST_Polygon"},
+        {"type": "text", "value": "POLYGON((0 0,0 4,3 0,0 0))"}
+      ],
+      "result_columns": [
+        {"name": "is_empty", "type": "boolean"},
+        {"name": "area", "type": "float64"},
+        {"name": "nrings", "type": "int32"},
+        {"name": "ndims", "type": "int32"},
+        {"name": "type_matches", "type": "boolean"},
+        {"name": "equals_expected", "type": "boolean"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_ConcaveHull.html"
+    },
+    {
+      "id": "concavehull-ratio-low",
+      "function": "ST_ConcaveHull",
+      "tags": ["processing", "concave"],
+      "arguments": [
+        {"type": "text", "value": "MULTIPOINT((0 0),(3 0),(1 2),(0 4))"},
+        {"type": "float64", "value": 0.1},
+        {"type": "boolean", "value": false},
+        {"type": "text", "value": "ST_Polygon"},
+        {"type": "text", "value": "POLYGON((0 0,0 4,1 2,3 0,0 0))"}
+      ],
+      "result_columns": [
+        {"name": "is_empty", "type": "boolean"},
+        {"name": "area", "type": "float64"},
+        {"name": "nrings", "type": "int32"},
+        {"name": "ndims", "type": "int32"},
+        {"name": "type_matches", "type": "boolean"},
+        {"name": "equals_expected", "type": "boolean"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_ConcaveHull.html"
+    },
+    {
+      "id": "concavehull-chevron-one",
+      "function": "ST_ConcaveHull",
+      "tags": ["processing", "convex", "chevron"],
+      "arguments": [
+        {"type": "text", "value": "MULTIPOINT((10 10),(90 10),(30 70),(70 70),(50 60))"},
+        {"type": "float64", "value": 1.0},
+        {"type": "boolean", "value": false},
+        {"type": "text", "value": "ST_Polygon"},
+        {"type": "text", "value": "POLYGON((10 10,30 70,70 70,90 10,10 10))"}
+      ],
+      "result_columns": [
+        {"name": "is_empty", "type": "boolean"},
+        {"name": "area", "type": "float64"},
+        {"name": "nrings", "type": "int32"},
+        {"name": "ndims", "type": "int32"},
+        {"name": "type_matches", "type": "boolean"},
+        {"name": "equals_expected", "type": "boolean"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_ConcaveHull.html"
+    },
+    {
+      "id": "concavehull-identical-point",
+      "function": "ST_ConcaveHull",
+      "tags": ["processing", "degenerate", "point"],
+      "arguments": [
+        {"type": "text", "value": "MULTIPOINT((1 2),(1 2),(1 2))"},
+        {"type": "float64", "value": 0.5},
+        {"type": "boolean", "value": false},
+        {"type": "text", "value": "ST_Point"},
+        {"type": "text", "value": "POINT(1 2)"}
+      ],
+      "result_columns": [
+        {"name": "is_empty", "type": "boolean"},
+        {"name": "area", "type": "float64"},
+        {"name": "nrings", "type": "int32"},
+        {"name": "ndims", "type": "int32"},
+        {"name": "type_matches", "type": "boolean"},
+        {"name": "equals_expected", "type": "boolean"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_ConcaveHull.html"
+    },
+    {
+      "id": "concavehull-collinear",
+      "function": "ST_ConcaveHull",
+      "tags": ["processing", "degenerate", "linestring"],
+      "arguments": [
+        {"type": "text", "value": "MULTIPOINT((0 0),(1 1),(2 2))"},
+        {"type": "float64", "value": 0.5},
+        {"type": "boolean", "value": false},
+        {"type": "text", "value": "ST_LineString"},
+        {"type": "text", "value": "LINESTRING(0 0,2 2)"}
+      ],
+      "result_columns": [
+        {"name": "is_empty", "type": "boolean"},
+        {"name": "area", "type": "float64"},
+        {"name": "nrings", "type": "int32"},
+        {"name": "ndims", "type": "int32"},
+        {"name": "type_matches", "type": "boolean"},
+        {"name": "equals_expected", "type": "boolean"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_ConcaveHull.html"
+    },
+    {
+      "id": "concavehull-xyz",
+      "function": "ST_ConcaveHull",
+      "tags": ["processing", "xyz"],
+      "arguments": [
+        {"type": "text", "value": "MULTIPOINT Z ((0 0 1),(1 0 2),(0 1 3),(1 1 4))"},
+        {"type": "float64", "value": 0.5},
+        {"type": "boolean", "value": false},
+        {"type": "text", "value": "ST_Polygon"},
+        {"type": "text", "value": "POLYGON Z((1 0 2,0 0 1,0 1 3,1 1 4,1 0 2))"}
+      ],
+      "result_columns": [
+        {"name": "is_empty", "type": "boolean"},
+        {"name": "area", "type": "float64"},
+        {"name": "nrings", "type": "int32"},
+        {"name": "ndims", "type": "int32"},
+        {"name": "type_matches", "type": "boolean"},
+        {"name": "equals_expected", "type": "boolean"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_ConcaveHull.html"
+    },
+    {
+      "id": "concavehull-drops-m",
+      "function": "ST_ConcaveHull",
+      "tags": ["processing", "xym"],
+      "arguments": [
+        {"type": "text", "value": "MULTIPOINT M ((0 0 1),(1 0 2),(0 1 3),(1 1 4))"},
+        {"type": "float64", "value": 0.5},
+        {"type": "boolean", "value": false},
+        {"type": "text", "value": "ST_Polygon"},
+        {"type": "text", "value": "POLYGON((1 0,0 0,0 1,1 1,1 0))"}
+      ],
+      "result_columns": [
+        {"name": "is_empty", "type": "boolean"},
+        {"name": "area", "type": "float64"},
+        {"name": "nrings", "type": "int32"},
+        {"name": "ndims", "type": "int32"},
+        {"name": "type_matches", "type": "boolean"},
+        {"name": "equals_expected", "type": "boolean"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_ConcaveHull.html"
+    },
+    {
+      "id": "concavehull-polygon-hole-allowed",
+      "function": "ST_ConcaveHull",
+      "tags": ["processing", "polygon", "holes"],
+      "arguments": [
+        {"type": "text", "value": "POLYGON((0 0,0 10,10 10,10 0,0 0),(4 4,4 6,6 6,6 4,4 4))"},
+        {"type": "float64", "value": 0.5},
+        {"type": "boolean", "value": true},
+        {"type": "text", "value": "ST_Polygon"},
+        {"type": "text", "value": "POLYGON((0 0,0 10,10 10,10 0,0 0),(4 4,4 6,6 6,6 4,4 4))"}
+      ],
+      "result_columns": [
+        {"name": "is_empty", "type": "boolean"},
+        {"name": "area", "type": "float64"},
+        {"name": "nrings", "type": "int32"},
+        {"name": "ndims", "type": "int32"},
+        {"name": "type_matches", "type": "boolean"},
+        {"name": "equals_expected", "type": "boolean"}
+      ],
+      "comparison": {"mode": "float-ulp", "max_ulps": 0},
+      "source": "https://postgis.net/docs/ST_ConcaveHull.html"
+    }
+  ]
+}

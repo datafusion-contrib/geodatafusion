@@ -1,11 +1,12 @@
 use geodatafusion::udf::geo::processing::{
-    Centroid, ConvexHull, LineMerge, OrientedEnvelope, PointOnSurface, Simplify,
+    Centroid, ConcaveHull, ConvexHull, LineMerge, OrientedEnvelope, PointOnSurface, Simplify,
     SimplifyPreserveTopology, SimplifyVW,
 };
 
 use crate::impl_udf_coord_type_arg;
 
 impl_udf_coord_type_arg!(Centroid, PyCentroid, "Centroid");
+impl_udf_coord_type_arg!(ConcaveHull, PyConcaveHull, "ConcaveHull");
 impl_udf_coord_type_arg!(ConvexHull, PyConvexHull, "ConvexHull");
 impl_udf_coord_type_arg!(LineMerge, PyLineMerge, "LineMerge");
 impl_udf_coord_type_arg!(OrientedEnvelope, PyOrientedEnvelope, "OrientedEnvelope");

@@ -8,6 +8,13 @@ For installation instructions, crate overviews, and a concise reference of imple
 
 Functions are explicitly modeled after the [PostGIS API](https://postgis.net/docs/reference.html). We strive to match the PostGIS API as much as possible.
 
+`ST_ConcaveHull` accepts the PostGIS signature and maps `pctconvex` monotonically to the `geo`
+crate's mapbox-style concavity parameter rather than using GEOS. Exact vertex selection can
+therefore differ at intermediate values, it drops M coordinates, and empty inputs preserve their
+geometry type. Existing polygon holes are retained only when `allow_holes=true`, whereas PostGIS
+3.6 retains source polygon holes even when that flag is false. The point-set algorithm does not
+introduce new holes for point-only inputs.
+
 ### Geometry Constructors
 
 | Name                  | Implemented | Description                                                                                                                |
@@ -284,7 +291,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_BuildArea                |             | Creates a polygonal geometry formed by the linework of a geometry.                                |
 | ST_Centroid                 | ✅          | Returns the geometric center of a geometry.                                                       |
 | ST_ChaikinSmoothing         |             | Returns a smoothed version of a geometry, using the Chaikin algorithm                             |
-| ST_ConcaveHull              |             | Computes a possibly concave geometry that contains all input geometry vertices                    |
+| ST_ConcaveHull              | ✅          | Computes a possibly concave geometry that contains all input geometry vertices                    |
 | ST_ConvexHull               | ✅          | Computes the convex hull of a geometry.                                                           |
 | ST_DelaunayTriangles        |             | Returns the Delaunay triangulation of the vertices of a geometry.                                 |
 | ST_FilterByM                |             | Removes vertices based on their M value                                                           |
