@@ -15,6 +15,7 @@ use geoarrow_array::{GeoArrowArrayAccessor, downcast_geoarrow_array};
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
+use crate::udf::native::io::geometry::is_polyhedral_surface_row;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct IsCollection;
@@ -95,17 +96,22 @@ fn is_collection_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarV
     }
     let geo_array = from_arrow_array(&array, &args.arg_fields[0])?;
     let geo_array_ref = geo_array.as_ref();
-    let result = downcast_geoarrow_array!(geo_array_ref, is_collection_array)?;
+    let result = downcast_geoarrow_array!(geo_array_ref, is_collection_array, &args.arg_fields[0])?;
     Ok(ColumnarValue::Array(Arc::new(result)))
 }
 
 fn is_collection_array<'a>(
     array: &'a impl GeoArrowArrayAccessor<'a>,
+    field: &arrow_schema::Field,
 ) -> GeoDataFusionResult<BooleanArray> {
     let mut builder = BooleanBuilder::with_capacity(array.len());
-    for geometry in array.iter() {
+    for (row, geometry) in array.iter().enumerate() {
         match geometry {
-            Some(geometry) => builder.append_value(is_collection_value(&geometry?)),
+            Some(geometry) => {
+                let value = !is_polyhedral_surface_row(array, field, row)
+                    && is_collection_value(&geometry?);
+                builder.append_value(value);
+            }
             None => builder.append_null(),
         }
     }

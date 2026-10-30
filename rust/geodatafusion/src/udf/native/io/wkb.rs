@@ -1,5 +1,6 @@
 use std::sync::{Arc, OnceLock};
 
+use arrow_array::cast::AsArray;
 use arrow_schema::{DataType, Field};
 use datafusion::error::{DataFusionError, Result};
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
@@ -11,13 +12,16 @@ use geoarrow_array::GeoArrowArray;
 use geoarrow_array::array::{
     GenericWkbArrayType, LargeWkbArray, WkbArray, WkbViewArray, from_arrow_array,
 };
-use geoarrow_array::cast::{from_wkb, to_wkb};
-use geoarrow_schema::error::GeoArrowResult;
+use geoarrow_array::cast::from_wkb;
+use geoarrow_schema::error::{GeoArrowError, GeoArrowResult};
 use geoarrow_schema::{CoordType, GeoArrowType, GeometryType, Metadata, WkbType};
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::{GeoDataFusionError, GeoDataFusionResult};
-use crate::udf::native::io::geometry::GeometryArrayBuilder;
+use crate::udf::native::io::geometry::{
+    GeometryArrayBuilder, GeometryCollectionArrayBuilder, array_to_wkb, is_polyhedral_surface_wkb,
+    polyhedral_wkb_to_multipolygon,
+};
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct AsBinary;
@@ -66,7 +70,8 @@ impl ScalarUDFImpl for AsBinary {
         let array = &ColumnarValue::values_to_arrays(&args.args)?[0];
         let field = &args.arg_fields[0];
         let geo_array = from_arrow_array(&array, field).map_err(GeoDataFusionError::GeoArrow)?;
-        let wkb_arr = to_wkb::<i32>(geo_array.as_ref()).map_err(GeoDataFusionError::GeoArrow)?;
+        let wkb_arr = array_to_wkb(geo_array.as_ref(), field.as_ref())
+            .map_err(GeoDataFusionError::GeoArrow)?;
         Ok(ColumnarValue::Array(wkb_arr.into_array_ref()))
     }
 
@@ -112,18 +117,30 @@ impl GeomFromWKB {
         let field = &args.arg_fields[0];
         let to_type = GeoArrowType::from_arrow_field(args.return_field.as_ref())?;
         let geom_arr = match field.data_type() {
-            DataType::Binary => from_wkb_preserving_collections(
-                &WkbArray::try_from((array.as_ref(), field.as_ref()))?,
-                to_type,
-            ),
-            DataType::LargeBinary => from_wkb_preserving_collections(
-                &LargeWkbArray::try_from((array.as_ref(), field.as_ref()))?,
-                to_type,
-            ),
-            DataType::BinaryView => from_wkb_preserving_collections(
-                &WkbViewArray::try_from((array.as_ref(), field.as_ref()))?,
-                to_type,
-            ),
+            DataType::Binary => {
+                let bin = array.as_binary::<i32>();
+                from_wkb_preserving_collections(
+                    &WkbArray::try_from((array.as_ref(), field.as_ref()))?,
+                    to_type,
+                    |row| bin.value(row),
+                )
+            }
+            DataType::LargeBinary => {
+                let bin = array.as_binary::<i64>();
+                from_wkb_preserving_collections(
+                    &LargeWkbArray::try_from((array.as_ref(), field.as_ref()))?,
+                    to_type,
+                    |row| bin.value(row),
+                )
+            }
+            DataType::BinaryView => {
+                let bin = array.as_binary_view();
+                from_wkb_preserving_collections(
+                    &WkbViewArray::try_from((array.as_ref(), field.as_ref()))?,
+                    to_type,
+                    |row| bin.value(row),
+                )
+            }
             _ => unreachable!(),
         }?;
         Ok(ColumnarValue::Array(geom_arr.to_array_ref()))
@@ -133,17 +150,46 @@ impl GeomFromWKB {
 fn from_wkb_preserving_collections<'a, A: GenericWkbArrayType<'a>>(
     array: &'a A,
     to_type: GeoArrowType,
+    raw_bytes_at: impl Fn(usize) -> &'a [u8],
 ) -> GeoArrowResult<Arc<dyn GeoArrowArray>> {
-    let GeoArrowType::Geometry(typ) = to_type else {
-        return from_wkb(array, to_type);
-    };
-
-    let mut builder = GeometryArrayBuilder::new(typ);
-    for geometry in array.iter() {
-        let geometry = geometry.transpose()?;
-        builder.push_geometry(geometry.as_ref())?;
+    match to_type {
+        GeoArrowType::Geometry(typ) => {
+            let mut builder = GeometryArrayBuilder::new(typ);
+            for (row, geometry) in array.iter().enumerate() {
+                if let Some(geometry) = geometry.transpose()? {
+                    if is_polyhedral_surface_wkb(raw_bytes_at(row)) {
+                        let mpoly = polyhedral_wkb_to_multipolygon(&geometry)?;
+                        builder.push_polyhedral_surface(Some(&mpoly))?;
+                    } else {
+                        builder.push_geometry(Some(&geometry))?;
+                    }
+                } else {
+                    builder.push_geometry(None::<&wkt::Wkt<f64>>)?;
+                }
+            }
+            Ok(Arc::new(builder.finish()))
+        }
+        GeoArrowType::GeometryCollection(typ) => {
+            let mut builder = GeometryCollectionArrayBuilder::new(typ);
+            for geometry in array.iter() {
+                if let Some(geometry) = geometry.transpose()? {
+                    let geo_traits::GeometryType::GeometryCollection(gc) =
+                        geo_traits::GeometryTrait::as_type(&geometry)
+                    else {
+                        return Err(GeoArrowError::IncorrectGeometryType(
+                            "Expected GeometryCollection".to_string(),
+                        ));
+                    };
+                    builder.push_geometry_collection(Some(gc))?;
+                } else {
+                    builder
+                        .push_geometry_collection(None::<&wkt::types::GeometryCollection<f64>>)?;
+                }
+            }
+            Ok(Arc::new(builder.finish()))
+        }
+        _ => from_wkb(array, to_type),
     }
-    Ok(Arc::new(builder.finish()))
 }
 
 impl Default for GeomFromWKB {

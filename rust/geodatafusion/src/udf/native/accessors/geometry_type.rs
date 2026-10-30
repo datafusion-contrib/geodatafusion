@@ -15,6 +15,7 @@ use geoarrow_schema::error::GeoArrowResult;
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
+use crate::udf::native::io::geometry::is_polyhedral_surface_row;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct GeometryType;
@@ -115,25 +116,34 @@ fn geometry_type_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarV
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
     let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
 
-    let result = Arc::new(geometry_type_array(&geo_array)?) as ArrayRef;
+    let result = Arc::new(geometry_type_array(&geo_array, &args.arg_fields[0])?) as ArrayRef;
     Ok(ColumnarValue::Array(result))
 }
 
-fn geometry_type_array(array: &dyn GeoArrowArray) -> GeoArrowResult<StringViewArray> {
-    downcast_geoarrow_array!(array, _geometry_type_impl)
+fn geometry_type_array(
+    array: &dyn GeoArrowArray,
+    field: &arrow_schema::Field,
+) -> GeoArrowResult<StringViewArray> {
+    downcast_geoarrow_array!(array, _geometry_type_impl, field)
 }
 
 fn _geometry_type_impl<'a>(
     array: &'a impl GeoArrowArrayAccessor<'a>,
+    field: &arrow_schema::Field,
 ) -> GeoArrowResult<StringViewArray> {
     let mut builder = StringViewBuilder::with_capacity(array.len());
 
-    for item in array.iter() {
+    for (row, item) in array.iter().enumerate() {
         if let Some(geom) = item {
             let geom = geom?;
             // TODO: should be possible to write to the underlying buffer directly instead of
             // allocating a String?
-            let s = format!("{}{}", geometry_type_str(&geom), geometry_suffix_str(&geom));
+            let type_name = if is_polyhedral_surface_row(array, field, row) {
+                "POLYHEDRALSURFACE"
+            } else {
+                geometry_type_str(&geom)
+            };
+            let s = format!("{type_name}{}", geometry_suffix_str(&geom));
             builder.append_value(s);
         } else {
             builder.append_null();
@@ -165,22 +175,32 @@ fn geometry_type_impl_st(args: ScalarFunctionArgs) -> GeoDataFusionResult<Column
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
     let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
 
-    let result = Arc::new(geometry_type_array_st(&geo_array)?) as ArrayRef;
+    let result = Arc::new(geometry_type_array_st(&geo_array, &args.arg_fields[0])?) as ArrayRef;
     Ok(ColumnarValue::Array(result))
 }
 
-fn geometry_type_array_st(array: &dyn GeoArrowArray) -> GeoArrowResult<StringViewArray> {
-    downcast_geoarrow_array!(array, _geometry_type_impl_st)
+fn geometry_type_array_st(
+    array: &dyn GeoArrowArray,
+    field: &arrow_schema::Field,
+) -> GeoArrowResult<StringViewArray> {
+    downcast_geoarrow_array!(array, _geometry_type_impl_st, field)
 }
 
 fn _geometry_type_impl_st<'a>(
     array: &'a impl GeoArrowArrayAccessor<'a>,
+    field: &arrow_schema::Field,
 ) -> GeoArrowResult<StringViewArray> {
     let mut builder = StringViewBuilder::with_capacity(array.len());
 
-    for item in array.iter() {
+    for (row, item) in array.iter().enumerate() {
         if let Some(geom) = item {
-            builder.append_value(geometry_type_str_st(&geom?));
+            let geom = geom?;
+            let type_name = if is_polyhedral_surface_row(array, field, row) {
+                "ST_PolyhedralSurface"
+            } else {
+                geometry_type_str_st(&geom)
+            };
+            builder.append_value(type_name);
         } else {
             builder.append_null();
         }

@@ -21,6 +21,7 @@ use geoarrow_schema::error::GeoArrowResult;
 use crate::data_types::any_geometry_type;
 use crate::error::GeoDataFusionResult;
 use crate::udf::native::accessors::is_empty::is_geometry_topologically_empty;
+use crate::udf::native::io::geometry::{is_polyhedral_surface_row, nested_collection_top_len};
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct NumGeometries;
@@ -85,23 +86,34 @@ fn num_geometries_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<Columnar
     }
 
     let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
-    let result = Arc::new(_num_geometries_impl(geo_array.as_ref())?) as ArrayRef;
+    let result = Arc::new(_num_geometries_impl(
+        geo_array.as_ref(),
+        &args.arg_fields[0],
+    )?) as ArrayRef;
     Ok(ColumnarValue::Array(result))
 }
 
-fn _num_geometries_impl(array: &dyn geoarrow_array::GeoArrowArray) -> GeoArrowResult<UInt32Array> {
-    downcast_geoarrow_array!(array, impl_num_geometries)
+fn _num_geometries_impl(
+    array: &dyn geoarrow_array::GeoArrowArray,
+    field: &arrow_schema::Field,
+) -> GeoArrowResult<UInt32Array> {
+    downcast_geoarrow_array!(array, impl_num_geometries, field)
 }
 
 fn impl_num_geometries<'a>(
     array: &'a impl GeoArrowArrayAccessor<'a>,
+    field: &arrow_schema::Field,
 ) -> GeoArrowResult<UInt32Array> {
     let mut builder = UInt32Builder::with_capacity(array.len());
-    for item in array.iter() {
+    for (row, item) in array.iter().enumerate() {
         if let Some(geometry) = item {
             let geometry = geometry?;
             let count = if is_geometry_topologically_empty(&geometry) {
                 0
+            } else if is_polyhedral_surface_row(array, field, row) {
+                1
+            } else if let Some(top_len) = nested_collection_top_len(array, row) {
+                top_len as u32
             } else {
                 immediate_geometry_count(&geometry)
             };

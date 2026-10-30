@@ -94,11 +94,11 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_CollectionHomogenize          |             | Returns the simplest representation of a geometry collection.                                       |
 | ST_Scroll                        |             | Change start point of a closed LineString.                                                          |
 | ST_FlipCoordinates               |             | Returns a version of a geometry with X and Y axis flipped.                                          |
-| ST_Force2D                       |             | Force the geometries into a "2-dimensional mode".                                                   |
-| ST_Force3D                       |             | Force the geometries into XYZ mode. This is an alias for ST_Force3DZ.                               |
-| ST_Force3DZ                      |             | Force the geometries into XYZ mode.                                                                 |
-| ST_Force3DM                      |             | Force the geometries into XYM mode.                                                                 |
-| ST_Force4D                       |             | Force the geometries into XYZM mode.                                                                |
+| ST_Force2D                       | ✅          | Force the geometries into a "2-dimensional mode".                                                   |
+| ST_Force3D                       | ✅          | Force the geometries into XYZ mode. This is an alias for ST_Force3DZ.                               |
+| ST_Force3DZ                      | ✅          | Force the geometries into XYZ mode.                                                                 |
+| ST_Force3DM                      | ✅          | Force the geometries into XYM mode.                                                                 |
+| ST_Force4D                       | ✅          | Force the geometries into XYZM mode.                                                                |
 | ST_ForceCollection               |             | Convert the geometry into a GEOMETRYCOLLECTION.                                                     |
 | ST_ForcePolygonCCW               |             | Orients all exterior rings counter-clockwise and all interior rings clockwise.                      |
 | ST_ForcePolygonCW                |             | Orients all exterior rings clockwise and all interior rings counter-clockwise.                      |

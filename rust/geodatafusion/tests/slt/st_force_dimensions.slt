@@ -1,0 +1,237 @@
+# ST_Force2D across XY, XYZ, XYM, XYZM
+query TTTT
+SELECT
+  ST_AsText(ST_Force2D(ST_GeomFromText('POINT(1 2)'))),
+  ST_AsText(ST_Force2D(ST_GeomFromText('POINT Z(1 2 3)'))),
+  ST_AsText(ST_Force2D(ST_GeomFromText('POINT M(1 2 4)'))),
+  ST_AsText(ST_Force2D(ST_GeomFromText('POINT ZM(1 2 3 4)')));
+----
+POINT(1 2) POINT(1 2) POINT(1 2) POINT(1 2)
+
+# ST_Force3DZ and ST_Force3D alias with default zvalue = 0.0
+query TTTT
+SELECT
+  ST_AsText(ST_Force3DZ(ST_GeomFromText('POINT(1 2)'))),
+  ST_AsText(ST_Force3D(ST_GeomFromText('POINT Z(1 2 3)'))),
+  ST_AsText(ST_Force3DZ(ST_GeomFromText('POINT M(1 2 4)'))),
+  ST_AsText(ST_Force3D(ST_GeomFromText('POINT ZM(1 2 3 4)')));
+----
+POINT Z(1 2 0) POINT Z(1 2 3) POINT Z(1 2 0) POINT Z(1 2 3)
+
+# ST_Force3DZ and ST_Force3D with custom zvalue (existing Z is preserved)
+query TTTT
+SELECT
+  ST_AsText(ST_Force3DZ(ST_GeomFromText('POINT(1 2)'), 9.5)),
+  ST_AsText(ST_Force3D(ST_GeomFromText('POINT Z(1 2 3)'), 9.5)),
+  ST_AsText(ST_Force3DZ(ST_GeomFromText('POINT M(1 2 4)'), 9.5)),
+  ST_AsText(ST_Force3D(ST_GeomFromText('POINT ZM(1 2 3 4)'), 9.5));
+----
+POINT Z(1 2 9.5) POINT Z(1 2 3) POINT Z(1 2 9.5) POINT Z(1 2 3)
+
+# ST_Force3DM with default mvalue = 0.0 and custom mvalue (existing M is preserved)
+query TTTT
+SELECT
+  ST_AsText(ST_Force3DM(ST_GeomFromText('POINT(1 2)'))),
+  ST_AsText(ST_Force3DM(ST_GeomFromText('POINT Z(1 2 3)'), 7.5)),
+  ST_AsText(ST_Force3DM(ST_GeomFromText('POINT M(1 2 4)'), 7.5)),
+  ST_AsText(ST_Force3DM(ST_GeomFromText('POINT ZM(1 2 3 4)'), 7.5));
+----
+POINT M(1 2 0) POINT M(1 2 7.5) POINT M(1 2 4) POINT M(1 2 4)
+
+# ST_Force4D with 1, 2, and 3 arguments (existing Z/M are preserved)
+query TTTT
+SELECT
+  ST_AsText(ST_Force4D(ST_GeomFromText('POINT(1 2)'))),
+  ST_AsText(ST_Force4D(ST_GeomFromText('POINT(1 2)'), 9.0)),
+  ST_AsText(ST_Force4D(ST_GeomFromText('POINT(1 2)'), 9.0, 11.0)),
+  ST_AsText(ST_Force4D(ST_GeomFromText('POINT Z(1 2 3)'), 9.0, 11.0));
+----
+POINT ZM(1 2 0 0) POINT ZM(1 2 9 0) POINT ZM(1 2 9 11) POINT ZM(1 2 3 11)
+
+query TT
+SELECT
+  ST_AsText(ST_Force4D(ST_GeomFromText('POINT M(1 2 4)'), 9.0, 11.0)),
+  ST_AsText(ST_Force4D(ST_GeomFromText('POINT ZM(1 2 3 4)'), 9.0, 11.0));
+----
+POINT ZM(1 2 9 4) POINT ZM(1 2 3 4)
+
+# Complex geometry types and single-child GEOMETRYCOLLECTION
+query TTTT
+SELECT
+  ST_AsText(ST_Force3DZ(ST_GeomFromText('LINESTRING(0 0, 1 1)'), 5)),
+  ST_AsText(ST_Force3DM(ST_GeomFromText('POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))'), 8)),
+  ST_AsText(ST_Force2D(ST_GeomFromText('MULTIPOINT Z((1 2 3), (4 5 6))'))),
+  ST_AsText(ST_Force4D(ST_GeomFromText('GEOMETRYCOLLECTION(POINT(1 2))'), 3, 4));
+----
+LINESTRING Z(0 0 5,1 1 5) POLYGON M((0 0 8,0 2 8,2 2 8,2 0 8,0 0 8)) MULTIPOINT((1 2),(4 5)) GEOMETRYCOLLECTION ZM(POINT ZM(1 2 3 4))
+
+# Box2D converts to Polygon and Box3D converts to 6-face PolyhedralSurface in target dimension
+query TTTTT
+SELECT
+  ST_AsText(ST_Force3DZ(ST_MakeBox2D(ST_Point(0, 1), ST_Point(2, 3)), 4)),
+  ST_AsText(ST_Force2D(ST_3DMakeBox(ST_MakePoint(0, 1, 2), ST_MakePoint(3, 4, 5)))),
+  ST_AsText(ST_Force3DZ(ST_3DMakeBox(ST_MakePoint(0, 1, 2), ST_MakePoint(3, 4, 5)), 9)),
+  ST_AsText(ST_Force3DM(ST_3DMakeBox(ST_MakePoint(0, 1, 2), ST_MakePoint(3, 4, 5)), 8)),
+  ST_AsText(ST_Force4D(ST_3DMakeBox(ST_MakePoint(0, 1, 2), ST_MakePoint(3, 4, 5)), 7, 8));
+----
+POLYGON Z((0 1 4,0 3 4,2 3 4,2 1 4,0 1 4)) POLYHEDRALSURFACE(((0 1,0 4,3 4,3 1,0 1)),((0 1,3 1,3 4,0 4,0 1)),((0 1,0 1,0 4,0 4,0 1)),((3 1,3 4,3 4,3 1,3 1)),((0 1,3 1,3 1,0 1,0 1)),((0 4,0 4,3 4,3 4,0 4))) POLYHEDRALSURFACE Z(((0 1 2,0 4 2,3 4 2,3 1 2,0 1 2)),((0 1 5,3 1 5,3 4 5,0 4 5,0 1 5)),((0 1 2,0 1 5,0 4 5,0 4 2,0 1 2)),((3 1 2,3 4 2,3 4 5,3 1 5,3 1 2)),((0 1 2,3 1 2,3 1 5,0 1 5,0 1 2)),((0 4 2,0 4 5,3 4 5,3 4 2,0 4 2))) POLYHEDRALSURFACE M(((0 1 8,0 4 8,3 4 8,3 1 8,0 1 8)),((0 1 8,3 1 8,3 4 8,0 4 8,0 1 8)),((0 1 8,0 1 8,0 4 8,0 4 8,0 1 8)),((3 1 8,3 4 8,3 4 8,3 1 8,3 1 8)),((0 1 8,3 1 8,3 1 8,0 1 8,0 1 8)),((0 4 8,0 4 8,3 4 8,3 4 8,0 4 8))) POLYHEDRALSURFACE ZM(((0 1 2 8,0 4 2 8,3 4 2 8,3 1 2 8,0 1 2 8)),((0 1 5 8,3 1 5 8,3 4 5 8,0 4 5 8,0 1 5 8)),((0 1 2 8,0 1 5 8,0 4 5 8,0 4 2 8,0 1 2 8)),((3 1 2 8,3 4 2 8,3 4 5 8,3 1 5 8,3 1 2 8)),((0 1 2 8,3 1 2 8,3 1 5 8,0 1 5 8,0 1 2 8)),((0 4 2 8,0 4 5 8,3 4 5 8,3 4 2 8,0 4 2 8)))
+
+# Nested GeometryCollection hierarchy (single-member and multi-member) is preserved
+query TTT
+SELECT
+  ST_AsText(ST_Force4D(ST_GeomFromText('GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2)))'), 3, 4)),
+  ST_AsText(ST_Force3DZ(ST_GeomFromText('GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2),POINT(3 4)))'), 5)),
+  ST_AsText(ST_Force2D(ST_GeomFromText('GEOMETRYCOLLECTION Z(GEOMETRYCOLLECTION Z(POINT Z(1 2 3),LINESTRING Z(0 0 1,3 4 2)),POINT Z(5 6 7))')));
+----
+GEOMETRYCOLLECTION ZM(GEOMETRYCOLLECTION ZM(POINT ZM(1 2 3 4))) GEOMETRYCOLLECTION Z(GEOMETRYCOLLECTION Z(POINT Z(1 2 5),POINT Z(3 4 5))) GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2),LINESTRING(0 0,3 4)),POINT(5 6))
+
+# EMPTY geometries preserve emptiness and update coordinate dimension
+query TTTT
+SELECT
+  ST_AsText(ST_Force2D(ST_GeomFromText('POINT ZM EMPTY'))),
+  ST_AsText(ST_Force3DZ(ST_GeomFromText('POINT EMPTY'), 1)),
+  ST_AsText(ST_Force3DM(ST_GeomFromText('POINT Z EMPTY'), 2)),
+  ST_AsText(ST_Force4D(ST_GeomFromText('LINESTRING EMPTY'), 1, 2));
+----
+POINT EMPTY POINT Z EMPTY POINT M EMPTY LINESTRING ZM EMPTY
+
+# Dimension accessors (ST_ZMFlag, ST_NDims) reflect forced dimensions
+query IIII
+SELECT
+  ST_ZMFlag(ST_Force2D(ST_GeomFromText('POINT ZM(1 2 3 4)'))),
+  ST_ZMFlag(ST_Force3DZ(ST_GeomFromText('POINT(1 2)'))),
+  ST_ZMFlag(ST_Force3DM(ST_GeomFromText('POINT(1 2)'))),
+  ST_ZMFlag(ST_Force4D(ST_GeomFromText('POINT(1 2)')));
+----
+0 2 1 3
+
+# NULL handling for geometry and zvalue/mvalue
+query BBBBB
+SELECT
+  ST_Force2D(NULL) IS NULL,
+  ST_Force3D(NULL) IS NULL,
+  ST_Force3DZ(ST_Point(1, 2), NULL) IS NULL,
+  ST_Force3DM(ST_Point(1, 2), NULL) IS NULL,
+  ST_Force4D(ST_Point(1, 2), 1.0, NULL) IS NULL;
+----
+true true true true true
+
+query TT
+SELECT
+  ST_AsText(ST_Force3DZ(ST_GeomFromText(wkt), z)),
+  ST_AsText(ST_Force4D(ST_GeomFromText(wkt), z, m))
+FROM (
+  VALUES
+    ('POINT(1 2)', 3.0, 4.0),
+    ('POINT Z(1 2 10)', 3.0, NULL),
+    (NULL, 3.0, 4.0)
+) AS t(wkt, z, m);
+----
+POINT Z(1 2 3) POINT ZM(1 2 3 4)
+POINT Z(1 2 10) NULL
+NULL NULL
+
+# Regression: 1-level GeometryCollection WKB containing finite or NaN-payload points must never collide with nested collection encoding
+query T
+SELECT ST_AsText(ST_GeomFromWKB(X'0107000000010000000101000000f84744465f47437ff80300000000003043'));
+----
+GEOMETRYCOLLECTION(POINT(105765875109339950000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0.000000000000000000000000000000000000000000000000000000000000000000000000000017272337110192786))
+
+query T
+SELECT ST_AsText(ST_GeomFromWKB(X'010700000001000000010100000043475f464447f87f0000000000003043'));
+----
+GEOMETRYCOLLECTION(POINT(NaN 4503599627370496))
+
+query TB
+SELECT
+  encode(ST_AsBinary(ST_GeomFromWKB(X'0107000000010000000101000000f84744465f47437ff80300000000003043')), 'hex'),
+  ST_NumGeometries(ST_GeomFromWKB(X'0107000000010000000101000000f84744465f47437ff80300000000003043')) = 1;
+----
+0107000000010000000101000000f84744465f47437ff803000000000030 true
+
+# PolyhedralSurface WKB round-trip and accessors
+query T
+SELECT ST_AsText(ST_GeomFromWKB(ST_AsBinary(ST_Force2D(ST_3DMakeBox(ST_MakePoint(0, 1, 2), ST_MakePoint(3, 4, 5))))));
+----
+POLYHEDRALSURFACE(((0 1,0 4,3 4,3 1,0 1)),((0 1,3 1,3 4,0 4,0 1)),((0 1,0 1,0 4,0 4,0 1)),((3 1,3 4,3 4,3 1,3 1)),((0 1,3 1,3 1,0 1,0 1)),((0 4,0 4,3 4,3 4,0 4)))
+
+query TTIIBII
+SELECT
+  GeometryType(g),
+  ST_GeometryType(g),
+  ST_NumGeometries(g),
+  ST_NPoints(g),
+  ST_IsCollection(g),
+  ST_Dimension(g),
+  ST_Zmflag(g)
+FROM (
+  SELECT ST_Force3DM(ST_3DMakeBox(ST_MakePoint(0, 1, 2), ST_MakePoint(3, 4, 5)), 8) AS g
+);
+----
+POLYHEDRALSURFACEM ST_PolyhedralSurface 1 30 false 2 1
+
+# Nested GeometryCollection accessors, WKB round-trip, and ST_Dump
+query IIBBBBBIT
+SELECT
+  ST_NumGeometries(g),
+  ST_NPoints(g),
+  ST_IsEmpty(g),
+  ST_IsCollection(g),
+  ST_HasZ(g),
+  ST_HasM(g),
+  ST_Dimension(g) = 1,
+  ST_Zmflag(g),
+  ST_AsText(ST_GeomFromWKB(ST_AsBinary(g)))
+FROM (
+  SELECT ST_Force4D(
+    ST_GeomFromText('GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2), LINESTRING(0 0, 3 4)), POINT(5 6))'),
+    7,
+    8
+  ) AS g
+);
+----
+2 4 false true true true true 3 GEOMETRYCOLLECTION ZM(GEOMETRYCOLLECTION ZM(POINT ZM(1 2 7 8),LINESTRING ZM(0 0 7 8,3 4 7 8)),POINT ZM(5 6 7 8))
+
+query IIB
+SELECT
+  ST_NumGeometries(g),
+  ST_NPoints(g),
+  ST_IsEmpty(g)
+FROM (
+  SELECT ST_Force3DZ(ST_GeomFromText(wkt), 9) AS g
+  FROM (
+    VALUES
+      ('GEOMETRYCOLLECTION(GEOMETRYCOLLECTION EMPTY)'),
+      ('GEOMETRYCOLLECTION(GEOMETRYCOLLECTION EMPTY, POINT(1 2))')
+  ) AS t(wkt)
+);
+----
+0 0 true
+2 1 false
+
+query TT
+SELECT
+  CAST(comp.path AS VARCHAR),
+  ST_AsText(comp.geom)
+FROM (
+  SELECT unnest(ST_Dump(ST_Force3DZ(
+    ST_GeomFromText('GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2), LINESTRING(0 0, 3 4)), POINT(5 6))'),
+    9
+  ))) AS comp
+);
+----
+[1, 1] POINT Z(1 2 9)
+[1, 2] LINESTRING Z(0 0 9,3 4 9)
+[2] POINT Z(5 6 9)
+
+query RRRR
+SELECT b.xmin, b.ymin, b.xmax, b.ymax
+FROM (
+  SELECT Box2D(ST_Force4D(
+    ST_GeomFromText('GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2), LINESTRING(0 0, 3 4)), POINT(5 6))'),
+    7,
+    8
+  )) AS b
+);
+----
+0.0 0.0 5.0 6.0
