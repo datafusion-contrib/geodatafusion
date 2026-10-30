@@ -17,7 +17,6 @@ use geoarrow_schema::GeoArrowType;
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
-use crate::udf::native::io::geometry::is_nested_gc_sentinel_point;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct IsEmpty;
@@ -77,9 +76,7 @@ impl ScalarUDFImpl for IsEmpty {
 /// not structural emptiness. A collection containing only empty elements is reported as empty."
 pub(crate) fn is_geometry_topologically_empty(geom: &impl GeometryTrait<T = f64>) -> bool {
     match geom.as_type() {
-        geo_traits::GeometryType::Point(p) => {
-            p.coord().is_none() || is_nested_gc_sentinel_point(p).is_some()
-        }
+        geo_traits::GeometryType::Point(p) => p.coord().is_none(),
         geo_traits::GeometryType::LineString(ls) => ls.num_coords() == 0,
         geo_traits::GeometryType::Polygon(p) => {
             p.exterior().is_none_or(|ring| ring.num_coords() == 0)

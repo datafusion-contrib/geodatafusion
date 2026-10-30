@@ -742,6 +742,31 @@ async fn force_preserves_nested_collections() {
         wkt_out.value(1),
         "GEOMETRYCOLLECTION ZM(GEOMETRYCOLLECTION ZM(POINT ZM(1 2 3 4),POINT ZM(3 4 3 4)),POINT ZM(5 6 3 4))"
     );
+
+    // 4. Regression for WKB inputs whose coordinates previously collided with NaN/magic sentinel encoding,
+    // plus accessor and ST_Dump verification on nested GeometryCollections and PolyhedralSurface.
+    for sql_case in [
+        (
+            "SELECT ST_AsText(ST_GeomFromWKB(X'0107000000010000000101000000f84744465f47437ff80300000000003043'))",
+            "GEOMETRYCOLLECTION(POINT(105765875109339950000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 0.000000000000000000000000000000000000000000000000000000000000000000000000000017272337110192786))",
+        ),
+        (
+            "SELECT ST_AsText(ST_GeomFromWKB(X'010700000001000000010100000043475f464447f87f0000000000003043'))",
+            "GEOMETRYCOLLECTION(POINT(NaN 4503599627370496))",
+        ),
+        (
+            "SELECT ST_AsText(ST_GeomFromWKB(ST_AsBinary(ST_Force2D(ST_3DMakeBox(ST_MakePoint(0, 1, 2), ST_MakePoint(3, 4, 5))))))",
+            "POLYHEDRALSURFACE(((0 1,0 4,3 4,3 1,0 1)),((0 1,3 1,3 4,0 4,0 1)),((0 1,0 1,0 4,0 4,0 1)),((3 1,3 4,3 4,3 1,3 1)),((0 1,3 1,3 1,0 1,0 1)),((0 4,0 4,3 4,3 4,0 4)))",
+        ),
+    ] {
+        let batches = ctx.sql(sql_case.0).await.unwrap().collect().await.unwrap();
+        let col = batches[0]
+            .column(0)
+            .as_any()
+            .downcast_ref::<StringArray>()
+            .unwrap();
+        assert_eq!(col.value(0), sql_case.1, "SQL failed: {}", sql_case.0);
+    }
 }
 
 fn point_coords(array: &PointArray, index: usize) -> Vec<f64> {

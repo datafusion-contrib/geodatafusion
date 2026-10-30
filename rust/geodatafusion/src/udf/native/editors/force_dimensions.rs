@@ -18,8 +18,8 @@ use geo_traits::{
 };
 use geoarrow_array::array::from_arrow_array;
 use geoarrow_array::builder::{
-    GeometryBuilder, GeometryCollectionBuilder, LineStringBuilder, MultiLineStringBuilder,
-    MultiPointBuilder, MultiPolygonBuilder, PointBuilder, PolygonBuilder,
+    GeometryBuilder, LineStringBuilder, MultiLineStringBuilder, MultiPointBuilder,
+    MultiPolygonBuilder, PointBuilder, PolygonBuilder,
 };
 use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
 use geoarrow_schema::{
@@ -35,8 +35,8 @@ use wkt::types::{
 use crate::data_types::any_geometry_type;
 use crate::error::GeoDataFusionResult;
 use crate::udf::native::io::geometry::{
-    GeometryArrayBuilder, decode_geometry_collection, is_polyhedral_surface_field,
-    push_geometry_collection_preserving_nesting, with_polyhedral_surface_metadata,
+    GeometryArrayBuilder, GeometryCollectionArrayBuilder, decoded_row_geometry_collection,
+    is_polyhedral_surface_field, is_polyhedral_surface_row, with_polyhedral_surface_metadata,
 };
 
 /// Alias for [`Force3DZ`], matching PostGIS `ST_Force3D`.
@@ -443,10 +443,12 @@ fn force_dimension_impl(
     let m_defaults = FloatDefaultColumn::from_arg(&args.args, m_arg_idx)?;
     let out_type = GeoArrowType::from_arrow_field(args.return_field.as_ref())?;
     let geo_array_ref = geo_array.as_ref();
+    let input_field = args.arg_fields[0].as_ref();
 
     let result = downcast_geoarrow_array!(
         geo_array_ref,
         force_array_impl,
+        input_field,
         out_type,
         target_dim,
         &z_defaults,
@@ -457,6 +459,7 @@ fn force_dimension_impl(
 
 fn force_array_impl<'a>(
     array: &'a impl GeoArrowArrayAccessor<'a>,
+    input_field: &arrow_schema::Field,
     out_type: GeoArrowType,
     target_dim: Dimension,
     z_defaults: &FloatDefaultColumn,
@@ -619,7 +622,7 @@ fn force_array_impl<'a>(
             Ok(Arc::new(builder.finish()))
         }
         GeoArrowType::GeometryCollection(typ) => {
-            let mut builder = GeometryCollectionBuilder::new(typ);
+            let mut builder = GeometryCollectionArrayBuilder::new(typ);
             for (row, item) in array.iter().enumerate() {
                 match (
                     item.transpose()?,
@@ -627,20 +630,22 @@ fn force_array_impl<'a>(
                     m_defaults.value(row),
                 ) {
                     (Some(geom), Some(z_def), Some(m_def)) => {
-                        let geo_traits::GeometryType::GeometryCollection(gc) = geom.as_type()
-                        else {
-                            return Err(DataFusionError::Internal(
-                                "Expected GeometryCollection geometry".to_string(),
-                            )
-                            .into());
-                        };
-                        let forced = force_geometry_collection(gc, wkt_dim, z_def, m_def);
-                        push_geometry_collection_preserving_nesting(&mut builder, Some(&forced))?;
+                        let forced =
+                            if let Some(decoded) = decoded_row_geometry_collection(array, row)? {
+                                force_geometry_collection(&decoded, wkt_dim, z_def, m_def)
+                            } else if let geo_traits::GeometryType::GeometryCollection(gc) =
+                                geom.as_type()
+                            {
+                                force_geometry_collection(gc, wkt_dim, z_def, m_def)
+                            } else {
+                                return Err(DataFusionError::Internal(
+                                    "Expected GeometryCollection geometry".to_string(),
+                                )
+                                .into());
+                            };
+                        builder.push_geometry_collection(Some(&forced))?;
                     }
-                    _ => push_geometry_collection_preserving_nesting(
-                        &mut builder,
-                        None::<&GeometryCollection<f64>>,
-                    )?,
+                    _ => builder.push_geometry_collection(None::<&GeometryCollection<f64>>)?,
                 }
             }
             Ok(Arc::new(builder.finish()))
@@ -654,8 +659,25 @@ fn force_array_impl<'a>(
                     m_defaults.value(row),
                 ) {
                     (Some(geom), Some(z_def), Some(m_def)) => {
-                        let forced = force_geometry(&geom, wkt_dim, z_def, m_def);
-                        builder.push_geometry(Some(&forced))?;
+                        let is_polyhedral = is_polyhedral_surface_row(array, input_field, row)
+                            || matches!(
+                                geom.as_type(),
+                                geo_traits::GeometryType::Rect(_)
+                                    if matches!(geom.dim(), Dimensions::Xyz | Dimensions::Xyzm)
+                            );
+                        let forced =
+                            if let Some(decoded) = decoded_row_geometry_collection(array, row)? {
+                                Wkt::GeometryCollection(force_geometry_collection(
+                                    &decoded, wkt_dim, z_def, m_def,
+                                ))
+                            } else {
+                                force_geometry(&geom, wkt_dim, z_def, m_def)
+                            };
+                        if is_polyhedral {
+                            builder.push_polyhedral_surface(Some(&forced))?;
+                        } else {
+                            builder.push_geometry(Some(&forced))?;
+                        }
                     }
                     _ => builder.push_geometry(None::<&Wkt<f64>>)?,
                 }
@@ -914,14 +936,6 @@ fn force_geometry_collection(
     z_default: f64,
     m_default: f64,
 ) -> GeometryCollection<f64> {
-    if let Some(decoded) = decode_geometry_collection(collection) {
-        let geometries = decoded
-            .geometries()
-            .iter()
-            .map(|geom| force_geometry(geom, target_dim, z_default, m_default))
-            .collect();
-        return GeometryCollection::new(geometries, target_dim);
-    }
     let geometries = collection
         .geometries()
         .map(|geom| force_geometry(&geom, target_dim, z_default, m_default))

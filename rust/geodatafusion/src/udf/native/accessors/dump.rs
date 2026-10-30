@@ -17,11 +17,12 @@ use geoarrow_array::array::from_arrow_array;
 use geoarrow_array::builder::GeometryBuilder;
 use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
 use geoarrow_schema::{CoordType, GeometryType, Metadata};
+use wkt::Wkt;
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 use crate::udf::native::accessors::is_empty::is_geometry_topologically_empty;
-use crate::udf::native::io::geometry::decode_geometry_collection;
+use crate::udf::native::io::geometry::decoded_row_geometry_collection;
 
 /// Decomposes a geometry into its atomic components (POINT, LINESTRING, POLYGON).
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -141,14 +142,28 @@ fn dump_array<'a>(
     let mut row_lengths = Vec::with_capacity(array.len());
     let mut row_validity = NullBufferBuilder::new(array.len());
 
-    for maybe_geom in array.iter() {
+    for (row, maybe_geom) in array.iter().enumerate() {
         let start = path_builder.len();
         match maybe_geom.transpose()? {
             Some(geom) => {
                 row_validity.append_non_null();
                 // Topologically empty geometries produce an empty, non-null component list.
                 if !is_geometry_topologically_empty(&geom) {
-                    dump_geometry(&geom, &mut geom_builder, &mut path_builder, &mut path_stack)?;
+                    if let Some(decoded) = decoded_row_geometry_collection(array, row)? {
+                        dump_geometry(
+                            &Wkt::GeometryCollection(decoded),
+                            &mut geom_builder,
+                            &mut path_builder,
+                            &mut path_stack,
+                        )?;
+                    } else {
+                        dump_geometry(
+                            &geom,
+                            &mut geom_builder,
+                            &mut path_builder,
+                            &mut path_stack,
+                        )?;
+                    }
                 }
             }
             None => row_validity.append_null(),
@@ -194,16 +209,7 @@ fn dump_geometry(
             dump_multi_children(g.polygons(), geom_builder, path_builder, path_stack)?
         }
         GeometryCollection(g) => {
-            if let Some(decoded) = decode_geometry_collection(g) {
-                dump_multi_children(
-                    decoded.geometries().iter(),
-                    geom_builder,
-                    path_builder,
-                    path_stack,
-                )?
-            } else {
-                dump_multi_children(g.geometries(), geom_builder, path_builder, path_stack)?
-            }
+            dump_multi_children(g.geometries(), geom_builder, path_builder, path_stack)?
         }
     }
     Ok(())

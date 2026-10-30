@@ -11,7 +11,6 @@ use geoarrow_array::GeoArrowArray;
 use geoarrow_array::array::{
     GenericWktArrayType, LargeWktArray, WktArray, WktViewArray, from_arrow_array,
 };
-use geoarrow_array::builder::GeometryCollectionBuilder;
 use geoarrow_array::cast::from_wkt;
 use geoarrow_schema::error::{GeoArrowError, GeoArrowResult};
 use geoarrow_schema::{CoordType, GeoArrowType, GeometryType, Metadata, WktType};
@@ -19,7 +18,7 @@ use geoarrow_schema::{CoordType, GeoArrowType, GeometryType, Metadata, WktType};
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 use crate::udf::native::io::geometry::{
-    GeometryArrayBuilder, array_to_wkt, push_geometry_collection_preserving_nesting,
+    GeometryArrayBuilder, GeometryCollectionArrayBuilder, array_to_wkt,
 };
 
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -148,7 +147,7 @@ fn from_wkt_preserving_collections(
             Ok(Arc::new(builder.finish()))
         }
         GeoArrowType::GeometryCollection(typ) => {
-            let mut builder = GeometryCollectionBuilder::new(typ);
+            let mut builder = GeometryCollectionArrayBuilder::new(typ);
             for geometry in array.iter() {
                 if let Some(geometry) = geometry.transpose()? {
                     let geo_traits::GeometryType::GeometryCollection(gc) =
@@ -158,12 +157,10 @@ fn from_wkt_preserving_collections(
                             "Expected GeometryCollection".to_string(),
                         ));
                     };
-                    push_geometry_collection_preserving_nesting(&mut builder, Some(gc))?;
+                    builder.push_geometry_collection(Some(gc))?;
                 } else {
-                    push_geometry_collection_preserving_nesting(
-                        &mut builder,
-                        None::<&wkt::types::GeometryCollection<f64>>,
-                    )?;
+                    builder
+                        .push_geometry_collection(None::<&wkt::types::GeometryCollection<f64>>)?;
                 }
             }
             Ok(Arc::new(builder.finish()))

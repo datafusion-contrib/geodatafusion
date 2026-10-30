@@ -11,7 +11,6 @@ use geoarrow_array::GeoArrowArray;
 use geoarrow_array::array::{
     GenericWkbArrayType, LargeWkbArray, WkbArray, WkbViewArray, from_arrow_array,
 };
-use geoarrow_array::builder::GeometryCollectionBuilder;
 use geoarrow_array::cast::from_wkb;
 use geoarrow_schema::error::{GeoArrowError, GeoArrowResult};
 use geoarrow_schema::{CoordType, GeoArrowType, GeometryType, Metadata, WkbType};
@@ -19,7 +18,8 @@ use geoarrow_schema::{CoordType, GeoArrowType, GeometryType, Metadata, WkbType};
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::{GeoDataFusionError, GeoDataFusionResult};
 use crate::udf::native::io::geometry::{
-    GeometryArrayBuilder, array_to_wkb, push_geometry_collection_preserving_nesting,
+    GeometryArrayBuilder, GeometryCollectionArrayBuilder, array_to_wkb, is_polyhedral_surface_wkb,
+    polyhedral_wkb_to_multipolygon,
 };
 
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -142,13 +142,21 @@ fn from_wkb_preserving_collections<'a, A: GenericWkbArrayType<'a>>(
         GeoArrowType::Geometry(typ) => {
             let mut builder = GeometryArrayBuilder::new(typ);
             for geometry in array.iter() {
-                let geometry = geometry.transpose()?;
-                builder.push_geometry(geometry.as_ref())?;
+                if let Some(geometry) = geometry.transpose()? {
+                    if is_polyhedral_surface_wkb(geometry.buf()) {
+                        let mpoly = polyhedral_wkb_to_multipolygon(&geometry)?;
+                        builder.push_polyhedral_surface(Some(&mpoly))?;
+                    } else {
+                        builder.push_geometry(Some(&geometry))?;
+                    }
+                } else {
+                    builder.push_geometry(None::<&wkt::Wkt<f64>>)?;
+                }
             }
             Ok(Arc::new(builder.finish()))
         }
         GeoArrowType::GeometryCollection(typ) => {
-            let mut builder = GeometryCollectionBuilder::new(typ);
+            let mut builder = GeometryCollectionArrayBuilder::new(typ);
             for geometry in array.iter() {
                 if let Some(geometry) = geometry.transpose()? {
                     let geo_traits::GeometryType::GeometryCollection(gc) =
@@ -158,12 +166,10 @@ fn from_wkb_preserving_collections<'a, A: GenericWkbArrayType<'a>>(
                             "Expected GeometryCollection".to_string(),
                         ));
                     };
-                    push_geometry_collection_preserving_nesting(&mut builder, Some(gc))?;
+                    builder.push_geometry_collection(Some(gc))?;
                 } else {
-                    push_geometry_collection_preserving_nesting(
-                        &mut builder,
-                        None::<&wkt::types::GeometryCollection<f64>>,
-                    )?;
+                    builder
+                        .push_geometry_collection(None::<&wkt::types::GeometryCollection<f64>>)?;
                 }
             }
             Ok(Arc::new(builder.finish()))
