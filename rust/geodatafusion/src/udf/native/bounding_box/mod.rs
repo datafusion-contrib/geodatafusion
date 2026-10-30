@@ -1,7 +1,7 @@
 //! Bounding-box construction, extraction, extrema, and aggregate (`ST_Extent`) UDFs.
 
 mod r#box;
-// mod expand;
+mod expand;
 mod extent;
 mod extrema;
 mod make_box;
@@ -9,6 +9,7 @@ mod make_box;
 pub mod util;
 
 pub use r#box::{Box2D, Box3D};
+pub use expand::Expand;
 pub use extent::Extent;
 pub use extrema::{XMax, XMin, YMax, YMin, ZMax, ZMin};
 pub use make_box::{MakeBox2D, MakeBox3D};
@@ -17,6 +18,7 @@ pub use make_box::{MakeBox2D, MakeBox3D};
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
     session_context.register_udf(Box2D.into());
     session_context.register_udf(Box3D.into());
+    session_context.register_udf(Expand::default().into());
     session_context.register_udaf(Extent.into());
     session_context.register_udf(XMax.into());
     session_context.register_udf(XMin.into());

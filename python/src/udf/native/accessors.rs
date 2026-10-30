@@ -1,7 +1,7 @@
 use geodatafusion::udf::native::accessors::{
-    CoordDim, Dimension, Dump, EndPoint, ExteriorRing, GeometryType, HasM, HasZ, InteriorRingN,
-    IsClosed, IsCollection, IsEmpty, M, NDims, NPoints, NRings, NumGeometries, NumInteriorRings,
-    PointN, ST_GeometryType, StartPoint, X, Y, Z, ZmFlag,
+    CoordDim, Dimension, Dump, EndPoint, Envelope, ExteriorRing, GeometryType, HasM, HasZ,
+    InteriorRingN, IsClosed, IsCollection, IsEmpty, M, NDims, NPoints, NRings, NumGeometries,
+    NumInteriorRings, PointN, ST_GeometryType, StartPoint, X, Y, Z, ZmFlag,
 };
 
 use crate::{impl_udf, impl_udf_coord_type_arg};
@@ -9,6 +9,7 @@ use crate::{impl_udf, impl_udf_coord_type_arg};
 impl_udf!(CoordDim, PyCoordDim, "CoordDim");
 impl_udf!(Dimension, PyDimension, "Dimension");
 impl_udf_coord_type_arg!(Dump, PyDump, "Dump");
+impl_udf_coord_type_arg!(Envelope, PyEnvelope, "Envelope");
 impl_udf!(NDims, PyNDims, "NDims");
 impl_udf!(X, PyX, "X");
 impl_udf!(Y, PyY, "Y");

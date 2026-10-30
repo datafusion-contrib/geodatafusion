@@ -3,16 +3,17 @@ use std::sync::Arc;
 use datafusion::logical_expr::AggregateUDF;
 use datafusion_ffi::udaf::FFI_AggregateUDF;
 use geodatafusion::udf::native::bounding_box::{
-    Box2D, Box3D, Extent, MakeBox2D, MakeBox3D, XMax, XMin, YMax, YMin, ZMax, ZMin,
+    Box2D, Box3D, Expand, Extent, MakeBox2D, MakeBox3D, XMax, XMin, YMax, YMin, ZMax, ZMin,
 };
 use pyo3::prelude::*;
 use pyo3::types::PyCapsule;
 
 use crate::constants::AGGREGATE_UDF_CAPSULE_NAME;
-use crate::impl_udf;
+use crate::{impl_udf, impl_udf_coord_type_arg};
 
 impl_udf!(Box2D, PyBox2D, "Box2D");
 impl_udf!(Box3D, PyBox3D, "Box3D");
+impl_udf_coord_type_arg!(Expand, PyExpand, "Expand");
 impl_udf!(XMin, PyXMin, "XMin");
 impl_udf!(XMax, PyXMax, "XMax");
 impl_udf!(YMin, PyYMin, "YMin");

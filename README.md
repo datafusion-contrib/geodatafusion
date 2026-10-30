@@ -127,6 +127,7 @@ Below are the spatial SQL functions currently registered by `geodatafusion::regi
 | `ST_Dimension` | `native` | Returns the inherent topological dimension of a geometry (`0`, `1`, or `2`). |
 | `ST_Dump` | `native` | Decomposes a geometry into a list of `(path, geom)` structs (combine with `unnest` for set-returning behavior). |
 | `ST_EndPoint` | `native` | Returns the last point of a LineString, or `NULL` if the input is not a LineString. |
+| `ST_Envelope` | `native` | Returns the minimum axis-aligned bounding box of a geometry as a Polygon, Point, or LineString. |
 | `ST_ExteriorRing` | `native` | Returns a LineString representing the exterior ring of a Polygon. |
 | `ST_GeometryType` | `native` | Returns the SQL-MM type of a geometry as text (e.g., `'ST_Point'`, `'ST_LineString'`). |
 | `ST_HasM` | `native` | Returns `true` if a geometry has an M (measure) dimension. |
@@ -226,6 +227,7 @@ Below are the spatial SQL functions currently registered by `geodatafusion::regi
 | --- | --- | --- |
 | `Box2D` | `native` | Returns a 2D bounding box (`geoarrow.box`) representing the 2D extent of a geometry. |
 | `Box3D` | `native` | Returns a 3D bounding box (`geoarrow.box` XYZ) representing the 3D extent of a geometry. |
+| `ST_Expand` | `native` | Expands a box or geometry by a uniform or per-axis distance. |
 | `ST_Extent` | `native` | Aggregate function returning the 2D `box2d` bounding box that encloses a set of geometries. |
 | `ST_MakeBox2D` | `native` | Creates a 2D bounding box defined by two 2D point geometries. |
 | `ST_3DMakeBox` | `native` | Creates a 3D bounding box defined by two 3D point geometries. |
