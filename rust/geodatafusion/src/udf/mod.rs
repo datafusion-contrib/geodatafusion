@@ -2,7 +2,4 @@
 
 pub mod geo;
 pub mod geohash;
-#[cfg(feature = "geos-3_11")]
-/// Spatial UDFs implemented via [GEOS](https://libgeos.org/) bindings (requires the `geos-3_11` feature).
-pub mod geos;
 pub mod native;

@@ -11,14 +11,6 @@ categories = { workspace = true }
 rust-version = { workspace = true }
 
 
-[features]
-# Enables GEOS-backed UDFs.
-# We only use explicitly versioned flags,
-# and the structure should be recursive
-# (with higher version targets implying lower version ones
-# in a chain.)
-geos-3_11 = ["geos/v3_11_0"]
-
 [dependencies]
 arrow-arith = { workspace = true }
 arrow-array = { workspace = true }
@@ -31,8 +23,8 @@ geoarrow-array = { workspace = true }
 geoarrow-expr-geo = { workspace = true }
 geoarrow-schema = { workspace = true }
 geohash = { workspace = true }
-geos = { workspace = true, optional = true }
 thiserror = { workspace = true }
+wkb = { workspace = true }
 wkt = { workspace = true }
 
 [dev-dependencies]
@@ -48,7 +40,6 @@ sha2 = "0.10"
 sqllogictest = "0.29.1"
 tokio = { workspace = true, features = ["macros", "fs", "rt-multi-thread"] }
 tokio-postgres = { version = "0.7", default-features = false, features = ["runtime"] }
-wkb = { workspace = true }
 
 [[test]]
 name = "sqllogictests"

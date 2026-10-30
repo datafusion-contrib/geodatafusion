@@ -8,7 +8,7 @@ This repository provides core spatial SQL functions, file-format integrations fo
 
 | Crate / Package | Path | Capabilities |
 | --- | --- | --- |
-| [`geodatafusion`](rust/geodatafusion) | `rust/geodatafusion` | Spatial scalar and aggregate UDFs (`ST_*`, `Box2D`, `Box3D`, `GeometryType`) backed by `geoarrow`, `geo`, `geohash`, and optional `geos`. |
+| [`geodatafusion`](rust/geodatafusion) | `rust/geodatafusion` | Spatial scalar and aggregate UDFs (`ST_*`, `Box2D`, `Box3D`, `GeometryType`) implemented in Rust with `geoarrow`, `geo`, and `geohash`. |
 | [`geodatafusion-flatgeobuf`](rust/geodatafusion-flatgeobuf) | `rust/geodatafusion-flatgeobuf` | Read and write [FlatGeobuf](https://flatgeobuf.org/) (`.fgb`) files via DataFusion `FileFormat`, with R-tree bounding-box filter pushdown for `ST_Intersects`. |
 | [`geodatafusion-geoparquet`](rust/geodatafusion-geoparquet) | `rust/geodatafusion-geoparquet` | Read [GeoParquet](https://geoparquet.org/) (`.parquet`) files with automatic GeoArrow extension metadata inference. |
 | [`geodatafusion-geojson`](rust/geodatafusion-geojson) | `rust/geodatafusion-geojson` | Write newline-delimited GeoJSON (`.geojsonl`) files via DataFusion `FileFormat` (`COPY ... TO 'out.geojsonl'`). |
@@ -88,10 +88,6 @@ ctx.sql("SELECT ST_Area(ST_GeomFromText('POLYGON((0 0, 4 0, 4 4, 0 4, 0 0))'))")
 See [`python/README.md`](python/README.md) for category-specific registration (`register_all_native`, `register_all_geo`, `register_all_geohash`) and custom `coord_type` configuration.
 
 ## Feature Flags & Compatibility
-
-### Cargo Features (`geodatafusion`)
-
-- `geos-3_11`: Enables UDFs backed by [GEOS](https://libgeos.org/) (>= 3.11), such as `ST_LineMerge`. By default, `geos` links against the system GEOS library; to link GEOS statically, add `geos = { version = "11.1", features = ["static"] }` to your application's `Cargo.toml`.
 
 ### Version Compatibility
 
@@ -217,7 +213,7 @@ Below are the spatial SQL functions currently registered by `geodatafusion::regi
 | --- | --- | --- |
 | `ST_Centroid` | `geo` | Returns the geometric center of mass of a geometry. |
 | `ST_ConvexHull` | `geo` | Computes the smallest convex geometry that encloses all vertices of the input. |
-| `ST_LineMerge` | `geos-3_11` | Sews together the constituent linework of a `MultiLineString` (requires the `geos-3_11` feature). |
+| `ST_LineMerge` | `geo` | Sews together the constituent linework of a `MultiLineString`. |
 | `ST_OrientedEnvelope` | `geo` | Returns a minimum-area rotated rectangle enclosing a geometry. |
 | `ST_PointOnSurface` | `geo` | Computes a point guaranteed to lie on the surface of a geometry. |
 | `ST_Simplify` | `geo` | Simplifies a geometry using the Douglas-Peucker algorithm. |

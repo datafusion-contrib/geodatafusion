@@ -23,10 +23,6 @@ jobs:
         with:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgeos-dev
       - name: Check default library
         run: cargo check -p geodatafusion --lib --locked
       - name: Clippy
@@ -60,10 +56,6 @@ jobs:
           submodules: "recursive"
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgeos-dev
       # Note: in the future expand to all crates in the workspace
       - name: Test that docs build without warnings
         run: cargo doc --all-features --document-private-items

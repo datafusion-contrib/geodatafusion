@@ -103,6 +103,40 @@ def test_existing_coord_type_option_still_works():
     assert result.to_pylist() == [{"point": "POINT(1 1)"}]
 
 
+def test_line_merge_register_all():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    result = ctx.sql(
+        "SELECT ST_AsText(ST_LineMerge(ST_GeomFromText("
+        "'MULTILINESTRING((0 0,1 1),(1 1,2 2))'))) AS line"
+    ).to_arrow_table()
+    assert result.to_pylist() == [{"line": "LINESTRING(0 0,1 1,2 2)"}]
+
+
+def test_line_merge_directed():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    result = ctx.sql(
+        "SELECT ST_AsText(ST_LineMerge(ST_GeomFromText("
+        "'MULTILINESTRING((0 0,1 1),(2 2,1 1))'), TRUE)) AS line"
+    ).to_arrow_table()
+    assert result.to_pylist() == [{"line": "MULTILINESTRING((0 0,1 1),(2 2,1 1))"}]
+
+
+def test_line_merge_directed_with_multiple_rows():
+    ctx = SessionContext()
+    register_all(ctx)
+    wkt = "MULTILINESTRING((0 0,1 1),(2 2,1 1))"
+    ctx.register_record_batches("lines", [[pa.record_batch({"wkt": [wkt, wkt]})]])
+
+    result = ctx.sql(
+        "SELECT ST_AsText(ST_LineMerge(ST_GeomFromText(wkt), FALSE)) AS line FROM lines"
+    ).to_arrow_table()
+    assert result.to_pylist() == [{"line": "LINESTRING(0 0,1 1,2 2)"}] * 2
+
+
 def test_pyi_stubs_match_exported_classes():
     pkg_dir = Path(__file__).resolve().parent.parent / "python" / "geodatafusion"
     module_stubs = [

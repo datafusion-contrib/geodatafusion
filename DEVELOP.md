@@ -10,7 +10,6 @@ This is a Rust workspace with multiple crates:
     - Internally, each _provider_ of functions is organized in submodules:
         - `native/` - Operations that are natively implemented, without the use of other dependencies like `geo`
         - `geo/` - Operations implemented using the `geo` crate
-        - `geos/` - Operations implemented using the `geos` crate (bindings to the native GEOS library), gated behind optional versioned GEOS features such as `geos-3_11`
         - `geohash/` - GeoHash encoding/decoding, using the `geohash` crate
 - `rust/geodatafusion-flatgeobuf` - FlatGeobuf format support
 - `rust/geodatafusion-geoparquet` - GeoParquet format support
@@ -57,29 +56,21 @@ cargo test -p geodatafusion
 ### SQL Logic Tests
 
 The `sqllogictests` target uses `sqllogictest::harness!` and the public
-registration entry point. Tests that do not require GEOS run with the default
-features:
+registration entry point:
 
 ```bash
 cargo test -p geodatafusion --test sqllogictests
-```
-
-The `geos-3_11` feature adds the GEOS-backed tests:
-
-```bash
-cargo test -p geodatafusion --all-features --test sqllogictests
 ```
 
 Use the standard libtest filter to run matching files:
 
 ```bash
 cargo test -p geodatafusion --test sqllogictests -- st_distance
-cargo test -p geodatafusion --all-features --test sqllogictests -- st_linemerge
+cargo test -p geodatafusion --test sqllogictests -- st_linemerge
 ```
 
 Keep one `.slt` file per function under `rust/geodatafusion/tests/slt/`, named
-after the SQL function (for example, `st_distance.slt`). Place tests that
-require GEOS under `rust/geodatafusion/tests/slt_geos/`. Each file gets a fresh
+after the SQL function (for example, `st_distance.slt`). Each file gets a fresh
 `SessionContext`; use `statement error` for expected SQL failures.
 
 ### Code Formatting
@@ -131,33 +122,10 @@ Functions are organized by category in `rust/geodatafusion/src/udf/`:
 - `native/io/` - Input/output (WKT, WKB)
 - `native/bounding_box/` - Bounding box functions
 - `geo/measurement/` - Measurement functions (ST_Area, ST_Distance)
-- `geo/processing/` - Processing functions (ST_Centroid, ST_Simplify, etc.)
+- `geo/processing/` - Processing functions (ST_Centroid, ST_LineMerge, ST_Simplify, etc.)
 - `geo/relationships/` - Spatial relationships (ST_Intersects, etc.)
 - `geo/validation/` - Validation functions (ST_IsValid)
-- `geos/processing/` - GEOS-backed processing functions (ST_LineMerge)
 - `geohash/` - GeoHash functions
-
-### GEOS-backed functions
-
-Functions in the `geos/` provider link the [GEOS](https://libgeos.org/) library, and can be controlled via Cargo features.
-
-The version of GEOS required varies by UDF,
-so we expose cargo features with explicit minimum version numbers,
-like `geos-3_11` (GEOS >=3.11).
-
-#### GEOS linking
-
-This crate will try to link the system-provided GEOS library by default.
-If you want to statically link GEOS from a source build,
-add a direct dependency on the `geos` crate to your project,
-and enable the `static` feature like so:
-
-```toml
-geos = { version = "11.1", features = ["static"] }
-```
-
-If you're using cargo workspaces, make sure that
-the crates using geodatafusion directly reference `geos`.
 
 ### Code Style
 

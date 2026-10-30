@@ -1,0 +1,606 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "line-merge-simple-chain",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((0 0,1 1),(1 1,2 2))"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-branched-undirected",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry",
+        "junction"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((10 160,60 120),(120 140,60 120),(120 140,180 120),(100 180,120 140))"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-branched-directed",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry",
+        "directed",
+        "junction"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((10 160,60 120),(120 140,60 120),(120 140,180 120),(100 180,120 140))"
+        },
+        {
+          "type": "boolean",
+          "value": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-ring",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry",
+        "ring"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((0 0,1 0),(1 0,1 1),(1 1,0 0))"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-polygon-rings",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry",
+        "polygon"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,4 0,4 4,0 4,0 0),(1 1,1 2,2 2,2 1,1 1))"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-nested-collection-z",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry",
+        "collection",
+        "z"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION Z(GEOMETRYCOLLECTION Z(MULTILINESTRING Z((0 0 1,1 1 2),(1 1 3,2 2 4))))"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-empty",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry",
+        "empty"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING EMPTY"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-no-linework",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry",
+        "empty"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(0 0)"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-repeated-points",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry",
+        "repeated-points"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((0 0,0 0,1 1),(1 1,1 1,2 2))"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-disjoint",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry",
+        "disjoint"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((-29 -27,-30 -29.7,-36 -31,-45 -33),(-45.2 -33.2,-46 -32))"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-directed-disagreement",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry",
+        "directed"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((60 30,10 70),(120 50,60 30),(120 50,180 30))"
+        },
+        {
+          "type": "boolean",
+          "value": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-null",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "null"
+      ],
+      "arguments": [
+        {
+          "type": "null_text"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-m",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING M(0 0 10,1 1 20)"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-zm",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING ZM((0 0 1 10,1 1 2 20),(1 1 3 30,2 2 4 40))"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-z-only-degenerate",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING Z(0 0 1,0 0 2)"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-ring-order",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((2 0,1 1),(1 1,0 0),(0 0,2 0))"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-directed-ring-order",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((2 0,1 1),(1 1,0 0),(0 0,2 0))"
+        },
+        {
+          "type": "boolean",
+          "value": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-z-only-degenerate-chain",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING Z((-1 0 1,0 0 2),(0 0 3,0 0 4),(0 0 5,1 0 6))"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-mixed-dimension-collection",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION Z(POINT Z(8 8 9),LINESTRING Z(0 0 7,1 1 8))"
+        },
+        {
+          "type": "boolean",
+          "value": false
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-zm-directed",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING ZM((0 0 1 10,1 1 2 20),(1 1 3 30,2 2 4 40))"
+        },
+        {
+          "type": "boolean",
+          "value": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    },
+    {
+      "id": "line-merge-directed-ring-incoming-first",
+      "function": "ST_LineMerge",
+      "tags": [
+        "scalar",
+        "geometry",
+        "directed",
+        "ring"
+      ],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTILINESTRING((0 0,1 1),(1 1,1 0),(1 0,0 0))"
+        },
+        {
+          "type": "boolean",
+          "value": true
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "ewkb"
+        }
+      ],
+      "comparison": {
+        "mode": "geometry-exact"
+      },
+      "source": "https://postgis.net/docs/ST_LineMerge.html"
+    }
+  ]
+}

@@ -58,6 +58,7 @@ pub const GROUPS: &[&str] = &[
     "linefrommultipoint",
     "makeenvelope",
     "makeline",
+    "processing/line_merge",
     "nrings",
     "numgeometries",
     "zmflag",
@@ -85,6 +86,7 @@ pub struct OracleCase {
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum OracleArgument {
     Text { value: String },
+    Boolean { value: bool },
     Float64 { value: f64 },
     NullText,
 }
@@ -685,6 +687,7 @@ async fn execute_datafusion(
         .iter()
         .map(|argument| match argument {
             OracleArgument::Text { value } => ScalarValue::Utf8(Some(value.clone())),
+            OracleArgument::Boolean { value } => ScalarValue::Boolean(Some(*value)),
             OracleArgument::Float64 { value } => ScalarValue::Float64(Some(*value)),
             OracleArgument::NullText => ScalarValue::Utf8(None),
         })
@@ -944,6 +947,7 @@ async fn execute_postgis(
     for argument in &case.arguments {
         match argument {
             OracleArgument::Text { value } => params.push(value),
+            OracleArgument::Boolean { value } => params.push(value),
             OracleArgument::Float64 { value } => params.push(value),
             OracleArgument::NullText => params.push(&None::<String>),
         }
