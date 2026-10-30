@@ -32,6 +32,7 @@ pub use interior_ring_n::InteriorRingN;
 pub use is_closed::IsClosed;
 pub use is_collection::IsCollection;
 pub use is_empty::IsEmpty;
+pub(crate) use is_empty::is_geometry_topologically_empty;
 pub use line_string::{EndPoint, PointN, StartPoint};
 pub use npoints::NPoints;
 pub use nrings::NRings;

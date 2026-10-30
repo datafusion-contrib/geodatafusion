@@ -114,6 +114,19 @@ def test_line_merge_register_all():
     assert result.to_pylist() == [{"line": "LINESTRING(0 0,1 1,2 2)"}]
 
 
+def test_concave_hull_register_all():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    result = ctx.sql(
+        "SELECT ST_AsText(ST_ConcaveHull("
+        "ST_GeomFromText('MULTIPOINT((0 0),(3 0),(1 2),(0 4))'), 0.1)) AS hull"
+    ).to_arrow_table()
+    assert result.to_pylist() == [
+        {"hull": "POLYGON((3 0,1 2,0 4,0 0,3 0))"}
+    ]
+
+
 def test_envelope_and_expand_register_all():
     ctx = SessionContext()
     register_all(ctx)

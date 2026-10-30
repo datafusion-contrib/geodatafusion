@@ -213,6 +213,7 @@ Below are the spatial SQL functions currently registered by `geodatafusion::regi
 | Name | Provider | Description |
 | --- | --- | --- |
 | `ST_Centroid` | `geo` | Returns the geometric center of mass of a geometry. |
+| `ST_ConcaveHull` | `geo` | Computes a possibly concave geometry containing all input vertices, with `pctconvex` controlling concavity. |
 | `ST_ConvexHull` | `geo` | Computes the smallest convex geometry that encloses all vertices of the input. |
 | `ST_LineMerge` | `geo` | Sews together the constituent linework of a `MultiLineString`. |
 | `ST_OrientedEnvelope` | `geo` | Returns a minimum-area rotated rectangle enclosing a geometry. |
@@ -220,6 +221,14 @@ Below are the spatial SQL functions currently registered by `geodatafusion::regi
 | `ST_Simplify` | `geo` | Simplifies a geometry using the Douglas-Peucker algorithm. |
 | `ST_SimplifyPreserveTopology` | `geo` | Simplifies a geometry using the topology-preserving Douglas-Peucker algorithm. |
 | `ST_SimplifyVW` | `geo` | Simplifies a geometry using the Visvalingam-Whyatt algorithm. |
+
+`ST_ConcaveHull` accepts the PostGIS signature and maps `pctconvex` monotonically to the `geo`
+crate's mapbox-style concavity parameter. The algorithms are different, so vertex selection can
+differ at intermediate values even though both endpoints select the convex hull and a more concave
+result respectively. The implementation retains existing polygon holes only when
+`allow_holes=true`; PostGIS 3.6 currently retains source polygon holes even when `allow_holes` is
+false. The point-set algorithm does not introduce new holes. Empty inputs preserve their geometry
+type.
 
 ### Bounding Box Functions
 

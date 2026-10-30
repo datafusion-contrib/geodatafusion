@@ -58,6 +58,7 @@ pub const GROUPS: &[&str] = &[
     "linefrommultipoint",
     "makeenvelope",
     "makeline",
+    "processing/concave_hull",
     "processing/line_merge",
     "nrings",
     "numgeometries",
