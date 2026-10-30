@@ -325,10 +325,11 @@ mod test {
     use std::sync::Arc;
 
     use arrow_array::cast::AsArray;
-    use arrow_array::{Array, BinaryArray};
+    use arrow_array::{Array, ArrayRef, BinaryArray, BinaryViewArray, LargeBinaryArray};
     use arrow_schema::Field;
     use datafusion::config::ConfigOptions;
     use datafusion::prelude::SessionContext;
+    use geoarrow_array::cast::to_wkt;
     use geoarrow_schema::crs::Crs;
     use geoarrow_schema::{Dimension, WkbType};
 
@@ -535,6 +536,60 @@ mod test {
             matches!(&error, DataFusionError::External(_)),
             "unexpected invalid-WKB error: {error}"
         );
+    }
+
+    #[test]
+    fn test_st_linemerge_wkb_storage_variants() {
+        let geometry: wkt::Wkt<f64> = "MULTILINESTRING((0 0, 1 1), (1 1, 2 2))".parse().unwrap();
+        let mut wkb = Vec::new();
+        write_geometry(
+            &mut wkb,
+            &geometry,
+            &WriteOptions {
+                endianness: Endianness::LittleEndian,
+            },
+        )
+        .unwrap();
+
+        let inputs: Vec<ArrayRef> = vec![
+            Arc::new(BinaryArray::from(vec![Some(wkb.as_slice())])),
+            Arc::new(LargeBinaryArray::from(vec![Some(wkb.as_slice())])),
+            Arc::new(BinaryViewArray::from(vec![Some(wkb.as_slice())])),
+        ];
+        for input in inputs {
+            let input_field = Arc::new(
+                Field::new("geometry", input.data_type().clone(), true)
+                    .with_extension_type(WkbType::default()),
+            );
+            let udf = LineMerge::default();
+            let return_field = udf
+                .return_field_from_args(ReturnFieldArgs {
+                    arg_fields: std::slice::from_ref(&input_field),
+                    scalar_arguments: &[],
+                })
+                .unwrap();
+            let ColumnarValue::Array(result) = udf
+                .invoke_with_args(ScalarFunctionArgs {
+                    args: vec![ColumnarValue::Array(input.clone())],
+                    arg_fields: vec![input_field],
+                    number_rows: 1,
+                    return_field: return_field.clone(),
+                    config_options: Arc::new(ConfigOptions::default()),
+                })
+                .unwrap()
+            else {
+                panic!("expected an array result");
+            };
+
+            let result = from_arrow_array(&result, &return_field).unwrap();
+            let result = to_wkt::<i32>(result.as_ref()).unwrap().to_array_ref();
+            assert_eq!(
+                result.as_string::<i32>().value(0),
+                "LINESTRING(0 0,1 1,2 2)",
+                "failed for {:?}",
+                input.data_type()
+            );
+        }
     }
 
     #[test]
