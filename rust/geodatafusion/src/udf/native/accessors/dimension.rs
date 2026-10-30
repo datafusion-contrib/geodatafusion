@@ -15,10 +15,12 @@ use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_arr
 use crate::data_types::any_geometry_type;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_Dimension` scalar UDF implementation: returns the inherent topological dimension (`0`, `1`, or `2`) of a geometry.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Dimension;
 
 impl Dimension {
+    /// Creates a new `ST_Dimension` UDF instance.
     pub fn new() -> Self {
         Self
     }

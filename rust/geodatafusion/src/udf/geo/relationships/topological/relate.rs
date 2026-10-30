@@ -23,12 +23,14 @@ use crate::error::GeoDataFusionResult;
 
 macro_rules! impl_relate_udf {
     ($struct_name:ident, $udf_name:expr, $documentation_name:ident, $callback:expr, $doc_text:expr, $doc_example:expr) => {
+        #[doc = $doc_text]
         #[derive(Debug, Eq, PartialEq, Hash)]
         pub struct $struct_name {
             signature: Signature,
         }
 
         impl $struct_name {
+            /// Creates a new UDF instance.
             pub fn new() -> Self {
                 Self {
                     signature: Signature::any(2, Volatility::Immutable),

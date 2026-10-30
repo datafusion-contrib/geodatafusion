@@ -16,10 +16,12 @@ use geoarrow_schema::{BoxType, Dimension, Metadata};
 
 use crate::error::GeoDataFusionResult;
 
+/// `ST_Box2dFromGeoHash` scalar UDF implementation: decodes a GeoHash string into a 2D bounding box (`BOX2D`).
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Box2DFromGeoHash;
 
 impl Box2DFromGeoHash {
+    /// Creates a new `ST_Box2dFromGeoHash` UDF instance.
     pub fn new() -> Self {
         Self {}
     }

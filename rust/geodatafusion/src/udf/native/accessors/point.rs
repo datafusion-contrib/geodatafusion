@@ -15,12 +15,14 @@ use geoarrow_array::{GeoArrowArrayAccessor, downcast_geoarrow_array};
 use crate::data_types::any_point_type_input;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_X` scalar UDF implementation: returns the X coordinate of a `Point`.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct X {
     signature: Signature,
 }
 
 impl X {
+    /// Creates a new `ST_X` UDF instance.
     pub fn new() -> Self {
         Self {
             signature: any_point_type_input(1),
@@ -70,12 +72,14 @@ impl ScalarUDFImpl for X {
     }
 }
 
+/// `ST_Y` scalar UDF implementation: returns the Y coordinate of a `Point`.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Y {
     signature: Signature,
 }
 
 impl Y {
+    /// Creates a new `ST_Y` UDF instance.
     pub fn new() -> Self {
         Self {
             signature: any_point_type_input(1),
@@ -158,12 +162,14 @@ fn _nth_impl<'a>(
     Ok(builder.finish())
 }
 
+/// `ST_Z` scalar UDF implementation: returns the Z coordinate of a `Point`, or `NULL` if unavailable.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Z {
     signature: Signature,
 }
 
 impl Z {
+    /// Creates a new `ST_Z` UDF instance.
     pub fn new() -> Self {
         Self {
             signature: any_point_type_input(1),
@@ -213,12 +219,14 @@ impl ScalarUDFImpl for Z {
     }
 }
 
+/// `ST_M` scalar UDF implementation: returns the M (measure) coordinate of a `Point`, or `NULL` if unavailable.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct M {
     signature: Signature,
 }
 
 impl M {
+    /// Creates a new `ST_M` UDF instance.
     pub fn new() -> Self {
         Self {
             signature: any_point_type_input(1),

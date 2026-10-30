@@ -19,12 +19,14 @@ use wkt::types::{Coord, Dimension as WktDimension, LineString as WktLineString};
 
 use crate::error::GeoDataFusionResult;
 
+/// `ST_MakeLine` scalar UDF implementation: creates a `LineString` from `Point`, `MultiPoint`, or `LineString` geometries.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct MakeLine {
     coord_type: CoordType,
 }
 
 impl MakeLine {
+    /// Creates a new `ST_MakeLine` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self { coord_type }
     }

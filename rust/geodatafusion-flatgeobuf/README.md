@@ -2,7 +2,11 @@
 
 [FlatGeobuf](https://flatgeobuf.org/) [`FileFormat`](https://docs.rs/datafusion/latest/datafusion/datasource/file_format/trait.FileFormat.html) support for [Apache DataFusion](https://datafusion.apache.org/).
 
-Supports reading and writing `.fgb` files (including bounding-box spatial index pushdown for `ST_Intersects` queries) via [`FlatGeobufFormat`] and [`FlatGeobufFileFactory`].
+## Supported Capabilities
+
+- **Reading (`.fgb`)**: Streams local and remote (`object_store` HTTP/S3/GCS) FlatGeobuf files into GeoArrow columns via [`FlatGeobufFormat`] and [`FlatGeobufSource`](crate::source::FlatGeobufSource).
+- **Spatial Index Pushdown**: Automatically extracts constant bounding boxes from `WHERE ST_Intersects(geometry, ...)` filters and uses the FlatGeobuf R-tree index to prune non-matching features before exact evaluation.
+- **Writing (`.fgb`)**: Supports `COPY ... TO 'output.fgb'` via [`FlatGeobufSink`](crate::file_format::FlatGeobufSink).
 
 ## Usage
 

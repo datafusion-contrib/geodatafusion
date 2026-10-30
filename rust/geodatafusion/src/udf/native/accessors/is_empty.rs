@@ -18,10 +18,12 @@ use geoarrow_schema::GeoArrowType;
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_IsEmpty` scalar UDF implementation: returns `true` if a geometry is topologically empty.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct IsEmpty;
 
 impl IsEmpty {
+    /// Creates a new `ST_IsEmpty` UDF instance.
     pub fn new() -> Self {
         Self {}
     }

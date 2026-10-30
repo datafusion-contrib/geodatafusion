@@ -21,10 +21,12 @@ use crate::udf::native::io::geometry::{
     GeometryArrayBuilder, GeometryCollectionArrayBuilder, array_to_wkt,
 };
 
+/// `ST_AsText` scalar UDF implementation: converts a geometry into OGC Well-Known Text (WKT).
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct AsText;
 
 impl AsText {
+    /// Creates a new `ST_AsText` UDF instance.
     pub fn new() -> Self {
         Self {}
     }
@@ -89,6 +91,7 @@ impl ScalarUDFImpl for AsText {
     }
 }
 
+/// `ST_GeomFromText` (`ST_GeometryFromText`, `ST_WKTToSQL`) scalar UDF implementation: parses an OGC Well-Known Text (WKT) string into a geometry.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct GeomFromText {
     signature: Signature,
@@ -97,6 +100,7 @@ pub struct GeomFromText {
 }
 
 impl GeomFromText {
+    /// Creates a new `ST_GeomFromText` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self {
             signature: Signature::uniform(

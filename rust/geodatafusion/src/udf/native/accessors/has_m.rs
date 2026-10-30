@@ -16,10 +16,12 @@ use geoarrow_array::{GeoArrowArrayAccessor, downcast_geoarrow_array};
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_HasM` scalar UDF implementation: returns `true` if a geometry has an M (measure) coordinate dimension.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct HasM;
 
 impl HasM {
+    /// Creates a new `ST_HasM` UDF instance.
     pub fn new() -> Self {
         Self
     }

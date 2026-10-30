@@ -1,3 +1,5 @@
+//! [`FileFormat`] and [`FileSink`] implementations for newline-delimited GeoJSON (`.geojsonl`) files.
+
 use std::collections::HashMap;
 use std::fmt::{self, Debug, Formatter};
 use std::io::{BufWriter, Write};
@@ -59,6 +61,7 @@ impl GetExt for GeoJsonFormatFactory {
     }
 }
 
+/// Newline-delimited GeoJSON (`.geojsonl`) [`FileFormat`] implementation (write-only).
 #[derive(Debug, Default)]
 pub struct GeoJsonFormat {}
 
@@ -135,12 +138,14 @@ impl FileFormat for GeoJsonFormat {
     }
 }
 
+/// [`FileSink`] and [`DataSink`] implementation for writing newline-delimited GeoJSON (`.geojsonl`) files.
 #[derive(Debug)]
 pub struct GeoJsonSink {
     config: FileSinkConfig,
 }
 
 impl GeoJsonSink {
+    /// Creates a new [`GeoJsonSink`] from the given [`FileSinkConfig`].
     pub fn new(config: FileSinkConfig) -> Self {
         Self { config }
     }
@@ -271,6 +276,7 @@ pub struct GeoJsonFileFactory {
 }
 
 impl GeoJsonFileFactory {
+    /// Creates a new [`GeoJsonFileFactory`].
     pub fn new() -> Self {
         Self {
             file_factory: GeoJsonFormatFactory::new(),

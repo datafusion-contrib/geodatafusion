@@ -1,3 +1,5 @@
+//! [`FileFormat`] and [`FileFormatFactory`] implementations for GeoParquet files.
+
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -24,6 +26,7 @@ use object_store::{ObjectMeta, ObjectStore};
 
 use crate::source::GeoParquetSource;
 
+/// Factory used to create [`GeoParquetFormat`] instances.
 #[derive(Default, Debug)]
 pub struct GeoParquetFormatFactory {
     /// inner options for parquet

@@ -13,12 +13,14 @@ use geoarrow_schema::{CoordType, Dimension, Metadata, PolygonType};
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_ConvexHull` scalar UDF implementation: computes the smallest convex geometry enclosing all vertices of the input.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct ConvexHull {
     coord_type: CoordType,
 }
 
 impl ConvexHull {
+    /// Creates a new `ST_ConvexHull` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self { coord_type }
     }

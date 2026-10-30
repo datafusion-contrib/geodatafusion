@@ -2,7 +2,10 @@
 
 [GeoParquet](https://geoparquet.org/) [`FileFormat`](https://docs.rs/datafusion/latest/datafusion/datasource/file_format/trait.FileFormat.html) support for [Apache DataFusion](https://datafusion.apache.org/).
 
-Wraps DataFusion's `ParquetFormat` to infer GeoArrow extension metadata on geometry columns when reading GeoParquet files.
+## Supported Capabilities
+
+- **Reading (`.parquet`)**: Wraps DataFusion's `ParquetFormat` via [`GeoParquetFormat`] and [`GeoParquetFormatFactory`] to parse `geo` file metadata and attach GeoArrow extension metadata (`geoarrow.wkb` or native GeoArrow types) to geometry columns.
+- **Writing**: Writing GeoParquet via `FileFormat` is not yet implemented.
 
 ## Usage
 
@@ -16,6 +19,6 @@ let file_format = Arc::new(GeoParquetFormatFactory::default());
 let state = SessionStateBuilder::new()
     .with_file_formats(vec![file_format])
     .build();
-let ctx = SessionContext::new_with_state(state);
+let ctx = SessionContext::new_with_state(state).enable_url_table();
 geodatafusion::register(&ctx);
 ```

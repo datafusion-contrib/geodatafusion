@@ -17,10 +17,12 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 use crate::udf::native::io::geometry::is_polyhedral_surface_row;
 
+/// `GeometryType` scalar UDF implementation: returns the uppercase geometry type string (with `M` suffix when an M dimension is present).
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct GeometryType;
 
 impl GeometryType {
+    /// Creates a new `GeometryType` UDF instance.
     pub fn new() -> Self {
         Self {}
     }
@@ -64,11 +66,13 @@ impl ScalarUDFImpl for GeometryType {
     }
 }
 
+/// `ST_GeometryType` scalar UDF implementation: returns the SQL-MM geometry type string (e.g., `'ST_Point'`, `'ST_LineString'`).
 #[derive(Debug, Eq, PartialEq, Hash)]
 #[allow(non_camel_case_types)]
 pub struct ST_GeometryType;
 
 impl ST_GeometryType {
+    /// Creates a new `ST_GeometryType` UDF instance.
     pub fn new() -> Self {
         Self {}
     }

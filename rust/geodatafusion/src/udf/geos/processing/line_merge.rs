@@ -36,6 +36,7 @@ pub struct LineMerge {
 }
 
 impl LineMerge {
+    /// Creates a new `ST_LineMerge` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self { coord_type }
     }

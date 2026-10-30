@@ -1,9 +1,12 @@
+//! Topological relationship predicate UDFs implemented with [`geo`](https://docs.rs/geo).
+
 mod topological;
 
 pub use topological::{
     Contains, CoveredBy, Covers, Crosses, Disjoint, Equals, Intersects, Overlaps, Touches, Within,
 };
 
+/// Register all `geo` topological relationship UDFs into the given [`SessionContext`](datafusion::prelude::SessionContext).
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
     session_context.register_udf(Contains::default().into());
     session_context.register_udf(CoveredBy::default().into());

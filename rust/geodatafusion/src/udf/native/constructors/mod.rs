@@ -1,3 +1,5 @@
+//! Geometry constructor UDFs (`ST_Point*`, `ST_MakePoint*`, `ST_MakeLine`, `ST_LineFromMultiPoint`, `ST_MakeEnvelope`).
+
 mod envelope;
 mod line_from_multipoint;
 mod make_line;
@@ -8,6 +10,7 @@ pub use line_from_multipoint::LineFromMultiPoint;
 pub use make_line::MakeLine;
 pub use point::{MakePoint, MakePointM, Point, PointM, PointZ, PointZM};
 
+/// Register all native geometry constructor UDFs into the given [`SessionContext`](datafusion::prelude::SessionContext).
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
     session_context.register_udf(MakeEnvelope::default().into());
     session_context.register_udf(LineFromMultiPoint::default().into());

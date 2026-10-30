@@ -182,10 +182,12 @@ fn bounds_intersect(left: [f64; 4], right: [f64; 4]) -> bool {
     left[0] <= right[2] && right[0] <= left[2] && left[1] <= right[3] && right[1] <= left[3]
 }
 
+/// `ST_DWithin` scalar UDF implementation: tests whether the 2D Cartesian minimum distance between two geometries is at most a given radius.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct DWithin;
 
 impl DWithin {
+    /// Creates a new `ST_DWithin` UDF instance.
     pub fn new() -> Self {
         Self
     }

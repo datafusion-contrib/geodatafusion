@@ -16,12 +16,7 @@ type AggregateUdfExport<'py> = (String, Vec<String>, Bound<'py, PyCapsule>);
 fn register_group(ctx: &SessionContext, group: &str) -> PyResult<()> {
     match group {
         "all" => geodatafusion::register(ctx),
-        "geo" => {
-            geodatafusion::udf::geo::measurement::register(ctx);
-            geodatafusion::udf::geo::processing::register(ctx);
-            geodatafusion::udf::geo::relationships::register(ctx);
-            geodatafusion::udf::geo::validation::register(ctx);
-        }
+        "geo" => geodatafusion::udf::geo::register(ctx),
         "geohash" => geodatafusion::udf::geohash::register(ctx),
         "native" => geodatafusion::udf::native::register(ctx),
         _ => {

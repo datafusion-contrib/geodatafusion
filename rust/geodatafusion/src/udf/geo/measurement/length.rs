@@ -12,10 +12,12 @@ use geoarrow_expr_geo::euclidean_length;
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_Length` (`ST_Length2D`) scalar UDF implementation: returns the 2D Cartesian length of a linear geometry.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Length;
 
 impl Length {
+    /// Creates a new `ST_Length` UDF instance.
     pub fn new() -> Self {
         Self {}
     }

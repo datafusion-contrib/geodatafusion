@@ -1,3 +1,5 @@
+//! [`FileSource`] implementation for reading GeoParquet files.
+
 use std::fmt::Formatter;
 use std::sync::Arc;
 
@@ -12,6 +14,7 @@ use datafusion::physical_plan::{DisplayFormatType, PhysicalExpr};
 use datafusion_datasource::TableSchema;
 use datafusion_datasource_parquet::source::ParquetSource;
 
+/// [`FileSource`] wrapper around DataFusion's [`ParquetSource`] for GeoParquet files.
 #[derive(Clone, Debug)]
 pub struct GeoParquetSource {
     pub(crate) inner: ParquetSource,

@@ -15,6 +15,7 @@ use geoarrow_schema::{CoordType, Dimension, GeoArrowType, GeometryType};
 
 use crate::error::GeoDataFusionResult;
 
+/// `ST_Simplify` scalar UDF implementation: simplifies a geometry using the Douglas-Peucker algorithm.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Simplify {
     signature: Signature,
@@ -22,6 +23,7 @@ pub struct Simplify {
 }
 
 impl Simplify {
+    /// Creates a new `ST_Simplify` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self {
             signature: Signature::any(2, Volatility::Immutable),
@@ -74,6 +76,7 @@ impl ScalarUDFImpl for Simplify {
     }
 }
 
+/// `ST_SimplifyVW` scalar UDF implementation: simplifies a geometry using the Visvalingam-Whyatt algorithm.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct SimplifyVW {
     signature: Signature,
@@ -81,6 +84,7 @@ pub struct SimplifyVW {
 }
 
 impl SimplifyVW {
+    /// Creates a new `ST_SimplifyVW` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self {
             signature: Signature::any(2, Volatility::Immutable),
@@ -133,6 +137,7 @@ impl ScalarUDFImpl for SimplifyVW {
     }
 }
 
+/// `ST_SimplifyPreserveTopology` scalar UDF implementation: simplifies a geometry using the topology-preserving Douglas-Peucker algorithm.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct SimplifyPreserveTopology {
     signature: Signature,
@@ -140,6 +145,7 @@ pub struct SimplifyPreserveTopology {
 }
 
 impl SimplifyPreserveTopology {
+    /// Creates a new `ST_SimplifyPreserveTopology` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self {
             signature: Signature::any(2, Volatility::Immutable),

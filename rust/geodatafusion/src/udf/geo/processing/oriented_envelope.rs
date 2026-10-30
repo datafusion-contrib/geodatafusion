@@ -13,12 +13,14 @@ use geoarrow_schema::{CoordType, Dimension, Metadata, PolygonType};
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_OrientedEnvelope` scalar UDF implementation: computes the minimum-area rotated rectangle enclosing a geometry.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct OrientedEnvelope {
     coord_type: CoordType,
 }
 
 impl OrientedEnvelope {
+    /// Creates a new `ST_OrientedEnvelope` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self { coord_type }
     }
