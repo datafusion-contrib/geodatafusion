@@ -22,8 +22,7 @@ register_all(ctx)
 ```
 
 `register_all` registers the scalar and aggregate functions included in the
-compiled Rust crate. The Python package currently does not enable GEOS-backed
-functions, and it does not export window or table functions.
+compiled Rust crate. The Python package does not export window or table functions.
 
 ### Category-Specific Registration & Coordinate Layout
 

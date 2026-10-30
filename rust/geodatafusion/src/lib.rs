@@ -23,7 +23,6 @@
 //! - [`udf::native`]: Geometry accessors, bounding-box operations, constructors, coordinate-dimension editors, and WKT/WKB I/O implemented directly on `geoarrow-array` and `geo-traits`.
 //! - [`udf::geo`]: 2D measurement, processing, topological relationship, and validation functions implemented with the [`geo`](https://docs.rs/geo) crate.
 //! - [`udf::geohash`]: GeoHash encoding and decoding functions (`ST_GeoHash`, `ST_Box2dFromGeoHash`, `ST_PointFromGeoHash`).
-//! - `udf::geos` (requires the `geos-3_11` feature): GEOS-backed geometry processing functions such as `ST_LineMerge`.
 //!
 //! You can register an individual provider module instead of the full suite:
 //!
@@ -67,9 +66,6 @@ pub mod udf;
 /// Register all UDFs defined in geodatafusion
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
     crate::udf::geo::register(session_context);
-
-    #[cfg(feature = "geos-3_11")]
-    crate::udf::geos::processing::register(session_context);
 
     crate::udf::geohash::register(session_context);
 

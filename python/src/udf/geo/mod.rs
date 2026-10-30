@@ -16,6 +16,7 @@ pub(crate) fn geo(m: &Bound<PyModule>) -> PyResult<()> {
     // processing
     m.add_class::<processing::PyCentroid>()?;
     m.add_class::<processing::PyConvexHull>()?;
+    m.add_class::<processing::PyLineMerge>()?;
     m.add_class::<processing::PyOrientedEnvelope>()?;
     m.add_class::<processing::PyPointOnSurface>()?;
     m.add_class::<processing::PySimplify>()?;

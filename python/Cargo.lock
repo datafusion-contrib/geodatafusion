@@ -1535,6 +1535,7 @@ dependencies = [
  "geoarrow-schema",
  "geohash",
  "thiserror 2.0.21",
+ "wkb",
  "wkt",
 ]
 

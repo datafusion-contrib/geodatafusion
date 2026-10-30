@@ -4,8 +4,6 @@ use datafusion::execution::SessionStateBuilder;
 use datafusion::prelude::SessionContext;
 
 const IMPLEMENTED: &str = "\u{2705}";
-const GEOS_GATED_FUNCTIONS: &[&str] = &["st_linemerge"];
-
 fn postgis_compatibility_implemented_functions() -> BTreeSet<String> {
     include_str!("../../../POSTGIS_COMPATIBILITY.md")
         .lines()
@@ -63,18 +61,6 @@ fn readme_implemented_functions_match_public_registration() {
         ),
         ("README.md", readme_supported_functions()),
     ] {
-        for name in GEOS_GATED_FUNCTIONS {
-            assert!(
-                expected.contains(*name),
-                "{doc_name} is missing GEOS-gated function `{name}`"
-            );
-        }
-        #[cfg(not(feature = "geos-3_11"))]
-        let expected = expected
-            .into_iter()
-            .filter(|name| !GEOS_GATED_FUNCTIONS.contains(&name.as_str()))
-            .collect::<BTreeSet<_>>();
-
         let actual = registered_functions();
         let missing_from_registry = expected.difference(&actual).collect::<Vec<_>>();
         let missing_from_doc = actual.difference(&expected).collect::<Vec<_>>();
