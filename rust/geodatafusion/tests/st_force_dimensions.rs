@@ -1,7 +1,11 @@
 use std::sync::Arc;
 
-use arrow_array::{Array, BooleanArray, StringArray};
-use arrow_schema::Field;
+use arrow_array::builder::BinaryBuilder;
+use arrow_array::types::Int32Type;
+use arrow_array::{
+    Array, ArrayRef, BooleanArray, DictionaryArray, Int32Array, RecordBatch, StringArray,
+};
+use arrow_schema::{Field, Fields, Schema};
 use datafusion::config::ConfigOptions;
 use datafusion::logical_expr::{ColumnarValue, ReturnFieldArgs, ScalarFunctionArgs, ScalarUDFImpl};
 use datafusion::prelude::SessionContext;
@@ -767,6 +771,113 @@ async fn force_preserves_nested_collections() {
             .unwrap();
         assert_eq!(col.value(0), sql_case.1, "SQL failed: {}", sql_case.0);
     }
+}
+
+#[tokio::test]
+async fn sidecar_eviction_preserves_live_nested_collections_past_4096() {
+    let udf = GeomFromText::new(CoordType::Interleaved);
+    let wkt_arr: ArrayRef = Arc::new(StringArray::from(vec![
+        "GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2)))",
+    ]));
+    let wkt_field = Arc::new(Field::new("wkt", arrow_schema::DataType::Utf8, false));
+    let gc_field = Arc::new(
+        GeometryCollectionType::new(Dimension::XY, Default::default()).to_field("g", true),
+    );
+
+    let count = 4097;
+    let mut arrays = Vec::with_capacity(count);
+    for _ in 0..count {
+        let ColumnarValue::Array(arr) = udf
+            .invoke_with_args(ScalarFunctionArgs {
+                args: vec![ColumnarValue::Array(Arc::clone(&wkt_arr))],
+                arg_fields: vec![Arc::clone(&wkt_field)],
+                number_rows: 1,
+                return_field: Arc::clone(&gc_field),
+                config_options: Arc::new(ConfigOptions::default()),
+            })
+            .unwrap()
+        else {
+            panic!("expected array");
+        };
+        arrays.push(GeometryCollectionArray::try_from((arr.as_ref(), gc_field.as_ref())).unwrap());
+    }
+
+    let batch = RecordBatch::try_new(
+        Arc::new(Schema::new(Fields::from(vec![
+            arrays[0].data_type().to_field("g", true),
+        ]))),
+        vec![arrays[0].to_array_ref()],
+    )
+    .unwrap();
+
+    let ctx = SessionContext::new();
+    geodatafusion::register(&ctx);
+    ctx.register_batch("geometries", batch).unwrap();
+    let batches = ctx
+        .sql("SELECT ST_AsText(ST_Force2D(g)) FROM geometries")
+        .await
+        .unwrap()
+        .collect()
+        .await
+        .unwrap();
+    let actual = batches[0]
+        .column(0)
+        .as_any()
+        .downcast_ref::<StringArray>()
+        .unwrap();
+    assert_eq!(
+        actual.value(0),
+        "GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2)))"
+    );
+}
+
+#[tokio::test]
+async fn dictionary_encoded_collection_preserves_nesting() {
+    // Little-endian WKB for GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2)))
+    let wkb: [u8; 39] = [
+        0x01, 0x07, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x07, 0x00, 0x00, 0x00, 0x01,
+        0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0,
+        0x3f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40,
+    ];
+    let mut builder = BinaryBuilder::new();
+    builder.append_value(wkb);
+    let values = builder.finish();
+    let keys = Int32Array::from(vec![0, 0]);
+    let dict_arr: ArrayRef =
+        Arc::new(DictionaryArray::<Int32Type>::try_new(keys, Arc::new(values)).unwrap());
+    let batch = RecordBatch::try_new(
+        Arc::new(Schema::new(Fields::from(vec![Field::new(
+            "wkb",
+            dict_arr.data_type().clone(),
+            true,
+        )]))),
+        vec![dict_arr],
+    )
+    .unwrap();
+
+    let ctx = SessionContext::new();
+    geodatafusion::register(&ctx);
+    ctx.register_batch("input", batch).unwrap();
+    let batches = ctx
+        .sql("SELECT ST_AsText(ST_Force2D(ST_GeomFromWKB(wkb))) FROM input")
+        .await
+        .unwrap()
+        .collect()
+        .await
+        .unwrap();
+    let actual = batches[0]
+        .column(0)
+        .as_any()
+        .downcast_ref::<StringArray>()
+        .unwrap();
+    assert_eq!(
+        actual.value(0),
+        "GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2)))"
+    );
+    assert_eq!(
+        actual.value(1),
+        "GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2)))"
+    );
 }
 
 fn point_coords(array: &PointArray, index: usize) -> Vec<f64> {

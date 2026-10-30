@@ -673,6 +673,8 @@ def test_register_all_st_force_dimensions():
             ST_AsText(ST_Force3DZ(ST_GeomFromText('POINT M(1 2 4)'), 9.0)) AS force_3dz,
             ST_AsText(ST_Force3DM(ST_GeomFromText('POINT Z(1 2 3)'), 11.0)) AS force_3dm,
             ST_AsText(ST_Force4D(ST_GeomFromText('POINT(1 2)'), 9.0, 11.0)) AS force_4d,
+            ST_AsText(ST_Force3DM(ST_3DMakeBox(ST_MakePoint(0, 1, 2), ST_MakePoint(3, 4, 5)), 8.0)) AS box3d_3dm,
+            ST_AsText(ST_Force4D(ST_GeomFromText('GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2)))'), 3.0, 4.0)) AS nested_gc_4d,
             ST_Force4D(NULL, 9.0, 11.0) AS null_geom
         """
     ).to_arrow_table()
@@ -688,6 +690,8 @@ def test_register_all_st_force_dimensions():
             "force_3dz": "POINT Z(1 2 9)",
             "force_3dm": "POINT M(1 2 11)",
             "force_4d": "POINT ZM(1 2 9 11)",
+            "box3d_3dm": "POLYHEDRALSURFACE M(((0 1 8,0 4 8,3 4 8,3 1 8,0 1 8)),((0 1 8,3 1 8,3 4 8,0 4 8,0 1 8)),((0 1 8,0 1 8,0 4 8,0 4 8,0 1 8)),((3 1 8,3 4 8,3 4 8,3 1 8,3 1 8)),((0 1 8,3 1 8,3 1 8,0 1 8,0 1 8)),((0 4 8,0 4 8,3 4 8,3 4 8,0 4 8)))",
+            "nested_gc_4d": "GEOMETRYCOLLECTION ZM(GEOMETRYCOLLECTION ZM(POINT ZM(1 2 3 4)))",
             "null_geom": None,
         }
     ]

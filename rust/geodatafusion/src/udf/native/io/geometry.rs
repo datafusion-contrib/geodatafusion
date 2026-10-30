@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{LazyLock, RwLock};
 
@@ -30,7 +30,7 @@ use wkt::types::{
 pub(crate) const GEOMETRY_SUBTYPE_META_KEY: &str = "geodatafusion:geometry_subtype";
 pub(crate) const POLYHEDRAL_SURFACE_SUBTYPE: &str = "polyhedralsurface";
 
-const MAX_SIDECAR_ENTRIES: usize = 4096;
+const SIDECAR_SWEEP_INTERVAL: usize = 64;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum CollectionNode {
@@ -44,14 +44,14 @@ struct SidecarEntry {
     geom_offsets_base: usize,
     geom_offsets_end: usize,
     mixed_type_ids_base: usize,
-    _marker_buf: Buffer,
+    marker_buf: Buffer,
     trees: BTreeMap<usize, Vec<CollectionNode>>,
 }
 
 #[derive(Debug, Default)]
 struct NestedCollectionSidecar {
     entries: HashMap<usize, SidecarEntry>,
-    order: VecDeque<usize>,
+    inserts_since_sweep: usize,
 }
 
 static NESTED_COLLECTION_COUNT: AtomicUsize = AtomicUsize::new(0);
@@ -64,14 +64,14 @@ struct PolyhedralSidecarEntry {
     geom_offsets_base: usize,
     geom_offsets_end: usize,
     poly_offsets_base: usize,
-    _marker_buf: Buffer,
+    marker_buf: Buffer,
     rows: BTreeSet<usize>,
 }
 
 #[derive(Debug, Default)]
 struct PolyhedralSidecar {
     entries: HashMap<usize, PolyhedralSidecarEntry>,
-    order: VecDeque<usize>,
+    inserts_since_sweep: usize,
 }
 
 static POLYHEDRAL_COUNT: AtomicUsize = AtomicUsize::new(0);
@@ -89,30 +89,36 @@ fn extract_mpoly_list_identity(
     Some((geom_offsets, poly_offsets, marker_buf))
 }
 
+fn extract_mpoly_array_identity(
+    mpoly_arr: &MultiPolygonArray,
+) -> Option<(ScalarBuffer<i32>, usize, Buffer)> {
+    let list_arr = mpoly_arr.clone().into_array_ref();
+    let list = list_arr.as_list_opt::<i32>()?;
+    let (geom_offsets, poly_offsets, marker_buf) = extract_mpoly_list_identity(list)?;
+    let poly_offsets_base = poly_offsets.as_ptr() as usize;
+    Some((geom_offsets, poly_offsets_base, marker_buf))
+}
+
 pub(crate) fn register_polyhedral_sidecar(mpoly_arr: &MultiPolygonArray, rows: BTreeSet<usize>) {
     if rows.is_empty() {
         return;
     }
-    let list_arr = mpoly_arr.clone().into_array_ref();
-    let Some(list) = list_arr.as_list_opt::<i32>() else {
-        return;
-    };
-    let Some((geom_offsets, poly_offsets, marker_buf)) = extract_mpoly_list_identity(list) else {
+    let Some((geom_offsets, poly_offsets_base, marker_buf)) =
+        extract_mpoly_array_identity(mpoly_arr)
+    else {
         return;
     };
     let geom_offsets_base = geom_offsets.as_ptr() as usize;
     let geom_offsets_end = geom_offsets_base + geom_offsets.len() * std::mem::size_of::<i32>();
-    let poly_offsets_base = poly_offsets.as_ptr() as usize;
     let marker_ptr = marker_buf.as_ptr() as usize;
 
     let mut sidecar = POLYHEDRAL_SIDECAR.write().unwrap();
-    if !sidecar.entries.contains_key(&marker_ptr) {
-        while sidecar.order.len() >= MAX_SIDECAR_ENTRIES {
-            if let Some(oldest) = sidecar.order.pop_front() {
-                sidecar.entries.remove(&oldest);
-            }
-        }
-        sidecar.order.push_back(marker_ptr);
+    sidecar.inserts_since_sweep += 1;
+    if sidecar.inserts_since_sweep >= SIDECAR_SWEEP_INTERVAL {
+        sidecar
+            .entries
+            .retain(|_, entry| entry.marker_buf.strong_count() > 1);
+        sidecar.inserts_since_sweep = 0;
     }
     sidecar.entries.insert(
         marker_ptr,
@@ -121,7 +127,7 @@ pub(crate) fn register_polyhedral_sidecar(mpoly_arr: &MultiPolygonArray, rows: B
             geom_offsets_base,
             geom_offsets_end,
             poly_offsets_base,
-            _marker_buf: marker_buf,
+            marker_buf,
             rows,
         },
     );
@@ -177,6 +183,26 @@ pub(crate) fn is_polyhedral_surface_row(
     if is_polyhedral_surface_field(field) {
         return true;
     }
+    if matches!(
+        geo_array.data_type(),
+        geoarrow_schema::GeoArrowType::Wkb(_)
+            | geoarrow_schema::GeoArrowType::LargeWkb(_)
+            | geoarrow_schema::GeoArrowType::WkbView(_)
+    ) {
+        if row >= geo_array.len() || geo_array.is_null(row) {
+            return false;
+        }
+        let raw = geo_array.to_array_ref();
+        if let Some(bin) = raw.as_binary_opt::<i32>() {
+            return is_polyhedral_surface_wkb(bin.value(row));
+        }
+        if let Some(bin) = raw.as_binary_opt::<i64>() {
+            return is_polyhedral_surface_wkb(bin.value(row));
+        }
+        if let Some(bin) = raw.as_binary_view_opt() {
+            return is_polyhedral_surface_wkb(bin.value(row));
+        }
+    }
     if POLYHEDRAL_COUNT.load(Ordering::Acquire) == 0 {
         return false;
     }
@@ -224,6 +250,18 @@ fn extract_list_identity(
     Some((geom_offsets, mixed_type_ids, marker_buf))
 }
 
+fn extract_gc_array_identity(
+    gc_arr: &GeometryCollectionArray,
+) -> Option<(ScalarBuffer<i32>, usize, Buffer)> {
+    let dim = gc_arr.data_type().dimension()?;
+    let dim_order = dimension_order(dim);
+    let list_arr = gc_arr.clone().into_array_ref();
+    let list = list_arr.as_list_opt::<i32>()?;
+    let (geom_offsets, mixed_type_ids, marker_buf) = extract_list_identity(list, dim_order)?;
+    let mixed_type_ids_base = mixed_type_ids.inner().as_ptr() as usize;
+    Some((geom_offsets, mixed_type_ids_base, marker_buf))
+}
+
 fn register_nested_collection_sidecar(
     gc_arr: &GeometryCollectionArray,
     trees: BTreeMap<usize, Vec<CollectionNode>>,
@@ -231,31 +269,21 @@ fn register_nested_collection_sidecar(
     if trees.is_empty() {
         return;
     }
-    let list_arr = gc_arr.clone().into_array_ref();
-    let Some(list) = list_arr.as_list_opt::<i32>() else {
-        return;
-    };
-    let Some(dim) = gc_arr.data_type().dimension() else {
-        return;
-    };
-    let dim_order = dimension_order(dim);
-    let Some((geom_offsets, mixed_type_ids, marker_buf)) = extract_list_identity(list, dim_order)
+    let Some((geom_offsets, mixed_type_ids_base, marker_buf)) = extract_gc_array_identity(gc_arr)
     else {
         return;
     };
     let geom_offsets_base = geom_offsets.as_ptr() as usize;
     let geom_offsets_end = geom_offsets_base + geom_offsets.len() * std::mem::size_of::<i32>();
-    let mixed_type_ids_base = mixed_type_ids.inner().as_ptr() as usize;
     let marker_ptr = marker_buf.as_ptr() as usize;
 
     let mut sidecar = NESTED_COLLECTION_SIDECAR.write().unwrap();
-    if !sidecar.entries.contains_key(&marker_ptr) {
-        while sidecar.order.len() >= MAX_SIDECAR_ENTRIES {
-            if let Some(oldest) = sidecar.order.pop_front() {
-                sidecar.entries.remove(&oldest);
-            }
-        }
-        sidecar.order.push_back(marker_ptr);
+    sidecar.inserts_since_sweep += 1;
+    if sidecar.inserts_since_sweep >= SIDECAR_SWEEP_INTERVAL {
+        sidecar
+            .entries
+            .retain(|_, entry| entry.marker_buf.strong_count() > 1);
+        sidecar.inserts_since_sweep = 0;
     }
     sidecar.entries.insert(
         marker_ptr,
@@ -264,7 +292,7 @@ fn register_nested_collection_sidecar(
             geom_offsets_base,
             geom_offsets_end,
             mixed_type_ids_base,
-            _marker_buf: marker_buf,
+            marker_buf,
             trees,
         },
     );
@@ -987,5 +1015,70 @@ fn dimension_order(dim: Dimension) -> i8 {
         Dimension::XYZ => 1,
         Dimension::XYM => 2,
         Dimension::XYZM => 3,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn parse_nested_collection() -> GeometryCollection<f64> {
+        match "GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2)))"
+            .parse::<Wkt<f64>>()
+            .unwrap()
+        {
+            Wkt::GeometryCollection(gc) => gc,
+            _ => unreachable!(),
+        }
+    }
+
+    #[test]
+    fn sidecar_retains_live_nested_collections_past_4096_and_reclaims_dropped() {
+        let nested = parse_nested_collection();
+        let typ = GeometryCollectionType::new(Dimension::XY, Default::default());
+        let count = 4097;
+        let mut arrays = Vec::with_capacity(count);
+        for _ in 0..count {
+            let mut builder = GeometryCollectionArrayBuilder::new(typ.clone());
+            builder.push_geometry_collection(Some(&nested)).unwrap();
+            arrays.push(builder.finish());
+        }
+
+        let first_decoded = decoded_row_geometry_collection(&arrays[0], 0)
+            .unwrap()
+            .expect("first live array must retain nested collection sidecar entry");
+        assert_eq!(first_decoded, nested);
+
+        let last_decoded = decoded_row_geometry_collection(&arrays[count - 1], 0)
+            .unwrap()
+            .expect("last live array must retain nested collection sidecar entry");
+        assert_eq!(last_decoded, nested);
+
+        let first_ptr = extract_gc_array_identity(&arrays[0]).unwrap().2.as_ptr() as usize;
+        assert!(
+            NESTED_COLLECTION_SIDECAR
+                .read()
+                .unwrap()
+                .entries
+                .contains_key(&first_ptr)
+        );
+
+        drop(arrays);
+
+        // Trigger a sweep by registering SIDECAR_SWEEP_INTERVAL transient arrays.
+        for _ in 0..SIDECAR_SWEEP_INTERVAL {
+            let mut builder = GeometryCollectionArrayBuilder::new(typ.clone());
+            builder.push_geometry_collection(Some(&nested)).unwrap();
+            let _transient = builder.finish();
+        }
+
+        assert!(
+            !NESTED_COLLECTION_SIDECAR
+                .read()
+                .unwrap()
+                .entries
+                .contains_key(&first_ptr),
+            "dropped array sidecar entry should be reclaimed after sweep"
+        );
     }
 }
