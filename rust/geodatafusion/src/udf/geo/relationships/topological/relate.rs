@@ -1,13 +1,15 @@
+use std::cell::RefCell;
 use std::sync::{Arc, OnceLock};
 
 use arrow_array::BooleanArray;
 use arrow_array::builder::BooleanBuilder;
-use arrow_schema::{DataType, Field};
+use arrow_schema::{DataType, Field, FieldRef};
 use datafusion::error::{DataFusionError, Result};
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature, Volatility,
 };
+use datafusion::scalar::ScalarValue;
 use geo::relate::IntersectionMatrix;
 use geo::{
     CoordNum, CoordsIter, Geometry, GeometryCollection, MultiPoint, PreparedGeometry, Relate,
@@ -164,9 +166,9 @@ impl_relate_udf!(
 
 fn relate_impl(
     left: ColumnarValue,
-    left_field: &Field,
+    left_field: &FieldRef,
     right: ColumnarValue,
-    right_field: &Field,
+    right_field: &FieldRef,
     relate_cb: impl Fn(IntersectionMatrix) -> bool,
 ) -> GeoDataFusionResult<ColumnarValue> {
     match (left, right) {
@@ -179,30 +181,28 @@ fn relate_impl(
             relate_impl(left_array, left_field, right_array, right_field, relate_cb)
         }
         (ColumnarValue::Array(left_arr), ColumnarValue::Array(right_arr)) => {
-            let left_arr = from_arrow_array(&left_arr, left_field)?;
-            let right_arr = from_arrow_array(&right_arr, right_field)?;
+            let left_arr = from_arrow_array(&left_arr, left_field.as_ref())?;
+            let right_arr = from_arrow_array(&right_arr, right_field.as_ref())?;
             let result = relate_arrays(&left_arr, &right_arr, relate_cb)?;
             Ok(ColumnarValue::Array(Arc::new(result)))
         }
         (ColumnarValue::Scalar(left_scalar), ColumnarValue::Array(right_array)) => {
-            let left_scalar_array = ColumnarValue::values_to_arrays(&[left_scalar.into()])?;
-            let left_geo_array = from_arrow_array(&left_scalar_array[0], left_field)?;
-            let right_geo_array = from_arrow_array(&right_array, right_field)?;
+            let right_geo_array = from_arrow_array(&right_array, right_field.as_ref())?;
             let result = relate_prepared_geometry(
                 &right_geo_array,
-                &left_geo_array,
+                left_scalar,
+                left_field,
                 PreparedSide::Left,
                 relate_cb,
             )?;
             Ok(ColumnarValue::Array(Arc::new(result)))
         }
         (ColumnarValue::Array(left_array), ColumnarValue::Scalar(right_scalar)) => {
-            let right_scalar_array = ColumnarValue::values_to_arrays(&[right_scalar.into()])?;
-            let right_geo_array = from_arrow_array(&right_scalar_array[0], right_field)?;
-            let left_geo_array = from_arrow_array(&left_array, left_field)?;
+            let left_geo_array = from_arrow_array(&left_array, left_field.as_ref())?;
             let result = relate_prepared_geometry(
                 &left_geo_array,
-                &right_geo_array,
+                right_scalar,
+                right_field,
                 PreparedSide::Right,
                 relate_cb,
             )?;
@@ -340,43 +340,103 @@ fn relate_arrays(
     Ok(builder.finish())
 }
 
+struct CachedPreparedGeometry {
+    field: FieldRef,
+    scalar: ScalarValue,
+    prepared: PreparedGeometry<'static, Geometry>,
+}
+
+impl CachedPreparedGeometry {
+    fn matches(&self, field: &Field, scalar: &ScalarValue) -> bool {
+        self.field.as_ref() == field && &self.scalar == scalar
+    }
+}
+
+thread_local! {
+    // PreparedGeometry uses Rc internally, so it cannot be shared safely across
+    // worker threads. Keep at most one recent scalar on each worker, shared by
+    // every topological predicate.
+    static PREPARED_SCALAR_CACHE: RefCell<Option<CachedPreparedGeometry>> =
+        const { RefCell::new(None) };
+}
+
+#[cfg(test)]
+thread_local! {
+    static PREPARED_GEOMETRY_COUNT: std::cell::Cell<usize> = const {
+        std::cell::Cell::new(0)
+    };
+}
+
+fn prepare_scalar_geometry(
+    scalar: &ScalarValue,
+    field: &Field,
+) -> GeoDataFusionResult<Option<PreparedGeometry<'static, Geometry>>> {
+    let scalar_array = scalar.to_array()?;
+    let scalar_geo_array = from_arrow_array(&scalar_array, field)?;
+    let Some(scalar) = to_geo_scalar(scalar_geo_array.as_ref())? else {
+        return Ok(None);
+    };
+
+    validate_finite_coordinates(&scalar)?;
+    #[cfg(test)]
+    PREPARED_GEOMETRY_COUNT.with(|count| count.set(count.get() + 1));
+    Ok(Some(PreparedGeometry::from(scalar)))
+}
+
 fn relate_prepared_geometry(
     array: &dyn GeoArrowArray,
-    scalar: &dyn GeoArrowArray,
+    scalar: ScalarValue,
+    scalar_field: &FieldRef,
     prepared_side: PreparedSide,
     relate_cb: impl Fn(IntersectionMatrix) -> bool,
 ) -> GeoDataFusionResult<BooleanArray> {
-    if scalar.is_null(0) {
+    if scalar.is_null() {
         return Ok(BooleanArray::new_null(array.len()));
     }
 
-    let mut prepared = None;
-    let mut builder = BooleanBuilder::with_capacity(array.len());
+    PREPARED_SCALAR_CACHE.with(|cache| {
+        let mut cache = cache.borrow_mut();
+        let mut scalar = Some(scalar);
+        let mut prepared_ready = false;
+        let mut builder = BooleanBuilder::with_capacity(array.len());
 
-    for item in to_geo_iter(array)? {
-        let Some(geometry) = item else {
-            builder.append_null();
-            continue;
-        };
-        let geometry = geometry?;
-        validate_finite_coordinates(&geometry)?;
-
-        if prepared.is_none() {
-            let Some(scalar) = to_geo_scalar(scalar)? else {
-                return Ok(BooleanArray::new_null(array.len()));
+        for item in to_geo_iter(array)? {
+            let Some(geometry) = item else {
+                builder.append_null();
+                continue;
             };
-            validate_finite_coordinates(&scalar)?;
-            prepared = Some(PreparedGeometry::from(scalar));
+            let geometry = geometry?;
+            validate_finite_coordinates(&geometry)?;
+
+            if !prepared_ready {
+                let cache_matches = cache.as_ref().is_some_and(|entry| {
+                    entry.matches(scalar_field.as_ref(), scalar.as_ref().unwrap())
+                });
+                if !cache_matches {
+                    let scalar = scalar.take().unwrap();
+                    let Some(prepared) = prepare_scalar_geometry(&scalar, scalar_field.as_ref())?
+                    else {
+                        return Ok(BooleanArray::new_null(array.len()));
+                    };
+                    *cache = Some(CachedPreparedGeometry {
+                        field: scalar_field.clone(),
+                        scalar,
+                        prepared,
+                    });
+                }
+                prepared_ready = true;
+            }
+
+            let prepared = &cache.as_ref().unwrap().prepared;
+            let matrix = match prepared_side {
+                PreparedSide::Left => prepared.relate(&geometry),
+                PreparedSide::Right => geometry.relate(prepared),
+            };
+            builder.append_value(relate_cb(matrix));
         }
 
-        let matrix = match prepared_side {
-            PreparedSide::Left => prepared.as_ref().unwrap().relate(&geometry),
-            PreparedSide::Right => geometry.relate(prepared.as_ref().unwrap()),
-        };
-        builder.append_value(relate_cb(matrix));
-    }
-
-    Ok(builder.finish())
+        Ok(builder.finish())
+    })
 }
 
 #[cfg(test)]
@@ -385,6 +445,7 @@ mod test {
     use arrow_array::cast::AsArray;
     use arrow_schema::{DataType, Field, Schema};
     use datafusion::config::ConfigOptions;
+    use datafusion::datasource::MemTable;
     use datafusion::prelude::SessionContext;
     use datafusion::scalar::ScalarValue;
     use geoarrow_array::array::{GenericWkbArray, PointArray};
@@ -486,6 +547,17 @@ mod test {
         }
     }
 
+    fn reset_prepared_scalar_cache() {
+        PREPARED_SCALAR_CACHE.with(|cache| {
+            cache.borrow_mut().take();
+        });
+        PREPARED_GEOMETRY_COUNT.with(|count| count.set(0));
+    }
+
+    fn prepared_geometry_count() -> usize {
+        PREPARED_GEOMETRY_COUNT.with(std::cell::Cell::get)
+    }
+
     #[tokio::test]
     async fn test_intersects_scalars_true() {
         let ctx = SessionContext::new();
@@ -546,6 +618,133 @@ mod test {
         let col = batch.column(0);
         assert!(col.as_boolean().value(0));
         assert!(!col.as_boolean().value(1));
+    }
+
+    #[tokio::test]
+    async fn test_scalar_prepared_geometry_reused_across_batches() {
+        reset_prepared_scalar_cache();
+
+        let points = point_array(&[TestPoint::Coord(1.0, 1.0), TestPoint::Coord(5.0, 5.0)]);
+        let schema = Schema::new([Arc::new(points.data_type().to_field("geometry", true))]);
+        let batch = RecordBatch::try_new(Arc::new(schema), vec![points.to_array_ref()]).unwrap();
+        let table = MemTable::try_new(batch.schema(), vec![vec![batch.clone(), batch]]).unwrap();
+
+        let ctx = SessionContext::new();
+        ctx.register_table("t", Arc::new(table)).unwrap();
+        register_relate_udfs(&ctx);
+
+        let square = "ST_GeomFromText('POLYGON ((0 0, 4 0, 4 4, 0 4, 0 0))')";
+        let batches = ctx
+            .sql(&format!(
+                "SELECT \
+                    ST_Contains({square}, geometry) AS contains, \
+                    ST_Within(geometry, {square}) AS within \
+                 FROM t"
+            ))
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+
+        for column in ["contains", "within"] {
+            let values = batches
+                .iter()
+                .flat_map(|batch| batch.column_by_name(column).unwrap().as_boolean().iter())
+                .collect::<Vec<_>>();
+            assert_eq!(
+                values,
+                vec![Some(true), Some(false), Some(true), Some(false)]
+            );
+        }
+        assert_eq!(prepared_geometry_count(), 1);
+    }
+
+    #[test]
+    fn test_prepared_scalar_cache_matches_scalar_and_skips_unused_values() {
+        reset_prepared_scalar_cache();
+
+        let scalar_a = point_array(&[TestPoint::Coord(1.0, 1.0)]);
+        let scalar_b = point_array(&[TestPoint::Coord(2.0, 2.0)]);
+        let points = point_array(&[TestPoint::Coord(1.0, 1.0)]);
+        let points_field = geometry_field(&points);
+        let scalar_a_field = geometry_field(&scalar_a);
+        let scalar_b_field = geometry_field(&scalar_b);
+        let udf = Contains::new();
+
+        for _ in 0..2 {
+            assert_eq!(
+                invoke_bool(
+                    &udf,
+                    scalar_value(&scalar_a),
+                    &scalar_a_field,
+                    array_value(&points),
+                    &points_field,
+                    points.len(),
+                ),
+                vec![Some(true)]
+            );
+        }
+        assert_eq!(prepared_geometry_count(), 1);
+
+        assert_eq!(
+            invoke_bool(
+                &udf,
+                scalar_value(&scalar_b),
+                &scalar_b_field,
+                array_value(&points),
+                &points_field,
+                points.len(),
+            ),
+            vec![Some(false)]
+        );
+        assert_eq!(prepared_geometry_count(), 2);
+
+        let null = wkb_array(&[None]);
+        let null_field = geometry_field(&null);
+        assert_eq!(
+            invoke_bool(
+                &udf,
+                scalar_value(&null),
+                &null_field,
+                array_value(&points),
+                &points_field,
+                points.len(),
+            ),
+            vec![None]
+        );
+        assert_eq!(prepared_geometry_count(), 2);
+
+        let malformed = point_array(&[TestPoint::Coord(f64::NAN, 0.0)]);
+        let malformed_field = geometry_field(&malformed);
+        let empty = point_array(&[]);
+        let empty_field = geometry_field(&empty);
+        assert!(
+            invoke_bool(
+                &udf,
+                scalar_value(&malformed),
+                &malformed_field,
+                array_value(&empty),
+                &empty_field,
+                0,
+            )
+            .is_empty()
+        );
+        assert_eq!(prepared_geometry_count(), 2);
+
+        for _ in 0..2 {
+            let error = invoke_udf(
+                &udf,
+                scalar_value(&malformed),
+                &malformed_field,
+                array_value(&points),
+                &points_field,
+                points.len(),
+            )
+            .unwrap_err();
+            assert!(matches!(error, DataFusionError::Execution(_)));
+        }
+        assert_eq!(prepared_geometry_count(), 2);
     }
 
     #[test]
