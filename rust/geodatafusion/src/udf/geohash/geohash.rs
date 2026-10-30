@@ -15,10 +15,12 @@ use geoarrow_schema::{CoordType, Dimension, PointType};
 
 use crate::error::GeoDataFusionResult;
 
+/// `ST_GeoHash` scalar UDF implementation: encodes a geometry into a GeoHash string.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct GeoHash;
 
 impl GeoHash {
+    /// Creates a new `ST_GeoHash` UDF instance.
     pub fn new() -> Self {
         Self {}
     }

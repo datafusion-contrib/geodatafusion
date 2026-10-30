@@ -13,12 +13,14 @@ use geoarrow_schema::{CoordType, Dimension, Metadata, PointType};
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_PointOnSurface` scalar UDF implementation: computes a point guaranteed to lie on the surface of a geometry.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct PointOnSurface {
     coord_type: CoordType,
 }
 
 impl PointOnSurface {
+    /// Creates a new `ST_PointOnSurface` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self { coord_type }
     }

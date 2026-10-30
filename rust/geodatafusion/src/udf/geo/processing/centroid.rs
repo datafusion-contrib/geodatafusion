@@ -13,12 +13,14 @@ use geoarrow_schema::{CoordType, Dimension, Metadata, PointType};
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_Centroid` scalar UDF implementation: computes the geometric center of mass of a geometry.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Centroid {
     coord_type: CoordType,
 }
 
 impl Centroid {
+    /// Creates a new `ST_Centroid` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self { coord_type }
     }

@@ -18,10 +18,12 @@ use geoarrow_schema::error::GeoArrowResult;
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_NumInteriorRings` (`ST_NumInteriorRing`) scalar UDF implementation: returns the number of interior rings (holes) of a `Polygon`.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct NumInteriorRings;
 
 impl NumInteriorRings {
+    /// Creates a new `ST_NumInteriorRings` UDF instance.
     pub fn new() -> Self {
         Self {}
     }

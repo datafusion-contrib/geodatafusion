@@ -11,7 +11,7 @@ pip install geodatafusion
 
 ## Usage
 
-To use, register the User-Defined Functions (UDFs) provided by `geodatafusion` on your `SessionContext`. The easiest way to do this is via `geodatafusion.register_all`. The [top-level Rust README](https://github.com/datafusion-contrib/geodatafusion) contains a tracker of the UDFs currently implemented.
+Register the spatial User-Defined Functions (UDFs) and Aggregate Functions (UDAFs) provided by `geodatafusion` on your `datafusion.SessionContext`. See the [top-level README](https://github.com/datafusion-contrib/geodatafusion#supported-functions) for the full list of supported SQL functions.
 
 ```py
 from datafusion import SessionContext
@@ -24,6 +24,23 @@ register_all(ctx)
 `register_all` registers the scalar and aggregate functions included in the
 compiled Rust crate. The Python package currently does not enable GEOS-backed
 functions, and it does not export window or table functions.
+
+### Category-Specific Registration & Coordinate Layout
+
+You can also register specific function groups (`register_all_native`, `register_all_geo`, `register_all_geohash`) or register individual UDF wrapper classes from `geodatafusion.native`, `geodatafusion.geo`, and `geodatafusion.geohash` with a custom GeoArrow coordinate layout (`coord_type="interleaved"` or `"separated"`):
+
+```py
+from datafusion import SessionContext, udf
+from geodatafusion import native, register_all_native
+
+ctx = SessionContext()
+register_all_native(ctx)
+
+# Override ST_Point to produce interleaved coordinates
+ctx.register_udf(udf(native.Point(coord_type="interleaved")))
+```
+
+### Running Spatial SQL Queries
 
 Then you can use the UDFs in SQL queries:
 

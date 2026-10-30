@@ -11,10 +11,12 @@ use geoarrow_array::array::from_arrow_array;
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_IsValidReason` scalar UDF implementation: returns `'Valid Geometry'` or a text description of why a geometry is invalid.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct IsValidReason;
 
 impl IsValidReason {
+    /// Creates a new `ST_IsValidReason` UDF instance.
     pub fn new() -> Self {
         Self {}
     }

@@ -20,12 +20,14 @@ use geoarrow_schema::{CoordType, GeoArrowType, GeometryType, LineStringType};
 use crate::data_types::any_geometry_type;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_ExteriorRing` scalar UDF implementation: returns a `LineString` representing the exterior ring of a `Polygon`.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct ExteriorRing {
     coord_type: CoordType,
 }
 
 impl ExteriorRing {
+    /// Creates a new `ST_ExteriorRing` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self { coord_type }
     }

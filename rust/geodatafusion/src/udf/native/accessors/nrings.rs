@@ -20,10 +20,12 @@ use geoarrow_schema::error::GeoArrowResult;
 use crate::data_types::any_geometry_type;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_NRings` scalar UDF implementation: returns the total number of rings (exterior and interior) in a polygonal geometry.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct NRings;
 
 impl NRings {
+    /// Creates a new `ST_NRings` UDF instance.
     pub fn new() -> Self {
         Self {}
     }

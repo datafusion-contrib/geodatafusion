@@ -22,12 +22,14 @@ use wkt::types::{Coord, Dimension as WktDimension, LineString as WktLineString};
 use crate::data_types::any_geometry_type;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_LineFromMultiPoint` scalar UDF implementation: creates a `LineString` from a `MultiPoint` geometry.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct LineFromMultiPoint {
     coord_type: CoordType,
 }
 
 impl LineFromMultiPoint {
+    /// Creates a new `ST_LineFromMultiPoint` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self { coord_type }
     }

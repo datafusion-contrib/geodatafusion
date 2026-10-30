@@ -18,10 +18,12 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::{GeoDataFusionError, GeoDataFusionResult};
 use crate::udf::native::bounding_box::util::bounds::total_bounds;
 
+/// `ST_Extent` aggregate UDF implementation: computes the 2D `box2d` bounding box enclosing a set of geometries.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Extent;
 
 impl Extent {
+    /// Creates a new `ST_Extent` aggregate UDF instance.
     pub fn new() -> Self {
         Self {}
     }

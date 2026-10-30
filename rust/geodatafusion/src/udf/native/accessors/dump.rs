@@ -31,6 +31,7 @@ pub struct Dump {
 }
 
 impl Dump {
+    /// Creates a new `ST_Dump` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self { coord_type }
     }

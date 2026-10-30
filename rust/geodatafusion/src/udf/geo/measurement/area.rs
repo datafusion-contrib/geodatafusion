@@ -13,10 +13,12 @@ use geoarrow_schema::GeoArrowType;
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_Area` scalar UDF implementation: returns the 2D planar area of a polygonal geometry.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Area;
 
 impl Area {
+    /// Creates a new `ST_Area` UDF instance.
     pub fn new() -> Self {
         Self {}
     }

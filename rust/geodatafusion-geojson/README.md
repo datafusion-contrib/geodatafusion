@@ -2,7 +2,10 @@
 
 Newline-delimited GeoJSON (`.geojsonl`) [`FileFormat`](https://docs.rs/datafusion/latest/datafusion/datasource/file_format/trait.FileFormat.html) support for [Apache DataFusion](https://datafusion.apache.org/).
 
-Currently supports writing GeoJSON Lines (`.geojsonl`) via [`GeoJsonFormat`], [`GeoJsonFormatFactory`], and [`GeoJsonFileFactory`] (for example with `COPY ... TO 'output.geojsonl'`). Reading GeoJSON files is not yet implemented.
+## Supported Capabilities
+
+- **Writing (`.geojsonl`)**: Supports writing GeoArrow record batches to newline-delimited GeoJSON (`COPY ... TO 'output.geojsonl'`) via [`GeoJsonFormat`], [`GeoJsonFormatFactory`], [`GeoJsonFileFactory`], and [`GeoJsonSink`](crate::file_format::GeoJsonSink). If an `"id"` column is present in the output schema, it is written as the top-level GeoJSON Feature `id`.
+- **Reading**: Reading GeoJSON files is not currently implemented and returns `DataFusionError::NotImplemented`.
 
 ## Usage
 

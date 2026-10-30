@@ -115,11 +115,11 @@ cargo doc --all-features --open
 
 We follow the [PostGIS API](https://postgis.net/docs/reference.html) as closely as possible. When implementing a new function:
 
-1. **Check the README** - See if the function is listed in the function table
+1. **Check the PostGIS Compatibility Matrix** - See if the function is listed in [POSTGIS_COMPATIBILITY.md](POSTGIS_COMPATIBILITY.md)
 2. **Find similar implementations** - Look at existing functions in the same category
 3. **Implement the function** - Follow existing patterns in `rust/geodatafusion/src/udf/`
 4. **Add tests** - Include unit tests and integration tests
-5. **Update documentation** - Add doc comments and update the README checkboxes
+5. **Update documentation** - Add doc comments, list the function in [README.md](README.md), and check it off in [POSTGIS_COMPATIBILITY.md](POSTGIS_COMPATIBILITY.md)
 
 #### Function Categories
 

@@ -66,12 +66,14 @@ fn optional_numeric_signature(max_extra_args: usize) -> Signature {
     Signature::one_of(signatures, Volatility::Immutable)
 }
 
+/// `ST_Force2D` scalar UDF implementation: forces geometries into 2D (`XY`) coordinate mode.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Force2D {
     coord_type: CoordType,
 }
 
 impl Force2D {
+    /// Creates a new `ST_Force2D` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self { coord_type }
     }
@@ -125,6 +127,7 @@ impl ScalarUDFImpl for Force2D {
     }
 }
 
+/// `ST_Force3DZ` (`ST_Force3D`) scalar UDF implementation: forces geometries into `XYZ` coordinate mode.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Force3DZ {
     coord_type: CoordType,
@@ -132,6 +135,7 @@ pub struct Force3DZ {
 }
 
 impl Force3DZ {
+    /// Creates a new `ST_Force3DZ` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self {
             coord_type,
@@ -193,12 +197,14 @@ impl ScalarUDFImpl for Force3DZ {
     }
 }
 
+/// `ST_Force3DM` scalar UDF implementation: forces geometries into `XYM` coordinate mode.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Force3DM {
     coord_type: CoordType,
 }
 
 impl Force3DM {
+    /// Creates a new `ST_Force3DM` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self { coord_type }
     }
@@ -253,12 +259,14 @@ impl ScalarUDFImpl for Force3DM {
     }
 }
 
+/// `ST_Force4D` scalar UDF implementation: forces geometries into `XYZM` coordinate mode.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Force4D {
     coord_type: CoordType,
 }
 
 impl Force4D {
+    /// Creates a new `ST_Force4D` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self { coord_type }
     }

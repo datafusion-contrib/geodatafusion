@@ -11,10 +11,12 @@ use geoarrow_array::array::from_arrow_array;
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_IsValid` scalar UDF implementation: tests whether a geometry is well-formed and valid in 2D.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct IsValid;
 
 impl IsValid {
+    /// Creates a new `ST_IsValid` UDF instance.
     pub fn new() -> Self {
         Self {}
     }

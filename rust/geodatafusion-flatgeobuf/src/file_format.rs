@@ -1,3 +1,5 @@
+//! [`FileFormat`] and [`FileSink`] implementations for FlatGeobuf (`.fgb`) files.
+
 use std::collections::HashMap;
 use std::fmt::{self, Debug, Formatter};
 use std::fs::File;
@@ -93,6 +95,7 @@ impl GetExt for FlatGeobufFormatFactory {
     }
 }
 
+/// FlatGeobuf [`FileFormat`] implementation for reading and writing `.fgb` files.
 #[derive(Debug)]
 pub struct FlatGeobufFormat {
     coord_type: CoordType,
@@ -230,12 +233,14 @@ impl FileFormat for FlatGeobufFormat {
     }
 }
 
+/// [`FileSink`] and [`DataSink`] implementation for writing FlatGeobuf (`.fgb`) files.
 #[derive(Debug)]
 pub struct FlatGeobufSink {
     config: FileSinkConfig,
 }
 
 impl FlatGeobufSink {
+    /// Creates a new [`FlatGeobufSink`] from the given [`FileSinkConfig`].
     pub fn new(config: FileSinkConfig) -> Self {
         Self { config }
     }
@@ -363,6 +368,8 @@ pub struct FlatGeobufFileFactory {
 }
 
 impl FlatGeobufFileFactory {
+    /// Creates a new [`FlatGeobufFileFactory`] with the specified GeoArrow [`CoordType`]
+    /// and string/binary view type preference.
     pub fn new(coord_type: CoordType, use_view_types: bool) -> Self {
         Self {
             file_factory: FlatGeobufFormatFactory::new(coord_type, use_view_types),

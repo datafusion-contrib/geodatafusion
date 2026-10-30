@@ -14,10 +14,12 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 use crate::udf::native::bounding_box::util::bounds::bounding_rect;
 
+/// `Box2D` scalar UDF implementation: returns a 2D bounding box (`geoarrow.box`) representing the 2D extent of a geometry.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Box2D;
 
 impl Box2D {
+    /// Creates a new `Box2D` UDF instance.
     pub fn new() -> Self {
         Self {}
     }
@@ -65,10 +67,12 @@ impl ScalarUDFImpl for Box2D {
     }
 }
 
+/// `Box3D` scalar UDF implementation: returns a 3D bounding box (`geoarrow.box` XYZ) representing the 3D extent of a geometry.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct Box3D;
 
 impl Box3D {
+    /// Creates a new `Box3D` UDF instance.
     pub fn new() -> Self {
         Self {}
     }

@@ -1,3 +1,5 @@
+//! Geometry coordinate, dimension, ring, and component accessor UDFs.
+
 mod coord_dim;
 mod dimension;
 mod dump;
@@ -36,6 +38,7 @@ pub use num_interior_rings::NumInteriorRings;
 pub use point::{M, X, Y, Z};
 pub use zm_flag::ZmFlag;
 
+/// Register all native geometry accessor UDFs into the given [`SessionContext`](datafusion::prelude::SessionContext).
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
     session_context.register_udf(CoordDim.into());
     session_context.register_udf(Dimension.into());

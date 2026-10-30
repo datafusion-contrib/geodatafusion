@@ -16,10 +16,12 @@ use geoarrow_schema::{Dimension, GeoArrowType};
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_CoordDim` scalar UDF implementation: returns the coordinate dimension (`2`, `3`, or `4`) of a geometry.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct CoordDim;
 
 impl CoordDim {
+    /// Creates a new `ST_CoordDim` UDF instance.
     pub fn new() -> Self {
         Self {}
     }
@@ -125,10 +127,12 @@ fn coord_dim_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue
     }
 }
 
+/// `ST_NDims` scalar UDF implementation: returns the coordinate dimension (`2`, `3`, or `4`) of a geometry.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct NDims;
 
 impl NDims {
+    /// Creates a new `ST_NDims` UDF instance.
     pub fn new() -> Self {
         Self {}
     }

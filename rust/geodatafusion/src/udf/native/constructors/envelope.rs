@@ -22,6 +22,7 @@ use wkt::types::{Coord, Dimension as WktDimension, LineString, Polygon as WktPol
 
 use crate::error::GeoDataFusionResult;
 
+/// `ST_MakeEnvelope` scalar UDF implementation: creates a rectangular `Polygon` from minimum and maximum coordinates and optional SRID.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct MakeEnvelope {
     signature: Signature,
@@ -29,6 +30,7 @@ pub struct MakeEnvelope {
 }
 
 impl MakeEnvelope {
+    /// Creates a new `ST_MakeEnvelope` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self {
             signature: Signature::one_of(

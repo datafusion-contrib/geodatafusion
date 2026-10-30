@@ -23,10 +23,12 @@ use crate::udf::native::io::geometry::{
     polyhedral_wkb_to_multipolygon,
 };
 
+/// `ST_AsBinary` scalar UDF implementation: converts a geometry into OGC Well-Known Binary (WKB).
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct AsBinary;
 
 impl AsBinary {
+    /// Creates a new `ST_AsBinary` UDF instance.
     pub fn new() -> Self {
         Self {}
     }
@@ -88,6 +90,7 @@ impl ScalarUDFImpl for AsBinary {
     }
 }
 
+/// `ST_GeomFromWKB` (`ST_WKBToSQL`) scalar UDF implementation: parses an OGC Well-Known Binary (WKB) value into a geometry.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct GeomFromWKB {
     signature: Signature,
@@ -96,6 +99,7 @@ pub struct GeomFromWKB {
 }
 
 impl GeomFromWKB {
+    /// Creates a new `ST_GeomFromWKB` UDF instance with the specified output [`CoordType`].
     pub fn new(coord_type: CoordType) -> Self {
         Self {
             signature: Signature::uniform(

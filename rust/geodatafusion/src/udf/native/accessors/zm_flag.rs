@@ -17,10 +17,12 @@ use geoarrow_schema::error::GeoArrowError;
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_Zmflag` scalar UDF implementation: returns a code indicating the ZM coordinate dimension of a geometry (`0` = 2D, `1` = 3DM, `2` = 3DZ, `3` = 4D).
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct ZmFlag;
 
 impl ZmFlag {
+    /// Creates a new `ST_Zmflag` UDF instance.
     pub fn new() -> Self {
         Self
     }

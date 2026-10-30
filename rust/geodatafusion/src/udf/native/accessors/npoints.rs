@@ -16,10 +16,12 @@ use geoarrow_schema::error::GeoArrowResult;
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
+/// `ST_NPoints` (`ST_NumPoints`) scalar UDF implementation: returns the number of points (vertices) in a geometry.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct NPoints;
 
 impl NPoints {
+    /// Creates a new `ST_NPoints` UDF instance.
     pub fn new() -> Self {
         Self {}
     }

@@ -24,6 +24,8 @@ use object_store::ObjectStore;
 
 use crate::utils::open_flatgeobuf_reader;
 
+/// [`FileSource`] implementation for reading FlatGeobuf (`.fgb`) files with optional
+/// bounding-box spatial filter pushdown.
 #[derive(Debug, Clone)]
 pub struct FlatGeobufSource {
     batch_size: Option<usize>,
@@ -34,6 +36,7 @@ pub struct FlatGeobufSource {
 }
 
 impl FlatGeobufSource {
+    /// Creates a new [`FlatGeobufSource`] with the given [`TableSchema`].
     pub fn new(table_schema: TableSchema) -> Self {
         let table_schema_ref = table_schema.table_schema();
         let projection = ProjectionExprs::from_indices(
@@ -156,12 +159,15 @@ impl FileSource for FlatGeobufSource {
     }
 }
 
+/// [`FileOpener`] implementation for reading a partitioned FlatGeobuf (`.fgb`) file.
 pub struct FlatGeobufOpener {
     config: Arc<FlatGeobufSource>,
     object_store: Arc<dyn ObjectStore>,
 }
 
 impl FlatGeobufOpener {
+    /// Creates a new [`FlatGeobufOpener`] from the given [`FlatGeobufSource`] configuration
+    /// and [`ObjectStore`].
     pub fn new(config: Arc<FlatGeobufSource>, object_store: Arc<dyn ObjectStore>) -> Self {
         Self {
             config,
