@@ -24,14 +24,14 @@ python/
 ├── pyproject.toml          # Python package configuration
 ├── src/                    # Rust source (PyO3 bindings)
 │   ├── lib.rs             # Main module entry point
+│   ├── registration.rs    # FFI UDF registration exports
 │   ├── udf/               # UDF registration modules
 │   └── utils.rs           # Helper utilities
 ├── python/                 # Pure Python source
 │   └── geodatafusion/
 │       └── __init__.py    # Python API
-├── tests/                  # Python tests
-│   └── udf/               # UDF tests
-└── examples/               # Example scripts
+└── tests/                  # Python tests
+    └── udf/               # UDF tests
 ```
 
 ## Getting Started
@@ -129,7 +129,9 @@ UDF to an existing Rust module therefore makes it available to Python without
 maintaining another name list.
 
 Add or update a Python wrapper class only when users need to construct the UDF
-with non-default options, such as `coord_type`.
+with non-default options, such as `coord_type`. When adding or updating a
+wrapper class in `src/udf/`, also update the corresponding `.pyi` type stub
+under `python/geodatafusion/`.
 
 ### 4. Add Tests
 

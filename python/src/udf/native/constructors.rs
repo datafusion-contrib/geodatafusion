@@ -1,9 +1,17 @@
 use geodatafusion::udf::native::constructors::{
-    MakePoint, MakePointM, Point, PointM, PointZ, PointZM,
+    LineFromMultiPoint, MakeEnvelope, MakeLine, MakePoint, MakePointM, Point, PointM, PointZ,
+    PointZM,
 };
 
 use crate::impl_udf_coord_type_arg;
 
+impl_udf_coord_type_arg!(
+    LineFromMultiPoint,
+    PyLineFromMultiPoint,
+    "LineFromMultiPoint"
+);
+impl_udf_coord_type_arg!(MakeEnvelope, PyMakeEnvelope, "MakeEnvelope");
+impl_udf_coord_type_arg!(MakeLine, PyMakeLine, "MakeLine");
 impl_udf_coord_type_arg!(Point, PyPoint, "Point");
 impl_udf_coord_type_arg!(PointZ, PyPointZ, "PointZ");
 impl_udf_coord_type_arg!(PointM, PyPointM, "PointM");

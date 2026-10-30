@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 use arrow_array::ArrayRef;
 use arrow_array::cast::AsArray;
@@ -7,8 +7,9 @@ use arrow_schema::{DataType, Field, FieldRef};
 use datafusion::common::scalar::ScalarStructBuilder;
 use datafusion::error::{DataFusionError, Result};
 use datafusion::logical_expr::function::{AccumulatorArgs, StateFieldsArgs};
+use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::utils::format_state_name;
-use datafusion::logical_expr::{Accumulator, AggregateUDFImpl, Signature};
+use datafusion::logical_expr::{Accumulator, AggregateUDFImpl, Documentation, Signature};
 use datafusion::scalar::ScalarValue;
 use geoarrow_array::array::from_arrow_array;
 use geoarrow_schema::{BoxType, Dimension, Metadata};
@@ -31,6 +32,8 @@ impl Default for Extent {
         Self::new()
     }
 }
+
+static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl AggregateUDFImpl for Extent {
     fn name(&self) -> &str {
@@ -68,6 +71,18 @@ impl AggregateUDFImpl for Extent {
                 ))
             })
             .collect())
+    }
+
+    fn documentation(&self) -> Option<&Documentation> {
+        Some(DOCUMENTATION.get_or_init(|| {
+            Documentation::builder(
+                DOC_SECTION_OTHER,
+                "An aggregate function that returns the bounding box that bounds rows of geometries.",
+                "ST_Extent(geomset)",
+            )
+            .with_argument("geomset", "geometry")
+            .build()
+        }))
     }
 }
 

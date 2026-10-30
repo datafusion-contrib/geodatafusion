@@ -50,7 +50,7 @@ impl ScalarUDFImpl for Envelope {
         Some(DOCUMENTATION.get_or_init(|| {
             Documentation::builder(
                 DOC_SECTION_OTHER,
-                "Computes a point which is the geometric center of mass of a geometry.",
+                "Returns a geometry representing the bounding box of a geometry.",
                 "ST_Envelope(geometry)",
             )
             .with_argument("g1", "geometry")

@@ -80,7 +80,7 @@ impl ScalarUDFImpl for Dump {
                  Returns, per input row, a list of `(path, geom)` structs where \
                  `path` is the 1-based navigation path to the component (empty for an atomic input). \
                  Use `unnest` if you want to expand into a row per component instead of row per input geom. \
-                 Empty inputs (recursively, per the same definition as ST_Empty) produce zero components.",
+                 Empty inputs (recursively, per the same definition as ST_IsEmpty) produce zero components.",
                 "ST_Dump(geom)",
             )
             .with_argument("geom", "geometry")

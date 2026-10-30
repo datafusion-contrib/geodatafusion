@@ -57,3 +57,52 @@ fn readme_implemented_functions_match_public_registration() {
          register() exposes but README does not mark implemented: {missing_from_readme:?}"
     );
 }
+
+#[test]
+fn registered_functions_have_documentation() {
+    let ctx = SessionContext::new_with_state(SessionStateBuilder::new().build());
+    geodatafusion::register(&ctx);
+
+    let state = ctx.state();
+    for (name, udf) in state.scalar_functions() {
+        let doc = udf
+            .documentation()
+            .unwrap_or_else(|| panic!("scalar UDF `{name}` is missing documentation"));
+        assert!(
+            !doc.description.trim().is_empty(),
+            "scalar UDF `{name}` has an empty documentation description"
+        );
+        assert!(
+            !doc.syntax_example.trim().is_empty(),
+            "scalar UDF `{name}` has an empty syntax_example"
+        );
+        if let Some(related) = &doc.related_udfs {
+            for rel in related {
+                assert_eq!(
+                    rel,
+                    &rel.to_ascii_lowercase(),
+                    "scalar UDF `{name}` has non-lowercase related_udf `{rel}`"
+                );
+                assert_ne!(
+                    rel,
+                    udf.name(),
+                    "scalar UDF `{name}` lists itself in related_udfs"
+                );
+            }
+        }
+    }
+
+    for (name, udaf) in state.aggregate_functions() {
+        let doc = udaf
+            .documentation()
+            .unwrap_or_else(|| panic!("aggregate UDF `{name}` is missing documentation"));
+        assert!(
+            !doc.description.trim().is_empty(),
+            "aggregate UDF `{name}` has an empty documentation description"
+        );
+        assert!(
+            !doc.syntax_example.trim().is_empty(),
+            "aggregate UDF `{name}` has an empty syntax_example"
+        );
+    }
+}

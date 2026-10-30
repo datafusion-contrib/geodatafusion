@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import ast
+from pathlib import Path
+
 import pyarrow as pa
-from datafusion import SessionContext, udf
+from datafusion import SessionContext, udaf, udf
 from geodatafusion import (
     _rust,
+    geo,
+    geohash,
     native,
     register_all,
     register_all_geo,
@@ -96,6 +101,44 @@ def test_existing_coord_type_option_still_works():
         "SELECT ST_AsText(ST_EndPoint(ST_GeomFromText('LINESTRING(0 0, 1 1)'))) AS point"
     ).to_arrow_table()
     assert result.to_pylist() == [{"point": "POINT(1 1)"}]
+
+
+def test_pyi_stubs_match_exported_classes():
+    pkg_dir = Path(__file__).resolve().parent.parent / "python" / "geodatafusion"
+    module_stubs = [
+        (native, sorted((pkg_dir / "native").glob("_*.pyi"))),
+        (geo, sorted((pkg_dir / "geo").glob("_*.pyi"))),
+        (geohash, [pkg_dir / "geohash.pyi"]),
+    ]
+
+    for mod, stub_files in module_stubs:
+        exported = {name for name in dir(mod) if not name.startswith("_")}
+        stub_classes: dict[str, tuple[bool, set[str]]] = {}
+        for stub_file in stub_files:
+            tree = ast.parse(stub_file.read_text())
+            for node in tree.body:
+                if isinstance(node, ast.ClassDef):
+                    methods: set[str] = set()
+                    has_coord_type = False
+                    for item in node.body:
+                        if isinstance(item, ast.FunctionDef):
+                            methods.add(item.name)
+                            if item.name == "__init__":
+                                kwonly = {arg.arg for arg in item.args.kwonlyargs}
+                                has_coord_type = "coord_type" in kwonly
+                    stub_classes[node.name] = (has_coord_type, methods)
+
+        assert exported == set(stub_classes), f"Mismatch in {mod.__name__}"
+
+        for cls_name, (has_coord_type, methods) in stub_classes.items():
+            cls = getattr(mod, cls_name)
+            instance = cls(coord_type="interleaved") if has_coord_type else cls()
+            if "__datafusion_scalar_udf__" in methods:
+                assert hasattr(instance, "__datafusion_scalar_udf__")
+                udf(instance)
+            if "__datafusion_aggregate_udf__" in methods:
+                assert hasattr(instance, "__datafusion_aggregate_udf__")
+                udaf(instance)
 
 
 def test_st_dump_list_and_unnest():

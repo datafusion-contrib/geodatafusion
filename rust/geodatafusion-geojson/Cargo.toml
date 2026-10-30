@@ -5,7 +5,8 @@ authors = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }
 repository = { workspace = true }
-description = "GeoJSON TableProvider for DataFusion"
+description = "GeoJSON Lines FileFormat support for DataFusion"
+readme = "README.md"
 categories = { workspace = true }
 rust-version = { workspace = true }
 

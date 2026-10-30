@@ -232,9 +232,13 @@ impl ScalarUDFImpl for GeomFromWKB {
 
     fn documentation(&self) -> Option<&Documentation> {
         Some(GEOM_FROM_WKB_DOC.get_or_init(|| {
-            Documentation::builder(DOC_SECTION_OTHER, "Takes a well-known binary representation of a geometry and a Spatial Reference System ID (SRID) and creates an instance of the appropriate geometry type", "ST_GeomFromWKB(buffer)")
-                .with_argument("geom", "WKB buffers")
-                .build()
+            Documentation::builder(
+                DOC_SECTION_OTHER,
+                "Takes a well-known binary representation of a geometry and creates an instance of the appropriate geometry type.",
+                "ST_GeomFromWKB(buffer)",
+            )
+            .with_argument("geom", "WKB buffers")
+            .build()
         }))
     }
 }

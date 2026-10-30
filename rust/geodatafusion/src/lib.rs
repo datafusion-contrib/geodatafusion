@@ -1,4 +1,16 @@
-// Temporary
+//! Spatial extensions for [Apache DataFusion](https://datafusion.apache.org/).
+//!
+//! Use [`register`] to register all available spatial User-Defined Functions (UDFs)
+//! and User-Defined Aggregate Functions (UDAFs) with a DataFusion
+//! [`SessionContext`](datafusion::prelude::SessionContext):
+//!
+//! ```
+//! use datafusion::prelude::SessionContext;
+//!
+//! let ctx = SessionContext::new();
+//! geodatafusion::register(&ctx);
+//! ```
+
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 #![doc(

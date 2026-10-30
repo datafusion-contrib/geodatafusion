@@ -8,7 +8,7 @@ readme = "README.md"
 repository = "https://github.com/datafusion-contrib/geodatafusion"
 license = "MIT OR Apache-2.0"
 keywords = ["python", "arrow", "geospatial"]
-categories = ["wasm", "science::geo"]
+categories = ["science::geo"]
 rust-version = "1.95"
 
 [lib]

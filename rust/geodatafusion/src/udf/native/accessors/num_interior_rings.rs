@@ -61,8 +61,8 @@ impl ScalarUDFImpl for NumInteriorRings {
         Some(DOCUMENTATION.get_or_init(|| {
             Documentation::builder(
                 DOC_SECTION_OTHER,
-                "Return the number of points in a geometry. Works for all geometries.",
-                "ST_NPoints(geometry)",
+                "Return the number of interior rings of a Polygon geometry. Return NULL if the geometry is not a polygon.",
+                "ST_NumInteriorRings(a_polygon)",
             )
             .with_argument("g1", "geometry")
             .build()
