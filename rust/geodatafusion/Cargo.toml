@@ -32,6 +32,7 @@ geoarrow-schema = { workspace = true }
 geohash = { workspace = true }
 geos = { workspace = true, optional = true }
 thiserror = { workspace = true }
+wkb = { workspace = true }
 wkt = { workspace = true }
 
 [dev-dependencies]
@@ -47,7 +48,6 @@ sha2 = "0.10"
 sqllogictest = "0.29.1"
 tokio = { workspace = true, features = ["macros", "fs", "rt-multi-thread"] }
 tokio-postgres = { version = "0.7", default-features = false, features = ["runtime"] }
-wkb = { workspace = true }
 
 [[test]]
 name = "sqllogictests"

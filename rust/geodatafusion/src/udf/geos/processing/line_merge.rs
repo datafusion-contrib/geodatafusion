@@ -1,6 +1,7 @@
 use std::sync::{Arc, LazyLock, OnceLock};
 
-use arrow_array::{Array, BinaryArray};
+use arrow_array::cast::AsArray;
+use arrow_array::{Array, BinaryViewArray, GenericBinaryArray, OffsetSizeTrait};
 use arrow_schema::{DataType, FieldRef};
 use datafusion::error::{DataFusionError, Result};
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
@@ -9,14 +10,20 @@ use datafusion::logical_expr::{
     TypeSignature, Volatility,
 };
 use datafusion::scalar::ScalarValue;
-use geoarrow_array::GeoArrowArray;
-use geoarrow_array::array::{WkbArray, from_arrow_array};
-use geoarrow_array::cast::{from_wkb, to_wkb};
+use geo_traits::GeometryTrait;
+use geoarrow_array::array::{GeometryArray, from_arrow_array};
+use geoarrow_array::builder::GeometryBuilder;
+use geoarrow_array::cast::AsGeoArrowArray;
+use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor};
+use geoarrow_schema::error::GeoArrowError;
 use geoarrow_schema::{CoordType, GeoArrowType, GeometryType, Metadata};
 use geos::{Geom, Geometry};
+use wkb::Endianness;
+use wkb::reader::Wkb;
+use wkb::writer::{WriteOptions, write_geometry};
 
 use crate::data_types::any_geometry_type;
-use crate::error::GeoDataFusionResult;
+use crate::error::{GeoDataFusionError, GeoDataFusionResult};
 
 /// A single geometry argument, optionally followed by the `directed` boolean.
 static SIGNATURE: LazyLock<Signature> = LazyLock::new(|| {
@@ -112,65 +119,226 @@ fn parse_directed(args: &ScalarFunctionArgs) -> GeoDataFusionResult<bool> {
 }
 
 fn line_merge_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
-    // Parse the directed argument
     let directed = parse_directed(&args)?;
 
     let arrays = ColumnarValue::values_to_arrays(&args.args[0..1])?;
     let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
-    let metadata = geo_array.data_type().metadata().clone();
+    let to_type = GeoArrowType::from_arrow_field(args.return_field.as_ref())?;
+    let GeoArrowType::Geometry(output_type) = to_type else {
+        return Err(GeoArrowError::IncorrectGeometryType(format!(
+            "Expected Geometry output, got {to_type:?}"
+        ))
+        .into());
+    };
 
-    // Bridge to GEOS via WKB.
-    //
-    // Assumptions:
-    // - No arrow arrays (record batches?) larger than 2GB.
-    // - A trip through WKB is probably the fastest path. The only other obvious option is using geo_types as an intermediate,
-    //   but that is probably going to STILL require going out to WKB, since WKB looks to be the cheapest interchange format.
-    let wkb_array = to_wkb::<i32>(geo_array.as_ref())?;
+    let mut processor = LineMergeProcessor::new(output_type, directed);
+    process_input(geo_array.as_ref(), &mut processor)?;
+    Ok(ColumnarValue::Array(processor.finish().to_array_ref()))
+}
 
-    let mut merged: Vec<Option<Vec<u8>>> = Vec::with_capacity(wkb_array.inner().len());
-    for maybe_wkb in wkb_array.inner() {
-        match maybe_wkb {
-            // Null inputs propagate to null outputs.
-            None => merged.push(None),
-            Some(wkb) => {
-                let geom = Geometry::new_from_wkb(wkb)?;
-                if geom.is_empty()? {
-                    // PostGIS returns the original geometry for empty input,
-                    // whereas GEOS would collapse it to an empty GeometryCollection.
-                    // Preserve the PostGIS behavior.
-                    // Thanks to Dewy for pointing out from the SedonaDB implementation:
-                    // https://github.com/apache/sedona-db/blob/cf8b9ceaf7a78c042bf73ab0e5040187046fe256/c/sedona-geos/src/st_line_merge.rs#L105-L131!
-                    merged.push(Some(wkb.to_vec()));
-                } else {
-                    // Branch on directed or not
-                    let result = if directed {
-                        geom.line_merge_directed()?
-                    } else {
-                        geom.line_merge()?
-                    };
-                    merged.push(Some(result.to_wkb()?));
-                }
-            }
+fn process_input(
+    geo_array: &dyn GeoArrowArray,
+    processor: &mut LineMergeProcessor,
+) -> GeoDataFusionResult<()> {
+    use GeoArrowType::*;
+
+    match geo_array.data_type() {
+        Point(_) => for_each_geometry(geo_array.as_point(), |geometry| {
+            processor.push_geometry(geometry)
+        }),
+        LineString(_) => for_each_geometry(geo_array.as_line_string(), |geometry| {
+            processor.push_geometry(geometry)
+        }),
+        Polygon(_) => for_each_geometry(geo_array.as_polygon(), |geometry| {
+            processor.push_geometry(geometry)
+        }),
+        MultiPoint(_) => for_each_geometry(geo_array.as_multi_point(), |geometry| {
+            processor.push_geometry(geometry)
+        }),
+        MultiLineString(_) => for_each_geometry(geo_array.as_multi_line_string(), |geometry| {
+            processor.push_geometry(geometry)
+        }),
+        MultiPolygon(_) => for_each_geometry(geo_array.as_multi_polygon(), |geometry| {
+            processor.push_geometry(geometry)
+        }),
+        GeometryCollection(_) => {
+            for_each_geometry(geo_array.as_geometry_collection(), |geometry| {
+                processor.push_geometry(geometry)
+            })
+        }
+        Rect(_) => for_each_geometry(geo_array.as_rect(), |geometry| {
+            processor.push_geometry(geometry)
+        }),
+        Geometry(_) => for_each_geometry(geo_array.as_geometry(), |geometry| {
+            processor.push_geometry(geometry)
+        }),
+        // WKB inputs go directly to GEOS without first materializing a batch-wide copy.
+        Wkb(_) => for_each_binary(geo_array.as_wkb::<i32>().inner(), |wkb| {
+            processor.push_wkb(wkb)
+        }),
+        LargeWkb(_) => for_each_binary(geo_array.as_wkb::<i64>().inner(), |wkb| {
+            processor.push_wkb(wkb)
+        }),
+        WkbView(_) => {
+            let array = geo_array.as_wkb_view().to_array_ref();
+            for_each_binary_view(array.as_binary_view(), |wkb| processor.push_wkb(wkb))
+        }
+        Wkt(_) => for_each_geometry(geo_array.as_wkt::<i32>(), |geometry| {
+            processor.push_geometry(geometry)
+        }),
+        LargeWkt(_) => for_each_geometry(geo_array.as_wkt::<i64>(), |geometry| {
+            processor.push_geometry(geometry)
+        }),
+        WktView(_) => for_each_geometry(geo_array.as_wkt_view(), |geometry| {
+            processor.push_geometry(geometry)
+        }),
+    }
+}
+
+fn for_each_geometry<'a, A>(
+    array: &'a A,
+    mut process: impl FnMut(Option<&A::Item>) -> GeoDataFusionResult<()>,
+) -> GeoDataFusionResult<()>
+where
+    A: GeoArrowArrayAccessor<'a>,
+{
+    for row in 0..array.len() {
+        let geometry = array.get(row)?;
+        process(geometry.as_ref())?;
+    }
+    Ok(())
+}
+
+fn for_each_binary<O: OffsetSizeTrait>(
+    array: &GenericBinaryArray<O>,
+    mut process: impl FnMut(Option<&[u8]>) -> GeoDataFusionResult<()>,
+) -> GeoDataFusionResult<()> {
+    for row in 0..array.len() {
+        process(if array.is_null(row) {
+            None
+        } else {
+            Some(array.value(row))
+        })?;
+    }
+    Ok(())
+}
+
+fn for_each_binary_view(
+    array: &BinaryViewArray,
+    mut process: impl FnMut(Option<&[u8]>) -> GeoDataFusionResult<()>,
+) -> GeoDataFusionResult<()> {
+    for row in 0..array.len() {
+        process(if array.is_null(row) {
+            None
+        } else {
+            Some(array.value(row))
+        })?;
+    }
+    Ok(())
+}
+
+struct LineMergeProcessor {
+    // Retain only the final GeoArrow buffers plus one reusable input WKB buffer.
+    builder: GeometryBuilder,
+    directed: bool,
+    wkb_buf: Vec<u8>,
+}
+
+impl LineMergeProcessor {
+    fn new(output_type: GeometryType, directed: bool) -> Self {
+        Self {
+            builder: GeometryBuilder::new(output_type),
+            directed,
+            wkb_buf: Vec::new(),
         }
     }
 
-    let result_wkb = WkbArray::new(merged.into_iter().collect::<BinaryArray>(), metadata);
-    let to_type = GeoArrowType::from_arrow_field(args.return_field.as_ref())?;
-    let result = from_wkb(&result_wkb, to_type)?;
-    Ok(ColumnarValue::Array(result.to_array_ref()))
+    fn push_geometry(
+        &mut self,
+        geometry: Option<&impl GeometryTrait<T = f64>>,
+    ) -> GeoDataFusionResult<()> {
+        let Some(geometry) = geometry else {
+            self.builder.push_null();
+            return Ok(());
+        };
+
+        self.wkb_buf.clear();
+        write_geometry(
+            &mut self.wkb_buf,
+            geometry,
+            &WriteOptions {
+                endianness: Endianness::LittleEndian,
+            },
+        )
+        .map_err(wkb_error)?;
+
+        let geos_geometry = Geometry::new_from_wkb(&self.wkb_buf)?;
+        if geos_geometry.is_empty()? {
+            // PostGIS returns the original geometry for empty input, whereas GEOS
+            // would collapse it to an empty GeometryCollection.
+            self.builder.push_geometry(Some(geometry))?;
+        } else {
+            self.push_merged(geos_geometry)?;
+        }
+        Ok(())
+    }
+
+    fn push_wkb(&mut self, wkb: Option<&[u8]>) -> GeoDataFusionResult<()> {
+        let Some(wkb) = wkb else {
+            self.builder.push_null();
+            return Ok(());
+        };
+
+        let geos_geometry = Geometry::new_from_wkb(wkb)?;
+        if geos_geometry.is_empty()? {
+            let geometry = Wkb::try_new(wkb).map_err(wkb_error)?;
+            self.builder.push_geometry(Some(&geometry))?;
+        } else {
+            self.push_merged(geos_geometry)?;
+        }
+        Ok(())
+    }
+
+    fn push_merged(&mut self, geometry: Geometry) -> GeoDataFusionResult<()> {
+        let merged = if self.directed {
+            geometry.line_merge_directed()?
+        } else {
+            geometry.line_merge()?
+        };
+        let merged_wkb = merged.to_wkb()?;
+        let merged = Wkb::try_new(&merged_wkb).map_err(wkb_error)?;
+        self.builder.push_geometry(Some(&merged))?;
+        Ok(())
+    }
+
+    fn finish(self) -> GeometryArray {
+        self.builder.finish()
+    }
+}
+
+fn wkb_error(error: impl std::fmt::Display) -> GeoDataFusionError {
+    GeoArrowError::Wkb(error.to_string()).into()
 }
 
 #[cfg(test)]
 mod test {
+    use std::sync::Arc;
+
     use arrow_array::cast::AsArray;
+    use arrow_array::{Array, BinaryArray};
+    use arrow_schema::Field;
+    use datafusion::config::ConfigOptions;
     use datafusion::prelude::SessionContext;
+    use geoarrow_schema::crs::Crs;
+    use geoarrow_schema::{Dimension, WkbType};
 
     use super::*;
-    use crate::udf::native::io::{AsText, GeomFromText};
+    use crate::udf::native::io::{AsBinary, AsText, GeomFromText};
 
     fn ctx() -> SessionContext {
         let ctx = SessionContext::new();
         ctx.register_udf(LineMerge::default().into());
+        ctx.register_udf(AsBinary.into());
         ctx.register_udf(GeomFromText::default().into());
         ctx.register_udf(AsText.into());
         ctx
@@ -296,5 +464,109 @@ mod test {
             col.is_null(1),
             "null input should propagate to a null output"
         );
+    }
+
+    #[tokio::test]
+    async fn test_st_linemerge_input_encodings() {
+        let ctx = ctx();
+        let input = "MULTILINESTRING((0 0, 1 1), (1 1, 2 2))";
+        let expected = "LINESTRING(0 0,1 1,2 2)";
+        let expressions = [
+            format!("ST_LineMerge(ST_GeomFromText('{input}'))"),
+            format!("ST_LineMerge(ST_AsBinary(ST_GeomFromText('{input}')))"),
+            format!("ST_LineMerge('{input}')"),
+        ];
+
+        for expression in expressions {
+            let df = ctx
+                .sql(&format!("SELECT ST_AsText({expression})"))
+                .await
+                .unwrap();
+            let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+            let value = batch.column(0).as_string::<i32>().value(0);
+            assert_eq!(value, expected, "failed for {expression}");
+        }
+    }
+
+    #[tokio::test]
+    async fn test_st_linemerge_wkb_empty_null_and_invalid() {
+        let ctx = ctx();
+        let df = ctx
+            .sql(
+                "WITH t(id, wkt) AS (\
+                   VALUES \
+                     (1, 'MULTILINESTRING((0 0, 1 1), (1 1, 2 2))'), \
+                     (2, 'LINESTRING EMPTY'), \
+                     (3, CAST(NULL AS TEXT))\
+                 ) \
+                 SELECT ST_AsText(ST_LineMerge(ST_AsBinary(ST_GeomFromText(wkt)))) \
+                 FROM t ORDER BY id",
+            )
+            .await
+            .unwrap();
+        let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+        let values = batch.column(0).as_string::<i32>();
+        assert_eq!(values.value(0), "LINESTRING(0 0,1 1,2 2)");
+        assert_eq!(values.value(1), "LINESTRING EMPTY");
+        assert!(values.is_null(2));
+
+        let invalid_wkb = [0x01, 0x02, 0x00, 0x00, 0x00];
+        let input = BinaryArray::from(vec![Some(invalid_wkb.as_slice())]);
+        let input_field = Arc::new(
+            Field::new("geometry", DataType::Binary, true).with_extension_type(WkbType::default()),
+        );
+        let udf = LineMerge::default();
+        let return_field = udf
+            .return_field_from_args(ReturnFieldArgs {
+                arg_fields: std::slice::from_ref(&input_field),
+                scalar_arguments: &[],
+            })
+            .unwrap();
+        let error = udf
+            .invoke_with_args(ScalarFunctionArgs {
+                args: vec![ColumnarValue::Array(Arc::new(input))],
+                arg_fields: vec![input_field],
+                number_rows: 1,
+                return_field,
+                config_options: Arc::new(ConfigOptions::default()),
+            })
+            .unwrap_err();
+        assert!(
+            matches!(&error, DataFusionError::External(_)),
+            "unexpected invalid-WKB error: {error}"
+        );
+    }
+
+    #[test]
+    fn test_st_linemerge_preserves_output_layout_and_metadata() {
+        let crs = Crs::from_authority_code("EPSG:4326".to_string());
+        let metadata = Arc::new(Metadata::new(crs.clone(), None));
+        let input = geoarrow_array::test::linestring::array(CoordType::Separated, Dimension::XY)
+            .with_metadata(metadata);
+        let input_field = Arc::new(input.data_type().to_field("geometry", true));
+        let udf = LineMerge::new(CoordType::Interleaved);
+        let return_field = udf
+            .return_field_from_args(ReturnFieldArgs {
+                arg_fields: std::slice::from_ref(&input_field),
+                scalar_arguments: &[],
+            })
+            .unwrap();
+        let args = ScalarFunctionArgs {
+            args: vec![ColumnarValue::Array(input.to_array_ref())],
+            arg_fields: vec![input_field],
+            number_rows: input.len(),
+            return_field: return_field.clone(),
+            config_options: Arc::new(ConfigOptions::default()),
+        };
+        let ColumnarValue::Array(result) = udf.invoke_with_args(args).unwrap() else {
+            panic!("expected an array result");
+        };
+
+        let result = from_arrow_array(&result, &return_field).unwrap();
+        let GeoArrowType::Geometry(output_type) = result.data_type() else {
+            panic!("expected a Geometry output");
+        };
+        assert_eq!(output_type.coord_type(), CoordType::Interleaved);
+        assert_eq!(output_type.metadata().crs(), &crs);
     }
 }
