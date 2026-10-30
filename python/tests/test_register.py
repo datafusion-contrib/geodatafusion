@@ -114,6 +114,25 @@ def test_line_merge_register_all():
     assert result.to_pylist() == [{"line": "LINESTRING(0 0,1 1,2 2)"}]
 
 
+def test_envelope_and_expand_register_all():
+    ctx = SessionContext()
+    register_all(ctx)
+
+    result = ctx.sql(
+        """
+        SELECT
+            ST_AsText(ST_Envelope(ST_GeomFromText('LINESTRING(0 0,1 3)'))) AS envelope,
+            ST_AsText(ST_Expand(ST_GeomFromText('POINT(1 2)'), 1)) AS expanded
+        """
+    ).to_arrow_table()
+    assert result.to_pylist() == [
+        {
+            "envelope": "POLYGON((0 0,0 3,1 3,1 0,0 0))",
+            "expanded": "POLYGON((0 1,0 3,2 3,2 1,0 1))",
+        }
+    ]
+
+
 def test_line_merge_directed():
     ctx = SessionContext()
     register_all(ctx)

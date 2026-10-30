@@ -13,6 +13,7 @@ pub(crate) fn native(m: &Bound<PyModule>) -> PyResult<()> {
     m.add_class::<accessors::PyDimension>()?;
     m.add_class::<accessors::PyDump>()?;
     m.add_class::<accessors::PyEndPoint>()?;
+    m.add_class::<accessors::PyEnvelope>()?;
     m.add_class::<accessors::PyExteriorRing>()?;
     m.add_class::<accessors::PyHasM>()?;
     m.add_class::<accessors::PyHasZ>()?;
@@ -38,6 +39,7 @@ pub(crate) fn native(m: &Bound<PyModule>) -> PyResult<()> {
     // bounding_box
     m.add_class::<bounding_box::PyBox2D>()?;
     m.add_class::<bounding_box::PyBox3D>()?;
+    m.add_class::<bounding_box::PyExpand>()?;
     m.add_class::<bounding_box::PyExtent>()?;
     m.add_class::<bounding_box::PyMakeBox2D>()?;
     m.add_class::<bounding_box::PyMakeBox3D>()?;

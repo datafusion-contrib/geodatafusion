@@ -3,6 +3,7 @@
 mod coord_dim;
 mod dimension;
 mod dump;
+mod envelope;
 mod exterior_ring;
 mod geometry_type;
 mod has_m;
@@ -22,6 +23,7 @@ mod zm_flag;
 pub use coord_dim::{CoordDim, NDims};
 pub use dimension::Dimension;
 pub use dump::Dump;
+pub use envelope::Envelope;
 pub use exterior_ring::ExteriorRing;
 pub use geometry_type::{GeometryType, ST_GeometryType};
 pub use has_m::HasM;
@@ -52,6 +54,7 @@ pub fn register(session_context: &datafusion::prelude::SessionContext) {
     session_context.register_udf(IsCollection.into());
     session_context.register_udf(IsEmpty.into());
     session_context.register_udf(Dump::default().into());
+    session_context.register_udf(Envelope::default().into());
     session_context.register_udf(EndPoint::default().into());
     session_context.register_udf(ExteriorRing::default().into());
     session_context.register_udf(PointN::default().into());

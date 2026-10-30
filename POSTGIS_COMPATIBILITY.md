@@ -45,7 +45,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | ST_DumpSegments     |             | Returns a set of geometry_dump rows for the segments in a geometry.                                     |
 | ST_DumpRings        |             | Returns a set of geometry_dump rows for the exterior and interior rings of a Polygon.                   |
 | ST_EndPoint         | ✅          | Returns the last point of a LineString or CircularLineString.                                           |
-| ST_Envelope         |             | Returns a geometry representing the bounding box of a geometry.                                         |
+| ST_Envelope         | ✅          | Returns a geometry representing the bounding box of a geometry.                                         |
 | ST_ExteriorRing     | ✅          | Returns a LineString representing the exterior ring of a Polygon.                                       |
 | ST_GeometryN        |             | Return an element of a geometry collection.                                                             |
 | ST_GeometryType     | ✅          | Returns the SQL-MM type of a geometry as text.                                                          |
@@ -349,7 +349,7 @@ Functions are explicitly modeled after the [PostGIS API](https://postgis.net/doc
 | Box2D              | ✅          | Returns a BOX2D representing the 2D extent of a geometry.                |
 | Box3D              | ✅          | Returns a BOX3D representing the 3D extent of a geometry.                |
 | ST_EstimatedExtent |             | Returns the estimated extent of a spatial table.                         |
-| ST_Expand          |             | Returns a bounding box expanded from another bounding box or a geometry. |
+| ST_Expand          | ✅          | Returns a bounding box expanded from another bounding box or a geometry. |
 | ST_Extent          | ✅          | Aggregate function that returns the bounding box of geometries.          |
 | ST_3DExtent        |             | Aggregate function that returns the 3D bounding box of geometries.       |
 | ST_MakeBox2D       | ✅          | Creates a BOX2D defined by two 2D point geometries.                      |
