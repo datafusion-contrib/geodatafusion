@@ -6,12 +6,16 @@ use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
     ColumnarValue, Documentation, ReturnFieldArgs, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
-use geoarrow_array::GeoArrowArray;
-use geoarrow_array::array::from_arrow_array;
+use geo::InteriorPoint as _;
+use geoarrow_array::array::{PointArray, from_arrow_array};
+use geoarrow_array::builder::PointBuilder;
+use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
+use geoarrow_schema::error::GeoArrowResult;
 use geoarrow_schema::{CoordType, Dimension, Metadata, PointType};
 
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
+use crate::udf::geo::util::{point_or_none, with_owned_geo_geometry};
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct PointOnSurface {
@@ -81,6 +85,29 @@ fn interior_point_impl(
 ) -> GeoDataFusionResult<ColumnarValue> {
     let arrays = ColumnarValue::values_to_arrays(&args.args)?;
     let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
-    let result = geoarrow_expr_geo::interior_point(&geo_array, coord_type)?;
+    let output_type = PointType::new(Dimension::XY, geo_array.data_type().metadata().clone())
+        .with_coord_type(coord_type);
+    let array = geo_array.as_ref();
+    let result = downcast_geoarrow_array!(array, interior_point_array, &output_type)?;
     Ok(ColumnarValue::Array(result.into_array_ref()))
+}
+
+fn interior_point_array<'a>(
+    array: &'a impl GeoArrowArrayAccessor<'a>,
+    output_type: &PointType,
+) -> GeoArrowResult<PointArray> {
+    let mut builder = PointBuilder::with_capacity(output_type.clone(), array.len());
+    for item in array.iter() {
+        match item {
+            None => builder.push_null(),
+            Some(geometry) => {
+                let geometry = geometry?;
+                let point = with_owned_geo_geometry!(&geometry, |owned| {
+                    point_or_none(owned.interior_point())
+                });
+                builder.push_point(point.as_ref());
+            }
+        }
+    }
+    Ok(builder.finish())
 }
