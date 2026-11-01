@@ -262,8 +262,8 @@ introduce new holes for point-only inputs.
 | ST_3DMaxDistance        |             | Returns the 3D cartesian maximum distance (based on spatial ref) between two geometries in projected units.                    |
 | ST_MinimumClearance     |             | Returns the minimum clearance of a geometry, a measure of a geometry's robustness.                                             |
 | ST_MinimumClearanceLine |             | Returns the two-point LineString spanning a geometry's minimum clearance.                                                      |
-| ST_Perimeter            |             | Returns the length of the boundary of a polygonal geometry or geography.                                                       |
-| ST_Perimeter2D          |             | Returns the 2D perimeter of a polygonal geometry. Alias for ST_Perimeter.                                                      |
+| ST_Perimeter            | ✅          | Returns the length of the boundary of a polygonal geometry.                                                                    |
+| ST_Perimeter2D          | ✅          | Returns the 2D perimeter of a polygonal geometry. Alias for ST_Perimeter.                                                      |
 | ST_3DPerimeter          |             | Returns the 3D perimeter of a polygonal geometry.                                                                              |
 | ST_ShortestLine         |             | Returns the 2D shortest line between two geometries                                                                            |
 | ST_3DShortestLine       |             | Returns the 3D shortest line between two geometries                                                                            |

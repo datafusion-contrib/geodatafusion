@@ -12,6 +12,7 @@ pub(crate) fn geo(m: &Bound<PyModule>) -> PyResult<()> {
     m.add_class::<measurement::PyDistance>()?;
     m.add_class::<measurement::PyDWithin>()?;
     m.add_class::<measurement::PyLength>()?;
+    m.add_class::<measurement::PyPerimeter>()?;
 
     // processing
     m.add_class::<processing::PyCentroid>()?;

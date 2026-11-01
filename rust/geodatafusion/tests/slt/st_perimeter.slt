@@ -1,0 +1,29 @@
+query R
+SELECT ST_Perimeter(ST_GeomFromText('POLYGON((0 0,4 0,4 3,0 3,0 0))'));
+----
+14.0
+
+query R
+SELECT ST_Perimeter2D(ST_GeomFromText('POLYGON((0 0,4 0,4 3,0 3,0 0))'));
+----
+14.0
+
+query R
+SELECT ST_Perimeter(ST_GeomFromText('POLYGON Z ((0 0 5,4 0 9,4 3 1,0 3 2,0 0 5))'));
+----
+14.0
+
+query R
+SELECT ST_Perimeter(ST_GeomFromText('MULTIPOLYGON(((0 0,1 0,1 1,0 1,0 0)),((10 10,12 10,12 12,10 12,10 10)))'));
+----
+12.0
+
+query R
+SELECT ST_Perimeter(ST_GeomFromText('GEOMETRYCOLLECTION(POLYGON((0 0,4 0,4 3,0 3,0 0)),LINESTRING(0 0,3 4),POINT(1 2))'));
+----
+14.0
+
+query R
+SELECT ST_Perimeter(ST_GeomFromText(CAST(NULL AS VARCHAR)));
+----
+NULL
