@@ -19,7 +19,7 @@ categories = ["science::geo"]
 
 [workspace.dependencies]
 approx = "0.5.1"
-arrow-arith = "59"
+arrow-arith = "60"
 arrow-array = "59"
 arrow-buffer = "59"
 arrow-schema = "59"
