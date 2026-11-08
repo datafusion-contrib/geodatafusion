@@ -1,0 +1,44 @@
+# Aggregate member order is unspecified, and (like PostGIS) we don't support ORDER BY.
+query B
+SELECT ST_AsText(ST_CollectAgg(ST_GeomFromText(w))) IN (
+  'MULTIPOINT((0 0),(1 1))',
+  'MULTIPOINT((1 1),(0 0))'
+)
+FROM (VALUES ('POINT(0 0)'), (NULL), ('POINT(1 1)')) AS t(w);
+----
+true
+
+query IB
+SELECT k, CASE k
+  WHEN 1 THEN ST_AsText(ST_Collect_Agg(ST_GeomFromText(w))) IN (
+    'GEOMETRYCOLLECTION(POINT(0 0),LINESTRING(1 1,2 2))',
+    'GEOMETRYCOLLECTION(LINESTRING(1 1,2 2),POINT(0 0))'
+  )
+  WHEN 2 THEN ST_AsText(ST_Collect_Agg(ST_GeomFromText(w))) = 'MULTIPOINT((9 9))'
+END
+FROM (VALUES (1, 'POINT(0 0)'), (1, 'LINESTRING(1 1,2 2)'), (2, 'POINT(9 9)')) AS t(k,w)
+GROUP BY k ORDER BY k;
+----
+1 true
+2 true
+
+query T
+SELECT ST_AsText(ST_CollectAgg(ST_GeomFromText(w)))
+FROM (VALUES (CAST(NULL AS TEXT))) AS t(w);
+----
+NULL
+
+query T
+SELECT ST_AsText(ST_CollectAgg(ST_GeomFromText(w)))
+FROM (VALUES ('POINT(0 0)')) AS t(w) WHERE false;
+----
+NULL
+
+query B
+SELECT ST_AsText(ST_CollectAgg(ST_AsBinary(ST_GeomFromText(w)))) IN (
+  'MULTIPOINT ZM((0 0 1 2),(3 4 5 6))',
+  'MULTIPOINT ZM((3 4 5 6),(0 0 1 2))'
+)
+FROM (VALUES ('POINT ZM(0 0 1 2)'), ('POINT ZM(3 4 5 6)')) AS t(w);
+----
+true

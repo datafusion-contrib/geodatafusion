@@ -19,7 +19,9 @@ introduce new holes for point-only inputs.
 
 | Name                  | Implemented | Description                                                                                                                |
 | --------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------- |
-| ST_Collect            |             | Creates a GeometryCollection or Multi\* geometry from a set of geometries.                                                 |
+| ST_Collect            |             | Creates a GeometryCollection or Multi\* geometry from a set of geometries. The aggregate form is available as ST_CollectAgg. |
+| ST_CollectAgg         | ✅          | Collects geometries into a Multi\* geometry or GeometryCollection; skips NULLs and preserves Z/M.                           |
+| ST_Collect_Agg        | ✅          | Alias for ST_CollectAgg.                                                                                                  |
 | ST_LineFromMultiPoint | ✅          | Creates a LineString from a MultiPoint geometry.                                                                           |
 | ST_MakeEnvelope       | ✅          | Creates a rectangular Polygon from minimum and maximum coordinates.                                                        |
 | ST_MakeLine           | ✅          | Creates a LineString from Point, MultiPoint, or LineString geometries.                                                     |
