@@ -8,8 +8,8 @@ use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
 use geo::{Euclidean, Length, Polygon};
-use geo_traits::to_geo::{ToGeoMultiPolygon, ToGeoPolygon};
-use geo_traits::{GeometryCollectionTrait, GeometryTrait, GeometryType};
+use geo_traits::to_geo::{ToGeoMultiPolygon, ToGeoPolygon, ToGeoTriangle};
+use geo_traits::{CoordTrait, GeometryCollectionTrait, GeometryTrait, GeometryType, RectTrait};
 use geoarrow_array::array::from_arrow_array;
 use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor, downcast_geoarrow_array};
 use geoarrow_schema::error::GeoArrowResult;
@@ -105,20 +105,52 @@ fn euclidean_perimeter_impl<'a>(
 
 /// Perimeter of a polygonal geometry, summed over the members of a GeometryCollection.
 fn geometry_perimeter(geometry: &impl GeometryTrait<T = f64>) -> f64 {
-    match geometry.as_type() {
+    let perimeter = match geometry.as_type() {
         GeometryType::Polygon(polygon) => polygon_perimeter(&polygon.to_polygon()),
+        GeometryType::Rect(rect) => rect_perimeter(rect),
+        GeometryType::Triangle(triangle) => polygon_perimeter(&triangle.to_triangle().to_polygon()),
         GeometryType::MultiPolygon(multi_polygon) => multi_polygon
             .to_multi_polygon()
             .0
             .iter()
-            .map(polygon_perimeter)
-            .sum(),
+            .fold(0.0_f64, |sum, polygon| sum + polygon_perimeter(polygon)),
         GeometryType::GeometryCollection(collection) => collection
             .geometries()
-            .map(|geometry| geometry_perimeter(&geometry))
-            .sum(),
+            .fold(0.0_f64, |sum, geometry| sum + geometry_perimeter(&geometry)),
         _ => 0.0,
+    };
+
+    // PostGIS returns positive zero for empty inputs, and the PostGIS oracle
+    // compares float64 bit patterns exactly.
+    if perimeter == 0.0 { 0.0 } else { perimeter }
+}
+
+/// Perimeter of a rectangle, matching PostGIS's conversion of `box2d` to geometry.
+///
+/// A non-degenerate box becomes a polygon. If either side has zero length, the
+/// box becomes a LineString or Point, whose perimeter is zero.
+fn rect_perimeter(rect: &impl RectTrait<T = f64>) -> f64 {
+    let min = rect.min();
+    let max = rect.max();
+    let x_min = min.x().min(max.x());
+    let x_max = min.x().max(max.x());
+    let y_min = min.y().min(max.y());
+    let y_max = min.y().max(max.y());
+
+    if x_min == x_max || y_min == y_max {
+        return 0.0;
     }
+
+    polygon_perimeter(&Polygon::new(
+        geo::LineString::from(vec![
+            (x_min, y_min),
+            (x_min, y_max),
+            (x_max, y_max),
+            (x_max, y_min),
+            (x_min, y_min),
+        ]),
+        Vec::new(),
+    ))
 }
 
 fn polygon_perimeter(polygon: &Polygon) -> f64 {
@@ -126,8 +158,7 @@ fn polygon_perimeter(polygon: &Polygon) -> f64 {
         + polygon
             .interiors()
             .iter()
-            .map(|ring| Euclidean.length(ring))
-            .sum::<f64>()
+            .fold(0.0_f64, |sum, ring| sum + Euclidean.length(ring))
 }
 
 #[cfg(test)]
@@ -138,6 +169,8 @@ mod test {
     use datafusion::prelude::SessionContext;
 
     use super::*;
+    use crate::udf::native::bounding_box::MakeBox2D;
+    use crate::udf::native::constructors::Point;
     use crate::udf::native::io::GeomFromText;
 
     #[tokio::test]
@@ -219,5 +252,76 @@ mod test {
         let col = batch.column(0);
         let val = col.as_primitive::<Float64Type>().value(0);
         assert_eq!(val, 14.0);
+    }
+
+    #[tokio::test]
+    async fn test_box2d_perimeter_matches_postgis() {
+        let ctx = SessionContext::new();
+
+        ctx.register_udf(Perimeter::new().into());
+        ctx.register_udf(MakeBox2D::new().into());
+        ctx.register_udf(Point::default().into());
+
+        let df = ctx
+            .sql(
+                "SELECT \
+                    ST_Perimeter(ST_MakeBox2D(ST_Point(0, 0), ST_Point(3, 2))), \
+                    ST_Perimeter(ST_MakeBox2D(ST_Point(3, 2), ST_Point(0, 0))), \
+                    ST_Perimeter(ST_MakeBox2D(ST_Point(-2, -1), ST_Point(3, 4))), \
+                    ST_Perimeter(ST_MakeBox2D(ST_Point(0, 0), ST_Point(3, 0))), \
+                    ST_Perimeter(ST_MakeBox2D(ST_Point(0, 0), ST_Point(0, 4))), \
+                    ST_Perimeter(ST_MakeBox2D(ST_Point(1, 1), ST_Point(1, 1))), \
+                    ST_Perimeter2D(ST_MakeBox2D(ST_Point(0, 0), ST_Point(3, 2)));",
+            )
+            .await
+            .unwrap();
+        let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+        let values = (0..batch.num_columns())
+            .map(|index| batch.column(index).as_primitive::<Float64Type>().value(0))
+            .collect::<Vec<_>>();
+
+        assert_eq!(values, vec![10.0, 10.0, 20.0, 0.0, 0.0, 0.0, 10.0]);
+    }
+
+    #[test]
+    fn test_triangle_perimeter() {
+        // GeoArrow 0.9 normalizes Triangle values to Polygon while building
+        // arrays, so exercise the Triangle geometry branch directly.
+        let triangle = geo::Triangle::new(
+            geo::coord! { x: 0.0, y: 0.0 },
+            geo::coord! { x: 3.0, y: 0.0 },
+            geo::coord! { x: 0.0, y: 4.0 },
+        );
+        assert_eq!(geometry_perimeter(&triangle), 12.0);
+    }
+
+    #[tokio::test]
+    async fn test_zero_perimeters_have_positive_zero_bits() {
+        let ctx = SessionContext::new();
+
+        ctx.register_udf(Perimeter::new().into());
+        ctx.register_udf(GeomFromText::new(Default::default()).into());
+
+        let df = ctx
+            .sql(
+                "SELECT \
+                    ST_Perimeter(ST_GeomFromText('POLYGON EMPTY')), \
+                    ST_Perimeter(ST_GeomFromText('MULTIPOLYGON EMPTY')), \
+                    ST_Perimeter(ST_GeomFromText('GEOMETRYCOLLECTION EMPTY')), \
+                    ST_Perimeter(ST_GeomFromText('POINT(1 2)'));",
+            )
+            .await
+            .unwrap();
+        let batch = df.collect().await.unwrap().into_iter().next().unwrap();
+
+        assert_eq!(batch.num_columns(), 4);
+        for index in 0..batch.num_columns() {
+            let value = batch.column(index).as_primitive::<Float64Type>().value(0);
+            assert_eq!(
+                value.to_bits(),
+                0.0_f64.to_bits(),
+                "column {index} did not return positive zero"
+            );
+        }
     }
 }
