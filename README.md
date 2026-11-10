@@ -207,6 +207,8 @@ Below are the spatial SQL functions currently registered by `geodatafusion::regi
 | `ST_DWithin` | `geo` | Tests if the 2D Cartesian minimum distance between two geometries is within a given radius. |
 | `ST_Length` | `geo` | Returns the 2D Cartesian length of a linear geometry. |
 | `ST_Length2D` | `geo` | Alias for `ST_Length`. |
+| `ST_Perimeter` | `geo` | Returns the length of the boundary of a polygonal geometry. |
+| `ST_Perimeter2D` | `geo` | Alias for `ST_Perimeter`. |
 
 ### Geometry Processing
 

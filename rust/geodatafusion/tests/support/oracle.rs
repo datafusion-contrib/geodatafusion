@@ -50,6 +50,7 @@ pub const GROUPS: &[&str] = &[
     "measurement/distance",
     "measurement/dwithin",
     "measurement/length",
+    "measurement/perimeter",
     "dump",
     "extent",
     "force_dimensions",

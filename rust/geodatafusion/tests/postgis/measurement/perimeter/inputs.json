@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "perimeter-polygon-with-hole",
+      "function": "ST_Perimeter",
+      "tags": ["scalar", "polygon"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON((0 0,10 0,10 10,0 10,0 0),(2 2,4 2,4 4,2 4,2 2))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Perimeter.html"
+    },
+    {
+      "id": "perimeter-multipolygon",
+      "function": "ST_Perimeter",
+      "tags": ["scalar", "multipolygon"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON(((0 0,3 0,3 2,0 2,0 0)),((10 10,12 10,12 12,10 12,10 10)))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Perimeter.html"
+    },
+    {
+      "id": "perimeter-polygon-z",
+      "function": "ST_Perimeter",
+      "tags": ["scalar", "polygon", "dimensionality"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON Z ((0 0 0,3 0 10,3 4 20,0 4 30,0 0 0))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Perimeter.html"
+    },
+    {
+      "id": "perimeter-geometrycollection-nested",
+      "function": "ST_Perimeter",
+      "tags": ["scalar", "geometrycollection"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POLYGON((0 0,4 0,4 3,0 3,0 0)),LINESTRING(0 0,3 4),POINT(1 2)),POLYGON((10 10,12 10,12 12,10 12,10 10)))"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Perimeter.html"
+    },
+    {
+      "id": "perimeter-linestring-zero",
+      "function": "ST_Perimeter",
+      "tags": ["scalar", "type-boundary"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "LINESTRING(0 0,3 4)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Perimeter.html"
+    },
+    {
+      "id": "perimeter-point-zero",
+      "function": "ST_Perimeter",
+      "tags": ["scalar", "type-boundary"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POINT(1 2)"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Perimeter.html"
+    },
+    {
+      "id": "perimeter-polygon-empty",
+      "function": "ST_Perimeter",
+      "tags": ["scalar", "empty"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "POLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Perimeter.html"
+    },
+    {
+      "id": "perimeter-multipolygon-empty",
+      "function": "ST_Perimeter",
+      "tags": ["scalar", "empty"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "MULTIPOLYGON EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Perimeter.html"
+    },
+    {
+      "id": "perimeter-geometrycollection-empty",
+      "function": "ST_Perimeter",
+      "tags": ["scalar", "empty"],
+      "arguments": [
+        {
+          "type": "text",
+          "value": "GEOMETRYCOLLECTION EMPTY"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Perimeter.html"
+    },
+    {
+      "id": "perimeter-null",
+      "function": "ST_Perimeter",
+      "tags": ["scalar", "null"],
+      "arguments": [
+        {
+          "type": "null_text"
+        }
+      ],
+      "result_columns": [
+        {
+          "name": "value",
+          "type": "float64"
+        }
+      ],
+      "comparison": {
+        "mode": "float-ulp",
+        "max_ulps": 0
+      },
+      "source": "https://postgis.net/docs/ST_Perimeter.html"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 //! Spatial UDFs implemented using the [`geo`](https://docs.rs/geo) crate.
 
-/// 2D Cartesian measurement UDFs (`ST_Area`, `ST_Distance`, `ST_DWithin`, `ST_Length`).
+/// 2D Cartesian measurement UDFs (`ST_Area`, `ST_Distance`, `ST_DWithin`, `ST_Length`, `ST_Perimeter`).
 pub mod measurement;
 /// Geometry processing and simplification UDFs (`ST_Centroid`, `ST_ConcaveHull`, `ST_ConvexHull`, `ST_OrientedEnvelope`, `ST_PointOnSurface`, `ST_Simplify*`).
 pub mod processing;

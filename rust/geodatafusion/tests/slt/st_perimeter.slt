@@ -1,0 +1,84 @@
+query R
+SELECT ST_Perimeter(ST_GeomFromText('POLYGON((0 0,4 0,4 3,0 3,0 0))'));
+----
+14.0
+
+query R
+SELECT ST_Perimeter2D(ST_GeomFromText('POLYGON((0 0,4 0,4 3,0 3,0 0))'));
+----
+14.0
+
+query R
+SELECT ST_Perimeter(ST_GeomFromText('POLYGON Z ((0 0 5,4 0 9,4 3 1,0 3 2,0 0 5))'));
+----
+14.0
+
+query R
+SELECT ST_Perimeter(ST_GeomFromText('MULTIPOLYGON(((0 0,1 0,1 1,0 1,0 0)),((10 10,12 10,12 12,10 12,10 10)))'));
+----
+12.0
+
+query R
+SELECT ST_Perimeter(ST_GeomFromText('GEOMETRYCOLLECTION(POLYGON((0 0,4 0,4 3,0 3,0 0)),LINESTRING(0 0,3 4),POINT(1 2))'));
+----
+14.0
+
+query R
+SELECT ST_Perimeter(ST_MakeBox2D(ST_Point(0, 0), ST_Point(3, 2)));
+----
+10.0
+
+query R
+SELECT ST_Perimeter2D(ST_MakeBox2D(ST_Point(0, 0), ST_Point(3, 2)));
+----
+10.0
+
+query R
+SELECT ST_Perimeter(ST_MakeBox2D(ST_Point(3, 2), ST_Point(0, 0)));
+----
+10.0
+
+query R
+SELECT ST_Perimeter(ST_MakeBox2D(ST_Point(-2, -1), ST_Point(3, 4)));
+----
+20.0
+
+query R
+SELECT ST_Perimeter(ST_MakeBox2D(ST_Point(0, 0), ST_Point(3, 0)));
+----
+0.0
+
+query R
+SELECT ST_Perimeter(ST_MakeBox2D(ST_Point(0, 0), ST_Point(0, 4)));
+----
+0.0
+
+query R
+SELECT ST_Perimeter(ST_MakeBox2D(ST_Point(1, 1), ST_Point(1, 1)));
+----
+0.0
+
+query R
+SELECT ST_Perimeter(ST_GeomFromText('POLYGON EMPTY'));
+----
+0.0
+
+query R
+SELECT ST_Perimeter(ST_GeomFromText('MULTIPOLYGON EMPTY'));
+----
+0.0
+
+query R
+SELECT ST_Perimeter(ST_GeomFromText('GEOMETRYCOLLECTION EMPTY'));
+----
+0.0
+
+query R
+SELECT ST_Perimeter(ST_GeomFromText('POINT(1 2)'));
+----
+0.0
+
+query R
+SELECT ST_Perimeter(ST_GeomFromText(CAST(NULL AS VARCHAR)));
+----
+NULL
