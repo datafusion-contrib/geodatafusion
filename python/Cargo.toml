@@ -20,7 +20,7 @@ crate-type = ["cdylib"]
 [dependencies]
 datafusion = { version = "55", default-features = false }
 datafusion-ffi = "55"
-geoarrow-schema = "0.9.0"
+geoarrow-schema = "0.10.0"
 geodatafusion = { path = "../rust/geodatafusion" }
 pyo3 = { version = "0.30", features = [
     "hashbrown",
