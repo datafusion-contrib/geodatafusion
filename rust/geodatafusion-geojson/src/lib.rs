@@ -101,7 +101,10 @@ mod tests {
 
             // Check geometry
             if let Some(ref geometry) = feature.geometry {
-                if let geojson::Value::Point(coords) = &geometry.value {
+                if let geojson::GeometryValue::Point {
+                    coordinates: coords,
+                } = &geometry.value
+                {
                     let expected_x = if i == 0 { 1.0 } else { 3.0 };
                     let expected_y = if i == 0 { 2.0 } else { 4.0 };
                     assert_eq!(coords[0], expected_x);
