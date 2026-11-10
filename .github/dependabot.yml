@@ -17,6 +17,17 @@ updates:
       rust-dependencies:
         patterns:
           - "*"
+    # Keep Arrow-family and FlatGeobuf versions compatible with datafusion 55
+    # and geoarrow 0.9 so their workspace traits remain aligned.
+    ignore:
+      - dependency-name: "arrow*"
+        versions: [">= 60.0.0"]
+      - dependency-name: "parquet*"
+        versions: [">= 60.0.0"]
+      - dependency-name: "object_store"
+        versions: [">= 0.14.0"]
+      - dependency-name: "flatgeobuf"
+        versions: [">= 6.0.0"]
 
   # Python binding Cargo project (excluded from the root workspace)
   - package-ecosystem: cargo
@@ -35,6 +46,15 @@ updates:
       python-rust-dependencies:
         patterns:
           - "*"
+    # Keep Arrow-family versions compatible with datafusion 55 so its traits
+    # remain aligned across the Python binding and workspace crates.
+    ignore:
+      - dependency-name: "arrow*"
+        versions: [">= 60.0.0"]
+      - dependency-name: "parquet*"
+        versions: [">= 60.0.0"]
+      - dependency-name: "object_store"
+        versions: [">= 0.14.0"]
 
   # GitHub Actions used in .github/workflows
   - package-ecosystem: github-actions
