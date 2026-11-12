@@ -823,18 +823,19 @@ def test_register_all_st_hasm_scalar_and_array():
     assert array.column("has_m").to_pylist() == [False, False, True, True]
 
 
-def test_register_all_st_force_dimensions():
+@pytest.mark.parametrize("coord_type", ["separated", "interleaved"])
+def test_register_all_st_force_dimensions(coord_type):
     ctx = SessionContext()
-    register_all(ctx)
+    register_all(ctx, coord_type=coord_type)
 
     result = ctx.sql(
         """
         SELECT
             ST_AsText(ST_Force2D(ST_GeomFromText('POINT ZM(1 2 3 4)'))) AS force_2d,
-            ST_AsText(ST_Force3D(ST_GeomFromText('POINT(1 2)'), 9.0)) AS force_3d,
-            ST_AsText(ST_Force3DZ(ST_GeomFromText('POINT M(1 2 4)'), 9.0)) AS force_3dz,
-            ST_AsText(ST_Force3DM(ST_GeomFromText('POINT Z(1 2 3)'), 11.0)) AS force_3dm,
-            ST_AsText(ST_Force4D(ST_GeomFromText('POINT(1 2)'), 9.0, 11.0)) AS force_4d,
+            ST_AsText(ST_Force3D(ST_Point(1, 2), 9)) AS force_3d,
+            ST_AsText(ST_Force3DZ(ST_PointM(1, 2, 4), 9)) AS force_3dz,
+            ST_AsText(ST_Force3DM(ST_PointZ(1, 2, 3), 11)) AS force_3dm,
+            ST_AsText(ST_Force4D(ST_Point(1, 2), 9, 11)) AS force_4d,
             ST_AsText(ST_Force3DM(ST_3DMakeBox(ST_MakePoint(0, 1, 2), ST_MakePoint(3, 4, 5)), 8.0)) AS box3d_3dm,
             ST_AsText(ST_Force4D(ST_GeomFromText('GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2)))'), 3.0, 4.0)) AS nested_gc_4d,
             ST_Force4D(NULL, 9.0, 11.0) AS null_geom
