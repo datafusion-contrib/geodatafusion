@@ -22,7 +22,7 @@ mod tests {
     use datafusion::datasource::file_format::{FileFormat, FileFormatFactory};
     use datafusion::datasource::listing::{ListingOptions, ListingTableConfig, ListingTableUrl};
     use datafusion::execution::SessionStateBuilder;
-    use datafusion::prelude::SessionContext;
+    use datafusion::prelude::{SessionConfig, SessionContext};
     use datafusion_datasource_parquet::ParquetFormat;
     use geo_traits::{CoordTrait, PointTrait};
     use geoarrow_array::array::{PointArray, from_arrow_array};
@@ -132,7 +132,15 @@ mod tests {
                     .with_parse_to_native(true)
                     .with_coord_type(coord_type),
             );
-            let ctx = geoparquet_context_with(file_format);
+            let config = SessionConfig::new()
+                .with_target_partitions(2)
+                .with_repartition_file_min_size(0)
+                .with_batch_size(2);
+            let state = SessionStateBuilder::new()
+                .with_config(config)
+                .with_file_formats(vec![file_format])
+                .build();
+            let ctx = SessionContext::new_with_state(state).enable_url_table();
             let df = ctx
                 .sql(&format!(
                     "SELECT geometry FROM '{}' AS table ORDER BY id",

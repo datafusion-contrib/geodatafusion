@@ -16,6 +16,7 @@ use datafusion::physical_plan::projection::ProjectionExprs;
 use datafusion::physical_plan::{DisplayFormatType, PhysicalExpr};
 use datafusion_datasource::TableSchema;
 use datafusion_datasource_parquet::source::ParquetSource;
+use datafusion_datasource_parquet::{ParquetAccessPlan, RowGroupAccessPlanFilter};
 use futures::StreamExt;
 use geoarrow_schema::CoordType;
 use geoparquet::reader::GeoParquetRecordBatchStream;
@@ -28,6 +29,7 @@ pub struct GeoParquetSource {
     pub(crate) inner: ParquetSource,
     pub(crate) parse_to_native: bool,
     pub(crate) coord_type: CoordType,
+    pub(crate) batch_size: Option<usize>,
 }
 
 /// Allows easy conversion from ParquetSource to Arc\<dyn FileSource\>;
@@ -37,18 +39,15 @@ impl From<GeoParquetSource> for Arc<dyn FileSource> {
     }
 }
 
-fn wrap_parquet_source(
-    source: Arc<dyn FileSource>,
-    parse_to_native: bool,
-    coord_type: CoordType,
-) -> Arc<dyn FileSource> {
-    match source.downcast_ref::<ParquetSource>() {
-        Some(inner) => Arc::new(GeoParquetSource {
-            inner: inner.clone(),
-            parse_to_native,
-            coord_type,
-        }),
-        None => source,
+impl GeoParquetSource {
+    fn wrap_inner(&self, source: Arc<dyn FileSource>) -> Arc<dyn FileSource> {
+        match source.downcast_ref::<ParquetSource>() {
+            Some(inner) => Arc::new(Self {
+                inner: inner.clone(),
+                ..self.clone()
+            }),
+            None => source,
+        }
     }
 }
 
@@ -66,9 +65,17 @@ impl FileOpener for GeoParquetOpener {
             #[allow(deprecated)]
             let reader = ParquetObjectReader::new(store, file.object_meta.location)
                 .with_file_size(file.object_meta.size);
-            let builder = ParquetRecordBatchStreamBuilder::new(reader)
+            let mut builder = ParquetRecordBatchStreamBuilder::new(reader)
                 .await
                 .map_err(|err| DataFusionError::External(Box::new(err)))?;
+            builder = builder.with_batch_size(source.batch_size.unwrap_or(1024));
+            if let Some(range) = &file.range {
+                let groups = builder.metadata().row_groups();
+                let mut selection =
+                    RowGroupAccessPlanFilter::new(ParquetAccessPlan::new_all(groups.len()));
+                selection.prune_by_range(groups, range);
+                builder = builder.with_row_groups(selection.row_group_indexes().collect());
+            }
             let target_schema = source.inner.table_schema().file_schema().clone();
             let stream = builder
                 .build()
@@ -113,11 +120,9 @@ impl FileSource for GeoParquetSource {
     }
 
     fn with_batch_size(&self, batch_size: usize) -> Arc<dyn FileSource> {
-        wrap_parquet_source(
-            self.inner.with_batch_size(batch_size),
-            self.parse_to_native,
-            self.coord_type,
-        )
+        let mut source = self.clone();
+        source.batch_size = Some(batch_size);
+        source.wrap_inner(self.inner.with_batch_size(batch_size))
     }
 
     fn metrics(&self) -> &ExecutionPlanMetricsSet {
@@ -148,11 +153,7 @@ impl FileSource for GeoParquetSource {
         }
         let mut result = self.inner.try_pushdown_filters(filters, config)?;
         if let Some(updated) = result.updated_node.take() {
-            result.updated_node = Some(wrap_parquet_source(
-                updated,
-                self.parse_to_native,
-                self.coord_type,
-            ));
+            result.updated_node = Some(self.wrap_inner(updated));
         }
         Ok(result)
     }
@@ -164,7 +165,7 @@ impl FileSource for GeoParquetSource {
         Ok(self
             .inner
             .try_pushdown_projection(projection)?
-            .map(|source| wrap_parquet_source(source, self.parse_to_native, self.coord_type)))
+            .map(|source| self.wrap_inner(source)))
     }
 
     fn filter(&self) -> Option<Arc<dyn PhysicalExpr>> {
@@ -243,6 +244,7 @@ mod tests {
             inner: ParquetSource::new(TableSchema::from(Arc::clone(&schema))),
             parse_to_native: false,
             coord_type: CoordType::Separated,
+            batch_size: None,
         }
     }
 

@@ -260,6 +260,7 @@ impl FileFormat for GeoParquetFormat {
                 inner: inner.clone(),
                 parse_to_native: self.parse_to_native,
                 coord_type: self.coord_type,
+                batch_size: None,
             }),
             None => parquet_source,
         }
