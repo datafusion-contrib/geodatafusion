@@ -1,7 +1,7 @@
 use geodatafusion::udf::native::accessors::{
     CoordDim, Dimension, Dump, EndPoint, Envelope, ExteriorRing, GeometryType, HasM, HasZ,
     InteriorRingN, IsClosed, IsCollection, IsEmpty, M, NPoints, NRings, NumGeometries,
-    NumInteriorRings, PointN, ST_GeometryType, StartPoint, X, Y, Z, ZmFlag,
+    NumInteriorRings, PointN, STGeometryType, StartPoint, X, Y, Z, ZmFlag,
 };
 
 use crate::{impl_udf, impl_udf_coord_type_arg};
@@ -65,7 +65,7 @@ impl_udf!(
     "geodatafusion.native"
 );
 impl_udf!(
-    ST_GeometryType,
+    STGeometryType,
     PySTGeometryType,
     "STGeometryType",
     "geodatafusion.native"

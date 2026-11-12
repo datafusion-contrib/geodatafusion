@@ -46,7 +46,11 @@ def register_all_geo(
     *,
     coord_type: Literal["interleaved", "separated"] | None = None,
 ) -> None:
-    """Register all `geo`-backed spatial UDFs on the given SessionContext."""
+    """Register all `geo`-backed spatial UDFs on the given SessionContext.
+
+    ``coord_type`` selects the layout for configurable geometry outputs.
+    ``None`` uses the default separated layout; bounding boxes keep their fixed layout.
+    """
     _register_exports(ctx, "geo", coord_type)
 
 
@@ -55,7 +59,11 @@ def register_all_geohash(
     *,
     coord_type: Literal["interleaved", "separated"] | None = None,
 ) -> None:
-    """Register all GeoHash UDFs on the given SessionContext."""
+    """Register all GeoHash UDFs on the given SessionContext.
+
+    ``coord_type`` selects the layout for configurable geometry outputs.
+    ``None`` uses the default separated layout; bounding boxes keep their fixed layout.
+    """
     _register_exports(ctx, "geohash", coord_type)
 
 
@@ -64,7 +72,11 @@ def register_all_native(
     *,
     coord_type: Literal["interleaved", "separated"] | None = None,
 ) -> None:
-    """Register all native spatial UDFs and UDAFs on the given SessionContext."""
+    """Register all native spatial UDFs and UDAFs on the given SessionContext.
+
+    ``coord_type`` selects the layout for configurable geometry outputs.
+    ``None`` uses the default separated layout; bounding boxes keep their fixed layout.
+    """
     _register_exports(ctx, "native", coord_type)
 
 
@@ -73,5 +85,9 @@ def register_all(
     *,
     coord_type: Literal["interleaved", "separated"] | None = None,
 ) -> None:
-    """Register all spatial UDFs and UDAFs defined in geodatafusion on the given SessionContext."""
+    """Register all spatial UDFs and UDAFs defined in geodatafusion on the given SessionContext.
+
+    ``coord_type`` selects the layout for configurable geometry outputs.
+    ``None`` uses the default separated layout; bounding boxes keep their fixed layout.
+    """
     _register_exports(ctx, "all", coord_type)
