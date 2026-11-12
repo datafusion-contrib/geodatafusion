@@ -3,23 +3,34 @@
 use std::fmt::Formatter;
 use std::sync::Arc;
 
+use arrow_schema::{DataType, Field, Schema, SchemaRef};
+use datafusion::arrow::array::{ArrayRef, RecordBatch, RecordBatchOptions, new_null_array};
+use datafusion::arrow::compute::cast;
 use datafusion::common::tree_node::TreeNodeRecursion;
 use datafusion::config::ConfigOptions;
 use datafusion::datasource::listing::PartitionedFile;
-use datafusion::datasource::physical_plan::{
-    FileOpenFuture, FileOpener, FileScanConfig, FileSource,
-};
+use datafusion::datasource::physical_plan::{FileOpenFuture, FileOpener, FileSource};
 use datafusion::error::{DataFusionError, Result};
 use datafusion::physical_plan::filter_pushdown::{FilterPushdownPropagation, PushedDown};
 use datafusion::physical_plan::metrics::ExecutionPlanMetricsSet;
 use datafusion::physical_plan::projection::ProjectionExprs;
 use datafusion::physical_plan::{DisplayFormatType, PhysicalExpr};
 use datafusion_datasource::TableSchema;
+use datafusion_datasource::projection::{ProjectionOpener, SplitProjection};
 use datafusion_datasource_parquet::source::ParquetSource;
 use datafusion_datasource_parquet::{ParquetAccessPlan, RowGroupAccessPlanFilter};
 use futures::StreamExt;
-use geoarrow_schema::CoordType;
+use geoarrow_array::GeoArrowArray;
+use geoarrow_array::array::{
+    LineStringArray, MultiLineStringArray, MultiPointArray, MultiPolygonArray, PointArray,
+    PolygonArray,
+};
+use geoarrow_schema::error::{GeoArrowError, GeoArrowResult};
+use geoarrow_schema::{CoordType, GeoArrowType};
 use geoparquet::reader::GeoParquetRecordBatchStream;
+#[allow(deprecated)]
+use parquet::arrow::ProjectionMask;
+use parquet::arrow::arrow_reader::{ArrowReaderMetadata, ArrowReaderOptions};
 #[allow(deprecated)]
 use parquet::arrow::async_reader::{ParquetObjectReader, ParquetRecordBatchStreamBuilder};
 
@@ -55,19 +66,48 @@ impl GeoParquetSource {
 struct GeoParquetOpener {
     source: GeoParquetSource,
     object_store: Arc<dyn object_store::ObjectStore>,
+    target_schema: SchemaRef,
 }
 
 impl FileOpener for GeoParquetOpener {
     fn open(&self, file: PartitionedFile) -> Result<FileOpenFuture> {
         let source = self.source.clone();
         let store = Arc::clone(&self.object_store);
+        let target_schema = self.target_schema.clone();
         Ok(Box::pin(async move {
             #[allow(deprecated)]
-            let reader = ParquetObjectReader::new(store, file.object_meta.location)
+            let mut reader = ParquetObjectReader::new(store, file.object_meta.location)
                 .with_file_size(file.object_meta.size);
-            let mut builder = ParquetRecordBatchStreamBuilder::new(reader)
+            let metadata = ArrowReaderMetadata::load_async(&mut reader, Default::default())
                 .await
                 .map_err(|err| DataFusionError::External(Box::new(err)))?;
+            // Let Parquet perform ordinary Arrow conversions (including view types).
+            // The GeoParquet decoder only handles geometry columns.
+            let fields = metadata
+                .schema()
+                .fields()
+                .iter()
+                .map(|field| match target_schema.field_with_name(field.name()) {
+                    Ok(target)
+                        if !target
+                            .extension_type_name()
+                            .is_some_and(|name| name.starts_with("geoarrow.")) =>
+                    {
+                        Arc::new(target.clone())
+                    }
+                    _ => field.clone(),
+                })
+                .collect::<Vec<_>>();
+            let read_schema = Arc::new(Schema::new_with_metadata(
+                fields,
+                metadata.schema().metadata().clone(),
+            ));
+            let metadata = ArrowReaderMetadata::try_new(
+                metadata.metadata().clone(),
+                ArrowReaderOptions::new().with_schema(read_schema),
+            )
+            .map_err(|err| DataFusionError::External(Box::new(err)))?;
+            let mut builder = ParquetRecordBatchStreamBuilder::new_with_metadata(reader, metadata);
             builder = builder.with_batch_size(source.batch_size.unwrap_or(1024));
             if let Some(range) = &file.range {
                 let groups = builder.metadata().row_groups();
@@ -76,29 +116,146 @@ impl FileOpener for GeoParquetOpener {
                 selection.prune_by_range(groups, range);
                 builder = builder.with_row_groups(selection.row_group_indexes().collect());
             }
-            let target_schema = source.inner.table_schema().file_schema().clone();
+            let mut indices = projected_file_indices(builder.schema(), &target_schema);
+            // Keep a physical column for row cardinality when the projection only
+            // requests partition columns or fields missing from this file.
+            if indices.is_empty() && !builder.schema().fields().is_empty() {
+                indices.push(0);
+            }
+            let mask = ProjectionMask::roots(builder.parquet_schema(), indices);
+            builder = builder.with_projection(mask);
             let stream = builder
                 .build()
                 .map_err(|err| DataFusionError::External(Box::new(err)))?;
-            let stream = GeoParquetRecordBatchStream::try_new(stream, target_schema)
+            // GeoParquet 0.9 decodes native encodings in their stored separated
+            // layout. Convert them to the requested layout after decoding.
+            let decode_fields = stream
+                .schema()
+                .fields()
+                .iter()
+                .map(|field| {
+                    let Ok(target) = target_schema.field_with_name(field.name()) else {
+                        return Ok(field.clone());
+                    };
+                    if !target
+                        .extension_type_name()
+                        .is_some_and(|name| name.starts_with("geoarrow."))
+                    {
+                        return Ok(field.clone());
+                    }
+                    let typ = GeoArrowType::try_from(target)?;
+                    if matches!(
+                        typ,
+                        GeoArrowType::Wkb(_) | GeoArrowType::LargeWkb(_) | GeoArrowType::WkbView(_)
+                    ) {
+                        return Ok(field.clone());
+                    }
+                    let typ = if matches!(
+                        field.data_type(),
+                        DataType::Binary | DataType::LargeBinary | DataType::BinaryView
+                    ) {
+                        typ
+                    } else {
+                        typ.with_coord_type(CoordType::Separated)
+                    };
+                    Ok(Arc::new(typ.to_field(field.name(), target.is_nullable())))
+                })
+                .collect::<GeoArrowResult<Vec<_>>>()
                 .map_err(|err| DataFusionError::External(Box::new(err)))?;
-            let projection = source.inner.projection().cloned().unwrap_or_else(|| {
-                ProjectionExprs::from_indices(
-                    &(0..source.inner.table_schema().file_schema().fields().len())
-                        .collect::<Vec<_>>(),
-                    source.inner.table_schema().file_schema(),
-                )
-            });
-            let projector = projection.make_projector(source.inner.table_schema().file_schema())?;
+            let decode_schema = Arc::new(Schema::new(decode_fields));
+            let stream = GeoParquetRecordBatchStream::try_new(stream, decode_schema)
+                .map_err(|err| DataFusionError::External(Box::new(err)))?;
             let stream = stream
                 .map(move |batch| {
                     let batch = batch.map_err(|err| DataFusionError::External(Box::new(err)))?;
-                    projector.project_batch(&batch)
+                    let columns = target_schema
+                        .fields()
+                        .iter()
+                        .map(|target| {
+                            let Ok(index) = batch.schema().index_of(target.name()) else {
+                                return Ok(new_null_array(target.data_type(), batch.num_rows()));
+                            };
+                            let column = batch.column(index);
+                            if column.data_type() == target.data_type() {
+                                return Ok(column.clone());
+                            }
+                            if target
+                                .extension_type_name()
+                                .is_some_and(|name| name.starts_with("geoarrow."))
+                                && !matches!(
+                                    target.data_type(),
+                                    DataType::Binary | DataType::LargeBinary | DataType::BinaryView
+                                )
+                            {
+                                convert_native_layout(
+                                    column,
+                                    batch.schema().field(index),
+                                    source.coord_type,
+                                )
+                                .map_err(|err| DataFusionError::External(Box::new(err)))
+                            } else {
+                                Ok(cast(column, target.data_type())?)
+                            }
+                        })
+                        .collect::<Result<Vec<_>>>()?;
+                    Ok(RecordBatch::try_new_with_options(
+                        target_schema.clone(),
+                        columns,
+                        &RecordBatchOptions::new().with_row_count(Some(batch.num_rows())),
+                    )?)
                 })
                 .boxed();
             Ok(stream)
         }))
     }
+}
+
+fn projected_file_indices(schema: &Schema, target: &Schema) -> Vec<usize> {
+    schema
+        .fields()
+        .iter()
+        .enumerate()
+        .filter_map(|(index, field)| {
+            target
+                .field_with_name(field.name())
+                .is_ok()
+                .then_some(index)
+        })
+        .collect()
+}
+
+fn convert_native_layout(
+    array: &ArrayRef,
+    field: &Field,
+    coord_type: CoordType,
+) -> GeoArrowResult<ArrayRef> {
+    Ok(match GeoArrowType::try_from(field)? {
+        GeoArrowType::Point(_) => PointArray::try_from((array.as_ref(), field))?
+            .into_coord_type(coord_type)
+            .into_array_ref(),
+        GeoArrowType::LineString(_) => LineStringArray::try_from((array.as_ref(), field))?
+            .into_coord_type(coord_type)
+            .into_array_ref(),
+        GeoArrowType::Polygon(_) => PolygonArray::try_from((array.as_ref(), field))?
+            .into_coord_type(coord_type)
+            .into_array_ref(),
+        GeoArrowType::MultiPoint(_) => MultiPointArray::try_from((array.as_ref(), field))?
+            .into_coord_type(coord_type)
+            .into_array_ref(),
+        GeoArrowType::MultiLineString(_) => {
+            MultiLineStringArray::try_from((array.as_ref(), field))?
+                .into_coord_type(coord_type)
+                .into_array_ref()
+        }
+        GeoArrowType::MultiPolygon(_) => MultiPolygonArray::try_from((array.as_ref(), field))?
+            .into_coord_type(coord_type)
+            .into_array_ref(),
+        typ => {
+            return Err(GeoArrowError::GeoParquet(format!(
+                "Unsupported native GeoParquet layout conversion for {typ:?}"
+            )));
+        }
+    })
 }
 
 impl FileSource for GeoParquetSource {
@@ -108,11 +265,25 @@ impl FileSource for GeoParquetSource {
         base_config: &datafusion::datasource::physical_plan::FileScanConfig,
         partition: usize,
     ) -> Result<Arc<dyn datafusion::datasource::physical_plan::FileOpener>> {
-        if self.parse_to_native {
-            Ok(Arc::new(GeoParquetOpener {
+        if self.parse_to_native || self.coord_type != CoordType::Separated {
+            if !self.inner.table_schema().virtual_columns().is_empty() {
+                return Err(DataFusionError::NotImplemented(
+                    "virtual columns are not supported in native GeoParquet scans".to_string(),
+                ));
+            }
+            let schema = self.inner.table_schema();
+            let split = self
+                .inner
+                .projection()
+                .map(|projection| SplitProjection::new(schema.file_schema(), projection))
+                .unwrap_or_else(|| SplitProjection::unprojected(schema));
+            let target_schema = Arc::new(schema.file_schema().project(&split.file_indices)?);
+            let opener = Arc::new(GeoParquetOpener {
                 source: self.clone(),
                 object_store,
-            }))
+                target_schema,
+            });
+            ProjectionOpener::try_new(split, opener, schema.file_schema())
         } else {
             self.inner
                 .create_file_opener(object_store, base_config, partition)
@@ -146,7 +317,7 @@ impl FileSource for GeoParquetSource {
         filters: Vec<Arc<dyn PhysicalExpr>>,
         config: &ConfigOptions,
     ) -> Result<FilterPushdownPropagation<Arc<dyn FileSource>>> {
-        if self.parse_to_native {
+        if self.parse_to_native || self.coord_type != CoordType::Separated {
             return Ok(FilterPushdownPropagation::with_parent_pushdown_result(
                 vec![PushedDown::No; filters.len()],
             ));
@@ -174,36 +345,6 @@ impl FileSource for GeoParquetSource {
 
     fn projection(&self) -> Option<&datafusion::physical_plan::projection::ProjectionExprs> {
         self.inner.projection()
-    }
-
-    fn supports_repartitioning(&self) -> bool {
-        true
-    }
-
-    fn repartitioned(
-        &self,
-        target_partitions: usize,
-        repartition_file_min_size: usize,
-        output_ordering: Option<datafusion::physical_expr::LexOrdering>,
-        config: &FileScanConfig,
-    ) -> Result<Option<FileScanConfig>> {
-        if config.file_compression_type.is_compressed() || !self.supports_repartitioning() {
-            return Ok(None);
-        }
-
-        let repartitioned_file_groups_option =
-            datafusion_datasource::file_groups::FileGroupPartitioner::new()
-                .with_target_partitions(target_partitions)
-                .with_repartition_file_min_size(repartition_file_min_size)
-                .with_preserve_order_within_groups(output_ordering.is_some())
-                .repartition_file_groups(&config.file_groups);
-
-        if let Some(repartitioned_file_groups) = repartitioned_file_groups_option {
-            let mut source = config.clone();
-            source.file_groups = repartitioned_file_groups;
-            return Ok(Some(source));
-        }
-        Ok(None)
     }
 
     fn try_reverse_output(

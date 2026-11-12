@@ -21,7 +21,7 @@ use datafusion_datasource::file_scan_config::FileScanConfigBuilder;
 use datafusion_datasource_parquet::ParquetFormat;
 use datafusion_datasource_parquet::source::ParquetSource;
 use geoarrow_schema::CoordType;
-use geoparquet::metadata::{GeoParquetColumnEncoding, GeoParquetMetadata};
+use geoparquet::metadata::{GeoParquetColumnEncoding, GeoParquetGeometryType, GeoParquetMetadata};
 use geoparquet::reader::infer_geoarrow_schema;
 use object_store::{ObjectMeta, ObjectStore};
 
@@ -115,11 +115,17 @@ impl GetExt for GeoParquetFormatFactory {
 }
 
 /// GeoParquet `FileFormat` implementation
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct GeoParquetFormat {
     inner: ParquetFormat,
     parse_to_native: bool,
     coord_type: CoordType,
+}
+
+impl Default for GeoParquetFormat {
+    fn default() -> Self {
+        Self::new(ParquetFormat::default())
+    }
 }
 
 impl GeoParquetFormat {
@@ -159,6 +165,26 @@ fn validate_geo_metadata(
                 field.name(),
                 column.encoding,
                 column.geometry_types.len()
+            )));
+        }
+        let expected = match column.encoding {
+            GeoParquetColumnEncoding::WKB => continue,
+            GeoParquetColumnEncoding::Point => GeoParquetGeometryType::Point,
+            GeoParquetColumnEncoding::LineString => GeoParquetGeometryType::LineString,
+            GeoParquetColumnEncoding::Polygon => GeoParquetGeometryType::Polygon,
+            GeoParquetColumnEncoding::MultiPoint => GeoParquetGeometryType::MultiPoint,
+            GeoParquetColumnEncoding::MultiLineString => GeoParquetGeometryType::MultiLineString,
+            GeoParquetColumnEncoding::MultiPolygon => GeoParquetGeometryType::MultiPolygon,
+        };
+        if column
+            .geometry_types
+            .iter()
+            .any(|typ| typ.geometry_type() != expected)
+        {
+            return Err(DataFusionError::Plan(format!(
+                "GeoParquet geometry type for column '{}' does not match native encoding {:?}",
+                field.name(),
+                column.encoding
             )));
         }
     }
@@ -226,7 +252,7 @@ impl FileFormat for GeoParquetFormat {
                 "GeoParquetFormat expected a GeoParquetSource".to_string(),
             ));
         };
-        if self.parse_to_native {
+        if self.parse_to_native || self.coord_type != CoordType::Separated {
             let new_conf = FileScanConfigBuilder::from(conf)
                 .with_source(Arc::new(geoparquet_source.clone()))
                 .build();

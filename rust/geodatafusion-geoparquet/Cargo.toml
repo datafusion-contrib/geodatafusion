@@ -19,6 +19,7 @@ datafusion-datasource = { workspace = true }
 datafusion-datasource-parquet = { workspace = true }
 futures = { workspace = true }
 geoarrow-schema = { workspace = true }
+geoarrow-array = { workspace = true }
 geoparquet = { workspace = true, features = ["async"] }
 object_store = { workspace = true }
 parquet = { version = "59", default-features = false, features = ["arrow", "object_store"] }
