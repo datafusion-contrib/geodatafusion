@@ -352,7 +352,7 @@ mod test {
 
         ctx.register_udf(SimplifyVW::default().into());
         ctx.register_udf(GeomFromText::default().into());
-        ctx.register_udf(AsText.into());
+        ctx.register_udf(AsText::default().into());
 
         let df = ctx.sql(
             "SELECT ST_AsText(ST_SimplifyVW(ST_GeomFromText('LINESTRING(5 2, 3 8, 6 20, 7 25, 10 10)'), 30));").await.unwrap();

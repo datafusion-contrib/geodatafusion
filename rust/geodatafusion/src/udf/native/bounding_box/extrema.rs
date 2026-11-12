@@ -16,12 +16,14 @@ use crate::udf::native::bounding_box::util::bounds::impl_extrema;
 
 /// `ST_XMin` scalar UDF implementation: returns the X minimum of a 2D/3D bounding box or geometry.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct XMin;
+pub struct XMin {
+    _private: (),
+}
 
 impl XMin {
     /// Creates a new `ST_XMin` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 
@@ -73,12 +75,14 @@ impl ScalarUDFImpl for XMin {
 
 /// `ST_YMin` scalar UDF implementation: returns the Y minimum of a 2D/3D bounding box or geometry.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct YMin;
+pub struct YMin {
+    _private: (),
+}
 
 impl YMin {
     /// Creates a new `ST_YMin` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 
@@ -130,12 +134,14 @@ impl ScalarUDFImpl for YMin {
 
 /// `ST_ZMin` scalar UDF implementation: returns the Z minimum of a 2D/3D bounding box or geometry.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct ZMin;
+pub struct ZMin {
+    _private: (),
+}
 
 impl ZMin {
     /// Creates a new `ST_ZMin` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 
@@ -189,12 +195,14 @@ impl ScalarUDFImpl for ZMin {
 
 /// `ST_XMax` scalar UDF implementation: returns the X maximum of a 2D/3D bounding box or geometry.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct XMax;
+pub struct XMax {
+    _private: (),
+}
 
 impl XMax {
     /// Creates a new `ST_XMax` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 
@@ -246,12 +254,14 @@ impl ScalarUDFImpl for XMax {
 
 /// `ST_YMax` scalar UDF implementation: returns the Y maximum of a 2D/3D bounding box or geometry.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct YMax;
+pub struct YMax {
+    _private: (),
+}
 
 impl YMax {
     /// Creates a new `ST_YMax` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 
@@ -303,12 +313,14 @@ impl ScalarUDFImpl for YMax {
 
 /// `ST_ZMax` scalar UDF implementation: returns the Z maximum of a 2D/3D bounding box or geometry.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct ZMax;
+pub struct ZMax {
+    _private: (),
+}
 
 impl ZMax {
     /// Creates a new `ST_ZMax` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

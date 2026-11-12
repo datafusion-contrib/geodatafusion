@@ -20,12 +20,12 @@ mod num_interior_rings;
 mod point;
 mod zm_flag;
 
-pub use coord_dim::{CoordDim, NDims};
+pub use coord_dim::CoordDim;
 pub use dimension::Dimension;
 pub use dump::Dump;
 pub use envelope::Envelope;
 pub use exterior_ring::ExteriorRing;
-pub use geometry_type::{GeometryType, ST_GeometryType};
+pub use geometry_type::{GeometryType, STGeometryType};
 pub use has_m::HasM;
 pub use has_z::HasZ;
 pub use interior_ring_n::InteriorRingN;
@@ -55,9 +55,8 @@ pub fn register_with_coord_type(
 ) {
     session_context.register_udf(CoordDim::default().into());
     session_context.register_udf(Dimension::default().into());
-    session_context.register_udf(NDims::default().into());
     session_context.register_udf(GeometryType::default().into());
-    session_context.register_udf(ST_GeometryType::default().into());
+    session_context.register_udf(STGeometryType::default().into());
     session_context.register_udf(HasM::default().into());
     session_context.register_udf(HasZ::default().into());
     session_context.register_udf(InteriorRingN::new(coord_type).into());

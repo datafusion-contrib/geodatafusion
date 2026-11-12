@@ -183,7 +183,7 @@ async fn typed_line_string_raw_arrow_preserves_dimensions_layouts_crs_slices_and
 
             let ctx = SessionContext::new();
             ctx.register_udf(PointN::new(coord_type).into());
-            ctx.register_udf(AsText.into());
+            ctx.register_udf(AsText::default().into());
             ctx.register_batch("lines", input).unwrap();
 
             let batch = collect_one(
@@ -305,7 +305,7 @@ async fn generic_mixed_geometry_raw_arrow_uses_per_row_indices_and_returns_point
 
         let ctx = SessionContext::new();
         ctx.register_udf(PointN::new(coord_type).into());
-        ctx.register_udf(AsText.into());
+        ctx.register_udf(AsText::default().into());
         ctx.register_batch("mixed_geometries", input).unwrap();
 
         let batch = collect_one(

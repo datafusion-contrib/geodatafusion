@@ -157,7 +157,7 @@ mod tests {
             let batches = df.collect().await.unwrap();
             let points = batches
                 .iter()
-                .map(|batch| {
+                .flat_map(|batch| {
                     let array =
                         PointArray::try_from((batch.column(0).as_ref(), field.as_ref())).unwrap();
                     (0..array.len())
@@ -167,7 +167,6 @@ mod tests {
                         })
                         .collect::<Vec<_>>()
                 })
-                .flatten()
                 .collect::<Vec<_>>();
             assert_eq!(points, vec![(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]);
         }

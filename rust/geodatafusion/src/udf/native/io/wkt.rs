@@ -23,12 +23,14 @@ use crate::udf::native::io::geometry::{
 
 /// `ST_AsText` scalar UDF implementation: converts a geometry into OGC Well-Known Text (WKT).
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct AsText;
+pub struct AsText {
+    _private: (),
+}
 
 impl AsText {
     /// Creates a new `ST_AsText` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {

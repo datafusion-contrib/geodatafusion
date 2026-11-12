@@ -8,6 +8,6 @@ pub use is_valid_reason::IsValidReason;
 
 /// Register all `geo` validation UDFs into the given [`SessionContext`](datafusion::prelude::SessionContext).
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
-    session_context.register_udf(IsValid.into());
-    session_context.register_udf(IsValidReason.into());
+    session_context.register_udf(IsValid::default().into());
+    session_context.register_udf(IsValidReason::default().into());
 }

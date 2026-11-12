@@ -20,12 +20,16 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_CoordDim` scalar UDF implementation: returns the coordinate dimension (`2`, `3`, or `4`) of a geometry.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct CoordDim;
+pub struct CoordDim {
+    aliases: Vec<String>,
+}
 
 impl CoordDim {
     /// Creates a new `ST_CoordDim` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self {
+            aliases: vec!["st_ndims".to_string()],
+        }
     }
 }
 
@@ -40,6 +44,10 @@ static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 impl ScalarUDFImpl for CoordDim {
     fn name(&self) -> &str {
         "st_coorddim"
+    }
+
+    fn aliases(&self) -> &[String] {
+        &self.aliases
     }
 
     fn signature(&self) -> &Signature {
@@ -161,58 +169,6 @@ fn fixed_dimension_output(
     Ok(ColumnarValue::Array(Arc::new(output_array.finish())))
 }
 
-/// `ST_NDims` scalar UDF implementation: returns the coordinate dimension (`2`, `3`, or `4`) of a geometry.
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct NDims;
-
-impl NDims {
-    /// Creates a new `ST_NDims` UDF instance.
-    pub fn new() -> Self {
-        Self {}
-    }
-}
-
-impl Default for NDims {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-static NDIMS_DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
-
-impl ScalarUDFImpl for NDims {
-    fn name(&self) -> &str {
-        "st_ndims"
-    }
-
-    fn signature(&self) -> &Signature {
-        any_single_geometry_type_input()
-    }
-
-    fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
-        Ok(DataType::UInt8)
-    }
-
-    fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
-        if let Some(result) = null_input_result(&args) {
-            return Ok(result);
-        }
-        Ok(coord_dim_impl(args)?)
-    }
-
-    fn documentation(&self) -> Option<&Documentation> {
-        Some(NDIMS_DOCUMENTATION.get_or_init(|| {
-            Documentation::builder(
-                DOC_SECTION_OTHER,
-                "Return the coordinate dimension of the geometry.",
-                "ST_NDims(geometry)",
-            )
-            .with_argument("g1", "geometry")
-            .build()
-        }))
-    }
-}
-
 #[cfg(test)]
 mod test {
     use arrow_array::cast::AsArray;
@@ -243,7 +199,7 @@ mod test {
     async fn test_ndims() {
         let ctx = SessionContext::new();
 
-        ctx.register_udf(NDims::new().into());
+        ctx.register_udf(CoordDim::new().into());
         ctx.register_udf(GeomFromText::new(Default::default()).into());
 
         let df = ctx

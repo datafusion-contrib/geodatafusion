@@ -29,7 +29,7 @@ pub fn register_with_coord_type(
     session_context.register_udf(Box2D::default().into());
     session_context.register_udf(Box3D::default().into());
     session_context.register_udf(Expand::new(coord_type).into());
-    session_context.register_udaf(Extent.into());
+    session_context.register_udaf(Extent::default().into());
     session_context.register_udf(XMax::default().into());
     session_context.register_udf(XMin::default().into());
     session_context.register_udf(YMax::default().into());

@@ -18,12 +18,14 @@ use crate::udf::native::bounding_box::util::{GeometryBounds, geometry_bounds};
 
 /// `ST_GeoHash` scalar UDF implementation: encodes a geometry into a GeoHash string.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct GeoHash;
+pub struct GeoHash {
+    _private: (),
+}
 
 impl GeoHash {
     /// Creates a new `ST_GeoHash` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 
@@ -124,7 +126,7 @@ mod test {
     #[tokio::test]
     async fn test_geohash() {
         let ctx = SessionContext::new();
-        ctx.register_udf(GeoHash.into());
+        ctx.register_udf(GeoHash::default().into());
         ctx.register_udf(Point::default().into());
 
         let df = ctx

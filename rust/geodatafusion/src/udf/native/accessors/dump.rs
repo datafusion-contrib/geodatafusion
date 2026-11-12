@@ -250,7 +250,7 @@ mod test {
         let ctx = SessionContext::new();
         ctx.register_udf(Dump::default().into());
         ctx.register_udf(GeomFromText::default().into());
-        ctx.register_udf(AsText.into());
+        ctx.register_udf(AsText::default().into());
         ctx
     }
 

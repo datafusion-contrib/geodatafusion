@@ -14,12 +14,14 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_Length` (`ST_Length2D`) scalar UDF implementation: returns the 2D Cartesian length of a linear geometry.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct Length;
+pub struct Length {
+    _private: (),
+}
 
 impl Length {
     /// Creates a new `ST_Length` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

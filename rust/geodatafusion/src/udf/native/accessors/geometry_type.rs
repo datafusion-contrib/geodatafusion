@@ -19,12 +19,14 @@ use crate::udf::native::io::geometry::is_polyhedral_surface_row;
 
 /// `GeometryType` scalar UDF implementation: returns the uppercase geometry type string (with `M` suffix when an M dimension is present).
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct GeometryType;
+pub struct GeometryType {
+    _private: (),
+}
 
 impl GeometryType {
     /// Creates a new `GeometryType` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 
@@ -69,19 +71,20 @@ impl ScalarUDFImpl for GeometryType {
     }
 }
 
-/// `ST_GeometryType` scalar UDF implementation: returns the SQL-MM geometry type string (e.g., `'ST_Point'`, `'ST_LineString'`).
+/// `STGeometryType` scalar UDF implementation: returns the SQL-MM geometry type string (e.g., `'ST_Point'`, `'ST_LineString'`).
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-#[allow(non_camel_case_types)]
-pub struct ST_GeometryType;
+pub struct STGeometryType {
+    _private: (),
+}
 
-impl ST_GeometryType {
-    /// Creates a new `ST_GeometryType` UDF instance.
+impl STGeometryType {
+    /// Creates a new `STGeometryType` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 
-impl Default for ST_GeometryType {
+impl Default for STGeometryType {
     fn default() -> Self {
         Self::new()
     }
@@ -89,7 +92,7 @@ impl Default for ST_GeometryType {
 
 static ST_DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
-impl ScalarUDFImpl for ST_GeometryType {
+impl ScalarUDFImpl for STGeometryType {
     fn name(&self) -> &str {
         "st_geometrytype"
     }
@@ -277,7 +280,7 @@ mod test {
     async fn test_st_geometry_type() {
         let ctx = SessionContext::new();
 
-        ctx.register_udf(ST_GeometryType::new().into());
+        ctx.register_udf(STGeometryType::new().into());
         ctx.register_udf(GeomFromText::new(Default::default()).into());
 
         let df = ctx

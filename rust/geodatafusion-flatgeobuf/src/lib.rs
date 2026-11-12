@@ -238,9 +238,9 @@ mod tests {
         assert_eq!(full_scan_ids, indexed_ids);
 
         let reversed_df = ctx
-            .sql(&format!(
-                "SELECT id FROM lines WHERE ST_Intersects(ST_GeomFromText('POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))'), geometry) ORDER BY id"
-            ))
+            .sql(
+                "SELECT id FROM lines WHERE ST_Intersects(ST_GeomFromText('POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))'), geometry) ORDER BY id",
+            )
             .await
             .unwrap();
         let reversed_plan = reversed_df.create_physical_plan().await.unwrap();
