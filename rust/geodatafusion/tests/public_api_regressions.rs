@@ -539,3 +539,58 @@ fn bounding_rect_is_publicly_nameable_and_usable() {
     assert_eq!(bounds.maxx(), 3.0);
     assert_eq!(bounds.maxy(), 4.0);
 }
+
+#[tokio::test]
+async fn binary_null_geometry_signatures_propagate_null() {
+    use datafusion::logical_expr::{Signature, TypeSignature};
+
+    fn accepts_all_null_binary(signature: &Signature) -> bool {
+        fn accepts(signature: &TypeSignature) -> bool {
+            match signature {
+                TypeSignature::Uniform(2, types) => types.contains(&DataType::Null),
+                TypeSignature::Exact(types) => {
+                    types.len() == 2 && types.iter().all(|typ| typ == &DataType::Null)
+                }
+                TypeSignature::OneOf(signatures) => signatures.iter().any(accepts),
+                TypeSignature::Any(2) => true,
+                _ => false,
+            }
+        }
+        accepts(&signature.type_signature)
+    }
+
+    let ctx = context();
+    let state = ctx.state();
+    let mut names = state
+        .scalar_functions()
+        .iter()
+        .filter(|(name, udf)| {
+            name.as_str() == udf.name() && accepts_all_null_binary(udf.signature())
+        })
+        .map(|(name, _)| name.clone())
+        .collect::<Vec<_>>();
+    names.sort();
+    assert!(!names.is_empty());
+
+    for name in names {
+        let df = ctx
+            .sql(&format!("SELECT \"{name}\"(NULL, NULL) AS result"))
+            .await
+            .unwrap_or_else(|err| panic!("{name} failed to plan: {err}"));
+        let batches = df
+            .collect()
+            .await
+            .unwrap_or_else(|err| panic!("{name} failed to execute: {err}"));
+        for batch in batches {
+            let field = batch.schema().field(0).clone();
+            let is_null = if field.extension_type_name().is_some() {
+                geoarrow_array::array::from_arrow_array(batch.column(0).as_ref(), &field)
+                    .unwrap()
+                    .is_null(0)
+            } else {
+                batch.column(0).is_null(0)
+            };
+            assert!(is_null, "{name} returned non-NULL for two bare NULL inputs");
+        }
+    }
+}
