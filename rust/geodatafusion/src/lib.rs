@@ -1,6 +1,6 @@
 //! Spatial extensions for [Apache DataFusion](https://datafusion.apache.org/).
 //!
-//! `geodatafusion` provides PostGIS-compatible spatial SQL functions backed by the
+//! `geodatafusion` provides PostGIS-compatible spatial SQL UDFs backed by the
 //! [GeoArrow](https://geoarrow.org/) columnar memory specification.
 //!
 //! # Quickstart
@@ -21,8 +21,8 @@
 //! UDFs are organized under [`udf`] by implementation backend:
 //!
 //! - [`udf::native`]: Geometry accessors, bounding-box operations, constructors, coordinate-dimension editors, and WKT/WKB I/O implemented directly on `geoarrow-array` and `geo-traits`.
-//! - [`udf::geo`]: 2D measurement, processing, topological relationship, and validation functions implemented with the [`geo`](https://docs.rs/geo) crate.
-//! - [`udf::geohash`]: GeoHash encoding and decoding functions (`ST_GeoHash`, `ST_Box2dFromGeoHash`, `ST_PointFromGeoHash`).
+//! - [`udf::geo`]: 2D measurement, processing, topological relationship, and validation UDFs implemented with the [`geo`](https://docs.rs/geo) crate.
+//! - [`udf::geohash`]: GeoHash encoding and decoding UDFs (`ST_GeoHash`, `ST_Box2dFromGeoHash`, `ST_PointFromGeoHash`).
 //!
 //! You can register an individual provider module instead of the full suite:
 //!
@@ -38,13 +38,23 @@
 //!
 //! # Custom Coordinate Layout
 //!
-//! UDFs that return newly constructed GeoArrow geometries accept a [`geoarrow_schema::CoordType`]
-//! (`CoordType::Separated` by default, or `CoordType::Interleaved`) when instantiated directly:
+//! Use [`register_with_coord_type`] to configure the geometry-producing UDFs together.
+//! Existing [`register`] calls continue to use [`CoordType::Separated`].
+//!
+//! ```
+//! use datafusion::prelude::SessionContext;
+//! use geodatafusion::{register_with_coord_type, CoordType};
+//!
+//! let ctx = SessionContext::new();
+//! register_with_coord_type(&ctx, CoordType::Interleaved);
+//! ```
+//!
+//! UDFs can also be configured individually:
 //!
 //! ```
 //! use datafusion::logical_expr::ScalarUDF;
 //! use datafusion::prelude::SessionContext;
-//! use geoarrow_schema::CoordType;
+//! use geodatafusion::CoordType;
 //! use geodatafusion::udf::native::constructors::Point;
 //!
 //! let ctx = SessionContext::new();
@@ -63,11 +73,24 @@ pub(crate) mod data_types;
 pub(crate) mod error;
 pub mod udf;
 
-/// Register all UDFs defined in geodatafusion
+/// Coordinate layout used by geometry-producing UDFs.
+pub use geoarrow_schema::CoordType;
+
+/// Register all UDFs and UDAFs using the default separated coordinate layout.
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
-    crate::udf::geo::register(session_context);
+    register_with_coord_type(session_context, crate::CoordType::default());
+}
 
-    crate::udf::geohash::register(session_context);
+/// Register this group with the requested coordinate layout for geometry-producing UDFs.
+///
+/// Functions whose output layout is fixed by their type, such as bounding boxes, keep that layout.
+pub fn register_with_coord_type(
+    session_context: &datafusion::prelude::SessionContext,
+    coord_type: crate::CoordType,
+) {
+    crate::udf::geo::register_with_coord_type(session_context, coord_type);
 
-    crate::udf::native::register(session_context);
+    crate::udf::geohash::register_with_coord_type(session_context, coord_type);
+
+    crate::udf::native::register_with_coord_type(session_context, coord_type);
 }

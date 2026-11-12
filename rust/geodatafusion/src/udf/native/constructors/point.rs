@@ -162,7 +162,7 @@ impl ScalarUDFImpl for PointZ {
         let typ = point_type_with_srid(
             typ,
             args.scalar_arguments.get(3).map(|srid| srid.cloned()),
-            "ST_PointM",
+            "ST_PointZ",
         )?;
 
         Ok(typ.to_field("", true).into())
@@ -662,17 +662,6 @@ fn create_point_array(
             let mut builder = PointBuilder::with_capacity(typ.clone(), x.len());
 
             for i in 0..x.len() {
-                let coord = match (
-                    x.value(i),
-                    y.value(i),
-                    z.map(|z| z.value(i)),
-                    m.map(|m| m.value(i)),
-                ) {
-                    (x, y, z, m) if !x.is_nan() || !y.is_nan() || z.is_some() || m.is_some() => {
-                        Some(wkt::types::Coord { x, y, z, m })
-                    }
-                    _ => None,
-                };
                 // Null buffers can mark a slot null even when its backing values are finite.
                 if x.is_null(i)
                     || y.is_null(i)
@@ -680,10 +669,14 @@ fn create_point_array(
                     || m.is_some_and(|m| m.is_null(i))
                 {
                     builder.push_null();
-                } else if let Some(coord) = coord {
-                    builder.try_push_coord(Some(&coord))?;
                 } else {
-                    builder.push_null();
+                    let coord = wkt::types::Coord {
+                        x: x.value(i),
+                        y: y.value(i),
+                        z: z.map(|z| z.value(i)),
+                        m: m.map(|m| m.value(i)),
+                    };
+                    builder.try_push_coord(Some(&coord))?;
                 }
             }
 

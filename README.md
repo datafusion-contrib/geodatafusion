@@ -221,7 +221,7 @@ Below are the spatial SQL functions currently registered by `geodatafusion::regi
 | `ST_OrientedEnvelope` | `geo` | Returns a minimum-area rotated rectangle enclosing a geometry. |
 | `ST_PointOnSurface` | `geo` | Computes a point guaranteed to lie on the surface of a geometry. |
 | `ST_Simplify` | `geo` | Simplifies a geometry using the Douglas-Peucker algorithm. |
-| `ST_SimplifyPreserveTopology` | `geo` | Simplifies a geometry using the topology-preserving Visvalingam-Whyatt area-threshold algorithm. |
+| `ST_SimplifyPreserveTopology` | `geo` | Simplifies a geometry using topology-preserving Visvalingam-Whyatt with an area threshold. |
 | `ST_SimplifyVW` | `geo` | Simplifies a geometry using the Visvalingam-Whyatt algorithm. |
 
 `ST_ConcaveHull` accepts the PostGIS signature and maps `pctconvex` monotonically to the `geo`

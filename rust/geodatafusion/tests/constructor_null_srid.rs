@@ -2,13 +2,73 @@ use std::sync::Arc;
 
 use arrow_array::{Float64Array, Int64Array};
 use arrow_schema::{DataType, Field};
+use datafusion::common::ScalarValue;
 use datafusion::config::ConfigOptions;
-use datafusion::logical_expr::{ColumnarValue, ScalarFunctionArgs, ScalarUDFImpl};
+use datafusion::logical_expr::{ColumnarValue, ReturnFieldArgs, ScalarFunctionArgs, ScalarUDFImpl};
 use datafusion::prelude::SessionContext;
-use geoarrow_array::GeoArrowArray;
+use geo_traits::PointTrait;
 use geoarrow_array::array::PointArray;
+use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor};
 use geoarrow_schema::{CoordType, Crs, Dimension, GeoArrowType, Metadata, PointType};
-use geodatafusion::udf::native::constructors::Point;
+use geodatafusion::udf::native::constructors::{Point, PointZ};
+
+#[tokio::test]
+async fn point_nan_coordinates_are_empty_not_null_in_both_layouts() {
+    for layout in [CoordType::Separated, CoordType::Interleaved] {
+        let ctx = SessionContext::new();
+        ctx.register_udf(Point::new(layout).into());
+        let batches = ctx
+            .sql("SELECT ST_Point(CAST('NaN' AS DOUBLE), CAST('NaN' AS DOUBLE)) AS point")
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        let batch = &batches[0];
+        let array =
+            PointArray::try_from((batch.column(0).as_ref(), batch.schema().field(0))).unwrap();
+        assert!(!array.is_null(0), "{layout:?}");
+        assert!(array.value(0).unwrap().coord().is_none(), "{layout:?}");
+    }
+}
+
+#[tokio::test]
+async fn pointz_invalid_srid_names_the_called_function() {
+    let coordinate_field = Arc::new(Field::new("", DataType::Float64, false));
+    let invalid_srid = ScalarValue::Utf8(Some("invalid".into()));
+    let err = PointZ::default()
+        .return_field_from_args(ReturnFieldArgs {
+            arg_fields: &[
+                coordinate_field.clone(),
+                coordinate_field.clone(),
+                coordinate_field,
+                Arc::new(Field::new("", DataType::Utf8, false)),
+            ],
+            scalar_arguments: &[None, None, None, Some(&invalid_srid)],
+        })
+        .unwrap_err();
+    assert!(
+        err.to_string()
+            .contains("ST_PointZ only supports SRID as a scalar integer"),
+        "{err}"
+    );
+
+    let ctx = SessionContext::new();
+    geodatafusion::register(&ctx);
+    let err = async {
+        ctx.sql("SELECT ST_PointZ(x, y, z, srid) FROM (VALUES (1.0, 2.0, 3.0, 4326)) AS points(x, y, z, srid)")
+            .await?
+            .collect()
+            .await
+    }
+    .await
+    .unwrap_err();
+    assert!(
+        err.to_string()
+            .contains("ST_PointZ only supports SRID as a scalar integer"),
+        "{err}"
+    );
+}
 
 #[tokio::test]
 async fn point_null_srid_fields_match_arrays() {

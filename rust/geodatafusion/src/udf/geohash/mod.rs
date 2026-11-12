@@ -11,7 +11,17 @@ pub use point_from_geohash::PointFromGeoHash;
 
 /// Register all GeoHash UDFs into the given [`SessionContext`](datafusion::prelude::SessionContext).
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
-    session_context.register_udf(GeoHash.into());
-    session_context.register_udf(Box2DFromGeoHash.into());
-    session_context.register_udf(PointFromGeoHash::default().into());
+    register_with_coord_type(session_context, crate::CoordType::default());
+}
+
+/// Register this group with the requested coordinate layout for geometry-producing UDFs.
+///
+/// Functions whose output layout is fixed by their type, such as bounding boxes, keep that layout.
+pub fn register_with_coord_type(
+    session_context: &datafusion::prelude::SessionContext,
+    coord_type: crate::CoordType,
+) {
+    session_context.register_udf(GeoHash::default().into());
+    session_context.register_udf(Box2DFromGeoHash::default().into());
+    session_context.register_udf(PointFromGeoHash::new(coord_type).into());
 }
