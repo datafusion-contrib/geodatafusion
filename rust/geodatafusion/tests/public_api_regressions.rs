@@ -375,7 +375,8 @@ async fn unary_null_geometry_signatures_propagate_null() {
     fn accepts_unary_null(signature: &Signature) -> bool {
         fn accepts(signature: &TypeSignature) -> bool {
             match signature {
-                TypeSignature::Uniform(1, types) | TypeSignature::Exact(types) => {
+                TypeSignature::Uniform(1, types) => types.contains(&DataType::Null),
+                TypeSignature::Exact(types) => {
                     types.len() == 1 && types[0] == DataType::Null
                 }
                 TypeSignature::OneOf(signatures) => signatures.iter().any(accepts),
@@ -395,17 +396,24 @@ async fn unary_null_geometry_signatures_propagate_null() {
         .map(|(name, _)| name.clone())
         .collect::<Vec<_>>();
     names.sort();
-    assert!(!names.is_empty());
+    assert!(names.iter().any(|name| name == "st_area"));
 
+    let mut failures = Vec::new();
     for name in names {
-        let df = ctx
-            .sql(&format!("SELECT \"{name}\"(NULL) AS result"))
-            .await
-            .unwrap_or_else(|err| panic!("{name} failed to plan: {err}"));
-        let batches = df
-            .collect()
-            .await
-            .unwrap_or_else(|err| panic!("{name} failed to execute: {err}"));
+        let result = async {
+            ctx.sql(&format!("SELECT \"{name}\"(NULL) AS result"))
+                .await?
+                .collect()
+                .await
+        }
+        .await;
+        let batches = match result {
+            Ok(batches) => batches,
+            Err(err) => {
+                failures.push(format!("{name}: {err}"));
+                continue;
+            }
+        };
         for batch in batches {
             let field = batch.schema().field(0).clone();
             let is_null = if field.extension_type_name().is_some() {
@@ -418,4 +426,5 @@ async fn unary_null_geometry_signatures_propagate_null() {
             assert!(is_null, "{name} returned non-NULL for a bare NULL input");
         }
     }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
