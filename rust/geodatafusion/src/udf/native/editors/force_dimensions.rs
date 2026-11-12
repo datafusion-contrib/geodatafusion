@@ -453,16 +453,56 @@ fn force_dimension_impl(
     let geo_array_ref = geo_array.as_ref();
     let input_field = args.arg_fields[0].as_ref();
 
-    let result = downcast_geoarrow_array!(
+    let result = force_array_to_dimension_with_defaults(
         geo_array_ref,
-        force_array_impl,
         input_field,
         out_type,
         target_dim,
         &z_defaults,
-        &m_defaults
+        &m_defaults,
     )?;
     Ok(result.into_array_ref().into())
+}
+
+fn force_array_to_dimension_with_defaults(
+    geo_array: &dyn GeoArrowArray,
+    input_field: &arrow_schema::Field,
+    out_type: GeoArrowType,
+    target_dim: Dimension,
+    z_defaults: &FloatDefaultColumn,
+    m_defaults: &FloatDefaultColumn,
+) -> GeoDataFusionResult<Arc<dyn GeoArrowArray>> {
+    downcast_geoarrow_array!(
+        geo_array,
+        force_array_impl,
+        input_field,
+        out_type,
+        target_dim,
+        z_defaults,
+        m_defaults
+    )
+}
+
+/// Force an array to the requested dimension and coordinate layout.
+///
+/// This is the array-level entry point shared by the dimension editor UDFs. `z_default` and
+/// `m_default` are only used when the target dimension adds a coordinate.
+pub(crate) fn force_array_to_dimension(
+    geo_array: &dyn GeoArrowArray,
+    input_field: &arrow_schema::Field,
+    out_type: GeoArrowType,
+    target_dim: Dimension,
+    z_default: f64,
+    m_default: f64,
+) -> GeoDataFusionResult<Arc<dyn GeoArrowArray>> {
+    force_array_to_dimension_with_defaults(
+        geo_array,
+        input_field,
+        out_type,
+        target_dim,
+        &FloatDefaultColumn::Scalar(Some(z_default)),
+        &FloatDefaultColumn::Scalar(Some(m_default)),
+    )
 }
 
 fn force_array_impl<'a>(

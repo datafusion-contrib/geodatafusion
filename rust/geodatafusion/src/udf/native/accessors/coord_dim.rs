@@ -1,12 +1,14 @@
 use std::sync::{Arc, OnceLock};
 
 use arrow_array::builder::UInt8Builder;
+use arrow_array::new_null_array;
 use arrow_schema::DataType;
 use datafusion::error::Result;
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
     ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
+use datafusion::scalar::ScalarValue;
 use geo_traits::GeometryTrait;
 use geoarrow_array::GeoArrowArrayAccessor;
 use geoarrow_array::array::from_arrow_array;
@@ -49,6 +51,9 @@ impl ScalarUDFImpl for CoordDim {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = null_input_result(&args) {
+            return Ok(result);
+        }
         Ok(coord_dim_impl(args)?)
     }
 
@@ -72,6 +77,20 @@ fn dimension_size(dim: Dimension) -> u8 {
         Dimension::XYM => 3,
         Dimension::XYZM => 4,
     }
+}
+
+fn null_input_result(args: &ScalarFunctionArgs) -> Option<ColumnarValue> {
+    if args.arg_fields[0].data_type() != &DataType::Null
+        && !matches!(args.args[0], ColumnarValue::Scalar(ScalarValue::Null))
+    {
+        return None;
+    }
+    Some(match &args.args[0] {
+        ColumnarValue::Array(array) => {
+            ColumnarValue::Array(new_null_array(&DataType::UInt8, array.len()))
+        }
+        _ => ColumnarValue::Scalar(ScalarValue::UInt8(None)),
+    })
 }
 
 fn coord_dim_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
@@ -109,14 +128,14 @@ fn coord_dim_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue
 
     use GeoArrowType::*;
     match geo_array.data_type() {
-        Point(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
-        LineString(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
-        Polygon(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
-        MultiPoint(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
-        MultiLineString(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
-        MultiPolygon(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
-        GeometryCollection(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
-        Rect(t) => Ok(ColumnarValue::Scalar(dimension_size(t.dimension()).into())),
+        Point(t) => fixed_dimension_output(&geo_array, t.dimension()),
+        LineString(t) => fixed_dimension_output(&geo_array, t.dimension()),
+        Polygon(t) => fixed_dimension_output(&geo_array, t.dimension()),
+        MultiPoint(t) => fixed_dimension_output(&geo_array, t.dimension()),
+        MultiLineString(t) => fixed_dimension_output(&geo_array, t.dimension()),
+        MultiPolygon(t) => fixed_dimension_output(&geo_array, t.dimension()),
+        GeometryCollection(t) => fixed_dimension_output(&geo_array, t.dimension()),
+        Rect(t) => fixed_dimension_output(&geo_array, t.dimension()),
         Geometry(_) => iter_geom!(as_geometry),
         Wkb(_) => iter_geom!(as_wkb, i32),
         LargeWkb(_) => iter_geom!(as_wkb, i64),
@@ -125,6 +144,21 @@ fn coord_dim_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue
         LargeWkt(_) => iter_geom!(as_wkt, i64),
         WktView(_) => iter_geom!(as_wkt_view),
     }
+}
+
+fn fixed_dimension_output(
+    geo_array: &dyn geoarrow_array::GeoArrowArray,
+    dimension: Dimension,
+) -> GeoDataFusionResult<ColumnarValue> {
+    let mut output_array = UInt8Builder::with_capacity(geo_array.len());
+    for index in 0..geo_array.len() {
+        if geo_array.is_null(index) {
+            output_array.append_null();
+        } else {
+            output_array.append_value(dimension_size(dimension));
+        }
+    }
+    Ok(ColumnarValue::Array(Arc::new(output_array.finish())))
 }
 
 /// `ST_NDims` scalar UDF implementation: returns the coordinate dimension (`2`, `3`, or `4`) of a geometry.
@@ -160,6 +194,9 @@ impl ScalarUDFImpl for NDims {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = null_input_result(&args) {
+            return Ok(result);
+        }
         Ok(coord_dim_impl(args)?)
     }
 
