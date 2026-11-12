@@ -26,12 +26,13 @@ mod tests {
     use datafusion::arrow::array::AsArray;
     use datafusion::catalog::MemTable;
     use datafusion::catalog::memory::DataSourceExec;
+    use datafusion::dataframe::DataFrame;
     use datafusion::datasource::listing::{
         ListingOptions, ListingTable, ListingTableConfig, ListingTableUrl,
     };
     use datafusion::execution::SessionStateBuilder;
     use datafusion::execution::object_store::ObjectStoreUrl;
-    use datafusion::logical_expr::ScalarUDF;
+    use datafusion::logical_expr::{LogicalPlan, ScalarUDF};
     use datafusion::physical_expr::ScalarFunctionExpr;
     use datafusion::physical_expr::expressions::{Column, Literal};
     use datafusion::physical_plan::{ExecutionPlan, PhysicalExpr, collect};
@@ -629,19 +630,36 @@ mod tests {
         ctx.register_table("mem_table", mem_table).unwrap();
 
         let dir = tempfile::tempdir().unwrap();
-        let file_path = dir.path().join("test_fgb_sink.fgb");
+        for (name, format_clause) in [
+            ("test_fgb_sink.fgb", ""),
+            ("test_fgb_sink", " STORED AS FGB"),
+        ] {
+            let file_path = dir.path().join(name);
+            let df = ctx
+                .sql(&format!(
+                    "COPY mem_table TO '{}'{format_clause};",
+                    file_path.display()
+                ))
+                .await
+                .unwrap();
+            let (state, mut plan) = df.into_parts();
+            if file_path.extension().is_none() {
+                // SQL prefixes this option with "format.", but the physical
+                // planner expects it without a prefix. Exercise single-file
+                // output through the logical COPY API for extensionless paths.
+                let LogicalPlan::Copy(copy) = &mut plan else {
+                    panic!("expected a COPY plan");
+                };
+                copy.options
+                    .insert("single_file_output".into(), "true".into());
+            }
+            DataFrame::new(state, plan).collect().await.unwrap();
 
-        ctx.sql(&format!("COPY mem_table TO '{}';", file_path.display()))
-            .await
-            .unwrap()
-            .collect()
-            .await
-            .unwrap();
-
-        let file = File::open(&file_path).unwrap();
-        let reader = BufReader::new(file);
-        let fgb_reader = flatgeobuf::FgbReader::open(reader).unwrap();
-        assert_eq!(fgb_reader.header().features_count(), 3);
+            let file = File::open(&file_path).unwrap();
+            let reader = BufReader::new(file);
+            let fgb_reader = flatgeobuf::FgbReader::open(reader).unwrap();
+            assert_eq!(fgb_reader.header().features_count(), 3);
+        }
     }
 }
 
