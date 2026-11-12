@@ -118,7 +118,7 @@ pub(crate) fn null_input_result(
         return Ok(None);
     }
     Ok(Some(ColumnarValue::Array(new_null_array(
-        &args.return_field.data_type(),
+        args.return_field.data_type(),
         args.number_rows,
     ))))
 }
