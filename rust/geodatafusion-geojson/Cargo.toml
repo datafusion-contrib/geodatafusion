@@ -18,10 +18,11 @@ datafusion-datasource = { workspace = true }
 geoarrow-geojson = { workspace = true }
 object_store = { workspace = true }
 tempfile = { workspace = true }
-tokio = { workspace = true }
+tokio = { workspace = true, features = ["io-util"] }
 
 [dev-dependencies]
 arrow-array = { workspace = true }
+datafusion = { workspace = true, features = ["sql"] }
 geo-traits = { workspace = true }
 geoarrow-array = { workspace = true, features = ["test-data"] }
 geoarrow-schema = { workspace = true }

@@ -10,15 +10,19 @@ use datafusion::datasource::physical_plan::{
     FileOpenFuture, FileOpener, FileScanConfig, FileSource,
 };
 use datafusion::error::{DataFusionError, Result};
+use datafusion::physical_expr::expressions::Column;
 use datafusion::physical_expr::projection::ProjectionExprs;
+use datafusion::physical_expr::utils::collect_columns;
 use datafusion::physical_expr::{PhysicalExpr, ScalarFunctionExpr};
 use datafusion::physical_plan::ColumnarValue;
 use datafusion::physical_plan::filter_pushdown::{FilterPushdownPropagation, PushedDown};
 use datafusion::physical_plan::metrics::ExecutionPlanMetricsSet;
 use datafusion_datasource::TableSchema;
+use datafusion_datasource::projection::{ProjectionOpener, SplitProjection};
 use futures::{StreamExt, TryStreamExt};
 use geoarrow_array::array::from_arrow_array;
 use geoarrow_flatgeobuf::reader::{FlatGeobufReaderOptions, FlatGeobufRecordBatchStream};
+use geoarrow_schema::GeoArrowType;
 use geodatafusion::udf::native::bounding_box::util::total_bounds;
 use object_store::ObjectStore;
 
@@ -79,16 +83,23 @@ impl FileSource for FlatGeobufSource {
         _base_config: &FileScanConfig,
         _partition: usize,
     ) -> Result<Arc<dyn FileOpener>> {
-        Ok(Arc::new(FlatGeobufOpener::new(
-            Arc::new(self.clone()),
-            object_store,
-        )))
+        let split = SplitProjection::new(self.table_schema.file_schema(), &self.projection);
+        let mut source = self.clone();
+        source.projection =
+            ProjectionExprs::from_indices(&split.file_indices, self.table_schema.file_schema());
+        let opener = Arc::new(FlatGeobufOpener::new(Arc::new(source), object_store));
+        ProjectionOpener::try_new(split, opener, self.table_schema.file_schema())
     }
 
     fn with_batch_size(&self, batch_size: usize) -> Arc<dyn FileSource> {
         let mut conf = self.clone();
         conf.batch_size = Some(batch_size);
         Arc::new(conf)
+    }
+
+    fn supports_repartitioning(&self) -> bool {
+        // The header and R-tree describe the whole file, not arbitrary byte ranges.
+        false
     }
 
     fn metrics(&self) -> &ExecutionPlanMetricsSet {
@@ -112,7 +123,7 @@ impl FileSource for FlatGeobufSource {
         let mut bbox = self.bbox;
         for filter in filters.iter() {
             if bbox.is_none()
-                && let Some(extracted) = extract_bbox(filter)?
+                && let Some(extracted) = extract_bbox(filter, &self.table_schema)?
             {
                 bbox = Some(extracted);
                 // The FlatGeobuf index only produces candidates. Keep the exact
@@ -160,7 +171,7 @@ impl FileSource for FlatGeobufSource {
 }
 
 /// [`FileOpener`] implementation for reading a partitioned FlatGeobuf (`.fgb`) file.
-pub struct FlatGeobufOpener {
+pub(crate) struct FlatGeobufOpener {
     config: Arc<FlatGeobufSource>,
     object_store: Arc<dyn ObjectStore>,
 }
@@ -168,7 +179,7 @@ pub struct FlatGeobufOpener {
 impl FlatGeobufOpener {
     /// Creates a new [`FlatGeobufOpener`] from the given [`FlatGeobufSource`] configuration
     /// and [`ObjectStore`].
-    pub fn new(config: Arc<FlatGeobufSource>, object_store: Arc<dyn ObjectStore>) -> Self {
+    pub(crate) fn new(config: Arc<FlatGeobufSource>, object_store: Arc<dyn ObjectStore>) -> Self {
         Self {
             config,
             object_store,
@@ -191,7 +202,22 @@ impl FileOpener for FlatGeobufOpener {
 
             let fgb_reader =
                 open_flatgeobuf_reader(store, file.object_meta.location.clone()).await?;
-            let selection = if let Some([minx, miny, maxx, maxy]) = config.bbox {
+            if fgb_reader.header().features_count() == 0 {
+                // The buffered FlatBuffer contains the size-prefixed header. Eight
+                // magic bytes precede it; any trailing data means an unknown count.
+                let header_end = 8 + fgb_reader.header()._tab.buf().len() as u64;
+                if file.object_meta.size > header_end {
+                    return Err(DataFusionError::NotImplemented(
+                        "FlatGeobuf streams with unknown feature count are not supported"
+                            .to_string(),
+                    ));
+                }
+                return Ok(futures::stream::empty().boxed());
+            }
+            let indexed = fgb_reader.header().index_node_size() > 0
+                && fgb_reader.header().features_count() > 0;
+            let selection = if let Some([minx, miny, maxx, maxy]) = config.bbox.filter(|_| indexed)
+            {
                 fgb_reader
                     .select_bbox(minx, miny, maxx, maxy)
                     .await
@@ -213,8 +239,16 @@ impl FileOpener for FlatGeobufOpener {
 fn columnar_value_to_bbox(value: ColumnarValue, field: &Field) -> Result<Option<[f64; 4]>> {
     let arrays = ColumnarValue::values_to_arrays(&[value])?;
     if let Ok(geo_arr) = from_arrow_array(&arrays[0], field) {
-        let bounds =
-            total_bounds(&geo_arr).map_err(|err| DataFusionError::External(Box::new(err)))?;
+        let Ok(bounds) = total_bounds(&geo_arr) else {
+            return Ok(None);
+        };
+        if !bounds.minx().is_finite()
+            || !bounds.miny().is_finite()
+            || !bounds.maxx().is_finite()
+            || !bounds.maxy().is_finite()
+        {
+            return Ok(None);
+        }
         Ok(Some([
             bounds.minx(),
             bounds.miny(),
@@ -226,16 +260,56 @@ fn columnar_value_to_bbox(value: ColumnarValue, field: &Field) -> Result<Option<
     }
 }
 
-fn extract_bbox(expr: &Arc<dyn PhysicalExpr>) -> Result<Option<[f64; 4]>> {
-    if let Some(func) = expr.downcast_ref::<ScalarFunctionExpr>()
-        && func.fun().name().eq_ignore_ascii_case("st_intersects")
-        && func.args().len() == 2
-    {
-        let bbox_expr = func.args()[1].clone();
-        let empty = RecordBatch::new_empty(Arc::new(Schema::empty()));
-        let value = bbox_expr.evaluate(&empty)?;
-        let return_field = bbox_expr.return_field(empty.schema_ref())?;
-        return columnar_value_to_bbox(value, &return_field);
+pub(crate) fn extract_bbox(
+    expr: &Arc<dyn PhysicalExpr>,
+    table_schema: &TableSchema,
+) -> Result<Option<[f64; 4]>> {
+    let Some(func) = expr.downcast_ref::<ScalarFunctionExpr>() else {
+        return Ok(None);
+    };
+    if !func.fun().name().eq_ignore_ascii_case("st_intersects") || func.args().len() != 2 {
+        return Ok(None);
     }
-    Ok(None)
+
+    let args = func.args();
+    let (geometry_expr, bbox_expr) = match (
+        args[0].downcast_ref::<Column>(),
+        args[1].downcast_ref::<Column>(),
+    ) {
+        (Some(_), None) => (args[0].clone(), args[1].clone()),
+        (None, Some(_)) => (args[1].clone(), args[0].clone()),
+        _ => return Ok(None),
+    };
+
+    if !is_indexed_geometry_column(&geometry_expr, table_schema) {
+        return Ok(None);
+    }
+    if !collect_columns(&bbox_expr).is_empty() {
+        return Ok(None);
+    }
+
+    let empty = RecordBatch::new_empty(Arc::new(Schema::empty()));
+    let value = match bbox_expr.evaluate(&empty) {
+        Ok(value) => value,
+        Err(_) => return Ok(None),
+    };
+    let return_field = match bbox_expr.return_field(empty.schema_ref()) {
+        Ok(field) => field,
+        Err(_) => return Ok(None),
+    };
+    columnar_value_to_bbox(value, &return_field)
+}
+
+/// Return true only when `expr` is a direct reference to the file's indexed geometry column.
+fn is_indexed_geometry_column(expr: &Arc<dyn PhysicalExpr>, table_schema: &TableSchema) -> bool {
+    let Some(column) = expr.downcast_ref::<Column>() else {
+        return false;
+    };
+    let Some(field) = table_schema.file_schema().fields().get(column.index()) else {
+        return false;
+    };
+    // Property strings can be interpreted as WKT by UDFs, but have no R-tree index.
+    field.name() == column.name()
+        && field.extension_type_name().is_some()
+        && GeoArrowType::from_arrow_field(field).is_ok()
 }

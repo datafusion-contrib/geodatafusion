@@ -14,12 +14,14 @@
 use std::sync::Arc;
 use datafusion::execution::SessionStateBuilder;
 use datafusion::prelude::SessionContext;
-use geodatafusion_flatgeobuf::FlatGeobufFileFactory;
+use geodatafusion_flatgeobuf::FlatGeobufFormatFactory;
 
-let file_format = Arc::new(FlatGeobufFileFactory::default());
+let file_format = Arc::new(FlatGeobufFormatFactory::default());
 let state = SessionStateBuilder::new()
     .with_file_formats(vec![file_format])
     .build();
 let ctx = SessionContext::new_with_state(state);
 geodatafusion::register(&ctx);
 ```
+
+Files without a spatial index are scanned and filtered normally. Empty files produce no rows. Streaming files with an unknown feature count return `NotImplemented`; their statistics do not claim an exact row count. FlatGeobuf files are not split into byte ranges.
