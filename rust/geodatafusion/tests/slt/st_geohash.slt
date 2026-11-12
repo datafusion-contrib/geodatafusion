@@ -2,3 +2,18 @@ query T
 SELECT ST_GeoHash(ST_Point(-126, 48));
 ----
 c0w3hf1s70w3
+
+query T
+SELECT ST_GeoHash(ST_GeomFromText('POLYGON((-127 47, -125 47, -125 49, -127 49, -127 47))'));
+----
+c0w3hf1s70w3
+
+query T
+SELECT ST_GeoHash(ST_GeomFromText('POINT EMPTY'));
+----
+NULL
+
+query T
+SELECT ST_GeoHash(NULL);
+----
+NULL

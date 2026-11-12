@@ -1,19 +1,20 @@
-use std::sync::{Arc, LazyLock, OnceLock};
+use std::sync::{Arc, OnceLock};
 
 use arrow_array::builder::StringViewBuilder;
+use arrow_array::{StringViewArray, new_null_array};
 use arrow_schema::DataType;
 use datafusion::error::Result;
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
-    ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature, Volatility,
+    ColumnarValue, Documentation, ScalarFunctionArgs, ScalarUDFImpl, Signature,
 };
-use geo_traits::PointTrait;
-use geo_traits::to_geo::ToGeoCoord;
-use geoarrow_array::GeoArrowArrayAccessor;
-use geoarrow_array::array::PointArray;
-use geoarrow_schema::{CoordType, Dimension, PointType};
+use datafusion::scalar::ScalarValue;
+use geoarrow_array::array::from_arrow_array;
+use geoarrow_array::{GeoArrowArrayAccessor, downcast_geoarrow_array};
 
+use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
+use crate::udf::native::bounding_box::util::{GeometryBounds, geometry_bounds};
 
 /// `ST_GeoHash` scalar UDF implementation: encodes a geometry into a GeoHash string.
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -33,17 +34,6 @@ impl Default for GeoHash {
 }
 
 static GEOHASH_DOC: OnceLock<Documentation> = OnceLock::new();
-static GEOHASH_SIGNATURE: LazyLock<Signature> = LazyLock::new(|| {
-    let valid_types = vec![
-        PointType::new(Dimension::XY, Default::default())
-            .with_coord_type(CoordType::Separated)
-            .data_type(),
-        PointType::new(Dimension::XY, Default::default())
-            .with_coord_type(CoordType::Interleaved)
-            .data_type(),
-    ];
-    Signature::uniform(1, valid_types, Volatility::Immutable)
-});
 
 impl ScalarUDFImpl for GeoHash {
     fn name(&self) -> &str {
@@ -51,7 +41,7 @@ impl ScalarUDFImpl for GeoHash {
     }
 
     fn signature(&self) -> &Signature {
-        &GEOHASH_SIGNATURE
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> datafusion::error::Result<DataType> {
@@ -59,6 +49,16 @@ impl ScalarUDFImpl for GeoHash {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if args.arg_fields[0].data_type() == &DataType::Null
+            || matches!(args.args[0], ColumnarValue::Scalar(ScalarValue::Null))
+        {
+            return Ok(match &args.args[0] {
+                ColumnarValue::Array(array) => {
+                    ColumnarValue::Array(new_null_array(&DataType::Utf8View, array.len()))
+                }
+                _ => ColumnarValue::Scalar(ScalarValue::Utf8View(None)),
+            });
+        }
         Ok(geohash_impl(args)?)
     }
 
@@ -66,8 +66,8 @@ impl ScalarUDFImpl for GeoHash {
         Some(GEOHASH_DOC.get_or_init(|| {
             Documentation::builder(
                 DOC_SECTION_OTHER,
-                "Computes a GeoHash representation of a geometry. A GeoHash encodes a geographic Point into a text form that is sortable and searchable based on prefixing. A shorter GeoHash is a less precise representation of a point. It can be thought of as a box that contains the point.",
-                "ST_GeoHash(point)",
+                "Computes a GeoHash representation of a geometry using the center of its XY bounding box. Empty geometries return NULL.",
+                "ST_GeoHash(geometry)",
             )
             .with_argument("geom", "geometry")
             .build()
@@ -80,23 +80,37 @@ fn geohash_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> 
         .into_iter()
         .next()
         .unwrap();
-    let point_array = PointArray::try_from((array.as_ref(), args.arg_fields[0].as_ref()))?;
-    let mut builder = StringViewBuilder::with_capacity(array.len());
+    let geo_array = from_arrow_array(&array, &args.arg_fields[0])?;
+    let geo_ref = geo_array.as_ref();
+    let result = downcast_geoarrow_array!(geo_ref, geohash_array)?;
+    Ok(ColumnarValue::Array(Arc::new(result)))
+}
 
-    for point in point_array.iter() {
-        if let Some(point) = point {
-            let coord = point?.coord().unwrap();
-            // TODO: make arg
-            // 12 is the max length supported by rust geohash. We should document this and maybe
-            // clamp numbers to 12.
-            let s = geohash::encode(coord.to_coord(), 12)?;
+fn geohash_array<'a>(
+    array: &'a impl GeoArrowArrayAccessor<'a>,
+) -> GeoDataFusionResult<StringViewArray> {
+    let mut builder = StringViewBuilder::with_capacity(array.len());
+    for geom in array.iter() {
+        let Some(geom) = geom else {
+            builder.append_null();
+            continue;
+        };
+        let geom = geom?;
+        let center = match geometry_bounds(&geom) {
+            GeometryBounds::Finite(bounds) => Some((
+                (bounds.minx() + bounds.maxx()) / 2.0,
+                (bounds.miny() + bounds.maxy()) / 2.0,
+            )),
+            GeometryBounds::Empty | GeometryBounds::NonFinite => None,
+        };
+        if let Some((x, y)) = center {
+            let s = geohash::encode(geo::Coord { x, y }, 12)?;
             builder.append_value(s);
         } else {
             builder.append_null();
         }
     }
-
-    Ok(ColumnarValue::Array(Arc::new(builder.finish())))
+    Ok(builder.finish())
 }
 
 #[cfg(test)]

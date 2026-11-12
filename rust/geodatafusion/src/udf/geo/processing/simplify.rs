@@ -1,5 +1,6 @@
 use std::sync::{Arc, OnceLock};
 
+use arrow_array::new_null_array;
 use arrow_schema::{DataType, FieldRef};
 use datafusion::error::{DataFusionError, Result};
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
@@ -10,10 +11,12 @@ use datafusion::logical_expr::{
 use datafusion::scalar::ScalarValue;
 use geoarrow_array::GeoArrowArray;
 use geoarrow_array::array::from_arrow_array;
+use geoarrow_array::cast::AsGeoArrowArray;
 use geoarrow_schema::error::GeoArrowResult;
 use geoarrow_schema::{CoordType, Dimension, GeoArrowType, GeometryType};
 
 use crate::error::GeoDataFusionResult;
+use crate::udf::native::editors::force_array_to_dimension;
 
 /// `ST_Simplify` scalar UDF implementation: simplifies a geometry using the Douglas-Peucker algorithm.
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -58,8 +61,11 @@ impl ScalarUDFImpl for Simplify {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
-        // TODO: pass down coord_type
-        Ok(simplify_impl(args, geoarrow_expr_geo::simplify)?)
+        Ok(simplify_impl(
+            args,
+            self.coord_type,
+            geoarrow_expr_geo::simplify,
+        )?)
     }
 
     fn documentation(&self) -> Option<&Documentation> {
@@ -119,8 +125,11 @@ impl ScalarUDFImpl for SimplifyVW {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
-        // TODO: pass down coord_type
-        Ok(simplify_impl(args, geoarrow_expr_geo::simplify_vw)?)
+        Ok(simplify_impl(
+            args,
+            self.coord_type,
+            geoarrow_expr_geo::simplify_vw,
+        )?)
     }
 
     fn documentation(&self) -> Option<&Documentation> {
@@ -137,7 +146,7 @@ impl ScalarUDFImpl for SimplifyVW {
     }
 }
 
-/// `ST_SimplifyPreserveTopology` scalar UDF implementation: simplifies a geometry using the topology-preserving Douglas-Peucker algorithm.
+/// `ST_SimplifyPreserveTopology` scalar UDF implementation: simplifies a geometry using the topology-preserving Visvalingam-Whyatt area-threshold algorithm.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct SimplifyPreserveTopology {
     signature: Signature,
@@ -180,9 +189,9 @@ impl ScalarUDFImpl for SimplifyPreserveTopology {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
-        // TODO: pass down coord_type
         Ok(simplify_impl(
             args,
+            self.coord_type,
             geoarrow_expr_geo::simplify_vw_preserve,
         )?)
     }
@@ -191,7 +200,7 @@ impl ScalarUDFImpl for SimplifyPreserveTopology {
         Some(DOCUMENTATION_TOPO.get_or_init(|| {
             Documentation::builder(
                 DOC_SECTION_OTHER,
-                "Computes a simplified representation of a geometry using a variant of the Douglas-Peucker algorithm which limits simplification to ensure the result has the same topology as the input. The simplification tolerance is a distance value, in the units of the input SRS. Simplification removes vertices which are within the tolerance distance of the simplified linework, as long as topology is preserved. The result will be valid and simple if the input is.",
+                "Computes a simplified representation of a geometry using the topology-preserving Visvalingam-Whyatt algorithm. The simplification tolerance is an area value, in the units of the input SRS. Simplification removes vertices which form corners with area less than the tolerance, as long as topology is preserved. The result will be valid and simple if the input is.",
                 "ST_SimplifyPreserveTopology(geometry, epsilon)",
             )
             .with_argument("geom", "geometry")
@@ -205,34 +214,61 @@ fn return_field_impl(
     args: ReturnFieldArgs,
     coord_type: CoordType,
 ) -> GeoDataFusionResult<FieldRef> {
+    if args.arg_fields[0].data_type() == &DataType::Null {
+        return Ok(Arc::new(
+            GeometryType::new(Default::default())
+                .with_coord_type(coord_type)
+                .to_field("", true),
+        ));
+    }
     let geo_type = GeoArrowType::from_arrow_field(args.arg_fields[0].as_ref())?;
-    let field = match geo_type {
-        GeoArrowType::Point(_)
-        | GeoArrowType::MultiPoint(_)
-        | GeoArrowType::GeometryCollection(_) => geo_type.to_field("", true),
-        GeoArrowType::LineString(typ) => typ.with_dimension(Dimension::XY).to_field("", true),
-        GeoArrowType::MultiLineString(typ) => typ.with_dimension(Dimension::XY).to_field("", true),
-        GeoArrowType::Polygon(typ) => typ.with_dimension(Dimension::XY).to_field("", true),
-        GeoArrowType::MultiPolygon(typ) => typ.with_dimension(Dimension::XY).to_field("", true),
+    let output_type = simplify_output_type(geo_type, coord_type);
+    Ok(Arc::new(output_type.to_field("", true)))
+}
+
+fn simplify_output_type(geo_type: GeoArrowType, coord_type: CoordType) -> GeoArrowType {
+    use GeoArrowType::*;
+    match geo_type {
+        Point(_)
+        | LineString(_)
+        | Polygon(_)
+        | MultiPoint(_)
+        | MultiLineString(_)
+        | MultiPolygon(_)
+        | GeometryCollection(_) => geo_type
+            .with_dimension(Dimension::XY)
+            .with_coord_type(coord_type),
         _ => GeometryType::new(geo_type.metadata().clone())
             .with_coord_type(coord_type)
-            .to_field("", true),
-    };
-    Ok(Arc::new(field))
+            .into(),
+    }
 }
 
 fn simplify_impl(
     args: ScalarFunctionArgs,
+    coord_type: CoordType,
     simplify_fn: impl Fn(&dyn GeoArrowArray, f64) -> GeoArrowResult<Arc<dyn GeoArrowArray>>,
 ) -> GeoDataFusionResult<ColumnarValue> {
+    let target = GeoArrowType::from_arrow_field(&args.return_field)?;
+    if args.arg_fields[0].data_type() == &DataType::Null {
+        return Ok(null_geometry_array(&target, args.number_rows).into());
+    }
+
     let arrays = ColumnarValue::values_to_arrays(&args.args[0..1])?;
-    let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
+    let input = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
+
     let epsilon = args.args[1].cast_to(&DataType::Float64, None)?;
     let epsilon = match epsilon {
-        ColumnarValue::Scalar(scalar) => match scalar {
-            ScalarValue::Float64(val) => val.expect("Non-null epsilon"),
-            _ => unreachable!(),
-        },
+        ColumnarValue::Scalar(ScalarValue::Float64(Some(val))) => val,
+        ColumnarValue::Scalar(ScalarValue::Float64(None)) => {
+            return Ok(null_geometry_array(&target, args.number_rows).into());
+        }
+        ColumnarValue::Scalar(_) => {
+            return Err(DataFusionError::Internal(
+                "ST_Simplify tolerance must be castable to Float64".to_string(),
+            )
+            .into());
+        }
         ColumnarValue::Array(_) => {
             return Err(DataFusionError::NotImplemented(
                 "Vectorized epsilon not yet implemented".to_string(),
@@ -241,8 +277,32 @@ fn simplify_impl(
         }
     };
 
-    let result = simplify_fn(&geo_array, epsilon)?;
+    let normalized = if input.data_type() == target {
+        input
+    } else {
+        normalize_to_target(input.as_ref(), &args.arg_fields[0], &target)?
+    };
+    let result = simplify_fn(normalized.as_ref(), epsilon)?;
+    let result = match &target {
+        GeoArrowType::Geometry(_) => {
+            Arc::new(result.as_geometry().clone().into_coord_type(coord_type))
+                as Arc<dyn GeoArrowArray>
+        }
+        _ => result,
+    };
     Ok(result.to_array_ref().into())
+}
+
+fn normalize_to_target(
+    input: &dyn GeoArrowArray,
+    input_field: &arrow_schema::Field,
+    target: &GeoArrowType,
+) -> GeoDataFusionResult<Arc<dyn GeoArrowArray>> {
+    force_array_to_dimension(input, input_field, target.clone(), Dimension::XY, 0.0, 0.0)
+}
+
+fn null_geometry_array(target: &GeoArrowType, number_rows: usize) -> arrow_array::ArrayRef {
+    new_null_array(&target.to_data_type(), number_rows)
 }
 
 #[cfg(test)]

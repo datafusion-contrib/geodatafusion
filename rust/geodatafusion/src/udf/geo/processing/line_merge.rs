@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use std::sync::{Arc, LazyLock, OnceLock};
 
-use arrow_array::{Array, BinaryArray, BooleanArray};
+use arrow_array::{Array, BinaryArray, BooleanArray, new_null_array};
 use arrow_schema::{DataType, FieldRef};
 use datafusion::error::{DataFusionError, Result};
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
@@ -148,6 +148,10 @@ fn parse_directed(args: &ScalarFunctionArgs) -> GeoDataFusionResult<bool> {
 }
 
 fn line_merge_impl(args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
+    if args.arg_fields[0].data_type() == &DataType::Null {
+        let target = GeoArrowType::from_arrow_field(&args.return_field)?;
+        return Ok(new_null_array(&target.to_data_type(), args.number_rows).into());
+    }
     let directed = parse_directed(&args)?;
     let arrays = ColumnarValue::values_to_arrays(&args.args[0..1])?;
     let geo_array = from_arrow_array(&arrays[0], &args.arg_fields[0])?;
