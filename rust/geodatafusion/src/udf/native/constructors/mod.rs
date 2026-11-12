@@ -1,10 +1,12 @@
-//! Geometry constructor UDFs (`ST_Point*`, `ST_MakePoint*`, `ST_MakeLine`, `ST_LineFromMultiPoint`, `ST_MakeEnvelope`).
+//! Geometry constructor UDFs (`ST_Point*`, `ST_MakePoint*`, `ST_MakeLine`, `ST_LineFromMultiPoint`, `ST_MakeEnvelope`, `ST_CollectAgg`).
 
+mod collect;
 mod envelope;
 mod line_from_multipoint;
 mod make_line;
 mod point;
 
+pub use collect::CollectAggregate;
 pub use envelope::MakeEnvelope;
 pub use line_from_multipoint::LineFromMultiPoint;
 pub use make_line::MakeLine;
@@ -12,6 +14,7 @@ pub use point::{MakePoint, MakePointM, Point, PointM, PointZ, PointZM};
 
 /// Register all native geometry constructor UDFs into the given [`SessionContext`](datafusion::prelude::SessionContext).
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
+    session_context.register_udaf(CollectAggregate::default().into());
     session_context.register_udf(MakeEnvelope::default().into());
     session_context.register_udf(LineFromMultiPoint::default().into());
     session_context.register_udf(MakeLine::default().into());
