@@ -243,7 +243,7 @@ impl FileFormat for GeoParquetFormat {
 
     async fn create_physical_plan(
         &self,
-        _state: &dyn Session,
+        state: &dyn Session,
         conf: FileScanConfig,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let source = conf.file_source().clone();
@@ -252,19 +252,39 @@ impl FileFormat for GeoParquetFormat {
                 "GeoParquetFormat expected a GeoParquetSource".to_string(),
             ));
         };
-        if self.parse_to_native || self.coord_type != CoordType::Separated {
-            let new_conf = FileScanConfigBuilder::from(conf)
-                .with_source(Arc::new(geoparquet_source.clone()))
-                .build();
-            return Ok(DataSourceExec::from_data_source(new_conf));
-        }
-
         let parquet_source = &geoparquet_source.inner;
         let file_scan_config_builder =
             FileScanConfigBuilder::from(conf).with_source(Arc::new(parquet_source.clone()));
         let new_conf = file_scan_config_builder.build();
 
-        self.inner.create_physical_plan(_state, new_conf).await
+        // Preserve Parquet's reader configuration and footer cache on both paths.
+        let plan = self.inner.create_physical_plan(state, new_conf).await?;
+        if !self.parse_to_native && self.coord_type == CoordType::Separated {
+            return Ok(plan);
+        }
+        let exec = plan.downcast_ref::<DataSourceExec>().ok_or_else(|| {
+            DataFusionError::Internal("ParquetFormat expected a DataSourceExec".to_string())
+        })?;
+        let conf = exec
+            .data_source()
+            .downcast_ref::<FileScanConfig>()
+            .ok_or_else(|| {
+                DataFusionError::Internal("ParquetFormat expected a FileScanConfig".to_string())
+            })?;
+        let inner = conf
+            .file_source()
+            .downcast_ref::<ParquetSource>()
+            .ok_or_else(|| {
+                DataFusionError::Internal("ParquetFormat expected a ParquetSource".to_string())
+            })?;
+        let source = GeoParquetSource {
+            inner: inner.clone(),
+            ..geoparquet_source.clone()
+        };
+        let conf = FileScanConfigBuilder::from(conf.clone())
+            .with_source(Arc::new(source))
+            .build();
+        Ok(Arc::new(exec.clone().with_data_source(Arc::new(conf))))
     }
 
     async fn create_writer_physical_plan(

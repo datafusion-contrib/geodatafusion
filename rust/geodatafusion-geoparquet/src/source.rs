@@ -18,7 +18,10 @@ use datafusion::physical_plan::{DisplayFormatType, PhysicalExpr};
 use datafusion_datasource::TableSchema;
 use datafusion_datasource::projection::{ProjectionOpener, SplitProjection};
 use datafusion_datasource_parquet::source::ParquetSource;
-use datafusion_datasource_parquet::{ParquetAccessPlan, RowGroupAccessPlanFilter};
+use datafusion_datasource_parquet::{
+    DefaultParquetFileReaderFactory, ParquetAccessPlan, ParquetFileReaderFactory,
+    RowGroupAccessPlanFilter,
+};
 use futures::StreamExt;
 use geoarrow_array::GeoArrowArray;
 use geoarrow_array::array::{
@@ -28,11 +31,9 @@ use geoarrow_array::array::{
 use geoarrow_schema::error::{GeoArrowError, GeoArrowResult};
 use geoarrow_schema::{CoordType, GeoArrowType};
 use geoparquet::reader::GeoParquetRecordBatchStream;
-#[allow(deprecated)]
 use parquet::arrow::ProjectionMask;
 use parquet::arrow::arrow_reader::{ArrowReaderMetadata, ArrowReaderOptions};
-#[allow(deprecated)]
-use parquet::arrow::async_reader::{ParquetObjectReader, ParquetRecordBatchStreamBuilder};
+use parquet::arrow::async_reader::{AsyncFileReader, ParquetRecordBatchStreamBuilder};
 
 /// [`FileSource`] wrapper around DataFusion's [`ParquetSource`] for GeoParquet files.
 #[derive(Clone, Debug)]
@@ -65,19 +66,26 @@ impl GeoParquetSource {
 #[derive(Clone, Debug)]
 struct GeoParquetOpener {
     source: GeoParquetSource,
-    object_store: Arc<dyn object_store::ObjectStore>,
+    reader_factory: Arc<dyn ParquetFileReaderFactory>,
+    partition: usize,
     target_schema: SchemaRef,
 }
 
 impl FileOpener for GeoParquetOpener {
     fn open(&self, file: PartitionedFile) -> Result<FileOpenFuture> {
         let source = self.source.clone();
-        let store = Arc::clone(&self.object_store);
+        let mut reader: Box<dyn AsyncFileReader> = self.reader_factory.create_reader(
+            self.partition,
+            file.clone(),
+            file.metadata_size_hint.or(source
+                .inner
+                .table_parquet_options()
+                .global
+                .metadata_size_hint),
+            source.inner.metrics(),
+        )?;
         let target_schema = self.target_schema.clone();
         Ok(Box::pin(async move {
-            #[allow(deprecated)]
-            let mut reader = ParquetObjectReader::new(store, file.object_meta.location)
-                .with_file_size(file.object_meta.size);
             let metadata = ArrowReaderMetadata::load_async(&mut reader, Default::default())
                 .await
                 .map_err(|err| DataFusionError::External(Box::new(err)))?;
@@ -156,7 +164,23 @@ impl FileOpener for GeoParquetOpener {
                     ) {
                         typ
                     } else {
-                        typ.with_coord_type(CoordType::Separated)
+                        match typ {
+                            GeoArrowType::Point(_)
+                            | GeoArrowType::LineString(_)
+                            | GeoArrowType::Polygon(_)
+                            | GeoArrowType::MultiPoint(_)
+                            | GeoArrowType::MultiLineString(_)
+                            | GeoArrowType::MultiPolygon(_) => {
+                                typ.with_coord_type(CoordType::Separated)
+                            }
+                            _ => {
+                                return Err(GeoArrowError::GeoParquet(format!(
+                                    "GeoParquet column '{}' cannot decode {:?} storage as {typ:?}",
+                                    field.name(),
+                                    field.data_type()
+                                )));
+                            }
+                        }
                     };
                     Ok(Arc::new(typ.to_field(field.name(), target.is_nullable())))
                 })
@@ -280,7 +304,14 @@ impl FileSource for GeoParquetSource {
             let target_schema = Arc::new(schema.file_schema().project(&split.file_indices)?);
             let opener = Arc::new(GeoParquetOpener {
                 source: self.clone(),
-                object_store,
+                reader_factory: self
+                    .inner
+                    .parquet_file_reader_factory()
+                    .cloned()
+                    .unwrap_or_else(|| {
+                        Arc::new(DefaultParquetFileReaderFactory::new(object_store))
+                    }),
+                partition,
                 target_schema,
             });
             ProjectionOpener::try_new(split, opener, schema.file_schema())

@@ -5,7 +5,7 @@
 ## Supported Capabilities
 
 - **Reading (`.parquet`)**: Wraps DataFusion's `ParquetFormat` via [`GeoParquetFormat`] and [`GeoParquetFormatFactory`] to parse `geo` file metadata and attach GeoArrow extension metadata (`geoarrow.wkb` or native GeoArrow types) to geometry columns.
-- **Native decoding**: `GeoParquetFormatFactory::new().with_parse_to_native(true)` decodes WKB into native arrays. `with_coord_type(CoordType::Interleaved)` selects the coordinate layout. Native scans support projections, partition columns, file ranges and missing nullable fields; filters remain above the scan for exact evaluation. Virtual columns such as `file_row_index()` are currently unsupported in native scans and return `NotImplemented`. The default WKB scan uses DataFusion's Parquet reader and optimizations.
+- **Native decoding**: `GeoParquetFormatFactory::new().with_parse_to_native(true)` decodes WKB into native arrays. `with_coord_type(CoordType::Interleaved)` selects the coordinate layout. Native scans support projections, partition columns, file ranges and missing nullable fields, and reuse DataFusion's footer cache and metadata-size hints. Filters remain above the scan for exact evaluation. Virtual columns such as `file_row_index()` return `NotImplemented`; native scans do not support encrypted Parquet or TopK pushdown. The default WKB scan uses DataFusion's Parquet reader and optimizations.
 - **Writing**: Writing GeoParquet via `FileFormat` is not yet implemented.
 
 ## Usage

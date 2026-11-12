@@ -345,6 +345,99 @@ mod tests {
         }
     }
 
+    #[tokio::test]
+    async fn test_native_scans_populate_the_parquet_metadata_cache() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = write_geoparquet_fixture(&dir);
+        for (parse_to_native, coord_type) in [
+            (true, CoordType::Separated),
+            (false, CoordType::Interleaved),
+        ] {
+            let ctx = geoparquet_context();
+            let format = Arc::new(
+                GeoParquetFormat::new(ParquetFormat::default().with_metadata_size_hint(Some(4096)))
+                    .with_parse_to_native(parse_to_native)
+                    .with_coord_type(coord_type),
+            );
+            let config =
+                ListingTableConfig::new(ListingTableUrl::parse(path.to_str().unwrap()).unwrap())
+                    .with_listing_options(ListingOptions::new(format))
+                    .infer_schema(&ctx.state())
+                    .await
+                    .unwrap();
+            ctx.register_table("points", Arc::new(ListingTable::try_new(config).unwrap()))
+                .unwrap();
+            let plan = ctx
+                .sql("SELECT ST_X(geometry) AS x FROM points ORDER BY id")
+                .await
+                .unwrap()
+                .create_physical_plan()
+                .await
+                .unwrap();
+            let cache = ctx.runtime_env().cache_manager.get_file_metadata_cache();
+            // Schema inference and planning also fill this cache. Only execution counts here.
+            cache.clear();
+            let batches = datafusion::physical_plan::collect(plan, ctx.task_ctx())
+                .await
+                .unwrap();
+            datafusion::assert_batches_eq!(
+                [
+                    "+-----+", "| x   |", "+-----+", "| 1.0 |", "| 3.0 |", "| 5.0 |", "+-----+"
+                ],
+                &batches
+            );
+            assert_eq!(
+                cache.len(),
+                1,
+                "native scan must retain Parquet's footer cache"
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn test_mixed_wkb_metadata_with_struct_storage_returns_error() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("malformed.parquet");
+        let (batch, _) = sample_table();
+        let mut writer =
+            ArrowWriter::try_new(File::create(&path).unwrap(), batch.schema(), None).unwrap();
+        writer.write(&batch).unwrap();
+        writer.append_key_value_metadata(KeyValue::new("geo".to_string(),
+            r#"{"version":"1.1.0","primary_column":"geometry","columns":{"geometry":{"encoding":"WKB","geometry_types":["Point","LineString"]}}}"#.to_string()));
+        writer.close().unwrap();
+
+        for coord_type in [CoordType::Separated, CoordType::Interleaved] {
+            let ctx = geoparquet_context();
+            let format = GeoParquetFormatFactory::new()
+                .with_parse_to_native(true)
+                .with_coord_type(coord_type)
+                .default();
+            let config =
+                ListingTableConfig::new(ListingTableUrl::parse(path.to_str().unwrap()).unwrap())
+                    .with_listing_options(ListingOptions::new(format))
+                    .infer_schema(&ctx.state())
+                    .await
+                    .unwrap();
+            ctx.register_table(
+                "malformed",
+                Arc::new(ListingTable::try_new(config).unwrap()),
+            )
+            .unwrap();
+            let error = ctx
+                .sql("SELECT geometry FROM malformed")
+                .await
+                .unwrap()
+                .collect()
+                .await
+                .unwrap_err()
+                .to_string();
+            assert!(
+                error.contains("GeoParquet column 'geometry' cannot decode"),
+                "{error}"
+            );
+        }
+    }
+
     fn write_malformed_geo_parquet(dir: &TempDir, geometry_types: &str) -> std::path::PathBuf {
         let path = dir.path().join("malformed.parquet");
         let schema = Arc::new(Schema::new(vec![Field::new(
