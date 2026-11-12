@@ -522,6 +522,24 @@ async fn extent_accepts_bare_null_scalars_and_arrays() {
     }
 }
 
+#[test]
+fn bounding_rect_is_publicly_nameable_and_usable() {
+    use geodatafusion::udf::native::bounding_box::util::{BoundingRect, total_bounds};
+
+    let mut builder = geoarrow_array::builder::PointBuilder::new(PointType::new(
+        Dimension::XY,
+        Default::default(),
+    ));
+    builder.push_point(Some(&wkt!(POINT(1.0 2.0))));
+    builder.push_point(Some(&wkt!(POINT(3.0 4.0))));
+    let points = builder.finish();
+    let bounds: BoundingRect = total_bounds(&points).unwrap();
+    assert_eq!(bounds.minx(), 1.0);
+    assert_eq!(bounds.miny(), 2.0);
+    assert_eq!(bounds.maxx(), 3.0);
+    assert_eq!(bounds.maxy(), 4.0);
+}
+
 #[tokio::test]
 async fn binary_null_geometry_signatures_propagate_null() {
     use datafusion::logical_expr::{Signature, TypeSignature};

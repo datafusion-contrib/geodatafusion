@@ -1,3 +1,8 @@
+__all__ = [
+    "IsValid",
+    "IsValidReason",
+]
+
 class IsValid:
     def __init__(self) -> None: ...
     def __datafusion_scalar_udf__(self) -> object: ...

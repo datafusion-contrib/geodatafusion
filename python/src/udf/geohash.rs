@@ -3,10 +3,20 @@ use pyo3::prelude::*;
 
 use crate::{impl_udf, impl_udf_coord_type_arg};
 
-impl_udf!(Box2DFromGeoHash, PyBox2DFromGeoHash, "Box2DFromGeoHash");
-impl_udf!(GeoHash, PyGeoHash, "GeoHash");
+impl_udf!(
+    Box2DFromGeoHash,
+    PyBox2DFromGeoHash,
+    "Box2DFromGeoHash",
+    "geodatafusion.geohash"
+);
+impl_udf!(GeoHash, PyGeoHash, "GeoHash", "geodatafusion.geohash");
 
-impl_udf_coord_type_arg!(PointFromGeoHash, PyPointFromGeoHash, "PointFromGeoHash");
+impl_udf_coord_type_arg!(
+    PointFromGeoHash,
+    PyPointFromGeoHash,
+    "PointFromGeoHash",
+    "geodatafusion.geohash"
+);
 
 #[pymodule]
 pub(crate) fn geohash(m: &Bound<PyModule>) -> PyResult<()> {

@@ -20,12 +20,14 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_IsEmpty` scalar UDF implementation: returns `true` if a geometry is topologically empty.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct IsEmpty;
+pub struct IsEmpty {
+    _private: (),
+}
 
 impl IsEmpty {
     /// Creates a new `ST_IsEmpty` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

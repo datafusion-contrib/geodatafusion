@@ -23,7 +23,6 @@ pub(crate) fn native(m: &Bound<PyModule>) -> PyResult<()> {
     m.add_class::<accessors::PyIsEmpty>()?;
     m.add_class::<accessors::PyM>()?;
     m.add_class::<accessors::PyGeometryType>()?;
-    m.add_class::<accessors::PyNDims>()?;
     m.add_class::<accessors::PyNPoints>()?;
     m.add_class::<accessors::PyNRings>()?;
     m.add_class::<accessors::PyNumGeometries>()?;
@@ -63,7 +62,6 @@ pub(crate) fn native(m: &Bound<PyModule>) -> PyResult<()> {
 
     // editors
     m.add_class::<editors::PyForce2D>()?;
-    m.add_class::<editors::PyForce3D>()?;
     m.add_class::<editors::PyForce3DZ>()?;
     m.add_class::<editors::PyForce3DM>()?;
     m.add_class::<editors::PyForce4D>()?;
