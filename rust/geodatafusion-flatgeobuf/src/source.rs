@@ -216,8 +216,9 @@ impl FileOpener for FlatGeobufOpener {
 fn columnar_value_to_bbox(value: ColumnarValue, field: &Field) -> Result<Option<[f64; 4]>> {
     let arrays = ColumnarValue::values_to_arrays(&[value])?;
     if let Ok(geo_arr) = from_arrow_array(&arrays[0], field) {
-        let bounds =
-            total_bounds(&geo_arr).map_err(|err| DataFusionError::External(Box::new(err)))?;
+        let Ok(bounds) = total_bounds(&geo_arr) else {
+            return Ok(None);
+        };
         if !bounds.minx().is_finite()
             || !bounds.miny().is_finite()
             || !bounds.maxx().is_finite()
@@ -284,5 +285,8 @@ fn is_indexed_geometry_column(expr: &Arc<dyn PhysicalExpr>, table_schema: &Table
     let Some(field) = table_schema.file_schema().fields().get(column.index()) else {
         return false;
     };
-    field.name() == column.name() && GeoArrowType::from_arrow_field(field).is_ok()
+    // Property strings can be interpreted as WKT by UDFs, but have no R-tree index.
+    field.name() == column.name()
+        && field.extension_type_name().is_some()
+        && GeoArrowType::from_arrow_field(field).is_ok()
 }

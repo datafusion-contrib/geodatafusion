@@ -260,6 +260,14 @@ mod tests {
         assert_eq!(dynamic_source.bbox(), None);
         let dynamic_ids = collect_ids(&ctx, dynamic_plan).await;
         assert_eq!(dynamic_ids, vec![1]);
+
+        let property_df = ctx
+            .sql("SELECT id FROM lines WHERE ST_Intersects(wkt_property, ST_Point(0, 0)) ORDER BY id")
+            .await
+            .unwrap();
+        let property_plan = property_df.create_physical_plan().await.unwrap();
+        assert_eq!(find_flatgeobuf_source(&property_plan).unwrap().bbox(), None);
+        assert_eq!(collect_ids(&ctx, property_plan).await, vec![1, 2, 3]);
     }
 
     #[test]
@@ -279,7 +287,8 @@ mod tests {
             udf,
             vec![
                 Arc::new(Column::new("id", 0)) as Arc<dyn PhysicalExpr>,
-                Arc::new(Literal::new(ScalarValue::Null)) as Arc<dyn PhysicalExpr>,
+                Arc::new(Literal::new(ScalarValue::Utf8(Some("POINT(0 0)".into()))))
+                    as Arc<dyn PhysicalExpr>,
             ],
             Arc::new(Field::new("", DataType::Boolean, true)),
             Arc::new(Default::default()),
@@ -333,6 +342,7 @@ mod tests {
         let fields = vec![
             Arc::new(Field::new("id", DataType::Int32, true)),
             Arc::new(geometry.data_type().to_field("geometry", true)),
+            Arc::new(Field::new("wkt_property", DataType::Utf8, false)),
         ];
         let schema = Arc::new(Schema::new(fields));
         let batch = RecordBatch::try_new(
@@ -340,6 +350,7 @@ mod tests {
             vec![
                 Arc::new(Int32Array::from(vec![1, 2, 3])) as _,
                 geometry.into_array_ref(),
+                Arc::new(StringArray::from(vec!["POINT(0 0)"; 3])) as _,
             ],
         )
         .unwrap();
