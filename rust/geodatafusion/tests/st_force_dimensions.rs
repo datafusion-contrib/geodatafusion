@@ -21,7 +21,7 @@ use geoarrow_schema::{
     CoordType, Crs, Dimension, GeometryCollectionType, GeometryType, Metadata, MultiPointType,
     MultiPolygonType, PointType, PolygonType,
 };
-use geodatafusion::udf::native::editors::{Force2D, Force3D, Force3DM, Force3DZ, Force4D};
+use geodatafusion::udf::native::editors::{Force2D, Force3DM, Force3DZ, Force4D};
 use geodatafusion::udf::native::io::{AsText, GeomFromText};
 use wkt::types::{
     Coord, Dimension as WktDimension, MultiPoint as WktMultiPoint, Point as WktPoint,
@@ -62,7 +62,7 @@ fn typed_points_preserve_crs_coord_type_and_apply_dimension_rules() {
         for (udf_z, scalar_args, expected_z) in [
             (&Force3DZ::new(coord_type), vec![], expected_z_default),
             (
-                &Force3D::new(coord_type),
+                &Force3DZ::new(coord_type),
                 vec![ScalarValue::Float64(Some(9.0))],
                 expected_z_custom,
             ),

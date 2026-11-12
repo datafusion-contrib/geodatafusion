@@ -19,12 +19,14 @@ use crate::udf::native::io::geometry::is_polyhedral_surface_row;
 
 /// `ST_IsCollection` scalar UDF implementation: returns `true` if a geometry is a collection type (`Multi*` or `GeometryCollection`).
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct IsCollection;
+pub struct IsCollection {
+    _private: (),
+}
 
 impl IsCollection {
     /// Creates a new `ST_IsCollection` UDF instance.
     pub fn new() -> Self {
-        Self
+        Self { _private: () }
     }
 }
 

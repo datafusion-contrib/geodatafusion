@@ -17,12 +17,14 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_IsClosed` scalar UDF implementation: tests whether a geometry's start and end points are coincident.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct IsClosed;
+pub struct IsClosed {
+    _private: (),
+}
 
 impl IsClosed {
     /// Creates a new `ST_IsClosed` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

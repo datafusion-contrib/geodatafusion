@@ -39,9 +39,6 @@ use crate::udf::native::io::geometry::{
     is_polyhedral_surface_field, is_polyhedral_surface_row, with_polyhedral_surface_metadata,
 };
 
-/// Alias for [`Force3DZ`], matching PostGIS `ST_Force3D`.
-pub type Force3D = Force3DZ;
-
 static FORCE_2D_SIGNATURE: LazyLock<Signature> = LazyLock::new(|| optional_numeric_signature(0));
 static FORCE_3D_SIGNATURE: LazyLock<Signature> = LazyLock::new(|| optional_numeric_signature(1));
 static FORCE_4D_SIGNATURE: LazyLock<Signature> = LazyLock::new(|| optional_numeric_signature(2));

@@ -20,12 +20,14 @@ use crate::udf::native::bounding_box::util::bounds::total_bounds;
 
 /// `ST_Extent` aggregate UDF implementation: computes the 2D `box2d` bounding box enclosing a set of geometries.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct Extent;
+pub struct Extent {
+    _private: (),
+}
 
 impl Extent {
     /// Creates a new `ST_Extent` aggregate UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

@@ -18,12 +18,14 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_NPoints` (`ST_NumPoints`) scalar UDF implementation: returns the number of points (vertices) in a geometry.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct NPoints;
+pub struct NPoints {
+    _private: (),
+}
 
 impl NPoints {
     /// Creates a new `ST_NPoints` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

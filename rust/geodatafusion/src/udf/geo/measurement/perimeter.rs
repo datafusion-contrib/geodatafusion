@@ -19,12 +19,14 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_Perimeter` (`ST_Perimeter2D`) scalar UDF implementation: returns the 2D Cartesian perimeter of polygonal geometries.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct Perimeter;
+pub struct Perimeter {
+    _private: (),
+}
 
 impl Perimeter {
     /// Creates a new `ST_Perimeter` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

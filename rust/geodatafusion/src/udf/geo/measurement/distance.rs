@@ -12,12 +12,14 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_Distance` scalar UDF implementation: returns the 2D Cartesian minimum distance between two geometries.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct Distance;
+pub struct Distance {
+    _private: (),
+}
 
 impl Distance {
     /// Creates a new `ST_Distance` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

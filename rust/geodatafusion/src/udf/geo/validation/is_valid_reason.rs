@@ -13,12 +13,14 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_IsValidReason` scalar UDF implementation: returns `'Valid Geometry'` or a text description of why a geometry is invalid.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct IsValidReason;
+pub struct IsValidReason {
+    _private: (),
+}
 
 impl IsValidReason {
     /// Creates a new `ST_IsValidReason` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

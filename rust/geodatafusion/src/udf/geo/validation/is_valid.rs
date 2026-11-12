@@ -13,12 +13,14 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_IsValid` scalar UDF implementation: tests whether a geometry is well-formed and valid in 2D.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct IsValid;
+pub struct IsValid {
+    _private: (),
+}
 
 impl IsValid {
     /// Creates a new `ST_IsValid` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

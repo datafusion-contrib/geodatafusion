@@ -7,6 +7,7 @@ use geodatafusion::CoordType;
 const IMPLEMENTED: &str = "\u{2705}";
 
 #[tokio::test]
+#[allow(clippy::type_complexity)]
 async fn group_registration_applies_coordinate_layout() {
     use geoarrow_array::array::from_arrow_array;
     use geoarrow_schema::GeoArrowType;

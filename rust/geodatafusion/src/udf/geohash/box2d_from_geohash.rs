@@ -18,12 +18,14 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_Box2dFromGeoHash` scalar UDF implementation: decodes a GeoHash string into a 2D bounding box (`BOX2D`).
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct Box2DFromGeoHash;
+pub struct Box2DFromGeoHash {
+    _private: (),
+}
 
 impl Box2DFromGeoHash {
     /// Creates a new `ST_Box2dFromGeoHash` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 
@@ -123,7 +125,7 @@ mod tests {
     #[tokio::test]
     async fn test_box2d_from_geohash() {
         let ctx = SessionContext::new();
-        ctx.register_udf(Box2DFromGeoHash.into());
+        ctx.register_udf(Box2DFromGeoHash::default().into());
 
         let df = ctx
             .sql("SELECT ST_Box2dFromGeoHash('ww8p1r4t8');")

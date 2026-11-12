@@ -215,7 +215,7 @@ async fn typed_polygon_raw_arrow_handles_index_arrays_extremes_slices_layouts_an
 
             let ctx = SessionContext::new();
             ctx.register_udf(InteriorRingN::new(coord_type).into());
-            ctx.register_udf(AsText.into());
+            ctx.register_udf(AsText::default().into());
             ctx.register_batch("typed_polygons", input).unwrap();
 
             let batch = collect_one(
@@ -350,7 +350,7 @@ async fn generic_mixed_geometry_raw_arrow_uses_array_indices_and_returns_polygon
 
         let ctx = SessionContext::new();
         ctx.register_udf(InteriorRingN::new(coord_type).into());
-        ctx.register_udf(AsText.into());
+        ctx.register_udf(AsText::default().into());
         ctx.register_batch("mixed_geometries", input).unwrap();
 
         let batch = collect_one(
