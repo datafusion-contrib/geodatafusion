@@ -21,7 +21,7 @@ use geoarrow_schema::{CoordType, Dimension, GeoArrowType, GeometryType, LineStri
 use crate::error::GeoDataFusionResult;
 
 /// `ST_InteriorRingN` scalar UDF implementation: returns the 1-based Nth interior ring (hole) of a `Polygon` as a `LineString`.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct InteriorRingN {
     coord_type: CoordType,
 }

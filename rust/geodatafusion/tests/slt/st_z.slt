@@ -2,3 +2,13 @@ query R
 SELECT ST_Z(ST_PointZ(1, 2, 3));
 ----
 3.0
+
+query R
+SELECT ST_Z(ST_GeomFromText('POINT M(1 2 3)'));
+----
+NULL
+
+query R
+SELECT ST_Z(NULL);
+----
+NULL

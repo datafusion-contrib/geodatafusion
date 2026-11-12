@@ -18,7 +18,7 @@ use crate::error::GeoDataFusionResult;
 use crate::udf::native::io::geometry::is_polyhedral_surface_row;
 
 /// `ST_IsCollection` scalar UDF implementation: returns `true` if a geometry is a collection type (`Multi*` or `GeometryCollection`).
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct IsCollection;
 
 impl IsCollection {

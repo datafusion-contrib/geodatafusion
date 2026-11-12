@@ -17,7 +17,7 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_NPoints` (`ST_NumPoints`) scalar UDF implementation: returns the number of points (vertices) in a geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct NPoints;
 
 impl NPoints {
@@ -54,6 +54,9 @@ impl ScalarUDFImpl for NPoints {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(coord_dim_impl(args)?)
     }
 

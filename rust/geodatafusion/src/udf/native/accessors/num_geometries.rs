@@ -24,7 +24,7 @@ use crate::udf::native::accessors::is_empty::is_geometry_topologically_empty;
 use crate::udf::native::io::geometry::{is_polyhedral_surface_row, nested_collection_top_len};
 
 /// `ST_NumGeometries` scalar UDF implementation: returns the number of component geometries in a collection (or `1` for non-empty atomic geometries).
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct NumGeometries;
 
 impl NumGeometries {

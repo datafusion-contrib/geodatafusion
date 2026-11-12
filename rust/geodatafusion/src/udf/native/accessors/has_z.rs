@@ -17,7 +17,7 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_HasZ` scalar UDF implementation: returns `true` if a geometry has a Z coordinate dimension.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct HasZ;
 
 impl HasZ {

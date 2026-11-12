@@ -16,7 +16,7 @@ use crate::data_types::any_geometry_type;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_Dimension` scalar UDF implementation: returns the inherent topological dimension (`0`, `1`, or `2`) of a geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Dimension;
 
 impl Dimension {

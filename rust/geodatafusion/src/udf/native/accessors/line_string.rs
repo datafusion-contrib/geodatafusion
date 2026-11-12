@@ -22,7 +22,7 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_StartPoint` scalar UDF implementation: returns the first point of a `LineString` geometry as a `Point`.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct StartPoint {
     coord_type: CoordType,
 }
@@ -73,7 +73,7 @@ impl ScalarUDFImpl for StartPoint {
 }
 
 /// `ST_EndPoint` scalar UDF implementation: returns the last point of a `LineString` geometry as a `Point`.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct EndPoint {
     coord_type: CoordType,
 }
@@ -124,7 +124,7 @@ impl ScalarUDFImpl for EndPoint {
 }
 
 /// `ST_PointN` scalar UDF implementation: returns the Nth point in the first `LineString` of a geometry (1-based; negative indices count backward from the end).
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct PointN {
     coord_type: CoordType,
 }

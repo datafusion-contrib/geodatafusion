@@ -19,7 +19,7 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_IsEmpty` scalar UDF implementation: returns `true` if a geometry is topologically empty.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct IsEmpty;
 
 impl IsEmpty {
@@ -51,6 +51,9 @@ impl ScalarUDFImpl for IsEmpty {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(is_empty_impl(args)?)
     }
 

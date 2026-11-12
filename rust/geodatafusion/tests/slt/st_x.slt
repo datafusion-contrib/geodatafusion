@@ -14,3 +14,13 @@ query R
 SELECT ST_X(ST_Point(CAST(NULL AS DOUBLE), 0));
 ----
 NULL
+
+query R
+SELECT ST_X(ST_GeomFromWKB(ST_AsBinary(ST_GeomFromText('POINT(3 4)'))));
+----
+3.0
+
+query R
+SELECT ST_X(NULL);
+----
+NULL

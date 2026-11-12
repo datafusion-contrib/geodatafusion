@@ -7,3 +7,18 @@ query I
 SELECT ST_CoordDim(ST_GeomFromText('POINT Z(1 2 3)'));
 ----
 3
+
+query B
+SELECT ST_CoordDim(ST_Point(CAST(NULL AS DOUBLE), CAST(NULL AS DOUBLE))) IS NULL;
+----
+true
+
+query B
+SELECT ST_CoordDim(NULL) IS NULL;
+----
+true
+
+query I
+SELECT ST_CoordDim(ST_GeomFromText('POINT EMPTY'));
+----
+2

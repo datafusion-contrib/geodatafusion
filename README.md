@@ -110,7 +110,7 @@ Below are the spatial SQL functions currently registered by `geodatafusion::regi
 | --- | --- | --- |
 | `ST_LineFromMultiPoint` | `native` | Creates a LineString from a MultiPoint geometry. |
 | `ST_MakeEnvelope` | `native` | Creates a rectangular Polygon from minimum and maximum coordinates and optional SRID. |
-| `ST_MakeLine` | `native` | Creates a LineString from two Point/LineString geometries or a `List` of Point/MultiPoint/LineString geometries. |
+| `ST_MakeLine` | `native` | Creates a LineString from two Point/LineString geometries. |
 | `ST_MakePoint` | `native` | Creates a 2D XY, 3D XYZ, or 4D XYZM Point geometry. |
 | `ST_MakePointM` | `native` | Creates a Point with X, Y, and M (measure) coordinates. |
 | `ST_Point` | `native` | Creates a 2D Point with X, Y, and optional SRID values. |
@@ -179,8 +179,8 @@ Below are the spatial SQL functions currently registered by `geodatafusion::regi
 | `ST_WKBToSQL` | `native` | Alias for `ST_GeomFromWKB`. |
 | `ST_AsText` | `native` | Returns the OGC Well-Known Text (WKT) representation of a geometry. |
 | `ST_AsBinary` | `native` | Returns the OGC Well-Known Binary (WKB) representation of a geometry. |
-| `ST_Box2dFromGeoHash` | `geohash` | Returns a `BOX2D` from a GeoHash string (with optional precision). |
-| `ST_PointFromGeoHash` | `geohash` | Returns the center `Point` of a GeoHash string (with optional precision). |
+| `ST_Box2dFromGeoHash` | `geohash` | Returns a `BOX2D` from a GeoHash string. |
+| `ST_PointFromGeoHash` | `geohash` | Returns the center `Point` of a GeoHash string. |
 | `ST_GeoHash` | `geohash` | Returns the GeoHash string representation of a geometry's bounding center. |
 
 ### Spatial Relationships
@@ -221,7 +221,7 @@ Below are the spatial SQL functions currently registered by `geodatafusion::regi
 | `ST_OrientedEnvelope` | `geo` | Returns a minimum-area rotated rectangle enclosing a geometry. |
 | `ST_PointOnSurface` | `geo` | Computes a point guaranteed to lie on the surface of a geometry. |
 | `ST_Simplify` | `geo` | Simplifies a geometry using the Douglas-Peucker algorithm. |
-| `ST_SimplifyPreserveTopology` | `geo` | Simplifies a geometry using the topology-preserving Douglas-Peucker algorithm. |
+| `ST_SimplifyPreserveTopology` | `geo` | Simplifies a geometry using topology-preserving Visvalingam-Whyatt with an area threshold. |
 | `ST_SimplifyVW` | `geo` | Simplifies a geometry using the Visvalingam-Whyatt algorithm. |
 
 `ST_ConcaveHull` accepts the PostGIS signature and maps `pctconvex` monotonically to the `geo`

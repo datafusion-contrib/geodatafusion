@@ -39,3 +39,18 @@ FROM (VALUES (1.0, 2.0, 4326)) AS points(x, y, srid);
 
 statement error
 SELECT ST_Point('not-a-number', 0);
+
+query T
+SELECT ST_AsText(ST_Point(CAST(1 AS DOUBLE), CAST(NULL AS DOUBLE)));
+----
+NULL
+
+query T
+SELECT ST_AsText(ST_MakePoint(CAST(1 AS DOUBLE), CAST(NULL AS DOUBLE)));
+----
+NULL
+
+query T
+SELECT ST_AsText(ST_PointM(CAST(1 AS DOUBLE), CAST(2 AS DOUBLE), CAST(NULL AS DOUBLE)));
+----
+NULL

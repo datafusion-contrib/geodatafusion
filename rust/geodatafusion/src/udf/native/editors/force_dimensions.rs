@@ -8,7 +8,7 @@ use datafusion::error::{DataFusionError, Result};
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
 use datafusion::logical_expr::{
     ColumnarValue, Documentation, ReturnFieldArgs, ScalarFunctionArgs, ScalarUDFImpl, Signature,
-    TypeSignature, Volatility,
+    Volatility,
 };
 use datafusion::scalar::ScalarValue;
 use geo_traits::{
@@ -32,7 +32,7 @@ use wkt::types::{
     MultiPolygon, Point, Polygon,
 };
 
-use crate::data_types::any_geometry_type;
+use crate::data_types::{any_geometry_type, any_single_geometry_type_input};
 use crate::error::GeoDataFusionResult;
 use crate::udf::native::io::geometry::{
     GeometryArrayBuilder, GeometryCollectionArrayBuilder, decoded_row_geometry_collection,
@@ -42,32 +42,44 @@ use crate::udf::native::io::geometry::{
 /// Alias for [`Force3DZ`], matching PostGIS `ST_Force3D`.
 pub type Force3D = Force3DZ;
 
-static FORCE_2D_SIGNATURE: LazyLock<Signature> = LazyLock::new(|| optional_numeric_signature(0));
-static FORCE_3D_SIGNATURE: LazyLock<Signature> = LazyLock::new(|| optional_numeric_signature(1));
-static FORCE_4D_SIGNATURE: LazyLock<Signature> = LazyLock::new(|| optional_numeric_signature(2));
+static FORCE_NUMERIC_SIGNATURE: LazyLock<Signature> =
+    LazyLock::new(|| Signature::user_defined(Volatility::Immutable));
 
-/// Keeps a bare `NULL` geometry argument as `DataType::Null` while coercing optional
-/// numeric defaults (`zvalue` / `mvalue`) to `DataType::Float64`.
-fn optional_numeric_signature(max_extra_args: usize) -> Signature {
-    let geometries = any_geometry_type();
-    let mut signatures = Vec::with_capacity((geometries.len() + 1) * (max_extra_args + 1));
-    for extra_count in 0..=max_extra_args {
-        let mut argument_types = vec![DataType::Null];
-        argument_types.extend(std::iter::repeat_n(DataType::Float64, extra_count));
-        signatures.push(TypeSignature::Exact(argument_types));
+/// Preserve the geometry type while coercing only optional coordinate defaults.
+/// Generic overload coercion can otherwise change nested geometry types when a
+/// numeric default needs a cast, including across the Python FFI boundary.
+fn coerce_numeric_defaults(
+    function_name: &str,
+    arg_types: &[DataType],
+    max_defaults: usize,
+) -> Result<Vec<DataType>> {
+    if !(1..=max_defaults + 1).contains(&arg_types.len()) {
+        return Err(DataFusionError::Plan(format!(
+            "{function_name} expects 1 to {} arguments, got {}",
+            max_defaults + 1,
+            arg_types.len()
+        )));
     }
-    for geometry in geometries {
-        for extra_count in 0..=max_extra_args {
-            let mut argument_types = vec![geometry.clone()];
-            argument_types.extend(std::iter::repeat_n(DataType::Float64, extra_count));
-            signatures.push(TypeSignature::Exact(argument_types));
+    if !any_geometry_type().contains(&arg_types[0]) {
+        return Err(DataFusionError::Plan(format!(
+            "{function_name} does not support geometry type {}",
+            arg_types[0]
+        )));
+    }
+    let mut coerced = vec![arg_types[0].clone()];
+    for data_type in &arg_types[1..] {
+        if !data_type.is_numeric() && data_type != &DataType::Null {
+            return Err(DataFusionError::Plan(format!(
+                "{function_name} expects numeric coordinate defaults, got {data_type}"
+            )));
         }
+        coerced.push(DataType::Float64);
     }
-    Signature::one_of(signatures, Volatility::Immutable)
+    Ok(coerced)
 }
 
 /// `ST_Force2D` scalar UDF implementation: forces geometries into 2D (`XY`) coordinate mode.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Force2D {
     coord_type: CoordType,
 }
@@ -93,7 +105,7 @@ impl ScalarUDFImpl for Force2D {
     }
 
     fn signature(&self) -> &Signature {
-        &FORCE_2D_SIGNATURE
+        any_single_geometry_type_input()
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -128,7 +140,7 @@ impl ScalarUDFImpl for Force2D {
 }
 
 /// `ST_Force3DZ` (`ST_Force3D`) scalar UDF implementation: forces geometries into `XYZ` coordinate mode.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Force3DZ {
     coord_type: CoordType,
     aliases: Vec<String>,
@@ -162,7 +174,11 @@ impl ScalarUDFImpl for Force3DZ {
     }
 
     fn signature(&self) -> &Signature {
-        &FORCE_3D_SIGNATURE
+        &FORCE_NUMERIC_SIGNATURE
+    }
+
+    fn coerce_types(&self, arg_types: &[DataType]) -> Result<Vec<DataType>> {
+        coerce_numeric_defaults(self.name(), arg_types, 1)
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -187,7 +203,7 @@ impl ScalarUDFImpl for Force3DZ {
         Some(FORCE_3DZ_DOC.get_or_init(|| {
             Documentation::builder(
                 DOC_SECTION_OTHER,
-                "Force the geometries into XYZ mode. This is an alias for ST_Force3D.",
+                "Force the geometries into XYZ mode. Also available as ST_Force3D.",
                 "ST_Force3DZ(geometry, zvalue = 0.0)",
             )
             .with_argument("geomA", "geometry")
@@ -198,7 +214,7 @@ impl ScalarUDFImpl for Force3DZ {
 }
 
 /// `ST_Force3DM` scalar UDF implementation: forces geometries into `XYM` coordinate mode.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Force3DM {
     coord_type: CoordType,
 }
@@ -224,7 +240,11 @@ impl ScalarUDFImpl for Force3DM {
     }
 
     fn signature(&self) -> &Signature {
-        &FORCE_3D_SIGNATURE
+        &FORCE_NUMERIC_SIGNATURE
+    }
+
+    fn coerce_types(&self, arg_types: &[DataType]) -> Result<Vec<DataType>> {
+        coerce_numeric_defaults(self.name(), arg_types, 1)
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -260,7 +280,7 @@ impl ScalarUDFImpl for Force3DM {
 }
 
 /// `ST_Force4D` scalar UDF implementation: forces geometries into `XYZM` coordinate mode.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Force4D {
     coord_type: CoordType,
 }
@@ -286,7 +306,11 @@ impl ScalarUDFImpl for Force4D {
     }
 
     fn signature(&self) -> &Signature {
-        &FORCE_4D_SIGNATURE
+        &FORCE_NUMERIC_SIGNATURE
+    }
+
+    fn coerce_types(&self, arg_types: &[DataType]) -> Result<Vec<DataType>> {
+        coerce_numeric_defaults(self.name(), arg_types, 2)
     }
 
     fn return_type(&self, _arg_types: &[DataType]) -> Result<DataType> {
@@ -453,16 +477,56 @@ fn force_dimension_impl(
     let geo_array_ref = geo_array.as_ref();
     let input_field = args.arg_fields[0].as_ref();
 
-    let result = downcast_geoarrow_array!(
+    let result = force_array_to_dimension_with_defaults(
         geo_array_ref,
-        force_array_impl,
         input_field,
         out_type,
         target_dim,
         &z_defaults,
-        &m_defaults
+        &m_defaults,
     )?;
     Ok(result.into_array_ref().into())
+}
+
+fn force_array_to_dimension_with_defaults(
+    geo_array: &dyn GeoArrowArray,
+    input_field: &arrow_schema::Field,
+    out_type: GeoArrowType,
+    target_dim: Dimension,
+    z_defaults: &FloatDefaultColumn,
+    m_defaults: &FloatDefaultColumn,
+) -> GeoDataFusionResult<Arc<dyn GeoArrowArray>> {
+    downcast_geoarrow_array!(
+        geo_array,
+        force_array_impl,
+        input_field,
+        out_type,
+        target_dim,
+        z_defaults,
+        m_defaults
+    )
+}
+
+/// Force an array to the requested dimension and coordinate layout.
+///
+/// This is the array-level entry point shared by the dimension editor UDFs. `z_default` and
+/// `m_default` are only used when the target dimension adds a coordinate.
+pub(crate) fn force_array_to_dimension(
+    geo_array: &dyn GeoArrowArray,
+    input_field: &arrow_schema::Field,
+    out_type: GeoArrowType,
+    target_dim: Dimension,
+    z_default: f64,
+    m_default: f64,
+) -> GeoDataFusionResult<Arc<dyn GeoArrowArray>> {
+    force_array_to_dimension_with_defaults(
+        geo_array,
+        input_field,
+        out_type,
+        target_dim,
+        &FloatDefaultColumn::Scalar(Some(z_default)),
+        &FloatDefaultColumn::Scalar(Some(m_default)),
+    )
 }
 
 fn force_array_impl<'a>(

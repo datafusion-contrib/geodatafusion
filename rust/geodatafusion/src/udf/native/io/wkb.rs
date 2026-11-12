@@ -24,7 +24,7 @@ use crate::udf::native::io::geometry::{
 };
 
 /// `ST_AsBinary` scalar UDF implementation: converts a geometry into OGC Well-Known Binary (WKB).
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct AsBinary;
 
 impl AsBinary {
@@ -69,6 +69,9 @@ impl ScalarUDFImpl for AsBinary {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         let array = &ColumnarValue::values_to_arrays(&args.args)?[0];
         let field = &args.arg_fields[0];
         let geo_array = from_arrow_array(&array, field).map_err(GeoDataFusionError::GeoArrow)?;
@@ -91,7 +94,7 @@ impl ScalarUDFImpl for AsBinary {
 }
 
 /// `ST_GeomFromWKB` (`ST_WKBToSQL`) scalar UDF implementation: parses an OGC Well-Known Binary (WKB) value into a geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct GeomFromWKB {
     signature: Signature,
     coord_type: CoordType,
@@ -117,6 +120,9 @@ impl GeomFromWKB {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         let array = &ColumnarValue::values_to_arrays(&args.args)?[0];
         let field = &args.arg_fields[0];
         let to_type = GeoArrowType::from_arrow_field(args.return_field.as_ref())?;
@@ -231,6 +237,9 @@ impl ScalarUDFImpl for GeomFromWKB {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(self.invoke_with_args(args)?)
     }
 

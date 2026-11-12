@@ -22,7 +22,7 @@ introduce new holes for point-only inputs.
 | ST_Collect            |             | Creates a GeometryCollection or Multi\* geometry from a set of geometries.                                                 |
 | ST_LineFromMultiPoint | ✅          | Creates a LineString from a MultiPoint geometry.                                                                           |
 | ST_MakeEnvelope       | ✅          | Creates a rectangular Polygon from minimum and maximum coordinates.                                                        |
-| ST_MakeLine           | ✅          | Creates a LineString from Point, MultiPoint, or LineString geometries.                                                     |
+| ST_MakeLine           | ✅          | Creates a LineString from two Point or LineString geometries.                                                              |
 | ST_MakePoint          | ✅          | Creates a 2D, 3DZ or 4D Point.                                                                                             |
 | ST_MakePointM         | ✅          | Creates a Point from X, Y and M values.                                                                                    |
 | ST_MakePolygon        |             | Creates a Polygon from a shell and optional list of holes.                                                                 |
@@ -309,7 +309,7 @@ introduce new holes for point-only inputs.
 | ST_ReducePrecision          |             | Returns a valid geometry with points rounded to a grid tolerance.                                 |
 | ST_SharedPaths              |             | Returns a collection containing paths shared by the two input linestrings/multilinestrings.       |
 | ST_Simplify                 | ✅          | Returns a simplified representation of a geometry, using the Douglas-Peucker algorithm.           |
-| ST_SimplifyPreserveTopology | ✅          | Returns a simplified and valid representation of a geometry, using the Douglas-Peucker algorithm. |
+| ST_SimplifyPreserveTopology | ✅          | Returns a topology-preserving simplified representation, using Visvalingam-Whyatt with an area threshold. |
 | ST_SimplifyPolygonHull      |             | Computes a simplifed topology-preserving outer or inner hull of a polygonal geometry.             |
 | ST_SimplifyVW               | ✅          | Returns a simplified representation of a geometry, using the Visvalingam-Whyatt algorithm         |
 | ST_SetEffectiveArea         |             | Sets the effective area for each vertex, using the Visvalingam-Whyatt algorithm.                  |

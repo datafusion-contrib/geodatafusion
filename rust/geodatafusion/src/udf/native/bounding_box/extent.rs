@@ -19,7 +19,7 @@ use crate::error::{GeoDataFusionError, GeoDataFusionResult};
 use crate::udf::native::bounding_box::util::bounds::total_bounds;
 
 /// `ST_Extent` aggregate UDF implementation: computes the 2D `box2d` bounding box enclosing a set of geometries.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Extent;
 
 impl Extent {
@@ -161,6 +161,9 @@ impl Accumulator for ExtentAccumulator {
         let value = values.first().ok_or_else(|| {
             DataFusionError::Internal("ST_Extent received no input batch".to_string())
         })?;
+        if self.field.data_type() == &DataType::Null {
+            return Ok(());
+        }
         let geo_arr = from_arrow_array(value, &self.field).map_err(GeoDataFusionError::GeoArrow)?;
         let bounds = total_bounds(&geo_arr).map_err(GeoDataFusionError::GeoArrow)?;
         let bounds = [bounds.minx(), bounds.miny(), bounds.maxx(), bounds.maxy()];

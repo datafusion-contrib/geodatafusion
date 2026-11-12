@@ -18,7 +18,7 @@ use crate::error::GeoDataFusionResult;
 use crate::udf::native::io::geometry::is_polyhedral_surface_row;
 
 /// `GeometryType` scalar UDF implementation: returns the uppercase geometry type string (with `M` suffix when an M dimension is present).
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct GeometryType;
 
 impl GeometryType {
@@ -50,6 +50,9 @@ impl ScalarUDFImpl for GeometryType {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(geometry_type_impl(args)?)
     }
 
@@ -67,7 +70,7 @@ impl ScalarUDFImpl for GeometryType {
 }
 
 /// `ST_GeometryType` scalar UDF implementation: returns the SQL-MM geometry type string (e.g., `'ST_Point'`, `'ST_LineString'`).
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 #[allow(non_camel_case_types)]
 pub struct ST_GeometryType;
 
@@ -100,6 +103,9 @@ impl ScalarUDFImpl for ST_GeometryType {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(geometry_type_impl_st(args)?)
     }
 

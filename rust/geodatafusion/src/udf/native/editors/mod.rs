@@ -2,6 +2,7 @@
 
 mod force_dimensions;
 
+pub(crate) use force_dimensions::force_array_to_dimension;
 pub use force_dimensions::{Force2D, Force3D, Force3DM, Force3DZ, Force4D};
 
 /// Register all provided [datafusion::logical_expr::ScalarUDF] for geometry editors

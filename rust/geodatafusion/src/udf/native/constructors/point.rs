@@ -5,6 +5,7 @@ use std::sync::{Arc, OnceLock};
 use arrow_array::cast::AsArray;
 use arrow_array::types::{Float64Type, Int64Type};
 use arrow_array::{Array, ArrayRef, new_null_array};
+use arrow_buffer::NullBuffer;
 use arrow_schema::{DataType, Field};
 use datafusion::error::{DataFusionError, Result};
 use datafusion::logical_expr::scalar_doc_sections::DOC_SECTION_OTHER;
@@ -21,7 +22,7 @@ use geoarrow_schema::{CoordType, Crs, Dimension, Metadata, PointType};
 use crate::error::GeoDataFusionResult;
 
 /// `ST_Point` scalar UDF implementation: creates a 2D `Point` with X, Y, and optional SRID values.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Point {
     signature: Signature,
     coord_type: CoordType,
@@ -71,8 +72,11 @@ impl ScalarUDFImpl for Point {
     fn return_field_from_args(&self, args: ReturnFieldArgs) -> Result<Arc<Field>> {
         let typ =
             PointType::new(Dimension::XY, Default::default()).with_coord_type(self.coord_type);
-        let typ =
-            point_type_with_srid(typ, args.scalar_arguments.get(2).map(|srid| srid.cloned()))?;
+        let typ = point_type_with_srid(
+            typ,
+            args.scalar_arguments.get(2).map(|srid| srid.cloned()),
+            "ST_Point",
+        )?;
 
         Ok(typ.to_field("", true).into())
     }
@@ -100,7 +104,7 @@ impl ScalarUDFImpl for Point {
 }
 
 /// `ST_PointZ` scalar UDF implementation: creates a 3D `Point` with X, Y, Z, and optional SRID values.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct PointZ {
     signature: Signature,
     coord_type: CoordType,
@@ -155,8 +159,11 @@ impl ScalarUDFImpl for PointZ {
     fn return_field_from_args(&self, args: ReturnFieldArgs) -> Result<Arc<Field>> {
         let typ =
             PointType::new(Dimension::XYZ, Default::default()).with_coord_type(self.coord_type);
-        let typ =
-            point_type_with_srid(typ, args.scalar_arguments.get(3).map(|srid| srid.cloned()))?;
+        let typ = point_type_with_srid(
+            typ,
+            args.scalar_arguments.get(3).map(|srid| srid.cloned()),
+            "ST_PointZ",
+        )?;
 
         Ok(typ.to_field("", true).into())
     }
@@ -185,7 +192,7 @@ impl ScalarUDFImpl for PointZ {
 }
 
 /// `ST_PointM` scalar UDF implementation: creates a `Point` with X, Y, M, and optional SRID values.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct PointM {
     signature: Signature,
     coord_type: CoordType,
@@ -240,8 +247,11 @@ impl ScalarUDFImpl for PointM {
     fn return_field_from_args(&self, args: ReturnFieldArgs) -> Result<Arc<Field>> {
         let typ =
             PointType::new(Dimension::XYM, Default::default()).with_coord_type(self.coord_type);
-        let typ =
-            point_type_with_srid(typ, args.scalar_arguments.get(3).map(|srid| srid.cloned()))?;
+        let typ = point_type_with_srid(
+            typ,
+            args.scalar_arguments.get(3).map(|srid| srid.cloned()),
+            "ST_PointM",
+        )?;
 
         Ok(typ.to_field("", true).into())
     }
@@ -270,7 +280,7 @@ impl ScalarUDFImpl for PointM {
 }
 
 /// `ST_PointZM` scalar UDF implementation: creates a 4D `Point` with X, Y, Z, M, and optional SRID values.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct PointZM {
     signature: Signature,
     coord_type: CoordType,
@@ -327,8 +337,11 @@ impl ScalarUDFImpl for PointZM {
     fn return_field_from_args(&self, args: ReturnFieldArgs) -> Result<Arc<Field>> {
         let typ =
             PointType::new(Dimension::XYZM, Default::default()).with_coord_type(self.coord_type);
-        let typ =
-            point_type_with_srid(typ, args.scalar_arguments.get(4).map(|srid| srid.cloned()))?;
+        let typ = point_type_with_srid(
+            typ,
+            args.scalar_arguments.get(4).map(|srid| srid.cloned()),
+            "ST_PointZM",
+        )?;
 
         Ok(typ.to_field("", true).into())
     }
@@ -357,7 +370,7 @@ impl ScalarUDFImpl for PointZM {
     }
 }
 /// `ST_MakePoint` scalar UDF implementation: creates a 2D (`XY`), 3D (`XYZ`), or 4D (`XYZM`) `Point` geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct MakePoint {
     signature: Signature,
     coord_type: CoordType,
@@ -448,7 +461,7 @@ impl ScalarUDFImpl for MakePoint {
 }
 
 /// `ST_MakePointM` scalar UDF implementation: creates a `Point` geometry with X, Y, and M (measure) coordinates.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct MakePointM {
     signature: Signature,
     coord_type: CoordType,
@@ -521,6 +534,7 @@ impl ScalarUDFImpl for MakePointM {
 fn point_type_with_srid(
     mut typ: PointType,
     srid: Option<Option<ScalarValue>>,
+    function_name: &str,
 ) -> Result<PointType> {
     match srid {
         None | Some(None) | Some(Some(ScalarValue::Int64(None))) => {}
@@ -528,7 +542,7 @@ fn point_type_with_srid(
             let crs = Crs::from_authority_code(format!("EPSG:{srid}"));
             typ = typ.with_metadata(Arc::new(Metadata::new(crs, None)));
         }
-        _ => return Err(invalid_srid_error()),
+        _ => return Err(invalid_srid_error(function_name)),
     }
     Ok(typ)
 }
@@ -537,7 +551,11 @@ fn create_point_array_from_args(
     args: &ScalarFunctionArgs,
     coord_count: usize,
 ) -> Result<PointArray> {
-    if srid_is_null(args, coord_count)? {
+    if srid_is_null(
+        args,
+        coord_count,
+        function_name_from_dimension(args.return_field.extension_type::<PointType>().dimension()),
+    )? {
         return Ok(create_null_point_array(
             &args.return_field,
             args.number_rows,
@@ -548,7 +566,16 @@ fn create_point_array_from_args(
     Ok(create_point_array(arrays, &args.return_field)?)
 }
 
-fn srid_is_null(args: &ScalarFunctionArgs, srid_index: usize) -> Result<bool> {
+fn function_name_from_dimension(dimension: Dimension) -> &'static str {
+    match dimension {
+        Dimension::XY => "ST_Point",
+        Dimension::XYZ => "ST_PointZ",
+        Dimension::XYM => "ST_PointM",
+        Dimension::XYZM => "ST_PointZM",
+    }
+}
+
+fn srid_is_null(args: &ScalarFunctionArgs, srid_index: usize, function_name: &str) -> Result<bool> {
     match args.args.get(srid_index) {
         None | Some(ColumnarValue::Scalar(ScalarValue::Int64(Some(_)))) => Ok(false),
         Some(ColumnarValue::Scalar(ScalarValue::Int64(None))) => Ok(true),
@@ -556,7 +583,7 @@ fn srid_is_null(args: &ScalarFunctionArgs, srid_index: usize) -> Result<bool> {
             // FFI materializes scalar arguments as arrays. Null arrays represent a
             // scalar NULL; non-null arrays must be uniform and match the field CRS.
             if array.data_type() != &DataType::Int64 {
-                return Err(invalid_srid_error());
+                return Err(invalid_srid_error(function_name));
             }
 
             let srid = array.as_primitive::<Int64Type>();
@@ -564,14 +591,14 @@ fn srid_is_null(args: &ScalarFunctionArgs, srid_index: usize) -> Result<bool> {
                 return Ok(true);
             }
             if srid.null_count() != 0 {
-                return Err(invalid_srid_error());
+                return Err(invalid_srid_error(function_name));
             }
 
             let Some(first) = srid.values().first() else {
                 return Ok(false);
             };
             if srid.values().iter().any(|value| value != first) {
-                return Err(invalid_srid_error());
+                return Err(invalid_srid_error(function_name));
             }
 
             let expected_crs = Crs::from_authority_code(format!("EPSG:{first}"));
@@ -579,15 +606,17 @@ fn srid_is_null(args: &ScalarFunctionArgs, srid_index: usize) -> Result<bool> {
             if point_type.metadata().crs() == &expected_crs {
                 Ok(false)
             } else {
-                Err(invalid_srid_error())
+                Err(invalid_srid_error(function_name))
             }
         }
-        _ => Err(invalid_srid_error()),
+        _ => Err(invalid_srid_error(function_name)),
     }
 }
 
-fn invalid_srid_error() -> DataFusionError {
-    DataFusionError::Internal("ST_Point only supports SRID as a scalar integer".to_string())
+fn invalid_srid_error(function_name: &str) -> DataFusionError {
+    DataFusionError::Plan(format!(
+        "{function_name} only supports SRID as a scalar integer"
+    ))
 }
 
 fn create_null_point_array(
@@ -605,83 +634,56 @@ fn create_point_array(
     arrays: Vec<ArrayRef>,
     return_field: &Field,
 ) -> GeoDataFusionResult<PointArray> {
+    let typ = return_field.extension_type::<PointType>();
+    let dimension = typ.dimension();
+    let required_coords = dimension.size();
+    if arrays.len() != required_coords {
+        return Err(DataFusionError::Execution(format!(
+            "ST_Point expects {required_coords} coordinate arguments for {dimension:?}, got {}",
+            arrays.len()
+        ))
+        .into());
+    }
+
     let x = arrays[0].as_primitive::<Float64Type>();
     let y = arrays[1].as_primitive::<Float64Type>();
-    let z = arrays.get(2).map(|arr| arr.as_primitive::<Float64Type>());
-    let m = arrays.get(3).map(|arr| arr.as_primitive::<Float64Type>());
+    let z = match dimension {
+        Dimension::XYZ | Dimension::XYZM => Some(arrays[2].as_primitive::<Float64Type>()),
+        Dimension::XY | Dimension::XYM => None,
+    };
+    let m = match dimension {
+        Dimension::XYM => Some(arrays[2].as_primitive::<Float64Type>()),
+        Dimension::XYZM => Some(arrays[3].as_primitive::<Float64Type>()),
+        Dimension::XY | Dimension::XYZ => None,
+    };
 
-    let typ = return_field.extension_type::<PointType>();
     let point_arr = match typ.coord_type() {
         CoordType::Interleaved => {
-            let mut builder = PointBuilder::with_capacity(typ, x.len());
+            let mut builder = PointBuilder::with_capacity(typ.clone(), x.len());
 
-            match (z, m) {
-                (None, None) => {
-                    for (x, y) in x.iter().zip(y.iter()) {
-                        if let (Some(x), Some(y)) = (x, y) {
-                            let coord = wkt::types::Coord {
-                                x,
-                                y,
-                                z: None,
-                                m: None,
-                            };
-                            builder.push_coord(Some(&coord));
-                        } else {
-                            builder.push_null();
-                        }
-                    }
-                }
-                (Some(z), None) => {
-                    for ((x, y), z) in x.iter().zip(y.iter()).zip(z.iter()) {
-                        if let (Some(x), Some(y), Some(z)) = (x, y, z) {
-                            let coord = wkt::types::Coord {
-                                x,
-                                y,
-                                z: Some(z),
-                                m: None,
-                            };
-                            builder.push_coord(Some(&coord));
-                        } else {
-                            builder.push_null();
-                        }
-                    }
-                }
-                (None, Some(m)) => {
-                    for ((x, y), m) in x.iter().zip(y.iter()).zip(m.iter()) {
-                        if let (Some(x), Some(y), Some(m)) = (x, y, m) {
-                            let coord = wkt::types::Coord {
-                                x,
-                                y,
-                                z: None,
-                                m: Some(m),
-                            };
-                            builder.push_coord(Some(&coord));
-                        } else {
-                            builder.push_null();
-                        }
-                    }
-                }
-                (Some(z), Some(m)) => {
-                    for (((x, y), z), m) in x.iter().zip(y.iter()).zip(z.iter()).zip(m.iter()) {
-                        if let (Some(x), Some(y), Some(z), Some(m)) = (x, y, z, m) {
-                            let coord = wkt::types::Coord {
-                                x,
-                                y,
-                                z: Some(z),
-                                m: Some(m),
-                            };
-                            builder.push_coord(Some(&coord));
-                        } else {
-                            builder.push_null();
-                        }
-                    }
+            for i in 0..x.len() {
+                // Null buffers can mark a slot null even when its backing values are finite.
+                if x.is_null(i)
+                    || y.is_null(i)
+                    || z.is_some_and(|z| z.is_null(i))
+                    || m.is_some_and(|m| m.is_null(i))
+                {
+                    builder.push_null();
+                } else {
+                    let coord = wkt::types::Coord {
+                        x: x.value(i),
+                        y: y.value(i),
+                        z: z.map(|z| z.value(i)),
+                        m: m.map(|m| m.value(i)),
+                    };
+                    builder.try_push_coord(Some(&coord))?;
                 }
             }
 
             builder.finish()
         }
         CoordType::Separated => {
-            let (_, dim, metadata) = typ.into_inner();
+            let (_, _, metadata) = typ.into_inner();
             let mut coord_buffers = vec![x.values().clone(), y.values().clone()];
             if let Some(z) = z {
                 coord_buffers.push(z.values().clone());
@@ -690,8 +692,17 @@ fn create_point_array(
                 coord_buffers.push(m.values().clone());
             }
 
-            let coords = SeparatedCoordBuffer::from_vec(coord_buffers, dim)?;
-            PointArray::new(coords.into(), x.nulls().cloned(), metadata)
+            let mut nulls =
+                NullBuffer::union(x.logical_nulls().as_ref(), y.logical_nulls().as_ref());
+            if let Some(z) = z {
+                nulls = NullBuffer::union(nulls.as_ref(), z.logical_nulls().as_ref());
+            }
+            if let Some(m) = m {
+                nulls = NullBuffer::union(nulls.as_ref(), m.logical_nulls().as_ref());
+            }
+
+            let coords = SeparatedCoordBuffer::from_vec(coord_buffers, dimension)?;
+            PointArray::new(coords.into(), nulls, metadata)
         }
     };
 
