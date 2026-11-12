@@ -30,7 +30,9 @@ def _register_exports(
     group: str,
     coord_type: Literal["interleaved", "separated"] | None,
 ) -> None:
-    scalar_udfs, aggregate_udfs = _rust._registration_exports(group, coord_type=coord_type)
+    scalar_udfs, aggregate_udfs = _rust._registration_exports(
+        group, coord_type=coord_type
+    )
 
     for _, _, capsule in scalar_udfs:
         ctx.register_udf(udf(capsule))

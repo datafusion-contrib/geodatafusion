@@ -137,7 +137,9 @@ def test_public_python_namespace_and_class_paths():
     namespace = {}
     exec("from geodatafusion import *", namespace)
     assert set(namespace) - {"__builtins__"} == set(geodatafusion.__all__)
-    assert not {"annotations", "TYPE_CHECKING", "Literal", "udf", "udaf"} & set(namespace)
+    assert not {"annotations", "TYPE_CHECKING", "Literal", "udf", "udaf"} & set(
+        namespace
+    )
     assert not hasattr(native, "NDims")
     assert not hasattr(native, "Force3D")
     for group in [native, geo, geohash]:
