@@ -17,9 +17,12 @@ async-trait = { workspace = true }
 datafusion = { workspace = true }
 datafusion-datasource = { workspace = true }
 datafusion-datasource-parquet = { workspace = true }
+futures = { workspace = true }
 geoarrow-schema = { workspace = true }
-geoparquet = { workspace = true }
+geoarrow-array = { workspace = true }
+geoparquet = { workspace = true, features = ["async"] }
 object_store = { workspace = true }
+parquet = { version = "59", default-features = false, features = ["arrow", "object_store"] }
 serde_json = { workspace = true }
 
 [dev-dependencies]
@@ -30,7 +33,6 @@ geo-traits = { workspace = true }
 geoarrow-array = { workspace = true, features = ["test-data"] }
 geodatafusion = { workspace = true }
 object_store = { workspace = true, features = ["http"] }
-parquet = { version = "59", default-features = false, features = ["arrow"] }
 tempfile = { workspace = true }
 tokio = { workspace = true, features = ["macros", "fs", "rt-multi-thread"] }
 wkt = { workspace = true }
