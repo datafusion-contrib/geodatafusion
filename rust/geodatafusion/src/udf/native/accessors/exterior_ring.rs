@@ -21,7 +21,7 @@ use crate::data_types::any_geometry_type;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_ExteriorRing` scalar UDF implementation: returns a `LineString` representing the exterior ring of a `Polygon`.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct ExteriorRing {
     coord_type: CoordType,
 }

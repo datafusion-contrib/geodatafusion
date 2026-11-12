@@ -18,7 +18,7 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_Perimeter` (`ST_Perimeter2D`) scalar UDF implementation: returns the 2D Cartesian perimeter of polygonal geometries.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Perimeter;
 
 impl Perimeter {
@@ -55,6 +55,9 @@ impl ScalarUDFImpl for Perimeter {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(perimeter_impl(args)?)
     }
 

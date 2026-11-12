@@ -21,7 +21,7 @@ use crate::data_types::any_geometry_type;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_NRings` scalar UDF implementation: returns the total number of rings (exterior and interior) in a polygonal geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct NRings;
 
 impl NRings {

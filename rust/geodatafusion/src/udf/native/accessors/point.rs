@@ -17,7 +17,7 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_X` scalar UDF implementation: returns the X coordinate of a `Point`.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct X {
     signature: Signature,
 }
@@ -77,7 +77,7 @@ impl ScalarUDFImpl for X {
 }
 
 /// `ST_Y` scalar UDF implementation: returns the Y coordinate of a `Point`.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Y {
     signature: Signature,
 }
@@ -184,7 +184,7 @@ fn _nth_impl<'a>(
 }
 
 /// `ST_Z` scalar UDF implementation: returns the Z coordinate of a `Point`, or `NULL` if unavailable.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Z {
     signature: Signature,
 }
@@ -244,7 +244,7 @@ impl ScalarUDFImpl for Z {
 }
 
 /// `ST_M` scalar UDF implementation: returns the M (measure) coordinate of a `Point`, or `NULL` if unavailable.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct M {
     signature: Signature,
 }

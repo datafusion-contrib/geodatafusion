@@ -40,7 +40,7 @@ static SIGNATURE: LazyLock<Signature> =
     LazyLock::new(|| Signature::user_defined(Volatility::Immutable));
 
 /// `ST_ConcaveHull` scalar UDF implementation.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct ConcaveHull {
     coord_type: CoordType,
 }
