@@ -1,3 +1,16 @@
+__all__ = [
+    "Contains",
+    "CoveredBy",
+    "Covers",
+    "Crosses",
+    "Disjoint",
+    "Equals",
+    "Intersects",
+    "Overlaps",
+    "Touches",
+    "Within",
+]
+
 class Contains:
     def __init__(self) -> None: ...
     def __datafusion_scalar_udf__(self) -> object: ...

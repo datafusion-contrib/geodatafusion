@@ -1,4 +1,4 @@
-//! User-defined functions that wrap native Rust implementations.
+//! User-defined UDFs that wrap native Rust implementations.
 
 /// Geometry coordinate, dimension, ring, and component accessor UDFs.
 pub mod accessors;
@@ -11,9 +11,19 @@ pub mod io;
 
 /// Register all native GeoArrow UDFs and UDAFs into the given [`SessionContext`](datafusion::prelude::SessionContext).
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
-    accessors::register(session_context);
-    bounding_box::register(session_context);
-    constructors::register(session_context);
-    editors::register(session_context);
-    io::register(session_context);
+    register_with_coord_type(session_context, crate::CoordType::default());
+}
+
+/// Register this group with the requested coordinate layout for geometry-producing UDFs.
+///
+/// Functions whose output layout is fixed by their type, such as bounding boxes, keep that layout.
+pub fn register_with_coord_type(
+    session_context: &datafusion::prelude::SessionContext,
+    coord_type: crate::CoordType,
+) {
+    accessors::register_with_coord_type(session_context, coord_type);
+    bounding_box::register_with_coord_type(session_context, coord_type);
+    constructors::register_with_coord_type(session_context, coord_type);
+    editors::register_with_coord_type(session_context, coord_type);
+    io::register_with_coord_type(session_context, coord_type);
 }

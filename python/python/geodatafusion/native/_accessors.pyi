@@ -1,5 +1,33 @@
 from typing import Literal
 
+__all__ = [
+    "CoordDim",
+    "Dimension",
+    "Dump",
+    "EndPoint",
+    "Envelope",
+    "ExteriorRing",
+    "HasM",
+    "HasZ",
+    "InteriorRingN",
+    "IsClosed",
+    "IsCollection",
+    "IsEmpty",
+    "NPoints",
+    "NRings",
+    "NumGeometries",
+    "NumInteriorRings",
+    "PointN",
+    "StartPoint",
+    "X",
+    "Y",
+    "Z",
+    "M",
+    "GeometryType",
+    "STGeometryType",
+    "ZmFlag",
+]
+
 class CoordDim:
     def __init__(self) -> None: ...
     def __datafusion_scalar_udf__(self) -> object: ...
@@ -65,10 +93,6 @@ class IsCollection:
     def __datafusion_scalar_udf__(self) -> object: ...
 
 class IsEmpty:
-    def __init__(self) -> None: ...
-    def __datafusion_scalar_udf__(self) -> object: ...
-
-class NDims:
     def __init__(self) -> None: ...
     def __datafusion_scalar_udf__(self) -> object: ...
 

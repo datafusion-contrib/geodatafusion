@@ -26,17 +26,20 @@ compiled Rust crate. The Python package does not export window or table function
 
 ### Category-Specific Registration & Coordinate Layout
 
-You can also register specific function groups (`register_all_native`, `register_all_geo`, `register_all_geohash`) or register individual UDF wrapper classes from `geodatafusion.native`, `geodatafusion.geo`, and `geodatafusion.geohash` with a custom GeoArrow coordinate layout (`coord_type="interleaved"` or `"separated"`):
+All `register_all*` helpers accept an optional `coord_type="interleaved"` or
+`coord_type="separated"` keyword. Omitting it keeps the default separated layout.
+The layout configures geometry-producing UDFs in the selected group; outputs with
+a fixed representation, such as bounding boxes, retain that representation.
 
 ```py
 from datafusion import SessionContext, udf
 from geodatafusion import native, register_all_native
 
 ctx = SessionContext()
-register_all_native(ctx)
+register_all_native(ctx, coord_type="interleaved")
 
-# Override ST_Point to produce interleaved coordinates
-ctx.register_udf(udf(native.Point(coord_type="interleaved")))
+# Individual wrappers can still override a registered UDF.
+ctx.register_udf(udf(native.Point(coord_type="separated")))
 ```
 
 ### Running Spatial SQL Queries
