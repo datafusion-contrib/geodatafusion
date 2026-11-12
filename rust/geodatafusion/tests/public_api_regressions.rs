@@ -426,3 +426,98 @@ async fn unary_null_geometry_signatures_propagate_null() {
     }
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
+
+#[tokio::test]
+async fn binary_geometry_functions_accept_bare_null_scalars_and_arrays() {
+    use arrow_array::{NullArray, StringArray};
+
+    let ctx = context();
+    ctx.register_batch(
+        "inputs",
+        RecordBatch::try_from_iter([
+            ("n", Arc::new(NullArray::new(3)) as arrow_array::ArrayRef),
+            (
+                "wkt",
+                Arc::new(StringArray::from(vec![
+                    "POINT(1 2)",
+                    "POINT(3 4)",
+                    "POINT(5 6)",
+                ])),
+            ),
+        ])
+        .unwrap(),
+    )
+    .unwrap();
+
+    let mut failures = Vec::new();
+    for name in [
+        "ST_Distance",
+        "ST_Intersects",
+        "ST_Disjoint",
+        "ST_Within",
+        "ST_Contains",
+        "ST_Equals",
+        "ST_CoveredBy",
+        "ST_Covers",
+        "ST_Touches",
+        "ST_Crosses",
+        "ST_Overlaps",
+    ] {
+        for (left, right, source, rows) in [
+            ("NULL", "ST_Point(1, 2)", "", 1),
+            ("ST_Point(1, 2)", "NULL", "", 1),
+            ("NULL", "NULL", "", 1),
+            ("n", "ST_GeomFromText(wkt)", " FROM inputs", 3),
+            ("ST_GeomFromText(wkt)", "n", " FROM inputs", 3),
+            ("n", "n", " FROM inputs", 3),
+        ] {
+            let sql = format!("SELECT {name}({left}, {right}) AS result{source}");
+            let result = async { ctx.sql(&sql).await?.collect().await }.await;
+            match result {
+                Ok(batches) => {
+                    assert_eq!(
+                        batches.iter().map(RecordBatch::num_rows).sum::<usize>(),
+                        rows,
+                        "{sql}"
+                    );
+                    for batch in batches {
+                        assert_eq!(batch.column(0).null_count(), batch.num_rows(), "{sql}");
+                    }
+                }
+                Err(err) => failures.push(format!("{sql}: {err}")),
+            }
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+#[tokio::test]
+async fn extent_accepts_bare_null_scalars_and_arrays() {
+    let ctx = context();
+    ctx.register_batch(
+        "inputs",
+        RecordBatch::try_from_iter([(
+            "n",
+            Arc::new(arrow_array::NullArray::new(3)) as arrow_array::ArrayRef,
+        )])
+        .unwrap(),
+    )
+    .unwrap();
+    for sql in [
+        "SELECT ST_Extent(NULL)",
+        "SELECT ST_Extent(n) FROM inputs",
+        "SELECT ST_Extent(n) FROM inputs WHERE false",
+    ] {
+        let batches = collect(&ctx, sql).await;
+        assert_eq!(
+            batches.iter().map(RecordBatch::num_rows).sum::<usize>(),
+            1,
+            "{sql}"
+        );
+        assert_eq!(batches[0].column(0).null_count(), 1, "{sql}");
+        assert_eq!(
+            batches[0].schema().field(0).extension_type_name(),
+            Some("geoarrow.box")
+        );
+    }
+}
