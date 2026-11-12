@@ -16,7 +16,7 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_IsClosed` scalar UDF implementation: tests whether a geometry's start and end points are coincident.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct IsClosed;
 
 impl IsClosed {
@@ -48,6 +48,9 @@ impl ScalarUDFImpl for IsClosed {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(is_closed_impl(args)?)
     }
 

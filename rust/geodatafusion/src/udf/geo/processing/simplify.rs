@@ -19,7 +19,7 @@ use crate::error::GeoDataFusionResult;
 use crate::udf::native::editors::force_array_to_dimension;
 
 /// `ST_Simplify` scalar UDF implementation: simplifies a geometry using the Douglas-Peucker algorithm.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Simplify {
     signature: Signature,
     coord_type: CoordType,
@@ -83,7 +83,7 @@ impl ScalarUDFImpl for Simplify {
 }
 
 /// `ST_SimplifyVW` scalar UDF implementation: simplifies a geometry using the Visvalingam-Whyatt algorithm.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct SimplifyVW {
     signature: Signature,
     coord_type: CoordType,
@@ -147,7 +147,7 @@ impl ScalarUDFImpl for SimplifyVW {
 }
 
 /// `ST_SimplifyPreserveTopology` scalar UDF implementation: simplifies a geometry using the topology-preserving Visvalingam-Whyatt area-threshold algorithm.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct SimplifyPreserveTopology {
     signature: Signature,
     coord_type: CoordType,

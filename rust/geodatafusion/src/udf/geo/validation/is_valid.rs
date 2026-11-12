@@ -12,7 +12,7 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_IsValid` scalar UDF implementation: tests whether a geometry is well-formed and valid in 2D.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct IsValid;
 
 impl IsValid {
@@ -44,6 +44,9 @@ impl ScalarUDFImpl for IsValid {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(is_valid_impl(args)?)
     }
 

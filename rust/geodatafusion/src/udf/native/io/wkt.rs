@@ -22,7 +22,7 @@ use crate::udf::native::io::geometry::{
 };
 
 /// `ST_AsText` scalar UDF implementation: converts a geometry into OGC Well-Known Text (WKT).
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct AsText;
 
 impl AsText {
@@ -32,6 +32,9 @@ impl AsText {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         let array = &ColumnarValue::values_to_arrays(&args.args)?[0];
         let field = &args.arg_fields[0];
         let geo_array = from_arrow_array(&array, field.as_ref())?;
@@ -75,6 +78,9 @@ impl ScalarUDFImpl for AsText {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(self.invoke_with_args(args)?)
     }
 
@@ -92,7 +98,7 @@ impl ScalarUDFImpl for AsText {
 }
 
 /// `ST_GeomFromText` (`ST_GeometryFromText`, `ST_WKTToSQL`) scalar UDF implementation: parses an OGC Well-Known Text (WKT) string into a geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct GeomFromText {
     signature: Signature,
     coord_type: CoordType,
@@ -114,6 +120,9 @@ impl GeomFromText {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> GeoDataFusionResult<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         let array = &ColumnarValue::values_to_arrays(&args.args)?[0];
         let field = &args.arg_fields[0];
         let to_type = GeoArrowType::from_arrow_field(args.return_field.as_ref())?;
@@ -208,6 +217,9 @@ impl ScalarUDFImpl for GeomFromText {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(self.invoke_with_args(args)?)
     }
 

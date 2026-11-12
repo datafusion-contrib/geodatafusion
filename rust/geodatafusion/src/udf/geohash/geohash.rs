@@ -17,7 +17,7 @@ use crate::error::GeoDataFusionResult;
 use crate::udf::native::bounding_box::util::{GeometryBounds, geometry_bounds};
 
 /// `ST_GeoHash` scalar UDF implementation: encodes a geometry into a GeoHash string.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct GeoHash;
 
 impl GeoHash {

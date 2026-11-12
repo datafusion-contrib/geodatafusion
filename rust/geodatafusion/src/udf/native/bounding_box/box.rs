@@ -15,7 +15,7 @@ use crate::error::GeoDataFusionResult;
 use crate::udf::native::bounding_box::util::bounds::bounding_rect;
 
 /// `Box2D` scalar UDF implementation: returns a 2D bounding box (`geoarrow.box`) representing the 2D extent of a geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Box2D;
 
 impl Box2D {
@@ -51,6 +51,9 @@ impl ScalarUDFImpl for Box2D {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(box_impl(args, false)?)
     }
 
@@ -68,7 +71,7 @@ impl ScalarUDFImpl for Box2D {
 }
 
 /// `Box3D` scalar UDF implementation: returns a 3D bounding box (`geoarrow.box` XYZ) representing the 3D extent of a geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Box3D;
 
 impl Box3D {
@@ -104,6 +107,9 @@ impl ScalarUDFImpl for Box3D {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(box_impl(args, true)?)
     }
 

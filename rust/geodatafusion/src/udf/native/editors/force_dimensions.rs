@@ -67,7 +67,7 @@ fn optional_numeric_signature(max_extra_args: usize) -> Signature {
 }
 
 /// `ST_Force2D` scalar UDF implementation: forces geometries into 2D (`XY`) coordinate mode.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Force2D {
     coord_type: CoordType,
 }
@@ -128,7 +128,7 @@ impl ScalarUDFImpl for Force2D {
 }
 
 /// `ST_Force3DZ` (`ST_Force3D`) scalar UDF implementation: forces geometries into `XYZ` coordinate mode.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Force3DZ {
     coord_type: CoordType,
     aliases: Vec<String>,
@@ -198,7 +198,7 @@ impl ScalarUDFImpl for Force3DZ {
 }
 
 /// `ST_Force3DM` scalar UDF implementation: forces geometries into `XYM` coordinate mode.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Force3DM {
     coord_type: CoordType,
 }
@@ -260,7 +260,7 @@ impl ScalarUDFImpl for Force3DM {
 }
 
 /// `ST_Force4D` scalar UDF implementation: forces geometries into `XYZM` coordinate mode.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Force4D {
     coord_type: CoordType,
 }

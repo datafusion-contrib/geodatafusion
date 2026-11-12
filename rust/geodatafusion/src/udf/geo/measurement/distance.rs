@@ -11,7 +11,7 @@ use geoarrow_array::array::from_arrow_array;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_Distance` scalar UDF implementation: returns the 2D Cartesian minimum distance between two geometries.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Distance;
 
 impl Distance {
@@ -44,6 +44,9 @@ impl ScalarUDFImpl for Distance {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(distance_impl(args)?)
     }
 

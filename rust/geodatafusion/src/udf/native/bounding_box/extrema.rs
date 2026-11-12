@@ -15,7 +15,7 @@ use crate::error::GeoDataFusionResult;
 use crate::udf::native::bounding_box::util::bounds::impl_extrema;
 
 /// `ST_XMin` scalar UDF implementation: returns the X minimum of a 2D/3D bounding box or geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct XMin;
 
 impl XMin {
@@ -47,6 +47,9 @@ impl ScalarUDFImpl for XMin {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(extrema_impl(args, false, |rect| rect.min().x())?)
     }
 
@@ -69,7 +72,7 @@ impl ScalarUDFImpl for XMin {
 }
 
 /// `ST_YMin` scalar UDF implementation: returns the Y minimum of a 2D/3D bounding box or geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct YMin;
 
 impl YMin {
@@ -101,6 +104,9 @@ impl ScalarUDFImpl for YMin {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(extrema_impl(args, false, |rect| rect.min().y())?)
     }
 
@@ -123,7 +129,7 @@ impl ScalarUDFImpl for YMin {
 }
 
 /// `ST_ZMin` scalar UDF implementation: returns the Z minimum of a 2D/3D bounding box or geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct ZMin;
 
 impl ZMin {
@@ -155,6 +161,9 @@ impl ScalarUDFImpl for ZMin {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(extrema_impl(args, true, |rect| {
             rect.min().nth(2).unwrap_or(f64::MIN)
         })?)
@@ -179,7 +188,7 @@ impl ScalarUDFImpl for ZMin {
 }
 
 /// `ST_XMax` scalar UDF implementation: returns the X maximum of a 2D/3D bounding box or geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct XMax;
 
 impl XMax {
@@ -211,6 +220,9 @@ impl ScalarUDFImpl for XMax {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(extrema_impl(args, false, |rect| rect.max().x())?)
     }
 
@@ -233,7 +245,7 @@ impl ScalarUDFImpl for XMax {
 }
 
 /// `ST_YMax` scalar UDF implementation: returns the Y maximum of a 2D/3D bounding box or geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct YMax;
 
 impl YMax {
@@ -265,6 +277,9 @@ impl ScalarUDFImpl for YMax {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(extrema_impl(args, false, |rect| rect.max().y())?)
     }
 
@@ -287,7 +302,7 @@ impl ScalarUDFImpl for YMax {
 }
 
 /// `ST_ZMax` scalar UDF implementation: returns the Z maximum of a 2D/3D bounding box or geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct ZMax;
 
 impl ZMax {
@@ -319,6 +334,9 @@ impl ScalarUDFImpl for ZMax {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(extrema_impl(args, true, |rect| {
             rect.max().nth(2).unwrap_or(f64::MAX)
         })?)

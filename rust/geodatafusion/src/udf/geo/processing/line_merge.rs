@@ -45,7 +45,7 @@ static SIGNATURE: LazyLock<Signature> = LazyLock::new(|| {
 });
 
 /// Sews together the component lines of a (multi)linestring.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct LineMerge {
     coord_type: CoordType,
 }

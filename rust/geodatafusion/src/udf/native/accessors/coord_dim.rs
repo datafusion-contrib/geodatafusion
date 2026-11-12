@@ -19,7 +19,7 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_CoordDim` scalar UDF implementation: returns the coordinate dimension (`2`, `3`, or `4`) of a geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct CoordDim;
 
 impl CoordDim {
@@ -162,7 +162,7 @@ fn fixed_dimension_output(
 }
 
 /// `ST_NDims` scalar UDF implementation: returns the coordinate dimension (`2`, `3`, or `4`) of a geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct NDims;
 
 impl NDims {
