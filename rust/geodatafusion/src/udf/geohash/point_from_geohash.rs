@@ -17,7 +17,7 @@ use geoarrow_schema::{CoordType, Dimension, Metadata, PointType};
 use crate::error::GeoDataFusionResult;
 
 /// `ST_PointFromGeoHash` scalar UDF implementation: decodes a GeoHash string into its center `Point` geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct PointFromGeoHash {
     signature: Signature,
     coord_type: CoordType,

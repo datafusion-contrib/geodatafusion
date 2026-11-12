@@ -32,7 +32,7 @@ static SIGNATURE: LazyLock<Signature> = LazyLock::new(|| {
 });
 
 /// `ST_Envelope` scalar UDF implementation: returns the minimum bounding box of a geometry as a geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Envelope {
     coord_type: CoordType,
 }

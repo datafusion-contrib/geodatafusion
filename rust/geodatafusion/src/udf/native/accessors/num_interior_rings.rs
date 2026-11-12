@@ -19,7 +19,7 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_NumInteriorRings` (`ST_NumInteriorRing`) scalar UDF implementation: returns the number of interior rings (holes) of a `Polygon`.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct NumInteriorRings;
 
 impl NumInteriorRings {
@@ -56,6 +56,9 @@ impl ScalarUDFImpl for NumInteriorRings {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(num_interior_rings_impl(args)?)
     }
 

@@ -23,7 +23,7 @@ use crate::data_types::any_geometry_type;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_LineFromMultiPoint` scalar UDF implementation: creates a `LineString` from a `MultiPoint` geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct LineFromMultiPoint {
     coord_type: CoordType,
 }

@@ -20,6 +20,7 @@ use geoarrow_schema::error::GeoArrowResult;
 use geoarrow_schema::{BoxType, Dimension, GeoArrowType};
 use wkt::types::Coord;
 
+/// Bounds accumulated over a sequence of geometries.
 #[derive(Debug, Clone, Copy)]
 pub struct BoundingRect {
     pub(crate) minx: f64,
@@ -36,7 +37,7 @@ pub struct BoundingRect {
 }
 
 impl BoundingRect {
-    /// New
+    /// Create an empty bounding rectangle.
     pub fn new(include_z: bool) -> Self {
         BoundingRect {
             minx: f64::INFINITY,
@@ -49,10 +50,12 @@ impl BoundingRect {
         }
     }
 
+    /// Minimum X coordinate, or positive infinity when no coordinate has been added.
     pub fn minx(&self) -> f64 {
         self.minx
     }
 
+    /// Minimum Y coordinate, or positive infinity when no coordinate has been added.
     pub fn miny(&self) -> f64 {
         self.miny
     }
@@ -65,10 +68,12 @@ impl BoundingRect {
         }
     }
 
+    /// Maximum X coordinate, or negative infinity when no coordinate has been added.
     pub fn maxx(&self) -> f64 {
         self.maxx
     }
 
+    /// Maximum Y coordinate, or negative infinity when no coordinate has been added.
     pub fn maxy(&self) -> f64 {
         self.maxy
     }
@@ -189,6 +194,7 @@ impl BoundingRect {
         self.add_coord(&rect.max());
     }
 
+    /// Expand this rectangle to include another rectangle.
     pub fn update(&mut self, other: &BoundingRect) {
         self.add_rect(other)
     }

@@ -22,7 +22,7 @@ use geoarrow_schema::{CoordType, Crs, Dimension, Metadata, PointType};
 use crate::error::GeoDataFusionResult;
 
 /// `ST_Point` scalar UDF implementation: creates a 2D `Point` with X, Y, and optional SRID values.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Point {
     signature: Signature,
     coord_type: CoordType,
@@ -104,7 +104,7 @@ impl ScalarUDFImpl for Point {
 }
 
 /// `ST_PointZ` scalar UDF implementation: creates a 3D `Point` with X, Y, Z, and optional SRID values.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct PointZ {
     signature: Signature,
     coord_type: CoordType,
@@ -192,7 +192,7 @@ impl ScalarUDFImpl for PointZ {
 }
 
 /// `ST_PointM` scalar UDF implementation: creates a `Point` with X, Y, M, and optional SRID values.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct PointM {
     signature: Signature,
     coord_type: CoordType,
@@ -280,7 +280,7 @@ impl ScalarUDFImpl for PointM {
 }
 
 /// `ST_PointZM` scalar UDF implementation: creates a 4D `Point` with X, Y, Z, M, and optional SRID values.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct PointZM {
     signature: Signature,
     coord_type: CoordType,
@@ -370,7 +370,7 @@ impl ScalarUDFImpl for PointZM {
     }
 }
 /// `ST_MakePoint` scalar UDF implementation: creates a 2D (`XY`), 3D (`XYZ`), or 4D (`XYZM`) `Point` geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct MakePoint {
     signature: Signature,
     coord_type: CoordType,
@@ -461,7 +461,7 @@ impl ScalarUDFImpl for MakePoint {
 }
 
 /// `ST_MakePointM` scalar UDF implementation: creates a `Point` geometry with X, Y, and M (measure) coordinates.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct MakePointM {
     signature: Signature,
     coord_type: CoordType,

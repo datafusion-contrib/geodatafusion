@@ -20,7 +20,7 @@ use wkt::types::{Coord, Dimension as WktDimension, LineString as WktLineString};
 use crate::error::GeoDataFusionResult;
 
 /// `ST_MakeLine` scalar UDF implementation: creates a `LineString` from `Point`, `MultiPoint`, or `LineString` geometries.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct MakeLine {
     coord_type: CoordType,
 }
@@ -59,6 +59,9 @@ impl ScalarUDFImpl for MakeLine {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(make_line_impl(args, self.coord_type)?)
     }
 

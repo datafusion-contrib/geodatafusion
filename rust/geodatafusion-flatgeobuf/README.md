@@ -14,9 +14,9 @@
 use std::sync::Arc;
 use datafusion::execution::SessionStateBuilder;
 use datafusion::prelude::SessionContext;
-use geodatafusion_flatgeobuf::FlatGeobufFileFactory;
+use geodatafusion_flatgeobuf::FlatGeobufFormatFactory;
 
-let file_format = Arc::new(FlatGeobufFileFactory::default());
+let file_format = Arc::new(FlatGeobufFormatFactory::default());
 let state = SessionStateBuilder::new()
     .with_file_formats(vec![file_format])
     .build();

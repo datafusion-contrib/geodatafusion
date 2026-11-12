@@ -25,7 +25,7 @@ use crate::udf::native::accessors::is_empty::is_geometry_topologically_empty;
 use crate::udf::native::io::geometry::decoded_row_geometry_collection;
 
 /// Decomposes a geometry into its atomic components (POINT, LINESTRING, POLYGON).
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Dump {
     coord_type: CoordType,
 }
@@ -68,6 +68,9 @@ impl ScalarUDFImpl for Dump {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(dump_impl(args, self.coord_type)?)
     }
 

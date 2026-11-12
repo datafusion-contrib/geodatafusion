@@ -17,21 +17,25 @@ mod tests {
     use std::fs::File;
     use std::sync::Arc;
 
-    use arrow_array::{Int32Array, RecordBatch};
+    use arrow_array::{BinaryArray, Int32Array, RecordBatch};
     use arrow_schema::{DataType, Field, Schema};
+    use datafusion::datasource::file_format::{FileFormat, FileFormatFactory};
+    use datafusion::datasource::listing::{ListingOptions, ListingTableConfig, ListingTableUrl};
     use datafusion::execution::SessionStateBuilder;
     use datafusion::prelude::SessionContext;
+    use datafusion_datasource_parquet::ParquetFormat;
     use geo_traits::{CoordTrait, PointTrait};
     use geoarrow_array::array::{PointArray, from_arrow_array};
     use geoarrow_array::builder::PointBuilder;
     use geoarrow_array::{GeoArrowArray, GeoArrowArrayAccessor};
-    use geoarrow_schema::{Dimension, PointType};
+    use geoarrow_schema::{CoordType, Dimension, PointType};
     use geoparquet::writer::{GeoParquetRecordBatchEncoder, GeoParquetWriterOptionsBuilder};
     use parquet::arrow::ArrowWriter;
+    use parquet::file::metadata::KeyValue;
     use tempfile::TempDir;
     use wkt::wkt;
 
-    use crate::file_format::GeoParquetFormatFactory;
+    use crate::file_format::{GeoParquetFormat, GeoParquetFormatFactory};
 
     #[tokio::test]
     async fn test_geoparquet_centroid() {
@@ -105,13 +109,104 @@ mod tests {
     }
 
     fn geoparquet_context() -> SessionContext {
-        let file_format = Arc::new(GeoParquetFormatFactory::default());
+        geoparquet_context_with(Arc::new(GeoParquetFormatFactory::new()))
+    }
+
+    fn geoparquet_context_with(file_format: Arc<dyn FileFormatFactory>) -> SessionContext {
         let state = SessionStateBuilder::new()
             .with_file_formats(vec![file_format])
             .build();
         let ctx = SessionContext::new_with_state(state).enable_url_table();
         geodatafusion::register(&ctx);
         ctx
+    }
+
+    #[tokio::test]
+    async fn test_parse_to_native_reads_wkb_with_both_layouts() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = write_geoparquet_fixture(&dir);
+
+        for coord_type in [CoordType::Separated, CoordType::Interleaved] {
+            let file_format: Arc<dyn FileFormatFactory> = Arc::new(
+                GeoParquetFormatFactory::new()
+                    .with_parse_to_native(true)
+                    .with_coord_type(coord_type),
+            );
+            let ctx = geoparquet_context_with(file_format);
+            let df = ctx
+                .sql(&format!(
+                    "SELECT geometry FROM '{}' AS table ORDER BY id",
+                    path.to_str().unwrap()
+                ))
+                .await
+                .unwrap();
+            let schema = df.schema().clone();
+            let field = schema.field_with_unqualified_name("geometry").unwrap();
+            let point_type = field.extension_type::<PointType>();
+            assert_eq!(point_type.dimension(), Dimension::XY);
+            assert_eq!(point_type.coord_type(), coord_type);
+
+            let batches = df.collect().await.unwrap();
+            let points = batches
+                .iter()
+                .map(|batch| {
+                    let array =
+                        PointArray::try_from((batch.column(0).as_ref(), field.as_ref())).unwrap();
+                    (0..array.len())
+                        .map(|index| {
+                            let coord = array.value(index).unwrap().coord().unwrap();
+                            (coord.x(), coord.y())
+                        })
+                        .collect::<Vec<_>>()
+                })
+                .flatten()
+                .collect::<Vec<_>>();
+            assert_eq!(points, vec![(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_native_encoding_with_ambiguous_geometry_types_is_rejected() {
+        for geometry_types in ["[]", "[\"Point\", \"MultiPoint\"]"] {
+            let dir = tempfile::tempdir().unwrap();
+            let path = write_malformed_geo_parquet(&dir, geometry_types);
+            let ctx = geoparquet_context();
+            let format: Arc<dyn FileFormat> =
+                Arc::new(GeoParquetFormat::new(ParquetFormat::default()));
+            let result =
+                ListingTableConfig::new(ListingTableUrl::parse(path.to_str().unwrap()).unwrap())
+                    .with_listing_options(ListingOptions::new(format))
+                    .infer_schema(&ctx.state())
+                    .await;
+            let err = result.unwrap_err().to_string();
+            assert!(
+                err.contains("exactly one geometry type is required"),
+                "unexpected error for {geometry_types}: {err}"
+            );
+        }
+    }
+
+    fn write_malformed_geo_parquet(dir: &TempDir, geometry_types: &str) -> std::path::PathBuf {
+        let path = dir.path().join("malformed.parquet");
+        let schema = Arc::new(Schema::new(vec![Field::new(
+            "geometry",
+            DataType::Binary,
+            false,
+        )]));
+        let batch = RecordBatch::try_new(
+            schema.clone(),
+            vec![Arc::new(BinaryArray::from_vec(vec![b"not-wkb".as_slice()])) as _],
+        )
+        .unwrap();
+        let file = File::create(&path).unwrap();
+        let mut writer = ArrowWriter::try_new(file, schema, None).unwrap();
+        writer.write(&batch).unwrap();
+        let geo = format!(
+            "{{\"version\":\"1.1.0\",\"primary_column\":\"geometry\",\"columns\":{{\"geometry\":{{\"encoding\":\"point\",\"geometry_types\":{geometry_types}}}}}}}"
+        );
+        writer.append_key_value_metadata(KeyValue::new("geo".to_string(), geo));
+        writer.close().unwrap();
+        path
     }
 
     fn write_geoparquet_fixture(dir: &TempDir) -> std::path::PathBuf {

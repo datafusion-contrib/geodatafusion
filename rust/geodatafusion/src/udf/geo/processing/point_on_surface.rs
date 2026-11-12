@@ -14,7 +14,7 @@ use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
 /// `ST_PointOnSurface` scalar UDF implementation: computes a point guaranteed to lie on the surface of a geometry.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct PointOnSurface {
     coord_type: CoordType,
 }
@@ -52,6 +52,9 @@ impl ScalarUDFImpl for PointOnSurface {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(interior_point_impl(args, self.coord_type)?)
     }
 

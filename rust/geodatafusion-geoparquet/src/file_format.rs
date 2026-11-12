@@ -6,12 +6,13 @@ use std::sync::Arc;
 use arrow_schema::SchemaRef;
 use async_trait::async_trait;
 use datafusion::catalog::Session;
+use datafusion::catalog::memory::DataSourceExec;
 use datafusion::common::{GetExt, Statistics};
 use datafusion::config::{ConfigField, ConfigFileType, TableParquetOptions};
 use datafusion::datasource::file_format::FileFormat;
 use datafusion::datasource::file_format::file_compression_type::FileCompressionType;
 use datafusion::datasource::physical_plan::{FileScanConfig, FileSinkConfig, FileSource};
-use datafusion::error::Result;
+use datafusion::error::{DataFusionError, Result};
 use datafusion::physical_expr::LexRequirement;
 use datafusion::physical_plan::ExecutionPlan;
 use datafusion_datasource::TableSchema;
@@ -20,7 +21,7 @@ use datafusion_datasource::file_scan_config::FileScanConfigBuilder;
 use datafusion_datasource_parquet::ParquetFormat;
 use datafusion_datasource_parquet::source::ParquetSource;
 use geoarrow_schema::CoordType;
-use geoparquet::metadata::GeoParquetMetadata;
+use geoparquet::metadata::{GeoParquetColumnEncoding, GeoParquetMetadata};
 use geoparquet::reader::infer_geoarrow_schema;
 use object_store::{ObjectMeta, ObjectStore};
 
@@ -29,21 +30,46 @@ use crate::source::GeoParquetSource;
 /// Factory used to create [`GeoParquetFormat`] instances.
 #[derive(Default, Debug)]
 pub struct GeoParquetFormatFactory {
-    /// inner options for parquet
-    pub options: Option<TableParquetOptions>,
+    options: Option<TableParquetOptions>,
+    parse_to_native: bool,
+    coord_type: CoordType,
 }
 
 impl GeoParquetFormatFactory {
     /// Creates an instance of [GeoParquetFormatFactory]
     pub fn new() -> Self {
-        Self { options: None }
+        <Self as std::default::Default>::default()
     }
 
     /// Creates an instance of [GeoParquetFormatFactory] with customized default options
     pub fn new_with_options(options: TableParquetOptions) -> Self {
         Self {
             options: Some(options),
+            ..<Self as std::default::Default>::default()
         }
+    }
+
+    /// Configure whether WKB geometry columns are decoded to native GeoArrow arrays.
+    pub fn with_parse_to_native(mut self, parse_to_native: bool) -> Self {
+        self.parse_to_native = parse_to_native;
+        self
+    }
+
+    /// Configure the GeoArrow coordinate layout used for decoded native geometry columns.
+    pub fn with_coord_type(mut self, coord_type: CoordType) -> Self {
+        self.coord_type = coord_type;
+        self
+    }
+
+    /// Return the configured Parquet options, if any.
+    pub fn options(&self) -> Option<&TableParquetOptions> {
+        self.options.as_ref()
+    }
+
+    fn make_format(&self, parquet_format: ParquetFormat) -> GeoParquetFormat {
+        GeoParquetFormat::new(parquet_format)
+            .with_parse_to_native(self.parse_to_native)
+            .with_coord_type(self.coord_type)
     }
 }
 
@@ -70,11 +96,15 @@ impl FileFormatFactory for GeoParquetFormatFactory {
         };
 
         let parquet_format = ParquetFormat::default().with_options(parquet_options);
-        Ok(Arc::new(GeoParquetFormat::new(parquet_format)))
+        Ok(Arc::new(self.make_format(parquet_format)))
     }
 
     fn default(&self) -> Arc<dyn FileFormat> {
-        Arc::new(GeoParquetFormat::default())
+        let parquet_format = match &self.options {
+            Some(options) => ParquetFormat::default().with_options(options.clone()),
+            None => ParquetFormat::default(),
+        };
+        Arc::new(self.make_format(parquet_format))
     }
 }
 
@@ -101,6 +131,38 @@ impl GeoParquetFormat {
             coord_type: CoordType::default(),
         }
     }
+
+    /// Configure whether WKB geometry columns are decoded to native GeoArrow arrays.
+    pub fn with_parse_to_native(mut self, parse_to_native: bool) -> Self {
+        self.parse_to_native = parse_to_native;
+        self
+    }
+
+    /// Configure the GeoArrow coordinate layout used for decoded native geometry columns.
+    pub fn with_coord_type(mut self, coord_type: CoordType) -> Self {
+        self.coord_type = coord_type;
+        self
+    }
+}
+
+fn validate_geo_metadata(
+    schema: &arrow_schema::Schema,
+    geo_meta: &GeoParquetMetadata,
+) -> Result<()> {
+    for field in schema.fields() {
+        let Some(column) = geo_meta.columns.get(field.name()) else {
+            continue;
+        };
+        if column.encoding != GeoParquetColumnEncoding::WKB && column.geometry_types.len() != 1 {
+            return Err(DataFusionError::Plan(format!(
+                "GeoParquet metadata for column '{}' uses native encoding {:?} with {} geometry types; exactly one geometry type is required",
+                field.name(),
+                column.encoding,
+                column.geometry_types.len()
+            )));
+        }
+    }
+    Ok(())
 }
 
 #[async_trait]
@@ -129,10 +191,12 @@ impl FileFormat for GeoParquetFormat {
         let schema = self.inner.infer_schema(state, store, objects).await?;
         // Insert GeoArrow metadata onto geometry column
         if let Some(geo_meta_str) = schema.metadata().get("geo") {
-            let geo_meta: GeoParquetMetadata = serde_json::from_str(geo_meta_str).unwrap();
+            let geo_meta: GeoParquetMetadata = serde_json::from_str(geo_meta_str)
+                .map_err(|err| DataFusionError::External(Box::new(err)))?;
+            validate_geo_metadata(&schema, &geo_meta)?;
             let new_schema =
                 infer_geoarrow_schema(&schema, &geo_meta, self.parse_to_native, self.coord_type)
-                    .unwrap();
+                    .map_err(|err| DataFusionError::External(Box::new(err)))?;
             Ok(new_schema)
         } else {
             Ok(schema)
@@ -157,9 +221,19 @@ impl FileFormat for GeoParquetFormat {
         conf: FileScanConfig,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let source = conf.file_source().clone();
-        let geoparquet_source = source.downcast_ref::<GeoParquetSource>().unwrap();
-        let parquet_source = &geoparquet_source.inner;
+        let Some(geoparquet_source) = source.downcast_ref::<GeoParquetSource>() else {
+            return Err(DataFusionError::Execution(
+                "GeoParquetFormat expected a GeoParquetSource".to_string(),
+            ));
+        };
+        if self.parse_to_native {
+            let new_conf = FileScanConfigBuilder::from(conf)
+                .with_source(Arc::new(geoparquet_source.clone()))
+                .build();
+            return Ok(DataSourceExec::from_data_source(new_conf));
+        }
 
+        let parquet_source = &geoparquet_source.inner;
         let file_scan_config_builder =
             FileScanConfigBuilder::from(conf).with_source(Arc::new(parquet_source.clone()));
         let new_conf = file_scan_config_builder.build();
@@ -174,15 +248,20 @@ impl FileFormat for GeoParquetFormat {
         _conf: FileSinkConfig,
         _order_requirements: Option<LexRequirement>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
-        todo!("writing not implemented for GeoParquet yet")
+        Err(DataFusionError::NotImplemented(
+            "writing not implemented for GeoParquet yet".to_string(),
+        ))
     }
 
     fn file_source(&self, table_schema: TableSchema) -> Arc<dyn FileSource> {
         let parquet_source = self.inner.file_source(table_schema);
-        // safe to do unwrap here because the inner type is ParquetSource for sure
-        let inner = parquet_source.downcast_ref::<ParquetSource>().unwrap();
-        Arc::new(GeoParquetSource {
-            inner: inner.clone(),
-        })
+        match parquet_source.downcast_ref::<ParquetSource>() {
+            Some(inner) => Arc::new(GeoParquetSource {
+                inner: inner.clone(),
+                parse_to_native: self.parse_to_native,
+                coord_type: self.coord_type,
+            }),
+            None => parquet_source,
+        }
     }
 }

@@ -10,7 +10,9 @@ use datafusion::datasource::physical_plan::{
     FileOpenFuture, FileOpener, FileScanConfig, FileSource,
 };
 use datafusion::error::{DataFusionError, Result};
+use datafusion::physical_expr::expressions::Column;
 use datafusion::physical_expr::projection::ProjectionExprs;
+use datafusion::physical_expr::utils::collect_columns;
 use datafusion::physical_expr::{PhysicalExpr, ScalarFunctionExpr};
 use datafusion::physical_plan::ColumnarValue;
 use datafusion::physical_plan::filter_pushdown::{FilterPushdownPropagation, PushedDown};
@@ -19,6 +21,7 @@ use datafusion_datasource::TableSchema;
 use futures::{StreamExt, TryStreamExt};
 use geoarrow_array::array::from_arrow_array;
 use geoarrow_flatgeobuf::reader::{FlatGeobufReaderOptions, FlatGeobufRecordBatchStream};
+use geoarrow_schema::GeoArrowType;
 use geodatafusion::udf::native::bounding_box::util::total_bounds;
 use object_store::ObjectStore;
 
@@ -112,7 +115,7 @@ impl FileSource for FlatGeobufSource {
         let mut bbox = self.bbox;
         for filter in filters.iter() {
             if bbox.is_none()
-                && let Some(extracted) = extract_bbox(filter)?
+                && let Some(extracted) = extract_bbox(filter, &self.table_schema)?
             {
                 bbox = Some(extracted);
                 // The FlatGeobuf index only produces candidates. Keep the exact
@@ -160,7 +163,7 @@ impl FileSource for FlatGeobufSource {
 }
 
 /// [`FileOpener`] implementation for reading a partitioned FlatGeobuf (`.fgb`) file.
-pub struct FlatGeobufOpener {
+pub(crate) struct FlatGeobufOpener {
     config: Arc<FlatGeobufSource>,
     object_store: Arc<dyn ObjectStore>,
 }
@@ -168,7 +171,7 @@ pub struct FlatGeobufOpener {
 impl FlatGeobufOpener {
     /// Creates a new [`FlatGeobufOpener`] from the given [`FlatGeobufSource`] configuration
     /// and [`ObjectStore`].
-    pub fn new(config: Arc<FlatGeobufSource>, object_store: Arc<dyn ObjectStore>) -> Self {
+    pub(crate) fn new(config: Arc<FlatGeobufSource>, object_store: Arc<dyn ObjectStore>) -> Self {
         Self {
             config,
             object_store,
@@ -215,6 +218,13 @@ fn columnar_value_to_bbox(value: ColumnarValue, field: &Field) -> Result<Option<
     if let Ok(geo_arr) = from_arrow_array(&arrays[0], field) {
         let bounds =
             total_bounds(&geo_arr).map_err(|err| DataFusionError::External(Box::new(err)))?;
+        if !bounds.minx().is_finite()
+            || !bounds.miny().is_finite()
+            || !bounds.maxx().is_finite()
+            || !bounds.maxy().is_finite()
+        {
+            return Ok(None);
+        }
         Ok(Some([
             bounds.minx(),
             bounds.miny(),
@@ -226,16 +236,53 @@ fn columnar_value_to_bbox(value: ColumnarValue, field: &Field) -> Result<Option<
     }
 }
 
-fn extract_bbox(expr: &Arc<dyn PhysicalExpr>) -> Result<Option<[f64; 4]>> {
-    if let Some(func) = expr.downcast_ref::<ScalarFunctionExpr>()
-        && func.fun().name().eq_ignore_ascii_case("st_intersects")
-        && func.args().len() == 2
-    {
-        let bbox_expr = func.args()[1].clone();
-        let empty = RecordBatch::new_empty(Arc::new(Schema::empty()));
-        let value = bbox_expr.evaluate(&empty)?;
-        let return_field = bbox_expr.return_field(empty.schema_ref())?;
-        return columnar_value_to_bbox(value, &return_field);
+pub(crate) fn extract_bbox(
+    expr: &Arc<dyn PhysicalExpr>,
+    table_schema: &TableSchema,
+) -> Result<Option<[f64; 4]>> {
+    let Some(func) = expr.downcast_ref::<ScalarFunctionExpr>() else {
+        return Ok(None);
+    };
+    if !func.fun().name().eq_ignore_ascii_case("st_intersects") || func.args().len() != 2 {
+        return Ok(None);
     }
-    Ok(None)
+
+    let args = func.args();
+    let (geometry_expr, bbox_expr) = match (
+        args[0].downcast_ref::<Column>(),
+        args[1].downcast_ref::<Column>(),
+    ) {
+        (Some(_), None) => (args[0].clone(), args[1].clone()),
+        (None, Some(_)) => (args[1].clone(), args[0].clone()),
+        _ => return Ok(None),
+    };
+
+    if !is_indexed_geometry_column(&geometry_expr, table_schema) {
+        return Ok(None);
+    }
+    if !collect_columns(&bbox_expr).is_empty() {
+        return Ok(None);
+    }
+
+    let empty = RecordBatch::new_empty(Arc::new(Schema::empty()));
+    let value = match bbox_expr.evaluate(&empty) {
+        Ok(value) => value,
+        Err(_) => return Ok(None),
+    };
+    let return_field = match bbox_expr.return_field(empty.schema_ref()) {
+        Ok(field) => field,
+        Err(_) => return Ok(None),
+    };
+    columnar_value_to_bbox(value, &return_field)
+}
+
+/// Return true only when `expr` is a direct reference to the file's indexed geometry column.
+fn is_indexed_geometry_column(expr: &Arc<dyn PhysicalExpr>, table_schema: &TableSchema) -> bool {
+    let Some(column) = expr.downcast_ref::<Column>() else {
+        return false;
+    };
+    let Some(field) = table_schema.file_schema().fields().get(column.index()) else {
+        return false;
+    };
+    field.name() == column.name() && GeoArrowType::from_arrow_field(field).is_ok()
 }

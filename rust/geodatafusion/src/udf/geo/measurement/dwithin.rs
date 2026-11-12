@@ -183,7 +183,7 @@ fn bounds_intersect(left: [f64; 4], right: [f64; 4]) -> bool {
 }
 
 /// `ST_DWithin` scalar UDF implementation: tests whether the 2D Cartesian minimum distance between two geometries is at most a given radius.
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct DWithin;
 
 impl DWithin {
@@ -229,6 +229,9 @@ impl ScalarUDFImpl for DWithin {
     }
 
     fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+        if let Some(result) = crate::data_types::null_input_result(&args)? {
+            return Ok(result);
+        }
         Ok(dwithin_impl(args)?)
     }
 
@@ -705,7 +708,7 @@ mod tests {
         }
     }
 
-    #[derive(Debug, Eq, PartialEq, Hash)]
+    #[derive(Debug, Clone, Eq, PartialEq, Hash)]
     struct FakeDWithin;
 
     impl ScalarUDFImpl for FakeDWithin {

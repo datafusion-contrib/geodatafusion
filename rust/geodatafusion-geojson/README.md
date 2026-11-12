@@ -13,9 +13,9 @@ Newline-delimited GeoJSON (`.geojsonl`) [`FileFormat`](https://docs.rs/datafusio
 use std::sync::Arc;
 use datafusion::execution::SessionStateBuilder;
 use datafusion::prelude::SessionContext;
-use geodatafusion_geojson::GeoJsonFileFactory;
+use geodatafusion_geojson::GeoJsonFormatFactory;
 
-let file_format = Arc::new(GeoJsonFileFactory::new());
+let file_format = Arc::new(GeoJsonFormatFactory::new());
 let state = SessionStateBuilder::new()
     .with_file_formats(vec![file_format])
     .build();

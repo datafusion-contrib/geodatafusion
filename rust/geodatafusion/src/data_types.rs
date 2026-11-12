@@ -1,7 +1,9 @@
 use std::sync::LazyLock;
 
+use arrow_array::new_null_array;
 use arrow_schema::DataType;
-use datafusion::logical_expr::{Signature, Volatility};
+use datafusion::logical_expr::{ColumnarValue, ScalarFunctionArgs, Signature, Volatility};
+use datafusion::scalar::ScalarValue;
 use geoarrow_schema::{
     BoxType, CoordType, Dimension, GeometryCollectionType, GeometryType, LineStringType,
     MultiLineStringType, MultiPointType, MultiPolygonType, PointType, PolygonType,
@@ -98,4 +100,25 @@ static ANY_SINGLE_GEOMETRY_TYPE_INPUT: LazyLock<Signature> =
 
 pub(crate) fn any_single_geometry_type_input() -> &'static Signature {
     &ANY_SINGLE_GEOMETRY_TYPE_INPUT
+}
+
+/// Return a typed all-NULL result when the first UDF argument is a bare SQL NULL.
+pub(crate) fn null_input_result(
+    args: &ScalarFunctionArgs,
+) -> datafusion::error::Result<Option<ColumnarValue>> {
+    let is_null = args
+        .arg_fields
+        .iter()
+        .any(|field| field.data_type() == &DataType::Null)
+        || args
+            .args
+            .iter()
+            .any(|arg| matches!(arg, ColumnarValue::Scalar(ScalarValue::Null)));
+    if !is_null {
+        return Ok(None);
+    }
+    Ok(Some(ColumnarValue::Array(new_null_array(
+        &args.return_field.data_type(),
+        args.number_rows,
+    ))))
 }

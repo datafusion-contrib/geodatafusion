@@ -9,7 +9,7 @@
 
 pub mod file_format;
 
-pub use file_format::{GeoJsonFileFactory, GeoJsonFormat, GeoJsonFormatFactory};
+pub use file_format::{GeoJsonFormat, GeoJsonFormatFactory};
 
 #[cfg(test)]
 mod tests {
@@ -56,7 +56,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_write_geojsonlines_sink() {
-        let file_format = Arc::new(GeoJsonFileFactory::new()); // Lines format
+        let file_format = Arc::new(GeoJsonFormatFactory::new()); // Lines format
         let state = SessionStateBuilder::new()
             .with_file_formats(vec![file_format])
             .build();
@@ -143,7 +143,7 @@ mod tests {
         )
         .unwrap();
 
-        let file_format = Arc::new(GeoJsonFileFactory::new());
+        let file_format = Arc::new(GeoJsonFormatFactory::new());
         let state = SessionStateBuilder::new()
             .with_file_formats(vec![file_format])
             .build();
@@ -184,5 +184,53 @@ mod tests {
         assert!(props.get("id").is_none()); // id should not be in properties
 
         fs::remove_file(&file_path).unwrap();
+    }
+}
+
+#[cfg(test)]
+mod format_tests {
+    use std::sync::Arc;
+
+    use arrow_schema::Schema;
+    use datafusion::datasource::file_format::FileFormat;
+    use datafusion::datasource::file_format::file_compression_type::FileCompressionType;
+    use datafusion::datasource::physical_plan::FileScanConfigBuilder;
+    use datafusion::execution::object_store::ObjectStoreUrl;
+    use datafusion_datasource::TableSchema;
+    use geoarrow_schema::{Dimension, PointType};
+    use object_store::memory::InMemory;
+
+    use super::*;
+
+    #[test]
+    fn compression_and_reading_contracts_are_explicit() {
+        let format = GeoJsonFormat::new();
+        assert_eq!(
+            format
+                .get_ext_with_compression(&FileCompressionType::UNCOMPRESSED)
+                .unwrap(),
+            "geojsonl"
+        );
+        assert!(
+            format
+                .get_ext_with_compression(&FileCompressionType::GZIP)
+                .is_err()
+        );
+
+        let schema = Arc::new(Schema::new(vec![
+            PointType::new(Dimension::XY, Default::default()).to_field("geometry", true),
+        ]));
+        let source = format.file_source(TableSchema::from(schema));
+        assert_eq!(source.file_type(), "geojsonl");
+        let config = FileScanConfigBuilder::new(
+            ObjectStoreUrl::parse("memory:///").unwrap(),
+            Arc::clone(&source),
+        )
+        .build();
+        let err = match source.create_file_opener(Arc::new(InMemory::new()), &config, 0) {
+            Ok(_) => panic!("GeoJSON reading unexpectedly returned a file opener"),
+            Err(err) => err.to_string(),
+        };
+        assert!(err.contains("only supports writing"), "{err}");
     }
 }

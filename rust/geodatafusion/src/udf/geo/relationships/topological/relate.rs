@@ -24,7 +24,7 @@ use crate::error::GeoDataFusionResult;
 macro_rules! impl_relate_udf {
     ($struct_name:ident, $udf_name:expr, $documentation_name:ident, $callback:expr, $doc_text:expr, $doc_example:expr) => {
         #[doc = $doc_text]
-        #[derive(Debug, Eq, PartialEq, Hash)]
+        #[derive(Debug, Clone, Eq, PartialEq, Hash)]
         pub struct $struct_name {
             signature: Signature,
         }
@@ -60,6 +60,9 @@ macro_rules! impl_relate_udf {
             }
 
             fn invoke_with_args(&self, args: ScalarFunctionArgs) -> Result<ColumnarValue> {
+                if let Some(result) = crate::data_types::null_input_result(&args)? {
+                    return Ok(result);
+                }
                 let mut arrays = args.args.into_iter();
                 Ok(relate_impl(
                     arrays.next().unwrap(),
