@@ -253,7 +253,7 @@ async fn custom_coord_type_is_honored_for_both_functions() {
     ctx.register_udf(Envelope::new(CoordType::Interleaved).into());
     ctx.register_udf(Expand::new(CoordType::Interleaved).into());
     ctx.register_udf(GeomFromText::default().into());
-    ctx.register_udf(AsText.into());
+    ctx.register_udf(AsText::default().into());
 
     let batch = ctx
         .sql(

@@ -25,12 +25,14 @@ use crate::udf::native::io::geometry::{is_polyhedral_surface_row, nested_collect
 
 /// `ST_NumGeometries` scalar UDF implementation: returns the number of component geometries in a collection (or `1` for non-empty atomic geometries).
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct NumGeometries;
+pub struct NumGeometries {
+    _private: (),
+}
 
 impl NumGeometries {
     /// Creates a new `ST_NumGeometries` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

@@ -25,12 +25,14 @@ use crate::udf::native::io::geometry::{
 
 /// `ST_AsBinary` scalar UDF implementation: converts a geometry into OGC Well-Known Binary (WKB).
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct AsBinary;
+pub struct AsBinary {
+    _private: (),
+}
 
 impl AsBinary {
     /// Creates a new `ST_AsBinary` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

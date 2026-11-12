@@ -2,8 +2,55 @@ use std::collections::BTreeSet;
 
 use datafusion::execution::SessionStateBuilder;
 use datafusion::prelude::SessionContext;
+use geodatafusion::CoordType;
 
 const IMPLEMENTED: &str = "\u{2705}";
+
+#[tokio::test]
+#[allow(clippy::type_complexity)]
+async fn group_registration_applies_coordinate_layout() {
+    use geoarrow_array::array::from_arrow_array;
+    use geoarrow_schema::GeoArrowType;
+
+    let groups: [(fn(&SessionContext, CoordType), &str); 4] = [
+        (
+            geodatafusion::register_with_coord_type,
+            "SELECT ST_Point(1, 2), ST_Centroid('POINT(1 2)'), ST_PointFromGeoHash('s')",
+        ),
+        (
+            geodatafusion::udf::native::register_with_coord_type,
+            "SELECT ST_Point(1, 2), ST_EndPoint('LINESTRING(0 0,1 2)'), \
+             ST_Expand('POINT(1 2)', 1), ST_Force2D('POINT Z(1 2 3)'), ST_GeomFromText('POINT(1 2)')",
+        ),
+        (
+            geodatafusion::udf::geo::register_with_coord_type,
+            "SELECT ST_Centroid('POINT(1 2)'), ST_Simplify('LINESTRING(0 0,1 1)', 0.1)",
+        ),
+        (
+            geodatafusion::udf::geohash::register_with_coord_type,
+            "SELECT ST_PointFromGeoHash('s')",
+        ),
+    ];
+    for layout in [CoordType::Separated, CoordType::Interleaved] {
+        for (register, sql) in groups {
+            let ctx = SessionContext::new_with_state(SessionStateBuilder::new().build());
+            register(&ctx, layout);
+            let batches = ctx.sql(sql).await.unwrap().collect().await.unwrap();
+            let batch = &batches[0];
+            for (field, array) in batch.schema().fields().iter().zip(batch.columns()) {
+                assert_eq!(
+                    GeoArrowType::from_arrow_field(field).unwrap().coord_type(),
+                    Some(layout)
+                );
+                let geometry = from_arrow_array(array.as_ref(), field).unwrap();
+                assert_eq!(geometry.data_type().coord_type(), Some(layout));
+                assert_eq!(array.len(), 1);
+                assert!(!geometry.is_null(0));
+            }
+        }
+    }
+}
+
 fn postgis_compatibility_implemented_functions() -> BTreeSet<String> {
     include_str!("../../../POSTGIS_COMPATIBILITY.md")
         .lines()

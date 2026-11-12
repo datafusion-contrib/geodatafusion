@@ -22,12 +22,14 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_NRings` scalar UDF implementation: returns the total number of rings (exterior and interior) in a polygonal geometry.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct NRings;
+pub struct NRings {
+    _private: (),
+}
 
 impl NRings {
     /// Creates a new `ST_NRings` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

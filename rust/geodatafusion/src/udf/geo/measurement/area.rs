@@ -15,12 +15,14 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_Area` scalar UDF implementation: returns the 2D planar area of a polygonal geometry.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct Area;
+pub struct Area {
+    _private: (),
+}
 
 impl Area {
     /// Creates a new `ST_Area` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

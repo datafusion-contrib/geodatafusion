@@ -20,12 +20,12 @@ mod num_interior_rings;
 mod point;
 mod zm_flag;
 
-pub use coord_dim::{CoordDim, NDims};
+pub use coord_dim::CoordDim;
 pub use dimension::Dimension;
 pub use dump::Dump;
 pub use envelope::Envelope;
 pub use exterior_ring::ExteriorRing;
-pub use geometry_type::{GeometryType, ST_GeometryType};
+pub use geometry_type::{GeometryType, STGeometryType};
 pub use has_m::HasM;
 pub use has_z::HasZ;
 pub use interior_ring_n::InteriorRingN;
@@ -43,30 +43,39 @@ pub use zm_flag::ZmFlag;
 
 /// Register all native geometry accessor UDFs into the given [`SessionContext`](datafusion::prelude::SessionContext).
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
-    session_context.register_udf(CoordDim.into());
-    session_context.register_udf(Dimension.into());
-    session_context.register_udf(NDims.into());
-    session_context.register_udf(GeometryType.into());
-    session_context.register_udf(ST_GeometryType.into());
-    session_context.register_udf(HasM.into());
-    session_context.register_udf(HasZ.into());
-    session_context.register_udf(InteriorRingN::default().into());
-    session_context.register_udf(IsClosed.into());
-    session_context.register_udf(IsCollection.into());
-    session_context.register_udf(IsEmpty.into());
-    session_context.register_udf(Dump::default().into());
-    session_context.register_udf(Envelope::default().into());
-    session_context.register_udf(EndPoint::default().into());
-    session_context.register_udf(ExteriorRing::default().into());
-    session_context.register_udf(PointN::default().into());
-    session_context.register_udf(StartPoint::default().into());
-    session_context.register_udf(NPoints.into());
-    session_context.register_udf(NRings.into());
-    session_context.register_udf(NumGeometries.into());
-    session_context.register_udf(NumInteriorRings.into());
+    register_with_coord_type(session_context, crate::CoordType::default());
+}
+
+/// Register this group with the requested coordinate layout for geometry-producing UDFs.
+///
+/// Functions whose output layout is fixed by their type, such as bounding boxes, keep that layout.
+pub fn register_with_coord_type(
+    session_context: &datafusion::prelude::SessionContext,
+    coord_type: crate::CoordType,
+) {
+    session_context.register_udf(CoordDim::default().into());
+    session_context.register_udf(Dimension::default().into());
+    session_context.register_udf(GeometryType::default().into());
+    session_context.register_udf(STGeometryType::default().into());
+    session_context.register_udf(HasM::default().into());
+    session_context.register_udf(HasZ::default().into());
+    session_context.register_udf(InteriorRingN::new(coord_type).into());
+    session_context.register_udf(IsClosed::default().into());
+    session_context.register_udf(IsCollection::default().into());
+    session_context.register_udf(IsEmpty::default().into());
+    session_context.register_udf(Dump::new(coord_type).into());
+    session_context.register_udf(Envelope::new(coord_type).into());
+    session_context.register_udf(EndPoint::new(coord_type).into());
+    session_context.register_udf(ExteriorRing::new(coord_type).into());
+    session_context.register_udf(PointN::new(coord_type).into());
+    session_context.register_udf(StartPoint::new(coord_type).into());
+    session_context.register_udf(NPoints::default().into());
+    session_context.register_udf(NRings::default().into());
+    session_context.register_udf(NumGeometries::default().into());
+    session_context.register_udf(NumInteriorRings::default().into());
     session_context.register_udf(M::default().into());
     session_context.register_udf(X::default().into());
     session_context.register_udf(Y::default().into());
     session_context.register_udf(Z::default().into());
-    session_context.register_udf(ZmFlag.into());
+    session_context.register_udf(ZmFlag::default().into());
 }

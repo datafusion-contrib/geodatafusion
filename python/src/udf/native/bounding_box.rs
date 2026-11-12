@@ -11,19 +11,24 @@ use pyo3::types::PyCapsule;
 use crate::constants::AGGREGATE_UDF_CAPSULE_NAME;
 use crate::{impl_udf, impl_udf_coord_type_arg};
 
-impl_udf!(Box2D, PyBox2D, "Box2D");
-impl_udf!(Box3D, PyBox3D, "Box3D");
-impl_udf_coord_type_arg!(Expand, PyExpand, "Expand");
-impl_udf!(XMin, PyXMin, "XMin");
-impl_udf!(XMax, PyXMax, "XMax");
-impl_udf!(YMin, PyYMin, "YMin");
-impl_udf!(YMax, PyYMax, "YMax");
-impl_udf!(ZMin, PyZMin, "ZMin");
-impl_udf!(ZMax, PyZMax, "ZMax");
-impl_udf!(MakeBox2D, PyMakeBox2D, "MakeBox2D");
-impl_udf!(MakeBox3D, PyMakeBox3D, "MakeBox3D");
+impl_udf!(Box2D, PyBox2D, "Box2D", "geodatafusion.native");
+impl_udf!(Box3D, PyBox3D, "Box3D", "geodatafusion.native");
+impl_udf_coord_type_arg!(Expand, PyExpand, "Expand", "geodatafusion.native");
+impl_udf!(XMin, PyXMin, "XMin", "geodatafusion.native");
+impl_udf!(XMax, PyXMax, "XMax", "geodatafusion.native");
+impl_udf!(YMin, PyYMin, "YMin", "geodatafusion.native");
+impl_udf!(YMax, PyYMax, "YMax", "geodatafusion.native");
+impl_udf!(ZMin, PyZMin, "ZMin", "geodatafusion.native");
+impl_udf!(ZMax, PyZMax, "ZMax", "geodatafusion.native");
+impl_udf!(MakeBox2D, PyMakeBox2D, "MakeBox2D", "geodatafusion.native");
+impl_udf!(MakeBox3D, PyMakeBox3D, "MakeBox3D", "geodatafusion.native");
 
-#[pyclass(module = "geodatafusion", name = "Extent", frozen, from_py_object)]
+#[pyclass(
+    module = "geodatafusion.native",
+    name = "Extent",
+    frozen,
+    from_py_object
+)]
 #[derive(Debug, Clone)]
 pub struct PyExtent(Arc<Extent>);
 

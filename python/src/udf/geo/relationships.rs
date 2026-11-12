@@ -4,13 +4,13 @@ use geodatafusion::udf::geo::relationships::{
 
 use crate::impl_udf;
 
-impl_udf!(Contains, PyContains, "Contains");
-impl_udf!(CoveredBy, PyCoveredBy, "CoveredBy");
-impl_udf!(Covers, PyCovers, "Covers");
-impl_udf!(Crosses, PyCrosses, "Crosses");
-impl_udf!(Disjoint, PyDisjoint, "Disjoint");
-impl_udf!(Equals, PyEquals, "Equals");
-impl_udf!(Intersects, PyIntersects, "Intersects");
-impl_udf!(Overlaps, PyOverlaps, "Overlaps");
-impl_udf!(Touches, PyTouches, "Touches");
-impl_udf!(Within, PyWithin, "Within");
+impl_udf!(Contains, PyContains, "Contains", "geodatafusion.geo");
+impl_udf!(CoveredBy, PyCoveredBy, "CoveredBy", "geodatafusion.geo");
+impl_udf!(Covers, PyCovers, "Covers", "geodatafusion.geo");
+impl_udf!(Crosses, PyCrosses, "Crosses", "geodatafusion.geo");
+impl_udf!(Disjoint, PyDisjoint, "Disjoint", "geodatafusion.geo");
+impl_udf!(Equals, PyEquals, "Equals", "geodatafusion.geo");
+impl_udf!(Intersects, PyIntersects, "Intersects", "geodatafusion.geo");
+impl_udf!(Overlaps, PyOverlaps, "Overlaps", "geodatafusion.geo");
+impl_udf!(Touches, PyTouches, "Touches", "geodatafusion.geo");
+impl_udf!(Within, PyWithin, "Within", "geodatafusion.geo");

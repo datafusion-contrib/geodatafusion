@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import ast
+import importlib
 from pathlib import Path
 
+import geodatafusion
 import pyarrow as pa
+import pytest
 from datafusion import SessionContext, udaf, udf
 from geodatafusion import (
     _rust,
@@ -101,6 +104,56 @@ def test_existing_coord_type_option_still_works():
         "SELECT ST_AsText(ST_EndPoint(ST_GeomFromText('LINESTRING(0 0, 1 1)'))) AS point"
     ).to_arrow_table()
     assert result.to_pylist() == [{"point": "POINT(1 1)"}]
+
+
+@pytest.mark.parametrize("coord_type", [None, "separated", "interleaved"])
+@pytest.mark.parametrize(
+    "register, expression, expected",
+    [
+        (register_all, "ST_Point(1, 2)", [1.0, 2.0]),
+        (register_all_native, "ST_Point(1, 2)", [1.0, 2.0]),
+        (register_all_geo, "ST_Centroid('POINT(1 2)')", [1.0, 2.0]),
+        (register_all_geohash, "ST_PointFromGeoHash('s')", [22.5, 22.5]),
+    ],
+)
+def test_group_coordinate_layout(register, expression, expected, coord_type):
+    ctx = SessionContext()
+    if coord_type is None:
+        register(ctx)
+    else:
+        register(ctx, coord_type=coord_type)
+    result = ctx.sql(f"SELECT {expression} AS geometry").to_arrow_table()
+    field = result.schema.field("geometry")
+    assert field.metadata[b"ARROW:extension:name"] == b"geoarrow.point"
+    if coord_type == "interleaved":
+        assert pa.types.is_fixed_size_list(field.type)
+        assert result.column(0).to_pylist() == [expected]
+    else:
+        assert pa.types.is_struct(field.type)
+        assert result.column(0).to_pylist() == [{"x": expected[0], "y": expected[1]}]
+
+
+def test_public_python_namespace_and_class_paths():
+    namespace = {}
+    exec("from geodatafusion import *", namespace)
+    assert set(namespace) - {"__builtins__"} == set(geodatafusion.__all__)
+    assert not {"annotations", "TYPE_CHECKING", "Literal", "udf", "udaf"} & set(
+        namespace
+    )
+    assert not hasattr(native, "NDims")
+    assert not hasattr(native, "Force3D")
+    for group in [native, geo, geohash]:
+        for name in dir(group):
+            cls = getattr(group, name)
+            if name.startswith("_") or not isinstance(cls, type):
+                continue
+            module = importlib.import_module(cls.__module__)
+            assert getattr(module, cls.__qualname__) is cls
+
+
+def test_registration_rejects_unknown_layout():
+    with pytest.raises(ValueError, match="coord type"):
+        register_all(SessionContext(), coord_type="unknown")
 
 
 def test_line_merge_register_all():
@@ -770,18 +823,19 @@ def test_register_all_st_hasm_scalar_and_array():
     assert array.column("has_m").to_pylist() == [False, False, True, True]
 
 
-def test_register_all_st_force_dimensions():
+@pytest.mark.parametrize("coord_type", ["separated", "interleaved"])
+def test_register_all_st_force_dimensions(coord_type):
     ctx = SessionContext()
-    register_all(ctx)
+    register_all(ctx, coord_type=coord_type)
 
     result = ctx.sql(
         """
         SELECT
             ST_AsText(ST_Force2D(ST_GeomFromText('POINT ZM(1 2 3 4)'))) AS force_2d,
-            ST_AsText(ST_Force3D(ST_GeomFromText('POINT(1 2)'), 9.0)) AS force_3d,
-            ST_AsText(ST_Force3DZ(ST_GeomFromText('POINT M(1 2 4)'), 9.0)) AS force_3dz,
-            ST_AsText(ST_Force3DM(ST_GeomFromText('POINT Z(1 2 3)'), 11.0)) AS force_3dm,
-            ST_AsText(ST_Force4D(ST_GeomFromText('POINT(1 2)'), 9.0, 11.0)) AS force_4d,
+            ST_AsText(ST_Force3D(ST_Point(1, 2), 9)) AS force_3d,
+            ST_AsText(ST_Force3DZ(ST_PointM(1, 2, 4), 9)) AS force_3dz,
+            ST_AsText(ST_Force3DM(ST_PointZ(1, 2, 3), 11)) AS force_3dm,
+            ST_AsText(ST_Force4D(ST_Point(1, 2), 9, 11)) AS force_4d,
             ST_AsText(ST_Force3DM(ST_3DMakeBox(ST_MakePoint(0, 1, 2), ST_MakePoint(3, 4, 5)), 8.0)) AS box3d_3dm,
             ST_AsText(ST_Force4D(ST_GeomFromText('GEOMETRYCOLLECTION(GEOMETRYCOLLECTION(POINT(1 2)))'), 3.0, 4.0)) AS nested_gc_4d,
             ST_Force4D(NULL, 9.0, 11.0) AS null_geom

@@ -14,9 +14,9 @@ pub use perimeter::Perimeter;
 
 /// Register all `geo` measurement UDFs into the given [`SessionContext`](datafusion::prelude::SessionContext).
 pub fn register(session_context: &datafusion::prelude::SessionContext) {
-    session_context.register_udf(Area.into());
-    session_context.register_udf(Distance.into());
-    session_context.register_udf(DWithin.into());
-    session_context.register_udf(Length.into());
-    session_context.register_udf(Perimeter.into());
+    session_context.register_udf(Area::default().into());
+    session_context.register_udf(Distance::default().into());
+    session_context.register_udf(DWithin::default().into());
+    session_context.register_udf(Length::default().into());
+    session_context.register_udf(Perimeter::default().into());
 }

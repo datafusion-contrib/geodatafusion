@@ -20,12 +20,14 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_NumInteriorRings` (`ST_NumInteriorRing`) scalar UDF implementation: returns the number of interior rings (holes) of a `Polygon`.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct NumInteriorRings;
+pub struct NumInteriorRings {
+    _private: (),
+}
 
 impl NumInteriorRings {
     /// Creates a new `ST_NumInteriorRings` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

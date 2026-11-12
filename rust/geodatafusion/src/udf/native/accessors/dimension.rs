@@ -17,12 +17,14 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_Dimension` scalar UDF implementation: returns the inherent topological dimension (`0`, `1`, or `2`) of a geometry.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct Dimension;
+pub struct Dimension {
+    _private: (),
+}
 
 impl Dimension {
     /// Creates a new `ST_Dimension` UDF instance.
     pub fn new() -> Self {
-        Self
+        Self { _private: () }
     }
 }
 

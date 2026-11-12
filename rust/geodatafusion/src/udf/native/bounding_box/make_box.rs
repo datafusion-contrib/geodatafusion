@@ -16,12 +16,14 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_MakeBox2D` scalar UDF implementation: creates a 2D bounding box (`BOX2D`) defined by two 2D point geometries.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct MakeBox2D;
+pub struct MakeBox2D {
+    _private: (),
+}
 
 impl MakeBox2D {
     /// Creates a new `ST_MakeBox2D` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 
@@ -76,12 +78,14 @@ impl ScalarUDFImpl for MakeBox2D {
 
 /// `ST_3DMakeBox` scalar UDF implementation: creates a 3D bounding box (`BOX3D`) defined by two 3D point geometries.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct MakeBox3D;
+pub struct MakeBox3D {
+    _private: (),
+}
 
 impl MakeBox3D {
     /// Creates a new `ST_3DMakeBox` UDF instance.
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 

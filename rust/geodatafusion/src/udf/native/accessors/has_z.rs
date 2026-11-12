@@ -18,12 +18,14 @@ use crate::error::GeoDataFusionResult;
 
 /// `ST_HasZ` scalar UDF implementation: returns `true` if a geometry has a Z coordinate dimension.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct HasZ;
+pub struct HasZ {
+    _private: (),
+}
 
 impl HasZ {
     /// Creates a new `ST_HasZ` UDF instance.
     pub fn new() -> Self {
-        Self
+        Self { _private: () }
     }
 }
 

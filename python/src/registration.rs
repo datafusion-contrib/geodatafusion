@@ -9,16 +9,21 @@ use pyo3::prelude::*;
 use pyo3::types::PyCapsule;
 
 use crate::constants::{AGGREGATE_UDF_CAPSULE_NAME, SCALAR_UDF_CAPSULE_NAME};
+use crate::utils::PyCoordType;
 
 type ScalarUdfExport<'py> = (String, Vec<String>, Bound<'py, PyCapsule>);
 type AggregateUdfExport<'py> = (String, Vec<String>, Bound<'py, PyCapsule>);
 
-fn register_group(ctx: &SessionContext, group: &str) -> PyResult<()> {
+fn register_group(
+    ctx: &SessionContext,
+    group: &str,
+    coord_type: geodatafusion::CoordType,
+) -> PyResult<()> {
     match group {
-        "all" => geodatafusion::register(ctx),
-        "geo" => geodatafusion::udf::geo::register(ctx),
-        "geohash" => geodatafusion::udf::geohash::register(ctx),
-        "native" => geodatafusion::udf::native::register(ctx),
+        "all" => geodatafusion::register_with_coord_type(ctx, coord_type),
+        "geo" => geodatafusion::udf::geo::register_with_coord_type(ctx, coord_type),
+        "geohash" => geodatafusion::udf::geohash::register_with_coord_type(ctx, coord_type),
+        "native" => geodatafusion::udf::native::register_with_coord_type(ctx, coord_type),
         _ => {
             return Err(PyValueError::new_err(
                 "registration group must be one of: all, geo, geohash, native",
@@ -35,12 +40,14 @@ fn register_group(ctx: &SessionContext, group: &str) -> PyResult<()> {
 /// names are exported; aliases travel inside each UDF and are returned for
 /// parity checks.
 #[pyfunction]
+#[pyo3(signature = (group, *, coord_type=None))]
 pub(crate) fn _registration_exports<'py>(
     py: Python<'py>,
     group: &str,
+    coord_type: Option<PyCoordType>,
 ) -> PyResult<(Vec<ScalarUdfExport<'py>>, Vec<AggregateUdfExport<'py>>)> {
     let ctx = SessionContext::new_with_state(SessionStateBuilder::new().build());
-    register_group(&ctx, group)?;
+    register_group(&ctx, group, coord_type.map(Into::into).unwrap_or_default())?;
 
     let mut scalar_udfs: Vec<_> = ctx
         .state()

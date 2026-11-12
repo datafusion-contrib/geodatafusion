@@ -32,11 +32,11 @@ impl From<PyCoordType> for CoordType {
 }
 
 /// Simple macro to generate Python wrappers for geodatafusion UDF structs
-/// Usage: impl_udf!(RustStructName, PyWrapperName, "python_name")
+/// Usage: impl_udf!(RustStructName, PyWrapperName, "python_name", "geodatafusion.native")
 #[macro_export]
 macro_rules! impl_udf {
-    ($base:ident, $py_name:ident, $python_name:literal) => {
-        #[::pyo3::pyclass(module = "geodatafusion", name = $python_name, frozen, from_py_object)]
+    ($base:ident, $py_name:ident, $python_name:literal, $module:literal) => {
+        #[::pyo3::pyclass(module = $module, name = $python_name, frozen, from_py_object)]
         #[derive(Debug, Clone)]
         pub struct $py_name(::std::sync::Arc<$base>);
 
@@ -65,11 +65,11 @@ macro_rules! impl_udf {
 }
 
 /// Simple macro to generate Python wrappers for geodatafusion UDF structs
-/// Usage: impl_udf!(RustStructName, PyWrapperName, "python_name")
+/// Usage: impl_udf!(RustStructName, PyWrapperName, "python_name", "geodatafusion.native")
 #[macro_export]
 macro_rules! impl_udf_coord_type_arg {
-    ($base:ident, $py_name:ident, $python_name:literal) => {
-        #[::pyo3::pyclass(module = "geodatafusion", name = $python_name, frozen, from_py_object)]
+    ($base:ident, $py_name:ident, $python_name:literal, $module:literal) => {
+        #[::pyo3::pyclass(module = $module, name = $python_name, frozen, from_py_object)]
         #[derive(Debug, Clone)]
         pub struct $py_name(::std::sync::Arc<$base>);
 
