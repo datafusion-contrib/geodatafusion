@@ -17,9 +17,8 @@ use datafusion::datasource::physical_plan::{FileOpener, FileScanConfig, FileSour
 use datafusion::error::{DataFusionError, Result};
 use datafusion::execution::TaskContext;
 use datafusion::physical_expr::LexRequirement;
-use datafusion::physical_plan::PhysicalExpr;
 use datafusion::physical_plan::metrics::ExecutionPlanMetricsSet;
-use datafusion::physical_plan::{DisplayAs, DisplayFormatType, ExecutionPlan};
+use datafusion::physical_plan::{DisplayAs, DisplayFormatType, ExecutionPlan, PhysicalExpr};
 use datafusion_datasource::TableSchema;
 use datafusion_datasource::display::FileGroupDisplay;
 use datafusion_datasource::file_sink_config::{FileSink, FileSinkConfig};
