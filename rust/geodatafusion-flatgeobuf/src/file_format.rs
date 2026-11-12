@@ -148,15 +148,21 @@ async fn infer_flatgeobuf_schema(
 #[async_trait]
 impl FileFormat for FlatGeobufFormat {
     fn get_ext(&self) -> String {
-        FlatGeobufFormatFactory::new(Default::default(), Default::default()).get_ext()
+        "fgb".to_string()
     }
 
     fn get_ext_with_compression(
         &self,
         file_compression_type: &FileCompressionType,
     ) -> Result<String> {
-        let ext = self.get_ext();
-        Ok(format!("{}{}", ext, file_compression_type.get_ext()))
+        if file_compression_type == &FileCompressionType::UNCOMPRESSED {
+            Ok(self.get_ext())
+        } else {
+            Err(DataFusionError::NotImplemented(format!(
+                "FlatGeobuf does not support {:?} compression",
+                file_compression_type
+            )))
+        }
     }
 
     async fn infer_schema(
@@ -196,12 +202,12 @@ impl FileFormat for FlatGeobufFormat {
         object: &ObjectMeta,
     ) -> Result<Statistics> {
         let reader = open_flatgeobuf_reader(store.clone(), object.location.clone()).await?;
+        let num_rows = match reader.header().features_count() {
+            0 => Precision::Absent,
+            count => Precision::Exact(count as usize),
+        };
 
-        Ok(
-            Statistics::new_unknown(&table_schema).with_num_rows(Precision::Exact(
-                reader.header().features_count().try_into().unwrap(),
-            )),
-        )
+        Ok(Statistics::new_unknown(&table_schema).with_num_rows(num_rows))
     }
 
     async fn create_physical_plan(
@@ -285,7 +291,7 @@ impl FileSink for FlatGeobufSink {
             // Create FlatGeobufWriter
             let name = path
                 .filename()
-                .map(|s| s.to_string().rsplit_once(".").unwrap().0.to_string())
+                .and_then(|name| name.rsplit_once('.').map(|(stem, _)| stem.to_string()))
                 .unwrap_or_else(|| "file".to_string());
             let options = FlatGeobufWriterOptions::new(name);
             let mut fgb_writer = FlatGeobufWriter::try_new(
@@ -358,41 +364,5 @@ impl DataSink for FlatGeobufSink {
         context: &Arc<TaskContext>,
     ) -> Result<u64> {
         FileSink::write_all(self, data, context).await
-    }
-}
-
-/// Factory for creating FlatGeobuf file formats
-#[derive(Default, Debug)]
-pub struct FlatGeobufFileFactory {
-    file_factory: FlatGeobufFormatFactory,
-}
-
-impl FlatGeobufFileFactory {
-    /// Creates a new [`FlatGeobufFileFactory`] with the specified GeoArrow [`CoordType`]
-    /// and string/binary view type preference.
-    pub fn new(coord_type: CoordType, use_view_types: bool) -> Self {
-        Self {
-            file_factory: FlatGeobufFormatFactory::new(coord_type, use_view_types),
-        }
-    }
-}
-
-impl FileFormatFactory for FlatGeobufFileFactory {
-    fn create(
-        &self,
-        state: &dyn Session,
-        format_options: &std::collections::HashMap<String, String>,
-    ) -> Result<Arc<dyn FileFormat>> {
-        self.file_factory.create(state, format_options)
-    }
-
-    fn default(&self) -> Arc<dyn FileFormat> {
-        self.file_factory.default()
-    }
-}
-
-impl GetExt for FlatGeobufFileFactory {
-    fn get_ext(&self) -> String {
-        "fgb".to_string()
     }
 }

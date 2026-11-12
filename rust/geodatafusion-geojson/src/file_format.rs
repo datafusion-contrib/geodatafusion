@@ -9,13 +9,16 @@ use arrow_schema::SchemaRef;
 use async_trait::async_trait;
 use datafusion::catalog::Session;
 use datafusion::common::runtime::SpawnedTask;
+use datafusion::common::tree_node::TreeNodeRecursion;
 use datafusion::common::{GetExt, Statistics};
 use datafusion::datasource::file_format::file_compression_type::FileCompressionType;
 use datafusion::datasource::file_format::{FileFormat, FileFormatFactory};
-use datafusion::datasource::physical_plan::{FileScanConfig, FileSource};
+use datafusion::datasource::physical_plan::{FileOpener, FileScanConfig, FileSource};
 use datafusion::error::{DataFusionError, Result};
 use datafusion::execution::TaskContext;
 use datafusion::physical_expr::LexRequirement;
+use datafusion::physical_plan::PhysicalExpr;
+use datafusion::physical_plan::metrics::ExecutionPlanMetricsSet;
 use datafusion::physical_plan::{DisplayAs, DisplayFormatType, ExecutionPlan};
 use datafusion_datasource::TableSchema;
 use datafusion_datasource::display::FileGroupDisplay;
@@ -32,12 +35,14 @@ use tokio::io::AsyncWriteExt;
 ///
 /// This always outputs newline-delimited GeoJSON.
 #[derive(Debug, Default)]
-pub struct GeoJsonFormatFactory {}
+pub struct GeoJsonFormatFactory {
+    _private: (),
+}
 
 impl GeoJsonFormatFactory {
     /// Creates an instance of [`GeoJsonFormatFactory`]
     pub fn new() -> Self {
-        Self {}
+        Self { _private: () }
     }
 }
 
@@ -47,11 +52,11 @@ impl FileFormatFactory for GeoJsonFormatFactory {
         _state: &dyn Session,
         _format_options: &HashMap<String, String>,
     ) -> Result<Arc<dyn FileFormat>> {
-        Ok(Arc::new(GeoJsonFormat {}))
+        Ok(Arc::new(GeoJsonFormat::new()))
     }
 
     fn default(&self) -> Arc<dyn FileFormat> {
-        Arc::new(GeoJsonFormat {})
+        Arc::new(GeoJsonFormat::new())
     }
 }
 
@@ -63,7 +68,16 @@ impl GetExt for GeoJsonFormatFactory {
 
 /// Newline-delimited GeoJSON (`.geojsonl`) [`FileFormat`] implementation (write-only).
 #[derive(Debug, Default)]
-pub struct GeoJsonFormat {}
+pub struct GeoJsonFormat {
+    _private: (),
+}
+
+impl GeoJsonFormat {
+    /// Creates a new write-only GeoJSON Lines format.
+    pub fn new() -> Self {
+        Self { _private: () }
+    }
+}
 
 #[async_trait]
 impl FileFormat for GeoJsonFormat {
@@ -75,8 +89,14 @@ impl FileFormat for GeoJsonFormat {
         &self,
         file_compression_type: &FileCompressionType,
     ) -> Result<String> {
-        let ext = self.get_ext();
-        Ok(format!("{}{}", ext, file_compression_type.get_ext()))
+        if file_compression_type == &FileCompressionType::UNCOMPRESSED {
+            Ok(self.get_ext())
+        } else {
+            Err(DataFusionError::NotImplemented(format!(
+                "GeoJSON does not support {:?} compression",
+                file_compression_type
+            )))
+        }
     }
 
     async fn infer_schema(
@@ -127,14 +147,62 @@ impl FileFormat for GeoJsonFormat {
         Ok(Arc::new(DataSinkExec::new(input, sink, order_requirements)))
     }
 
-    fn file_source(&self, _table_schema: TableSchema) -> Arc<dyn FileSource> {
-        // Not implemented for reading
-        unimplemented!("GeoJSON format only supports writing")
+    fn file_source(&self, table_schema: TableSchema) -> Arc<dyn FileSource> {
+        Arc::new(UnsupportedGeoJsonSource {
+            table_schema,
+            metrics: ExecutionPlanMetricsSet::new(),
+        })
     }
 
     /// Returns whether this instance uses compression if applicable
     fn compression_type(&self) -> Option<FileCompressionType> {
         Some(FileCompressionType::UNCOMPRESSED)
+    }
+}
+
+#[derive(Debug)]
+struct UnsupportedGeoJsonSource {
+    table_schema: TableSchema,
+    metrics: ExecutionPlanMetricsSet,
+}
+
+impl FileSource for UnsupportedGeoJsonSource {
+    fn create_file_opener(
+        &self,
+        _object_store: Arc<dyn ObjectStore>,
+        _base_config: &FileScanConfig,
+        _partition: usize,
+    ) -> Result<Arc<dyn FileOpener>> {
+        Err(DataFusionError::NotImplemented(
+            "Reading GeoJSON files is not currently supported. This format only supports writing."
+                .to_string(),
+        ))
+    }
+
+    fn with_batch_size(&self, _batch_size: usize) -> Arc<dyn FileSource> {
+        Arc::new(Self {
+            table_schema: self.table_schema.clone(),
+            metrics: ExecutionPlanMetricsSet::new(),
+        })
+    }
+
+    fn metrics(&self) -> &ExecutionPlanMetricsSet {
+        &self.metrics
+    }
+
+    fn file_type(&self) -> &str {
+        "geojsonl"
+    }
+
+    fn table_schema(&self) -> &TableSchema {
+        &self.table_schema
+    }
+
+    fn apply_expressions(
+        &self,
+        _f: &mut dyn FnMut(&Arc<dyn PhysicalExpr>) -> Result<TreeNodeRecursion>,
+    ) -> Result<TreeNodeRecursion> {
+        Ok(TreeNodeRecursion::Continue)
     }
 }
 
@@ -267,39 +335,4 @@ async fn upload_temp_file_to_object_store(
 
     object_writer.shutdown().await?;
     Ok(())
-}
-
-/// Factory for creating GeoJSON file formats
-#[derive(Default, Debug)]
-pub struct GeoJsonFileFactory {
-    file_factory: GeoJsonFormatFactory,
-}
-
-impl GeoJsonFileFactory {
-    /// Creates a new [`GeoJsonFileFactory`].
-    pub fn new() -> Self {
-        Self {
-            file_factory: GeoJsonFormatFactory::new(),
-        }
-    }
-}
-
-impl FileFormatFactory for GeoJsonFileFactory {
-    fn create(
-        &self,
-        state: &dyn Session,
-        format_options: &std::collections::HashMap<String, String>,
-    ) -> Result<Arc<dyn FileFormat>> {
-        self.file_factory.create(state, format_options)
-    }
-
-    fn default(&self) -> Arc<dyn FileFormat> {
-        self.file_factory.default()
-    }
-}
-
-impl GetExt for GeoJsonFileFactory {
-    fn get_ext(&self) -> String {
-        self.file_factory.get_ext()
-    }
 }

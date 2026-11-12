@@ -11,7 +11,7 @@ pub mod file_format;
 pub mod source;
 mod utils;
 
-pub use file_format::{FlatGeobufFileFactory, FlatGeobufFormat, FlatGeobufFormatFactory};
+pub use file_format::{FlatGeobufFormat, FlatGeobufFormatFactory};
 
 #[cfg(test)]
 mod tests {
@@ -31,8 +31,13 @@ mod tests {
     };
     use datafusion::execution::SessionStateBuilder;
     use datafusion::execution::object_store::ObjectStoreUrl;
-    use datafusion::physical_plan::{ExecutionPlan, collect};
+    use datafusion::logical_expr::ScalarUDF;
+    use datafusion::physical_expr::ScalarFunctionExpr;
+    use datafusion::physical_expr::expressions::{Column, Literal};
+    use datafusion::physical_plan::{ExecutionPlan, PhysicalExpr, collect};
     use datafusion::prelude::SessionContext;
+    use datafusion::scalar::ScalarValue;
+    use datafusion_datasource::TableSchema;
     use flatgeobuf::FallibleStreamingIterator;
     use geo_traits::{CoordTrait, PointTrait};
     use geoarrow_array::array::{PointArray, from_arrow_array};
@@ -49,7 +54,7 @@ mod tests {
     use wkt::wkt;
 
     use super::*;
-    use crate::source::FlatGeobufSource;
+    use crate::source::{FlatGeobufSource, extract_bbox};
 
     #[tokio::test]
     async fn test_column_projection_with_geometry() {
@@ -231,6 +236,56 @@ mod tests {
         assert!(plan_contains_node(full_scan_plan.as_ref(), "FilterExec"));
         let full_scan_ids = collect_ids(&ctx, full_scan_plan).await;
         assert_eq!(full_scan_ids, indexed_ids);
+
+        let reversed_df = ctx
+            .sql(&format!(
+                "SELECT id FROM lines WHERE ST_Intersects(ST_GeomFromText('POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))'), geometry) ORDER BY id"
+            ))
+            .await
+            .unwrap();
+        let reversed_plan = reversed_df.create_physical_plan().await.unwrap();
+        let reversed_source = find_flatgeobuf_source(&reversed_plan).unwrap();
+        assert_eq!(reversed_source.bbox(), Some([0.0, 0.0, 10.0, 10.0]));
+        let reversed_ids = collect_ids(&ctx, reversed_plan).await;
+        assert_eq!(reversed_ids, vec![1]);
+
+        let dynamic_df = ctx
+            .sql(
+                "SELECT id FROM lines WHERE ST_Intersects(geometry, ST_Point(id, 5.0)) ORDER BY id",
+            )
+            .await
+            .unwrap();
+        let dynamic_plan = dynamic_df.create_physical_plan().await.unwrap();
+        let dynamic_source = find_flatgeobuf_source(&dynamic_plan).unwrap();
+        assert_eq!(dynamic_source.bbox(), None);
+        let dynamic_ids = collect_ids(&ctx, dynamic_plan).await;
+        assert_eq!(dynamic_ids, vec![1]);
+    }
+
+    #[test]
+    fn extract_bbox_requires_the_indexed_geometry_column() {
+        let geometry_field =
+            LineStringType::new(Dimension::XY, Default::default()).to_field("geometry", true);
+        let schema = Arc::new(Schema::new(vec![
+            Arc::new(Field::new("id", DataType::Int32, true)),
+            Arc::new(geometry_field),
+        ]));
+        let table_schema = TableSchema::from(schema);
+        let udf = Arc::new(ScalarUDF::from(
+            geodatafusion::udf::geo::relationships::Intersects::default(),
+        ));
+        let expr = Arc::new(ScalarFunctionExpr::new(
+            "st_intersects",
+            udf,
+            vec![
+                Arc::new(Column::new("id", 0)) as Arc<dyn PhysicalExpr>,
+                Arc::new(Literal::new(ScalarValue::Null)) as Arc<dyn PhysicalExpr>,
+            ],
+            Arc::new(Field::new("", DataType::Boolean, true)),
+            Arc::new(Default::default()),
+        )) as Arc<dyn PhysicalExpr>;
+
+        assert_eq!(extract_bbox(&expr, &table_schema).unwrap(), None);
     }
 
     fn sample_table() -> (Vec<RecordBatch>, Arc<Schema>) {
@@ -313,7 +368,7 @@ mod tests {
     }
 
     fn flatgeobuf_context() -> SessionContext {
-        let file_format = Arc::new(FlatGeobufFileFactory::default());
+        let file_format = Arc::new(FlatGeobufFormatFactory::default());
         let state = SessionStateBuilder::new()
             .with_file_formats(vec![file_format])
             .build();
@@ -514,5 +569,29 @@ mod tests {
         let reader = BufReader::new(file);
         let fgb_reader = flatgeobuf::FgbReader::open(reader).unwrap();
         assert_eq!(fgb_reader.header().features_count(), 3);
+    }
+}
+
+#[cfg(test)]
+mod format_tests {
+    use datafusion::datasource::file_format::FileFormat;
+    use datafusion::datasource::file_format::file_compression_type::FileCompressionType;
+
+    use super::*;
+
+    #[test]
+    fn compressed_extensions_are_rejected() {
+        let format = FlatGeobufFormat::default();
+        assert_eq!(
+            format
+                .get_ext_with_compression(&FileCompressionType::UNCOMPRESSED)
+                .unwrap(),
+            "fgb"
+        );
+        assert!(
+            format
+                .get_ext_with_compression(&FileCompressionType::GZIP)
+                .is_err()
+        );
     }
 }
