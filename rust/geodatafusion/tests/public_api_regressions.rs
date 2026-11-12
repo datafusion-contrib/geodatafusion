@@ -376,9 +376,7 @@ async fn unary_null_geometry_signatures_propagate_null() {
         fn accepts(signature: &TypeSignature) -> bool {
             match signature {
                 TypeSignature::Uniform(1, types) => types.contains(&DataType::Null),
-                TypeSignature::Exact(types) => {
-                    types.len() == 1 && types[0] == DataType::Null
-                }
+                TypeSignature::Exact(types) => types.len() == 1 && types[0] == DataType::Null,
                 TypeSignature::OneOf(signatures) => signatures.iter().any(accepts),
                 TypeSignature::Any(1) => true,
                 _ => false,
