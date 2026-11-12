@@ -55,6 +55,12 @@ impl FlatGeobufFormatFactory {
             max_scan_records: Some(1000),
         }
     }
+
+    /// Limit records read when inferring a missing property schema; `None` scans all records.
+    pub fn with_max_scan_records(mut self, max_scan_records: Option<usize>) -> Self {
+        self.max_scan_records = max_scan_records;
+        self
+    }
 }
 
 impl Default for FlatGeobufFormatFactory {
@@ -101,6 +107,23 @@ pub struct FlatGeobufFormat {
     coord_type: CoordType,
     use_view_types: bool,
     max_scan_records: Option<usize>,
+}
+
+impl FlatGeobufFormat {
+    /// Configure the geometry layout and whether string/binary columns use Arrow view types.
+    pub fn new(coord_type: CoordType, use_view_types: bool) -> Self {
+        Self {
+            coord_type,
+            use_view_types,
+            max_scan_records: Some(1000),
+        }
+    }
+
+    /// Limit records read when inferring a missing property schema; `None` scans all records.
+    pub fn with_max_scan_records(mut self, max_scan_records: Option<usize>) -> Self {
+        self.max_scan_records = max_scan_records;
+        self
+    }
 }
 
 impl Default for FlatGeobufFormat {

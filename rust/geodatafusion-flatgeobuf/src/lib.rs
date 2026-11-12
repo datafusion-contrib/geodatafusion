@@ -35,7 +35,7 @@ mod tests {
     use datafusion::physical_expr::ScalarFunctionExpr;
     use datafusion::physical_expr::expressions::{Column, Literal};
     use datafusion::physical_plan::{ExecutionPlan, PhysicalExpr, collect};
-    use datafusion::prelude::SessionContext;
+    use datafusion::prelude::{SessionConfig, SessionContext};
     use datafusion::scalar::ScalarValue;
     use datafusion_datasource::TableSchema;
     use flatgeobuf::FallibleStreamingIterator;
@@ -364,23 +364,85 @@ mod tests {
         (batches, schema): (Vec<RecordBatch>, Arc<Schema>),
     ) -> PathBuf {
         let path = dir.path().join(format!("{name}.fgb"));
-        let output = BufWriter::new(File::create(&path).unwrap());
+        write_flatgeobuf_batch(&path, batches, schema, true);
+        path
+    }
+
+    fn write_flatgeobuf_batch(
+        path: &Path,
+        batches: Vec<RecordBatch>,
+        schema: Arc<Schema>,
+        indexed: bool,
+    ) {
+        let output = BufWriter::new(File::create(path).unwrap());
         let mut writer = FlatGeobufWriter::try_new(
             output,
             schema,
-            FlatGeobufWriterOptions::new(name.to_string()),
+            FlatGeobufWriterOptions::new("fixture".to_string()).with_write_index(indexed),
         )
         .unwrap();
         for batch in &batches {
             writer.write(batch).unwrap();
         }
         writer.finish().unwrap().flush().unwrap();
-        path
+    }
+
+    #[tokio::test]
+    async fn test_spatial_filter_without_index_and_unknown_feature_count() {
+        let dir = tempfile::tempdir().unwrap();
+        let (batches, schema) = indexed_table();
+        for empty in [false, true] {
+            let path = dir
+                .path()
+                .join(if empty { "empty.fgb" } else { "unindexed.fgb" });
+            let rows = if empty {
+                vec![RecordBatch::new_empty(schema.clone())]
+            } else {
+                batches.clone()
+            };
+            write_flatgeobuf_batch(&path, rows, schema.clone(), false);
+            let ctx = flatgeobuf_context();
+            register_local_listing(&ctx, &path, "lines").await;
+            let batches = ctx.sql("SELECT id FROM lines WHERE ST_Intersects(geometry, ST_Point(5, 5)) ORDER BY id")
+                .await.unwrap().collect().await.unwrap();
+            assert_eq!(
+                collect_i32_column(&batches, "id"),
+                if empty { vec![] } else { vec![1] }
+            );
+        }
+        let path = dir.path().join("unindexed.fgb");
+        let mut bytes = std::fs::read(&path).unwrap();
+        let header = flatgeobuf::size_prefixed_root_as_header(&bytes[8..]).unwrap();
+        let offset = 8
+            + header._tab.loc()
+            + header
+                ._tab
+                .vtable()
+                .get(flatgeobuf::Header::VT_FEATURES_COUNT) as usize;
+        bytes[offset..offset + 8].fill(0);
+        let path = dir.path().join("unknown.fgb");
+        std::fs::write(&path, bytes).unwrap();
+        let ctx = flatgeobuf_context();
+        register_local_listing(&ctx, &path, "lines").await;
+        let err = ctx
+            .sql("SELECT id FROM lines")
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap_err();
+        assert!(err.to_string().contains("unknown feature count"), "{err}");
     }
 
     fn flatgeobuf_context() -> SessionContext {
         let file_format = Arc::new(FlatGeobufFormatFactory::default());
         let state = SessionStateBuilder::new()
+            .with_config(
+                SessionConfig::new()
+                    .with_target_partitions(2)
+                    .with_repartition_file_min_size(0)
+                    .with_batch_size(1),
+            )
             .with_file_formats(vec![file_format])
             .build();
         let ctx = SessionContext::new_with_state(state);

@@ -18,6 +18,7 @@ use datafusion::physical_plan::ColumnarValue;
 use datafusion::physical_plan::filter_pushdown::{FilterPushdownPropagation, PushedDown};
 use datafusion::physical_plan::metrics::ExecutionPlanMetricsSet;
 use datafusion_datasource::TableSchema;
+use datafusion_datasource::projection::{ProjectionOpener, SplitProjection};
 use futures::{StreamExt, TryStreamExt};
 use geoarrow_array::array::from_arrow_array;
 use geoarrow_flatgeobuf::reader::{FlatGeobufReaderOptions, FlatGeobufRecordBatchStream};
@@ -82,16 +83,23 @@ impl FileSource for FlatGeobufSource {
         _base_config: &FileScanConfig,
         _partition: usize,
     ) -> Result<Arc<dyn FileOpener>> {
-        Ok(Arc::new(FlatGeobufOpener::new(
-            Arc::new(self.clone()),
-            object_store,
-        )))
+        let split = SplitProjection::new(self.table_schema.file_schema(), &self.projection);
+        let mut source = self.clone();
+        source.projection =
+            ProjectionExprs::from_indices(&split.file_indices, self.table_schema.file_schema());
+        let opener = Arc::new(FlatGeobufOpener::new(Arc::new(source), object_store));
+        ProjectionOpener::try_new(split, opener, self.table_schema.file_schema())
     }
 
     fn with_batch_size(&self, batch_size: usize) -> Arc<dyn FileSource> {
         let mut conf = self.clone();
         conf.batch_size = Some(batch_size);
         Arc::new(conf)
+    }
+
+    fn supports_repartitioning(&self) -> bool {
+        // The header and R-tree describe the whole file, not arbitrary byte ranges.
+        false
     }
 
     fn metrics(&self) -> &ExecutionPlanMetricsSet {
@@ -194,7 +202,22 @@ impl FileOpener for FlatGeobufOpener {
 
             let fgb_reader =
                 open_flatgeobuf_reader(store, file.object_meta.location.clone()).await?;
-            let selection = if let Some([minx, miny, maxx, maxy]) = config.bbox {
+            if fgb_reader.header().features_count() == 0 {
+                // The buffered FlatBuffer contains the size-prefixed header. Eight
+                // magic bytes precede it; any trailing data means an unknown count.
+                let header_end = 8 + fgb_reader.header()._tab.buf().len() as u64;
+                if file.object_meta.size > header_end {
+                    return Err(DataFusionError::NotImplemented(
+                        "FlatGeobuf streams with unknown feature count are not supported"
+                            .to_string(),
+                    ));
+                }
+                return Ok(futures::stream::empty().boxed());
+            }
+            let indexed = fgb_reader.header().index_node_size() > 0
+                && fgb_reader.header().features_count() > 0;
+            let selection = if let Some([minx, miny, maxx, maxy]) = config.bbox.filter(|_| indexed)
+            {
                 fgb_reader
                     .select_bbox(minx, miny, maxx, maxy)
                     .await

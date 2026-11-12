@@ -23,3 +23,5 @@ let state = SessionStateBuilder::new()
 let ctx = SessionContext::new_with_state(state);
 geodatafusion::register(&ctx);
 ```
+
+Files without a spatial index are scanned and filtered normally. Empty files produce no rows. Streaming files with an unknown feature count return `NotImplemented`; their statistics do not claim an exact row count. FlatGeobuf files are not split into byte ranges.
