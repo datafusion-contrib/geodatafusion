@@ -26,7 +26,7 @@ use state::{
 use crate::data_types::any_single_geometry_type_input;
 use crate::error::GeoDataFusionResult;
 
-/// `ST_CollectAgg` aggregate: collects a set of geometries into one MULTI*/GEOMETRYCOLLECTION.
+/// `ST_Collect_Agg` aggregate: collects a set of geometries into one MULTI*/GEOMETRYCOLLECTION.
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub struct CollectAggregate {
     coord_type: CoordType,
@@ -45,7 +45,7 @@ impl CollectAggregate {
     pub fn new(coord_type: CoordType) -> Self {
         Self {
             coord_type,
-            aliases: vec!["st_collect_agg".to_string()],
+            aliases: vec!["st_collectagg".to_string()],
         }
     }
 }
@@ -60,7 +60,7 @@ static DOCUMENTATION: OnceLock<Documentation> = OnceLock::new();
 
 impl AggregateUDFImpl for CollectAggregate {
     fn name(&self) -> &str {
-        "st_collectagg"
+        "st_collect_agg"
     }
 
     fn aliases(&self) -> &[String] {
@@ -91,12 +91,12 @@ impl AggregateUDFImpl for CollectAggregate {
         // since they are not universally supported in other databases.
         if args.is_distinct {
             return Err(DataFusionError::NotImplemented(
-                "ST_CollectAgg does not support DISTINCT".to_string(),
+                "ST_Collect_Agg does not support DISTINCT".to_string(),
             ));
         }
         if !args.ordering_fields.is_empty() {
             return Err(DataFusionError::NotImplemented(
-                "ST_CollectAgg does not support aggregate ORDER BY".to_string(),
+                "ST_Collect_Agg does not support aggregate ORDER BY".to_string(),
             ));
         }
 
@@ -113,12 +113,12 @@ impl AggregateUDFImpl for CollectAggregate {
     fn accumulator(&self, acc_args: AccumulatorArgs) -> Result<Box<dyn Accumulator>> {
         if acc_args.is_distinct {
             return Err(DataFusionError::NotImplemented(
-                "ST_CollectAgg does not support DISTINCT yet".to_string(),
+                "ST_Collect_Agg does not support DISTINCT yet".to_string(),
             ));
         }
         if !acc_args.order_bys.is_empty() {
             return Err(DataFusionError::NotImplemented(
-                "ST_CollectAgg does not support aggregate ORDER BY yet".to_string(),
+                "ST_Collect_Agg does not support aggregate ORDER BY yet".to_string(),
             ));
         }
 
@@ -146,12 +146,12 @@ impl AggregateUDFImpl for CollectAggregate {
     ) -> Result<Box<dyn GroupsAccumulator>> {
         if acc_args.is_distinct {
             return Err(DataFusionError::NotImplemented(
-                "ST_CollectAgg does not support DISTINCT yet".to_string(),
+                "ST_Collect_Agg does not support DISTINCT yet".to_string(),
             ));
         }
         if !acc_args.order_bys.is_empty() {
             return Err(DataFusionError::NotImplemented(
-                "ST_CollectAgg does not support aggregate ORDER BY yet".to_string(),
+                "ST_Collect_Agg does not support aggregate ORDER BY yet".to_string(),
             ));
         }
 
@@ -176,7 +176,7 @@ impl AggregateUDFImpl for CollectAggregate {
                  NULL inputs are skipped; an all-NULL or empty group yields NULL.
                  Z and M are preserved, but all inputs must be of the same coordinate dimension
                  (mixing e.g. XY and XYZ is an error).",
-                "ST_CollectAgg(geom)",
+                "ST_Collect_Agg(geom)",
             )
             .with_argument("geom", "geometry")
             .build()
@@ -693,7 +693,7 @@ mod test {
         exec_single(
             ctx,
             &format!(
-                "SELECT ST_AsText(ST_CollectAgg(ST_GeomFromText(w))) FROM (VALUES {values}) AS t(w)"
+                "SELECT ST_AsText(ST_Collect_Agg(ST_GeomFromText(w))) FROM (VALUES {values}) AS t(w)"
             ),
         )
         .await
@@ -716,7 +716,7 @@ mod test {
         let ctx = ctx();
         let out = exec_single(
             &ctx,
-            "SELECT ST_AsText(ST_CollectAgg(DISTINCT ST_GeomFromText(w))) \
+            "SELECT ST_AsText(ST_Collect_Agg(DISTINCT ST_GeomFromText(w))) \
              FROM (VALUES ('POINT(0 0)'), ('POINT(0 0)'), ('POINT(1 1)')) AS t(w)",
         )
         .await;
@@ -731,7 +731,7 @@ mod test {
     async fn collect_order_by_not_implemented() {
         // NB: This is not implemented in PostGIS either.
         let ctx = ctx();
-        let sql = "SELECT ST_AsText(ST_CollectAgg(ST_GeomFromText(w) ORDER BY k)) \
+        let sql = "SELECT ST_AsText(ST_Collect_Agg(ST_GeomFromText(w) ORDER BY k)) \
                    FROM (VALUES (2, 'POINT(2 2)'), (1, 'POINT(1 1)')) AS t(k,w)";
         let err = match ctx.sql(sql).await {
             Ok(df) => df.collect().await.unwrap_err().to_string(),
@@ -741,7 +741,7 @@ mod test {
             err.contains("not implemented") || err.contains("NotImplemented"),
             "expected a not-implemented error, got: {err}"
         );
-        assert!(err.contains("ST_CollectAgg"), "{err}");
+        assert!(err.contains("ST_Collect_Agg"), "{err}");
         assert!(err.contains("ORDER BY"), "{err}");
     }
 
@@ -804,7 +804,7 @@ mod test {
         let ctx = ctx();
         let df = ctx
             .sql(
-                "SELECT ST_AsText(ST_CollectAgg(ST_GeomFromText(w))) \
+                "SELECT ST_AsText(ST_Collect_Agg(ST_GeomFromText(w))) \
                  FROM (VALUES ('POINT(0 0)'), ('POINT Z(1 1 1)')) AS t(w)",
             )
             .await
@@ -849,7 +849,7 @@ mod test {
         let ctx = ctx();
         let one_null = exec_single(
             &ctx,
-            "SELECT ST_AsText(ST_CollectAgg(ST_GeomFromText(w))) \
+            "SELECT ST_AsText(ST_Collect_Agg(ST_GeomFromText(w))) \
              FROM (VALUES ('POINT(0 0)'), (CAST(NULL AS TEXT)), ('POINT(1 1)')) AS t(w)",
         )
         .await;
@@ -863,7 +863,7 @@ mod test {
 
         let all_null = exec_single(
             &ctx,
-            "SELECT ST_AsText(ST_CollectAgg(ST_GeomFromText(w))) \
+            "SELECT ST_AsText(ST_Collect_Agg(ST_GeomFromText(w))) \
              FROM (VALUES (CAST(NULL AS TEXT))) AS t(w)",
         )
         .await;
@@ -875,7 +875,7 @@ mod test {
         let ctx = ctx();
         let df = ctx
             .sql(
-                "SELECT k, ST_AsText(ST_CollectAgg(ST_GeomFromText(w))) AS g \
+                "SELECT k, ST_AsText(ST_Collect_Agg(ST_GeomFromText(w))) AS g \
                  FROM (VALUES (1,'POINT(0 0)'),(1,'POINT(1 1)'),(2,'POINT(9 9)')) AS t(k,w) \
                  GROUP BY k ORDER BY k",
             )
@@ -1039,7 +1039,7 @@ mod test {
                     .collect::<Vec<_>>()
                     .join(",");
                 let sql = format!(
-                    "SELECT ST_AsText(ST_CollectAgg(ST_AsBinary(ST_GeomFromText(w)))) \
+                    "SELECT ST_AsText(ST_Collect_Agg(ST_AsBinary(ST_GeomFromText(w)))) \
                      FROM (VALUES {values}) AS t(w)"
                 );
                 let wkb = exec_single(&ctx, &sql).await.unwrap();
@@ -1049,7 +1049,7 @@ mod test {
             assert_eq!(
                 exec_single(
                     &ctx,
-                    "SELECT ST_AsText(ST_CollectAgg(ST_AsBinary(ST_GeomFromText(w)))) \
+                    "SELECT ST_AsText(ST_Collect_Agg(ST_AsBinary(ST_GeomFromText(w)))) \
                      FROM (VALUES (CAST(NULL AS VARCHAR)), (NULL)) AS t(w)"
                 )
                 .await,
@@ -1060,7 +1060,7 @@ mod test {
             // Different dimensions must be rejected, rather than dropping or inventing ordinates.
             let error = ctx
                 .sql(
-                    "SELECT ST_CollectAgg(ST_AsBinary(ST_GeomFromText(w))) \
+                    "SELECT ST_Collect_Agg(ST_AsBinary(ST_GeomFromText(w))) \
                  FROM (VALUES ('POINT(0 0)'), ('POINT Z(1 2 3)')) AS t(w)",
                 )
                 .await
@@ -1183,7 +1183,7 @@ mod test {
         let ctx = ctx_two_phase();
         let df = ctx
             .sql(
-                "SELECT k, ST_AsText(ST_CollectAgg(ST_GeomFromText(w))) AS g FROM (VALUES \
+                "SELECT k, ST_AsText(ST_Collect_Agg(ST_GeomFromText(w))) AS g FROM (VALUES \
                  (1,'POINT(0 0)'),(2,'POINT(5 5)'),(1,'POINT(1 1)'),(2,'POINT(6 6)'),(1,'POINT(2 2)') \
                  ) AS t(k,w) GROUP BY k ORDER BY k",
             )
@@ -1219,7 +1219,7 @@ mod test {
         let ctx = ctx();
         let df = ctx
             .sql(
-                "SELECT k, ST_AsText(ST_CollectAgg(ST_GeomFromText(w))) AS g FROM (VALUES \
+                "SELECT k, ST_AsText(ST_Collect_Agg(ST_GeomFromText(w))) AS g FROM (VALUES \
                  (1,'POINT(0 0)'),(1,'POINT(1 1)'), \
                  (2,'POINT(2 2)'),(2,'LINESTRING(3 3,4 4)'), \
                  (3,CAST(NULL AS TEXT)) \
@@ -1255,7 +1255,7 @@ mod test {
         let ctx = ctx_two_phase();
         let v = exec_single(
             &ctx,
-            "SELECT ST_AsText(ST_CollectAgg(ST_GeomFromText(w))) FROM (VALUES \
+            "SELECT ST_AsText(ST_Collect_Agg(ST_GeomFromText(w))) FROM (VALUES \
              ('POINT(0 0)'),('POINT(1 1)'),('POINT(2 2)'),('POINT(3 3)')) AS t(w)",
         )
         .await

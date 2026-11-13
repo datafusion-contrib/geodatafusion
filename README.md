@@ -108,8 +108,8 @@ Below are the spatial SQL functions currently registered by `geodatafusion::regi
 
 | Name | Provider | Description |
 | --- | --- | --- |
-| `ST_CollectAgg` | `native` | Aggregate collecting geometries into a Multi* geometry or GeometryCollection; skips NULLs and preserves Z/M. |
-| `ST_Collect_Agg` | `native` | Alias for `ST_CollectAgg`. |
+| `ST_Collect_Agg` | `native` | Aggregate collecting geometries into a Multi* geometry or GeometryCollection; skips NULLs and preserves Z/M. |
+| `ST_CollectAgg` | `native` | Alias for `ST_Collect_Agg`. |
 | `ST_LineFromMultiPoint` | `native` | Creates a LineString from a MultiPoint geometry. |
 | `ST_MakeEnvelope` | `native` | Creates a rectangular Polygon from minimum and maximum coordinates and optional SRID. |
 | `ST_MakeLine` | `native` | Creates a LineString from two Point/LineString geometries or a `List` of Point/MultiPoint/LineString geometries. |

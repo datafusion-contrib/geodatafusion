@@ -1,4 +1,4 @@
-//! Final `ST_CollectAgg` output assembly for both WKB-backed and native member stores.
+//! Final `ST_Collect_Agg` output assembly for both WKB-backed and native member stores.
 
 use std::sync::Arc;
 

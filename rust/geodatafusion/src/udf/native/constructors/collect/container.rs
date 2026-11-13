@@ -196,7 +196,7 @@ macro_rules! impl_collected_member {
                 match self.as_type() {
                     GeometryType::Point(point) => point.clone(),
                     // Valid because `classify_members` selected the multi-point container.
-                    _ => unreachable!("ST_CollectAgg MultiPoint member was not a Point"),
+                    _ => unreachable!("ST_Collect_Agg MultiPoint member was not a Point"),
                 }
             }
 
@@ -204,7 +204,7 @@ macro_rules! impl_collected_member {
                 match self.as_type() {
                     GeometryType::LineString(line) => line.clone(),
                     // Valid because `classify_members` selected the multi-line container.
-                    _ => unreachable!("ST_CollectAgg MultiLineString member was not a LineString"),
+                    _ => unreachable!("ST_Collect_Agg MultiLineString member was not a LineString"),
                 }
             }
 
@@ -212,7 +212,7 @@ macro_rules! impl_collected_member {
                 match self.as_type() {
                     GeometryType::Polygon(polygon) => polygon.clone(),
                     // Valid because `classify_members` selected the multi-polygon container.
-                    _ => unreachable!("ST_CollectAgg MultiPolygon member was not a Polygon"),
+                    _ => unreachable!("ST_Collect_Agg MultiPolygon member was not a Polygon"),
                 }
             }
         }
@@ -258,7 +258,7 @@ pub(super) fn classify_members<M: GeometryTrait<T = f64>>(
     for member in members {
         if !is_same_dimension(dim0, member.dim()) {
             return Err(GeoDataFusionError::DataFusion(DataFusionError::NotImplemented(
-                "ST_CollectAgg cannot combine geometries of differing coordinate dimensions (e.g. XY \
+                "ST_Collect_Agg cannot combine geometries of differing coordinate dimensions (e.g. XY \
                  and XYZ)"
                     .to_string(),
             )));

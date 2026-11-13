@@ -1,4 +1,4 @@
-//! Accumulator member storage and aggregate state encoding for `ST_CollectAgg`.
+//! Accumulator member storage and aggregate state encoding for `ST_Collect_Agg`.
 
 use std::sync::Arc;
 
@@ -196,7 +196,7 @@ impl MemberBatches {
             (MemberStorage::Geometry(batches), MemberBatch::Geometry(batch)) => batches.push(batch),
             _ => {
                 return Err(DataFusionError::Internal(
-                    "ST_CollectAgg accumulator state encoding mismatch".to_string(),
+                    "ST_Collect_Agg accumulator state encoding mismatch".to_string(),
                 )
                 .into());
             }
@@ -430,13 +430,13 @@ fn normalize_geometry_input(
         }
         GeoArrowType::Wkb(_) | GeoArrowType::LargeWkb(_) | GeoArrowType::WkbView(_) => {
             return Err(DataFusionError::Internal(
-                "ST_CollectAgg WKB input reached Geometry state normalization".to_string(),
+                "ST_Collect_Agg WKB input reached Geometry state normalization".to_string(),
             )
             .into());
         }
         GeoArrowType::Rect(_) => {
             return Err(DataFusionError::NotImplemented(
-                "ST_CollectAgg does not accept a Box/Rect input".to_string(),
+                "ST_Collect_Agg does not accept a Box/Rect input".to_string(),
             )
             .into());
         }
@@ -463,7 +463,7 @@ fn normalize_wkb_input(
         )),
         GeoArrowType::LargeWkb(_) | GeoArrowType::WkbView(_) => Ok(to_wkb::<i32>(geo.as_ref())?),
         _ => Err(DataFusionError::Internal(
-            "ST_CollectAgg non-WKB input reached WKB state normalization".to_string(),
+            "ST_Collect_Agg non-WKB input reached WKB state normalization".to_string(),
         )
         .into()),
     }

@@ -1,4 +1,4 @@
-//! Geometry constructor UDFs (`ST_Point*`, `ST_MakePoint*`, `ST_MakeLine`, `ST_LineFromMultiPoint`, `ST_MakeEnvelope`, `ST_CollectAgg`).
+//! Geometry constructor UDFs (`ST_Point*`, `ST_MakePoint*`, `ST_MakeLine`, `ST_LineFromMultiPoint`, `ST_MakeEnvelope`, `ST_Collect_Agg`).
 
 mod collect;
 mod envelope;
