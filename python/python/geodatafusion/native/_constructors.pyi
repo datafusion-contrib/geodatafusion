@@ -1,5 +1,13 @@
 from typing import Literal
 
+class CollectAgg:
+    def __init__(
+        self,
+        *,
+        coord_type: Literal["interleaved", "separated"] | None = None,
+    ) -> None: ...
+    def __datafusion_aggregate_udf__(self) -> object: ...
+
 class LineFromMultiPoint:
     def __init__(
         self,

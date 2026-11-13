@@ -1,9 +1,11 @@
 use geodatafusion::udf::native::constructors::{
-    LineFromMultiPoint, MakeEnvelope, MakeLine, MakePoint, MakePointM, Point, PointM, PointZ,
-    PointZM,
+    CollectAggregate, LineFromMultiPoint, MakeEnvelope, MakeLine, MakePoint, MakePointM, Point,
+    PointM, PointZ, PointZM,
 };
 
-use crate::impl_udf_coord_type_arg;
+use crate::{impl_udaf_coord_type_arg, impl_udf_coord_type_arg};
+
+impl_udaf_coord_type_arg!(CollectAggregate, PyCollectAgg, "CollectAgg");
 
 impl_udf_coord_type_arg!(
     LineFromMultiPoint,

@@ -51,6 +51,7 @@ pub(crate) fn native(m: &Bound<PyModule>) -> PyResult<()> {
     m.add_class::<bounding_box::PyZMin>()?;
 
     // constructors
+    m.add_class::<constructors::PyCollectAgg>()?;
     m.add_class::<constructors::PyLineFromMultiPoint>()?;
     m.add_class::<constructors::PyMakeEnvelope>()?;
     m.add_class::<constructors::PyMakeLine>()?;

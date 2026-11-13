@@ -1,8 +1,58 @@
 from __future__ import annotations
 
+import pytest
 from arro3.core import Table
-from datafusion import SessionContext
-from geodatafusion import register_all
+from datafusion import SessionContext, udaf, udf
+from geodatafusion import native, register_all
+
+
+@pytest.mark.parametrize("coord_type", [None, "interleaved", "separated"])
+def test_st_collect_agg(coord_type):
+    ctx = SessionContext()
+    ctx.register_udf(udf(native.PointZM(coord_type=coord_type)))
+    ctx.register_udf(udf(native.AsText()))
+    ctx.register_udaf(udaf(native.CollectAgg(coord_type=coord_type)))
+
+    assert ctx.udaf("st_collect_agg").name == "st_collect_agg"
+    assert ctx.udaf("st_collectagg").name == "st_collect_agg"
+    for name in ("ST_Collect_Agg", "ST_CollectAgg"):
+        result = ctx.sql(
+            f"""
+            SELECT
+                grp,
+                {name}(ST_PointZM(x, y, z, m, 4326)) AS geom,
+                ST_AsText({name}(ST_PointZM(x, y, z, m, 4326))) AS collected
+            FROM (
+                VALUES
+                    (1, 1.0, 2.0, 3.0, 4.0),
+                    (1, 5.0, 6.0, 7.0, 8.0),
+                    (1, NULL, NULL, NULL, NULL),
+                    (2, NULL, NULL, NULL, NULL)
+            ) AS inputs(grp, x, y, z, m)
+            GROUP BY grp ORDER BY grp
+            """
+        ).to_arrow_table()
+        assert result.schema.field("geom").metadata == {
+            b"ARROW:extension:name": b"geoarrow.geometry",
+            b"ARROW:extension:metadata": b'{"crs":"EPSG:4326","crs_type":"authority_code"}',
+        }
+        rows = result.to_pylist()
+        assert len(rows) == 2
+        assert rows[1] == {"grp": 2, "geom": None, "collected": None}
+        assert rows[0]["grp"] == 1
+        # Aggregate member order is unspecified; both rows must retain their Z/M coordinates.
+        assert rows[0]["collected"] in (
+            "MULTIPOINT ZM((1 2 3 4),(5 6 7 8))",
+            "MULTIPOINT ZM((5 6 7 8),(1 2 3 4))",
+        )
+        if coord_type == "interleaved":
+            expected = [[1.0, 2.0, 3.0, 4.0], [5.0, 6.0, 7.0, 8.0]]
+        else:
+            expected = [
+                {"x": 1.0, "y": 2.0, "z": 3.0, "m": 4.0},
+                {"x": 5.0, "y": 6.0, "z": 7.0, "m": 8.0},
+            ]
+        assert rows[0]["geom"] in (expected, expected[::-1])
 
 
 def test_st_point_crs_geoarrow():

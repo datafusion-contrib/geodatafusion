@@ -98,3 +98,71 @@ macro_rules! impl_udf_coord_type_arg {
         }
     };
 }
+
+/// Simple macro to generate Python wrappers for geodatafusion aggregate UDF structs
+/// Usage: impl_udaf!(RustStructName, PyWrapperName, "python_name")
+#[macro_export]
+macro_rules! impl_udaf {
+    ($base:ident, $py_name:ident, $python_name:literal) => {
+        #[::pyo3::pyclass(module = "geodatafusion", name = $python_name, frozen, from_py_object)]
+        #[derive(Debug, Clone)]
+        pub struct $py_name(::std::sync::Arc<$base>);
+
+        #[::pyo3::pymethods]
+        impl $py_name {
+            #[new]
+            fn new() -> Self {
+                $py_name(::std::sync::Arc::new($base::new()))
+            }
+
+            fn __datafusion_aggregate_udf__<'py>(
+                &self,
+                py: ::pyo3::Python<'py>,
+            ) -> ::pyo3::PyResult<::pyo3::Bound<'py, ::pyo3::types::PyCapsule>> {
+                let udf = ::std::sync::Arc::new(
+                    ::datafusion::logical_expr::AggregateUDF::new_from_shared_impl(self.0.clone()),
+                );
+                ::pyo3::types::PyCapsule::new_with_value(
+                    py,
+                    ::datafusion_ffi::udaf::FFI_AggregateUDF::from(udf),
+                    $crate::constants::AGGREGATE_UDF_CAPSULE_NAME,
+                )
+            }
+        }
+    };
+}
+
+/// Simple macro to generate Python wrappers for geodatafusion aggregate UDF structs
+/// Usage: impl_udaf_coord_type_arg!(RustStructName, PyWrapperName, "python_name")
+#[macro_export]
+macro_rules! impl_udaf_coord_type_arg {
+    ($base:ident, $py_name:ident, $python_name:literal) => {
+        #[::pyo3::pyclass(module = "geodatafusion", name = $python_name, frozen, from_py_object)]
+        #[derive(Debug, Clone)]
+        pub struct $py_name(::std::sync::Arc<$base>);
+
+        #[::pyo3::pymethods]
+        impl $py_name {
+            #[new]
+            #[pyo3(signature = (*, coord_type=None))]
+            fn new(coord_type: Option<$crate::utils::PyCoordType>) -> Self {
+                let coord_type = coord_type.map(|c| c.into()).unwrap_or_default();
+                $py_name(::std::sync::Arc::new($base::new(coord_type)))
+            }
+
+            fn __datafusion_aggregate_udf__<'py>(
+                &self,
+                py: ::pyo3::Python<'py>,
+            ) -> ::pyo3::PyResult<::pyo3::Bound<'py, ::pyo3::types::PyCapsule>> {
+                let udf = ::std::sync::Arc::new(
+                    ::datafusion::logical_expr::AggregateUDF::new_from_shared_impl(self.0.clone()),
+                );
+                ::pyo3::types::PyCapsule::new_with_value(
+                    py,
+                    ::datafusion_ffi::udaf::FFI_AggregateUDF::from(udf),
+                    $crate::constants::AGGREGATE_UDF_CAPSULE_NAME,
+                )
+            }
+        }
+    };
+}
